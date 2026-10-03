@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #100f0d; }
+  a { color: #7A2E2E; text-decoration: none; }
+  a:hover { color: #4C5140; }
+</style>
+</helmet>
+
+<div style="display:flex; flex-direction:column; gap:28px; padding:48px; font-family:Inter, sans-serif; background:#100f0d; min-height:100vh; box-sizing:border-box;">
+
+  <div style="display:flex; flex-direction:column; gap:6px; max-width:760px;">
+    <span style="font-family:'DM Sans',sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#8a8578;">Estado actual · recreación 1:1 del código</span>
+    <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:34px; font-weight:600; color:#f2ece4;">Olba / Ananja — UI de hoy</h1>
+    <p style="margin:0; font-size:14px; line-height:1.6; color:#a09a8e; text-wrap:pretty;">Las 8 pantallas tal como salen de <code style="color:#c9c2b4;">app/</code> y <code style="color:#c9c2b4;">components/</code>: tokens de <code style="color:#c9c2b4;">globals.css</code>, tipografías DM Sans / Inter, íconos de <code style="color:#c9c2b4;">components/icons.tsx</code>. Sirve como punto de comparación para el rediseño.</p>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start;">
+
+    <!-- 1. LOGIN -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/login</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; box-sizing:border-box;">
+        <div style="width:100%; max-width:352px;">
+          <div style="margin-bottom:32px; text-align:center;">
+            <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:30px; line-height:36px; font-weight:600; color:#2c2f25;">Olba</h1>
+            <p style="margin:4px 0 0; font-size:14px; color:#5a5a5a;">Iniciá sesión para continuar</p>
+          </div>
+          <div style="border-radius:16px; border:1px solid #dfd0c2; background:#ffffff; padding:20px; box-shadow:0 1px 2px rgba(0,0,0,0.05); display:flex; flex-direction:column; gap:16px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <span style="font-size:14px; font-weight:500; color:#2c2f25;">Email</span>
+              <div style="min-height:44px; display:flex; align-items:center; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:16px; color:#a8a8a8;">equipo@example.com</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <span style="font-size:14px; font-weight:500; color:#2c2f25;">Contraseña</span>
+              <div style="min-height:44px; display:flex; align-items:center; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:16px; color:#a8a8a8;">••••••••</div>
+            </div>
+            <div style="margin-top:8px; min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#2c2f25; color:#fff; font-size:16px; font-weight:500;">Ingresar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. INICIO -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/ (Inicio)</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+            <span style="position:absolute; right:8px; top:8px; width:10px; height:10px; border-radius:9999px; background:#b3261e;"></span>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:24px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Olba</h1>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:flex; flex-direction:column; gap:4px; border-radius:12px; border:1px solid #b3261e; background:#fff; padding:16px;">
+              <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Aceite 250 ml</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:36px; line-height:40px; font-weight:600; color:#b3261e; font-variant-numeric:tabular-nums;">8</span>
+              <span style="font-size:12px; color:#5a5a5a;">250 ml · mínimo 12</span>
+              <span style="margin-top:4px; font-size:12px; font-weight:600; color:#b3261e;">Stock bajo</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:16px;">
+              <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Aceite 500 ml</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:36px; line-height:40px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">34</span>
+              <span style="font-size:12px; color:#5a5a5a;">500 ml · mínimo 10</span>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:2px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px;">
+              <span style="font-size:12px; font-weight:500; color:#5a5a5a;">Banco</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 412.500,00</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px;">
+              <span style="font-size:12px; font-weight:500; color:#5a5a5a;">Mercado Pago</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 187.340,50</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px;">
+              <span style="font-size:12px; font-weight:500; color:#5a5a5a;">Efectivo</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 63.200,00</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px; border-radius:12px; border:1px solid #2c2f25; background:#2c2f25; padding:12px;">
+              <span style="font-size:12px; font-weight:500; color:rgba(255,255,255,0.8);">Total</span>
+              <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums;">$ 663.040,50</span>
+            </div>
+          </div>
+          <div style="min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#2c2f25; padding:12px 16px; font-size:18px; font-weight:600; color:#fff;">+ Cargar comprobante</div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. COMPROBANTES -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/comprobantes</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Comprobantes</h1>
+          <div style="min-height:56px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:12px; background:#2c2f25; font-size:16px; font-weight:600; color:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.05);">+ Cargar comprobante</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="width:64px; height:64px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; border:1px solid #dfd0c2; background:#f4efea; font-size:24px;">🧾</div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="font-family:'DM Sans',sans-serif; font-size:18px; font-weight:600; color:#2c2f25;">$ 48.000,00</span>
+                  <span style="flex-shrink:0; border-radius:9999px; background:#ede5dd; padding:2px 8px; font-size:12px; font-weight:500; color:#2c2f25;">Banco</span>
+                </div>
+                <p style="margin:0; font-size:14px; color:#5a5a5a;">2×500 + 1×250</p>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#5a5a5a;"><span>Lucía</span><span>01/09/2026</span></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="width:64px; height:64px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; border:1px solid #dfd0c2; background:#f4efea; font-size:24px;">📄</div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="font-family:'DM Sans',sans-serif; font-size:18px; font-weight:600; color:#2c2f25;">$ 12.500,00</span>
+                  <span style="flex-shrink:0; border-radius:9999px; background:#ede5dd; padding:2px 8px; font-size:12px; font-weight:500; color:#2c2f25;">Mercado Pago</span>
+                </div>
+                <p style="margin:0; font-size:14px; color:#5a5a5a;">1×250</p>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#5a5a5a;"><span>Marcos</span><span>31/08/2026</span></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+              <div style="width:64px; height:64px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; border:1px solid #dfd0c2; background:#f4efea; font-size:24px;">🧾</div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="font-family:'DM Sans',sans-serif; font-size:18px; font-weight:600; color:#2c2f25;">$ 96.000,00</span>
+                  <span style="flex-shrink:0; border-radius:9999px; background:#ede5dd; padding:2px 8px; font-size:12px; font-weight:500; color:#2c2f25;">Efectivo</span>
+                </div>
+                <p style="margin:0; font-size:14px; color:#5a5a5a;">4×500 + 2×250</p>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#5a5a5a;"><span>Lucía</span><span>30/08/2026</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CARGAR COMPROBANTE -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/comprobantes/nuevo</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:20px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Comprobante</span>
+            <div style="min-height:128px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border-radius:12px; border:2px dashed #dfd0c2; background:#fff; text-align:center; padding:16px; color:#5a5a5a;">
+              <span style="font-size:30px;">📷</span>
+              <span style="font-size:14px;">Tocá para sacar foto o elegir archivo</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Monto</span>
+            <div style="min-height:56px; display:flex; align-items:center; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:24px; font-weight:600; color:#2c2f25;">$ 48.000,00</div>
+            <p style="margin:0; font-size:12px; font-weight:500; color:#7a2e2e;">Monto leído del comprobante — verificalo</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Medio de pago</span>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+              <div style="min-height:56px; display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid #2c2f25; background:#2c2f25; font-size:14px; font-weight:500; color:#fff;">Banco</div>
+              <div style="min-height:56px; display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid #dfd0c2; background:#fff; font-size:14px; font-weight:500; color:#2c2f25; text-align:center; padding:0 8px;">Mercado Pago</div>
+              <div style="min-height:56px; display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid #dfd0c2; background:#fff; font-size:14px; font-weight:500; color:#2c2f25;">Efectivo</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Botellas vendidas</span>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:8px 12px;">
+                <span style="font-weight:500; color:#2c2f25;">Aceite 250 ml</span>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:1px solid #dfd0c2; font-size:20px; font-weight:600; color:#2c2f25; opacity:0.4;">−</div>
+                  <span style="width:24px; text-align:center; font-size:18px; font-weight:600; color:#2c2f25;">1</span>
+                  <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:9999px; background:#2c2f25; font-size:20px; font-weight:600; color:#fff;">+</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:8px 12px;">
+                <span style="font-weight:500; color:#2c2f25;">Aceite 500 ml</span>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:1px solid #dfd0c2; font-size:20px; font-weight:600; color:#2c2f25;">−</div>
+                  <span style="width:24px; text-align:center; font-size:18px; font-weight:600; color:#2c2f25;">2</span>
+                  <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:9999px; background:#2c2f25; font-size:20px; font-weight:600; color:#fff;">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Vendedor</span>
+            <div style="margin-top:6px; min-height:44px; display:flex; align-items:center; justify-content:space-between; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:16px; color:#2c2f25;"><span>Lucía</span><span style="color:#5a5a5a;">▾</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Fecha</span>
+            <div style="min-height:44px; display:flex; align-items:center; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:16px; color:#2c2f25;">01/09/2026</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:14px; font-weight:500; color:#2c2f25;">Nota (opcional)</span>
+            <div style="min-height:60px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:8px 12px; font-size:16px; color:#2c2f25;"></div>
+          </div>
+          <div style="min-height:56px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:#2c2f25; font-size:18px; font-weight:600; color:#fff;">Guardar comprobante</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. GASTOS -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/gastos</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Gastos</h1>
+          <div style="min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#2c2f25; padding:0 16px; font-size:16px; font-weight:600; color:#fff;">+ Registrar gasto</div>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1; min-height:44px; display:flex; align-items:center; justify-content:space-between; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:14px; color:#2c2f25;"><span>Todas las categorías</span><span style="color:#5a5a5a;">▾</span></div>
+            <div style="flex:1; min-height:44px; display:flex; align-items:center; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:0 12px; font-size:14px; color:#2c2f25;">09/2026</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; flex-direction:column; gap:4px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:12px 16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span style="font-size:18px; font-weight:600; color:#2c2f25;">$ 8.400,00</span>
+                <span style="font-size:14px; color:#5a5a5a;">01/09/2026</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:14px; color:#5a5a5a;">
+                <span>Envases</span><span>·</span>
+                <span style="border-radius:9999px; border:1px solid #dfd0c2; padding:2px 8px; font-size:12px; font-weight:500;">Efectivo</span>
+                <span>·</span><span>Marcos</span><span>·</span><span>📷</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:12px 16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span style="font-size:18px; font-weight:600; color:#2c2f25;">$ 23.000,00</span>
+                <span style="font-size:14px; color:#5a5a5a;">29/08/2026</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:14px; color:#5a5a5a;">
+                <span>Flete</span><span>·</span>
+                <span style="border-radius:9999px; border:1px solid #dfd0c2; padding:2px 8px; font-size:12px; font-weight:500;">Banco</span>
+                <span>·</span><span>Lucía</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:12px 16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span style="font-size:18px; font-weight:600; color:#2c2f25;">$ 4.200,00</span>
+                <span style="font-size:14px; color:#5a5a5a;">27/08/2026</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:14px; color:#5a5a5a;">
+                <span>Etiquetas</span><span>·</span>
+                <span style="border-radius:9999px; border:1px solid #dfd0c2; padding:2px 8px; font-size:12px; font-weight:500;">Mercado Pago</span>
+                <span>·</span><span>Marcos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. CAJA -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/caja</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Caja</h1>
+          <div style="border-radius:12px; border:1px solid #2c2f25; background:#2c2f25; padding:16px; color:#fff;">
+            <span style="font-size:14px; font-weight:500; color:rgba(255,255,255,0.8);">Total</span>
+            <p style="margin:0; font-family:'DM Sans',sans-serif; font-size:36px; line-height:40px; font-weight:600; font-variant-numeric:tabular-nums;">$ 663.040,50</p>
+          </div>
+          <div style="min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#2c2f25; padding:0 16px; font-size:16px; font-weight:600; color:#fff;">Ajustar saldo</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:16px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Banco</span>
+                <span style="font-family:'DM Sans',sans-serif; font-size:30px; line-height:36px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 412.500,00</span>
+                <span style="font-size:12px; font-weight:500; color:#2c2f25; text-decoration:underline; text-underline-offset:4px;">Ver historial</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #dfd0c2; padding-top:12px; font-size:14px;">
+                <span style="color:#5a5a5a;">Saldo inicial</span>
+                <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">$ 300.000,00</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:16px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Mercado Pago</span>
+                <span style="font-family:'DM Sans',sans-serif; font-size:30px; line-height:36px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 187.340,50</span>
+                <span style="font-size:12px; font-weight:500; color:#2c2f25; text-decoration:underline; text-underline-offset:4px;">Ver historial</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #dfd0c2; padding-top:12px; font-size:14px;">
+                <span style="color:#5a5a5a;">Saldo inicial</span>
+                <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">$ 0,00</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:16px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Efectivo</span>
+                <span style="font-family:'DM Sans',sans-serif; font-size:30px; line-height:36px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">$ 63.200,00</span>
+                <span style="font-size:12px; font-weight:500; color:#2c2f25; text-decoration:underline; text-underline-offset:4px;">Ver historial</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #dfd0c2; padding-top:12px; font-size:14px;">
+                <span style="color:#5a5a5a;">Saldo inicial</span>
+                <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">$ 20.000,00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. STOCK -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/stock</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:24px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Stock</h1>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; flex-direction:column; gap:4px; border-radius:12px; border:1px solid #b3261e; background:#fff; padding:16px;">
+                <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Aceite 250 ml</span>
+                <span style="font-family:'DM Sans',sans-serif; font-size:36px; line-height:40px; font-weight:600; color:#b3261e; font-variant-numeric:tabular-nums;">8</span>
+                <span style="font-size:12px; color:#5a5a5a;">250 ml · mínimo 12</span>
+                <span style="margin-top:4px; font-size:12px; font-weight:600; color:#b3261e;">Stock bajo</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; border-radius:12px; border:1px solid #dfd0c2; background:#ede5dd; padding:12px; font-size:14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="color:#5a5a5a;">Costo</span>
+                  <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">$ 3.200,00</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="color:#5a5a5a;">Umbral mínimo</span>
+                  <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">12</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; flex-direction:column; gap:4px; border-radius:12px; border:1px solid #dfd0c2; background:#fff; padding:16px;">
+                <span style="font-size:14px; font-weight:500; color:#5a5a5a;">Aceite 500 ml</span>
+                <span style="font-family:'DM Sans',sans-serif; font-size:36px; line-height:40px; font-weight:600; color:#2c2f25; font-variant-numeric:tabular-nums;">34</span>
+                <span style="font-size:12px; color:#5a5a5a;">500 ml · mínimo 10</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; border-radius:12px; border:1px solid #dfd0c2; background:#ede5dd; padding:12px; font-size:14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="color:#5a5a5a;">Costo</span>
+                  <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">$ 5.600,00</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="color:#5a5a5a;">Umbral mínimo</span>
+                  <span style="font-weight:500; color:#2c2f25; text-decoration:underline dotted; text-underline-offset:4px;">10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#2c2f25; padding:0 16px; font-size:16px; font-weight:600; color:#fff;">+ Ingresar stock</div>
+            <div style="min-height:44px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid #7a2e2e; padding:0 16px; font-size:16px; font-weight:600; color:#7a2e2e;">− Egreso manual</div>
+          </div>
+          <div style="min-height:44px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:500; color:#2c2f25; text-decoration:underline; text-underline-offset:4px;">Ver historial de movimientos</div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. NOTIFICACIONES -->
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a8578;">/notificaciones</span>
+      <div style="width:390px; height:780px; background:#f4efea; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="border-bottom:1px solid #dfd0c2; background:#fff; display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 16px;">
+          <span style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:600; color:#2c2f25;">Olba</span>
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#2c2f25;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+          </div>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;">
+          <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; line-height:32px; font-weight:600; color:#2c2f25;">Notificaciones</h1>
+          <div style="border-radius:8px; border:1px solid #dfd0c2; background:#ede5dd; padding:12px; font-size:14px; color:#2c2f25;">
+            <p style="margin:0; font-weight:500;">Instalá Olba para recibir avisos</p>
+            <p style="margin:4px 0 0; color:#5a5a5a;">En Safari: tocá <span style="font-weight:500;">Compartir</span> y después <span style="font-weight:500;">Agregar a inicio</span>.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:12px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:12px;">
+              <div style="width:36px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:9999px; background:#ede5dd; color:#2c2f25;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px; height:20px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg>
+              </div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+                  <span style="font-weight:500; color:#2c2f25;">Stock bajo</span>
+                  <span style="flex-shrink:0; font-size:12px; color:#5a5a5a;">hace 2 h</span>
+                </div>
+                <p style="margin:0; font-size:14px; color:#5a5a5a;">Aceite 250 ml quedó en 8 unidades (mínimo 12).</p>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; border-radius:8px; border:1px solid #dfd0c2; background:#fff; padding:12px;">
+              <div style="width:36px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:9999px; background:#ede5dd; color:#2c2f25;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px; height:20px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg>
+              </div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+                  <span style="font-weight:500; color:#2c2f25;">Gasto nuevo</span>
+                  <span style="flex-shrink:0; font-size:12px; color:#5a5a5a;">ayer</span>
+                </div>
+                <p style="margin:0; font-size:14px; color:#5a5a5a;">Envases · $ 8.400,00 · Marcos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #dfd0c2; background:#fff; padding-bottom:8px; display:flex;">
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg><span>Inicio</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><span>Comprobantes</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 6v-.5A1.5 1.5 0 0 1 7.5 4H18"></path></svg><span>Gastos</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h4"></path></svg><span>Caja</span>
+          </div>
+          <div style="flex:1; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 0; font-size:11px; font-weight:500; color:#5a5a5a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M3.5 7.5 12 3l8.5 4.5-8.5 4.5-8.5-4.5Z"></path><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"></path><path d="M12 12v9"></path></svg><span>Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

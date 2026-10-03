@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+/*
+ * Identidad visual de Ananja (aceite de oliva).
+ * Paleta extraída 1:1 de contracts/brand.md — la app es SIEMPRE clara
+ * (fondo crema), no hay modo oscuro.
+ */
+@theme {
+  --color-primary: #2c2f25;
+  --color-primary-hover: #4c5140;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #4a5240;
+  --color-accent: #7a2e2e;
+
+  --color-background: #f4efea;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ede5dd;
+  --color-border: #dfd0c2;
+
+  --color-text: #2c2f25;
+  --color-text-muted: #5a5a5a;
+
+  /* Rediseño editorial (design/handoff/design_handoff_ananja_ui/README.md) */
+  --color-mark: #a9762f;
+  --color-on-primary-muted: #a8ab98;
+  --color-primary-line: #43473a;
+  --color-primary-active: #373b2e;
+  --color-primary-2: #b6b7a8;
+  --color-scrim: rgba(28, 30, 24, 0.62);
+
+  /* Tinte de `--color-accent` para texto/filete del link "Ingresar" sobre la
+     barra bordó de stock bajo (design/handoff README § Chrome compartido / Barra de alerta
+     de stock bajo) — no hay contraste AA suficiente usando el accent sólido
+     sobre sí mismo, así que el prototipo pide estos dos tintes puntuales. */
+  --color-accent-tint: #e8cfc6;
+  --color-accent-tint-border: #b07a72;
+
+  --font-display: var(--font-instrument-serif), "Instrument Serif", serif;
+  --font-heading: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+
+  /* Padding horizontal fluido de `<main>` en escritorio (app/(app)/layout.tsx)
+     y de los bloques oliva que sangran hasta su borde (`lg:-mx-[var(--page-px)]`,
+     antes `md:-mx-10` fijo) — un solo valor para no repetir el clamp en cada
+     archivo. Ver app/(app)/layout.tsx para el porqué del clamp. */
+  --page-px: clamp(40px, 4vw, 96px);
+}
+
+/*
+ * Paleta real de Germá (miel) — dos negocios, un repo (ver
+ * lib/negocio.ts § NEGOCIO). Se activa con `<html data-negocio="germa">`
+ * (seteado en app/layout.tsx a partir de NEGOCIO.id) y redefine acá los
+ * mismos tokens de color que el bloque `@theme` de arriba define para
+ * Ananja — nunca agregues acá un token que no exista arriba.
+ *
+ * Por qué esto funciona con Tailwind v4: las utilidades (`bg-primary`,
+ * `text-accent`, etc.) no fijan el color en la regla de la utilidad, la
+ * leen de `var(--color-*)` en el momento de uso (confirmado compilando
+ * `@theme { --color-primary: ... }` con `@tailwindcss/postcss` y
+ * revisando el CSS emitido). El bloque `@theme` de arriba compila dentro
+ * de `@layer theme`; esta regla, al ser CSS plano (sin `@layer`), queda
+ * "unlayered" y por reglas de cascada de CSS un estilo unlayered gana
+ * siempre sobre uno de una capa nombrada, sin importar el orden ni la
+ * especificidad — así que esta redefinición pisa el `@theme` de Ananja en
+ * cualquier página donde `data-negocio="germa"` esté presente en <html>,
+ * sin necesidad de `!important` ni de subir especificidad a mano.
+ *
+ * Fuente: Global Colors de Elementor en germa.com.ar (relevados 2026-09-06):
+ * carbón cálido #3C3935 (texto principal/wordmark), fondo claro #F0EEED,
+ * dorado de marca #C4A010 (botones/nav activo) y terracota #B37362
+ * (hover/acento secundario) son los cuatro colores de marca; el resto de
+ * los 19 tokens se derivó a mano siguiendo el mismo rol que cada uno
+ * cumple en la paleta de Ananja (mismo matiz/saturación relativos a su
+ * ancla —primary o background—, ajustando solo la luminosidad en el mismo
+ * delta HSL que tiene ese token en Ananja), buscando contraste AA (WCAG
+ * 4.5:1) en los pares texto/fondo que corresponde:
+ *   - --color-primary / --color-text = carbón (#3C3935), 9.9:1 sobre
+ *     --color-background.
+ *   - --color-text-muted = #696663 (texto secundario derivado de marca),
+ *     4.9:1 sobre --color-background.
+ *   - --color-mark = dorado (#C4A010): igual que en Ananja, es 2.2:1
+ *     contra el fondo — insuficiente para texto de párrafo — así que acá
+ *     también se usa solo como filete/subrayado/foco (`border-mark`,
+ *     `decoration-mark`, `:focus-visible`), nunca como texto sólido; como
+ *     fondo de un elemento con texto #3C3935 encima da 4.6:1.
+ *   - --color-accent = terracota (#B37362): 3.3:1 contra el fondo, más
+ *     claro que el bordó de Ananja (8.1:1) — cumple el rol de acento/hover
+ *     pero, igual que el dorado, no alcanza AA para texto de párrafo chico;
+ *     se mapea igual porque es el acento real de marca (mismo criterio que
+ *     ya documentaba este archivo para el dorado).
+ *   - --color-accent-tint/--color-accent-tint-border (texto/filete sobre
+ *     una barra `bg-accent`): como el terracota es claro, el tinte de
+ *     texto se resolvió casi negro con el mismo matiz (#1b100d, 4.9:1
+ *     contra el acento) en vez del tinte claro que usa Ananja (su bordó es
+ *     oscuro y admite texto claro encima) — mismo caso ya resuelto antes
+ *     para la paleta provisoria de Germá.
+ *   - --color-border/--color-surface-raised/--color-primary-line/
+ *     --color-primary-active/--color-primary-2/--color-on-primary-muted/
+ *     --color-scrim son variaciones tonales de fondo/primary sin rol de
+ *     texto (filetes, superficies, estados activos) — se derivaron para
+ *     reproducir el mismo salto de luminosidad que tiene cada uno en
+ *     Ananja respecto de su ancla (fondo o primary), no contraste AA.
+ */
+html[data-negocio="germa"] {
+  --color-primary: #3c3935;
+  --color-primary-hover: #5c5852;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #5d5a52;
+  --color-accent: #b37362;
+
+  --color-background: #f0eeed;
+  --color-surface: #ffffff;
+  --color-surface-raised: #e7e4e2;
+  --color-border: #d4cfcc;
+
+  --color-text: #3c3935;
+  --color-text-muted: #696663;
+
+  --color-mark: #c4a010;
+  --color-on-primary-muted: #b3afac;
+  --color-primary-line: #524f4b;
+  --color-primary-active: #47443e;
+  --color-primary-2: #c0bdbb;
+  --color-scrim: rgba(38, 36, 34, 0.62);
+
+  --color-accent-tint: #1b100d;
+  --color-accent-tint-border: #56332a;
+}
+
+/*
+ * Grano de papel sobre la crema (design/handoff README § Textura). Se aplica al body y,
+ * vía la clase utilitaria, a superficies opacas que necesitan la misma
+ * textura sin heredarla del fondo (p. ej. la hoja inferior de los modales).
+ * No se aplica sobre superficies oliva.
+ */
+body,
+.paper-texture {
+  background-color: var(--color-background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  background-blend-mode: multiply;
+}
+
+/*
+ * Estilos base de elemento en `@layer base`: así los pisa cualquier clase
+ * de Tailwind (ej. `text-background` en un `<a>`). Sin el layer, este CSS
+ * queda "unlayered" y gana por encima de `@layer utilities` sin importar
+ * la especificidad — rompía el wordmark y la campana del header, que son
+ * `<a>` con `text-background` sobre oliva.
+ */
+@layer base {
+  body {
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+
+  a:hover {
+    color: var(--color-primary-hover);
+  }
+
+  /*
+   * Cursor de los controles clickeables. El preflight de Tailwind v4 deja
+   * `button` con `cursor: default` (en v3 era `pointer`), así que en
+   * escritorio solo cambiaban el cursor los `<a>`/`<Link>` con pinta de
+   * botón y los `<button>` no. Una sola regla acá en vez de `cursor-pointer`
+   * suelto por componente; al estar en `@layer base`, cualquier utilidad
+   * `cursor-*` la pisa.
+   */
+  button,
+  [role="button"],
+  summary,
+  select,
+  label[for],
+  label:has(input:is([type="checkbox"], [type="radio"], [type="file"])),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="submit"],
+  input[type="button"] {
+    cursor: pointer;
+  }
+
+  /*
+   * Deshabilitado (incluye `BotonAccion` mientras está cargando). El `:is()`
+   * iguala la especificidad de `input[type="checkbox"]` para ganarle por orden
+   * (lo mismo `label:has(input:disabled)` contra el `label:has(...)` de arriba).
+   */
+  :is(button, input, select, textarea):disabled,
+  [aria-disabled="true"],
+  label:has(input:disabled) {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-mark);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-mark) 25%, transparent);
+  }
+}

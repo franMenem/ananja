@@ -1,0 +1,35 @@
+-- Auditoría de permisos: revoca el UPDATE de authenticated sobre
+-- vendedores.activo, que quedó como grant sobrante y volvía inefectivo el
+-- control de "cuenta desactivada".
+--
+-- Origen: 0007_vendedores_auth.sql (sección 6) hizo
+--   revoke update on vendedores from authenticated;
+--   grant update (nombre, activo) on vendedores to authenticated;
+-- en un momento en que la policy vendedores_update era
+-- `using (true) with check (true)` — el grant de columna era la ÚNICA
+-- barrera real, y el comentario de esa migración lo dice explícito: "el
+-- grant de columna es lo que impide tocar user_id desde el cliente".
+--
+-- 0013_multi_negocio.sql endureció esa policy a
+-- `using (user_id = auth.uid() or es_vendedor())
+--  with check (user_id = auth.uid() or es_vendedor())`
+-- pero nunca revisó el grant de columna que había quedado de 0007. El
+-- resultado: un vendedor autenticado puede hacer, por REST,
+--   patch /rest/v1/vendedores?id=eq.<su_propia_fila>  { "activo": true }
+-- y reactivar su propia cuenta — la policy lo deja (user_id = auth.uid()) y
+-- el grant de columna ya no lo bloquea desde 0007.
+--
+-- Verificado antes de este cambio: ninguna pantalla de la app hace
+-- `.update()` sobre `vendedores`; todas las escrituras (alta, cambio de
+-- rol, activar/desactivar, etc.) pasan por RPCs `security definer` que
+-- corren como `postgres` y no dependen de este grant. Revocarlo no rompe
+-- ningún flujo existente.
+--
+-- `nombre` se deja tal cual (sigue otorgado): es inofensivo que un usuario
+-- edite su propio nombre por REST, y ese grant podría hacer falta tal cual
+-- está si en algún momento se agrega una pantalla de "editar mi nombre" sin
+-- pasar por RPC.
+--
+-- Migración templada (__SCHEMA__, sin __BUCKET__). Ver supabase/README.md.
+
+revoke update (activo) on __SCHEMA__.vendedores from authenticated;

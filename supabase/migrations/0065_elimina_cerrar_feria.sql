@@ -1,0 +1,159 @@
+-- Ananja: borra public.cerrar_feria(uuid, date) — quedó muerta después de
+-- que c605565 ("Elimina la sección Ferias de la UI", 2026-09-15) sacó del
+-- código toda pantalla de Ferias sin tocar la base a propósito (esa misma
+-- migración de código dejó dicho: "No se tocó la base de datos"). Desde
+-- entonces nadie la llama salvo un test negativo de seguridad
+-- (tests/invariantes.integration.test.ts), que esta tanda reemplaza por
+-- otro RPC solo-admin (ver más abajo) para poder borrarla de verdad.
+--
+-- ============================================================
+-- 1) Evidencia de que está muerta (2026-09-21)
+-- ============================================================
+--
+-- Código (grep en app/, components/, lib/, tests/): ninguna llamada
+-- `.rpc("cerrar_feria", ...)`. La única mención en todo el repo es
+-- `lib/types.ts` (tipo generado, se corrige a mano en este mismo commit
+-- porque regenerarlo requiere la base ya migrada) y el test de seguridad
+-- de arriba.
+--
+-- Base (proyecto de producción, schema public, confirmado con
+-- SELECT — sin escribir nada):
+--   - Firma exacta y única en `public`: `select oid::regprocedure from
+--     pg_proc where proname='cerrar_feria'` -> únicamente
+--     `cerrar_feria(uuid,date)` (no hay sobrecargas en `public`; SÍ existe
+--     `miel.cerrar_feria(uuid)`, una función DISTINTA de otro schema/
+--     negocio en pausa, que esta migración no toca).
+--   - `pg_depend` (funciones que la referencian): 0 filas.
+--   - `pg_proc.prosrc ilike '%cerrar_feria%'` (cualquier función que la
+--     mencione en su cuerpo): 0 filas.
+--   - `pg_views.definition ilike '%cerrar_feria%'`: 0 filas.
+--   - `pg_policies` (qual/with_check): 0 filas.
+--   - `pg_trigger` con `tgfoid` apuntando a ella: 0 filas.
+--   - No tiene grant a `anon` (ya lo revocó 0022_rpcs_solo_admin.sql);
+--     mantiene EXECUTE para `authenticated`/`service_role`/`postgres`
+--     (0050_revocar_rpc_sin_uso.sql la dejó afuera del revoke a propósito
+--     "porque tests/invariantes.integration.test.ts la usa" — esa es
+--     justo la razón que esta migración resuelve).
+--   - `ferias` tiene 0 filas en prod hoy (dato vaciado junto con
+--     revendedores el 2026-09-15/18), así que tampoco hay estado de
+--     negocio real que dependa de poder cerrar una feria.
+--
+-- ============================================================
+-- 2) Qué más queda de Ferias en la base (SOLO INFORMATIVO — nada de esto
+--    se toca en esta migración; queda para que Fran decida una limpieza
+--    más grande más adelante)
+-- ============================================================
+--
+-- Objeto                              | ¿vivo desde el código hoy?
+-- -------------------------------------|--------------------------------
+-- tabla `ferias` (0 filas)             | No: sin pantalla, sin RPC de alta
+--                                       | con grant activo (ver abajo).
+-- tabla `feria_productos`              | No, ídem (FK a `ferias`).
+-- función `crear_feria(...)`          | No: 0050 ya le revocó EXECUTE a
+--                                       | authenticated/anon; nadie puede
+--                                       | llamarla por REST. 0 dependientes
+--                                       | (pg_depend). Candidata a un DROP
+--                                       | futuro, no en esta tanda.
+-- función `reabrir_feria(uuid)`       | No: mismo caso que `crear_feria`
+--                                       | (EXECUTE revocado en 0050, 0
+--                                       | dependientes).
+-- funciones trigger `forzar_vendedor_feria`, `proteger_estado_feria`,
+--   `proteger_degustacion_feria`, `proteger_feria_productos_cerrada`,
+--   `validar_feria_abierta`           | Sí, indirectamente: siguen
+--                                       | disparando en cada insert/update
+--                                       | de `ferias`, `feria_productos`,
+--                                       | `comprobantes`, `gastos` y
+--                                       | `movimientos_stock` (7 triggers
+--                                       | activos, confirmado en
+--                                       | `pg_trigger`). Borrarlas implica
+--                                       | borrar también esas columnas/
+--                                       | tablas — limpieza más grande,
+--                                       | no trivial, no entra acá.
+-- columna `comprobantes.feria_id`     | Sí: `crear_comprobante` y
+--                                       | `actualizar_comprobante` siguen
+--                                       | recibiendo `p_feria_id uuid`
+--                                       | (sin default en
+--                                       | `actualizar_comprobante`, la
+--                                       | página de edición lo seguía
+--                                       | mandando de forma invisible
+--                                       | según c605565) y `v_margen_ventas`
+--                                       | la expone.
+-- columna `gastos.feria_id`           | Sí, mismo patrón vía `crear_gasto`
+--                                       | (`p_feria_id uuid`, sin llamador
+--                                       | actual que mande un valor no
+--                                       | nulo, pero el parámetro sigue
+--                                       | ahí).
+-- columna `movimientos_stock.feria_id`| Estructural (dispara
+--                                       | `validar_feria_abierta`), sin
+--                                       | lectura propia desde el código.
+-- vistas `v_feria_totales`, `v_feria_stock`, `v_resultado_feria`
+--                                       | `v_resultado_feria` sí: la lee
+--                                       | `lib/dominio/margen.ts` (comentario
+--                                       | "el resultado por feria ... se
+--                                       | lee tal cual, sin mirror"). Las
+--                                       | otras dos (`v_feria_totales`,
+--                                       | `v_feria_stock`) no tienen
+--                                       | ninguna referencia en app/lib.
+-- columna `v_margen_ventas.feria_id`  | Sí, la expone `lib/dominio/margen.ts`
+--                                       | (mirror de la vista).
+--
+-- Filas en prod hoy (todas en 0, confirmado con SELECT):
+--   `ferias`: 0 · `comprobantes.feria_id is not null`: 0 ·
+--   `gastos.feria_id is not null`: 0.
+--
+-- ============================================================
+-- 3) Drop — firma explícita, sin cascade (no tiene dependientes)
+-- ============================================================
+
+drop function if exists public.cerrar_feria(uuid, date);
+
+-- ============================================================
+-- Verificación post-aplicación
+-- ============================================================
+--
+--   select count(*) from pg_proc
+--   where pronamespace = 'public'::regnamespace and proname = 'cerrar_feria';
+--   -- debe dar 0 (miel.cerrar_feria(uuid), de otro schema, no se toca y
+--   -- seguiría existiendo si se corriera la misma consulta sobre miel)
+--
+-- ============================================================
+-- Rollback (definición completa vigente, copiada de
+-- 0036_fechas_argentina_public.sql — última migración que la tocó — con
+-- sus mismos grant/revoke)
+-- ============================================================
+--
+--   create function public.cerrar_feria(p_feria_id uuid, p_fecha_fin date default null)
+--   returns json
+--   language plpgsql
+--   security definer
+--   set search_path = public
+--   as $$
+--   declare
+--     v_estado text;
+--   begin
+--     if not public.es_admin() then
+--       raise exception 'NO_AUTORIZADO';
+--     end if;
+--
+--     select estado into v_estado from ferias where id = p_feria_id;
+--     if v_estado is null then
+--       raise exception 'FERIA_NO_ENCONTRADA';
+--     end if;
+--
+--     if v_estado = 'cerrada' then
+--       raise exception 'FERIA_YA_CERRADA';
+--     end if;
+--
+--     perform set_config('ananja.cambio_estado', 'on', true);
+--     update ferias set estado = 'cerrada', fecha_fin = coalesce(fecha_fin, p_fecha_fin, current_date)
+--     where id = p_feria_id;
+--
+--     return json_build_object('id', p_feria_id);
+--   end;
+--   $$;
+--
+--   revoke execute on function public.cerrar_feria(uuid, date) from anon, public;
+--   grant execute on function public.cerrar_feria(uuid, date) to authenticated;
+--
+-- SIN APLICAR: queda para que Fran la aplique cuando decida (SQL Editor o
+-- `supabase db push`, igual que 0063/0064 recientes).

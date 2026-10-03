@@ -1,0 +1,163 @@
+-- Ananja: cierra el último ERROR del linter de seguridad (auditoría
+-- 2026-09-20/21) — `security_definer_view` en `public.v_plata_en_manos`,
+-- la única vista que `0063_security_invoker_plata_revoke_clientes.sql`
+-- dejó A PROPÓSITO afuera. Retomar el § 2 de la cabecera de 0063: con
+-- `security_invoker = true`, un coordinador que consulta SU PROPIA fila
+-- (`where ... es_admin() or (es_coordinador() and id = mi_vendedor_id())`)
+-- perdía la RLS de `depositos_cuenta` (policy `using (es_admin())`, nunca
+-- ampliada para coordinador) y `depositos_centavos` daba siempre 0 —
+-- inflando `total_centavos` por lo que ya depositó. Esta migración cierra
+-- exactamente esa brecha y ninguna otra (ver análisis abajo) y recién
+-- entonces prende `security_invoker`.
+--
+-- ============================================================
+-- 1) Objetos base de v_plata_en_manos (vigente desde
+--    0058_plata_coordinador_costo.sql — 0059/0061 no la redefinen, solo
+--    tocan vistas de las que depende) — confirmado con
+--    `pg_get_viewdef('public.v_plata_en_manos', true)` en prod:
+-- ============================================================
+--
+--   from vendedores v
+--   where v.rol in ('admin','coordinador')
+--     and (es_admin() or (es_coordinador() and v.id = mi_vendedor_id()))
+--
+--   por cada fila (persona) v.id, subconsultas escalares:
+--     - comprobantes      where vendedor_id = v.id and medio_pago='efectivo'
+--     - cobros            where vendedor_id = v.id and medio_pago='efectivo'
+--     - v_rendiciones_ananja ra where ra.tenedor_id = v.id
+--     - gastos            where vendedor_id = v.id and medio_pago='efectivo'
+--     - pagos_deuda       where vendedor_id = v.id and medio_pago='efectivo'
+--     - ajustes_caja      where vendedor_id = v.id and medio_pago='efectivo'
+--     - transferencias_caja where vendedor_id = v.id and (origen/destino='efectivo')
+--     - depositos_cuenta  where tenedor_id = v.id
+--
+-- ============================================================
+-- 2) Política SELECT vigente de cada objeto base (migraciones + verificado
+--    contra `pg_policies`/`pg_get_viewdef` en prod)
+--    y si alcanza para invoker:
+-- ============================================================
+--
+-- Objeto base          | policy SELECT vigente                             | lee la vista una fila de: (a) admin, (b) coordinador propia
+-- ---------------------|-----------------------------------------------------|--------------------------------------------------------------
+-- vendedores           | user_id=auth.uid() or es_vendedor() or             | (a) sí (es_vendedor()=es_admin()). (b) sí: la propia fila
+--                       | es_coordinador_de(id)  [0055]                      | siempre pasa por `user_id = auth.uid()`, no depende de rol.
+-- comprobantes         | es_vendedor()  [0013 — es_vendedor() = es_admin(), | (a) sí. (b) NO alcanzaría por RLS — pero ESTRUCTURALMENTE
+-- cobros               | 0018_revendedores.sql; nunca ampliada a            | `vendedor_id` en estas 6 tablas SIEMPRE es
+-- gastos                | coordinador]                                       | `mi_vendedor_id()` de quien LLAMÓ al RPC de alta
+-- pagos_deuda          |                                                     | (`crear_comprobante`/`registrar_cobro`/`crear_gasto`/
+-- ajustes_caja         |                                                     | `registrar_pago_deuda`/`crear_ajuste_caja`/
+-- transferencias_caja  |                                                     | `registrar_transferencia_caja`, los 6 gateados a
+--                       |                                                     | `es_admin()`, con `insert ... v_vendedor_id`/trigger
+--                       |                                                     | `forzar_vendedor_*` fijando siempre el ID del CALLER) — un
+--                       |                                                     | coordinador nunca puede ser ese caller, así que
+--                       |                                                     | `vendedor_id = <coordinador>` no tiene NINGUNA fila posible
+--                       |                                                     | en estas 6 tablas (verificado también con un count(*) contra
+--                       |                                                     | prod: 0 filas en las 6 para cualquier vendedor rol
+--                       |                                                     | 'coordinador'). Bloquear con RLS un conjunto que ya está
+--                       |                                                     | estructuralmente vacío no cambia el resultado (sigue 0):
+--                       |                                                     | SEGURO sin tocar la policy.
+-- v_rendiciones_ananja | (vista, ya `security_invoker=true` desde 0063;      | (a) sí. (b) sí — ya evaluada y documentada como SEGURA en la
+--                       | su propio `where` final es                         | cabecera de 0063: el mismo predicado
+--                       | `es_admin() or vendedor_id=mi_vendedor_id() or      | `es_coordinador_de(vendedor_id)` que exige la vista es
+--                       | es_coordinador_de(vendedor_id)`)                    | verdadero exactamente para las revendedoras cuyo
+--                       |                                                     | `encargado_id` es este coordinador — el mismo conjunto que
+--                       |                                                     | `tenedor_id = v.id` filtra desde afuera (`tenedor_id` de una
+--                       |                                                     | rendición se fija en alta como
+--                       |                                                     | `coalesce(encargado_id, admin_id)` de la revendedora). No
+--                       |                                                     | requiere cambios.
+-- depositos_cuenta     | es_admin()  [0037 — nunca ampliada]                 | (a) sí. (b) NO — y acá SÍ hay filas reales: a diferencia de
+--                       |                                                     | las 6 de arriba, `registrar_deposito_cuenta` (gateada a
+--                       |                                                     | `es_admin()`) recibe `p_tenedor_id` como parámetro y lo
+--                       |                                                     | valida contra `rol in ('admin','coordinador')` — el admin
+--                       |                                                     | que llama y el tenedor de la fila pueden ser personas
+--                       |                                                     | distintas (`confirmar_deposito_informado`, 0057, siempre
+--                       |                                                     | llama con `tenedor_id = v_dep.tenedor_id`, el coordinador
+--                       |                                                     | que avisó). Confirmado contra prod: 1 fila de
+--                       |                                                     | `depositos_cuenta` hoy con `tenedor_id` de un vendedor
+--                       |                                                     | rol='coordinador' (Laura). GAP REAL — hay que ampliar la
+--                       |                                                     | policy.
+--
+-- Revendedoras: la vista ya filtra `rol in ('admin','coordinador')` en su
+-- `where` — una revendedora nunca hace match ahí sea cual sea la RLS de
+-- las tablas base, así que sigue sin ver ninguna fila con invoker. Sin
+-- cambios necesarios para ese caso.
+--
+-- ============================================================
+-- 3) Ampliación de RLS — solo depositos_cuenta
+-- ============================================================
+--
+-- Mismo patrón ya usado para el mismo problema (coordinador lee SOLO su
+-- propia fila) en `depositos_informados_select` (0057_coordinador_plata_
+-- stock.sql): `using (es_admin() or tenedor_id = mi_vendedor_id())`.
+--
+-- Qué expone de más esta ampliación: hoy un coordinador no puede leer
+-- `depositos_cuenta` por REST directo en absoluto; después de esto puede
+-- leer SOLO las filas donde `tenedor_id` es él mismo — columnas
+-- `medio_pago`, `monto_centavos`, `fecha`, `nota`, `vendedor_id` (quién
+-- LO REGISTRÓ, siempre un admin) y `created_at`. Todo describe un
+-- movimiento de SU PROPIA plata que él mismo avisó (vía
+-- `informar_deposito_cuenta`) o que un admin cargó a su nombre — nada de
+-- notas internas de otra persona, montos de la empresa ni filas de otro
+-- tenedor. Es el mismo nivel de detalle que `depositos_informados_select`
+-- ya le expone hoy para el mismo flujo. No se altera el `with_check`
+-- (sigue sin insert/update/delete directo, solo vía
+-- `registrar_deposito_cuenta`).
+--
+-- No se toca ninguna policy de comprobantes/cobros/gastos/pagos_deuda/
+-- ajustes_caja/transferencias_caja/vendedores (ver tabla del punto 2:
+-- ya alcanzan o el conjunto que exigirían está estructuralmente vacío).
+
+alter policy depositos_cuenta_select on depositos_cuenta
+  using (es_admin() or tenedor_id = mi_vendedor_id());
+
+-- ============================================================
+-- 4) v_plata_en_manos: security_invoker = true
+-- ============================================================
+--
+-- Con el punto 3 aplicado, TODAS las brechas quedan cerradas (la tabla del
+-- punto 2 no tiene ninguna fila "NO" restante) — recién ahora es seguro.
+
+alter view public.v_plata_en_manos set (security_invoker = true);
+
+-- ============================================================
+-- TRAMPA para el futuro (mismo texto que la cabecera de 0063): un
+-- `create or replace view` resetea las `reloptions` (incluida
+-- `security_invoker`) porque Postgres no las conserva a través de un
+-- reemplazo completo del cuerpo de la vista. Si `v_plata_en_manos` se
+-- vuelve a redefinir con `create or replace view` en una migración
+-- futura, hay que repetir `alter view ... set (security_invoker = true)`
+-- en esa misma migración.
+-- ============================================================
+--
+-- ============================================================
+-- Verificación ANTES/DESPUÉS (solo lectura — SQL Editor de Supabase,
+-- botón "Impersonate" del editor para correr como el usuario indicado;
+-- NO requiere anon key ni tocar sesiones reales):
+-- ============================================================
+--
+--   -- (a) como admin (cualquiera de Caro/Fran/Juli/Tests):
+--   select * from public.v_plata_en_manos order by tenedor_id;
+--
+--   -- (b) como un coordinador (con su vendedor id):
+--   select * from public.v_plata_en_manos order by tenedor_id;
+--
+-- Correr (a) y (b) ANTES de aplicar esta migración (con la vista todavía
+-- definer) y de nuevo DESPUÉS: las filas y los `total_centavos`/
+-- `depositos_centavos`/etc. de cada resultado deben ser IDÉNTICOS
+-- antes/después, fila por fila. En particular, la fila de Laura en (b)
+-- debe seguir mostrando su `depositos_centavos` real (no 0) — eso es
+-- precisamente lo que esta migración garantiza al ampliar
+-- `depositos_cuenta_select`.
+--
+-- ============================================================
+-- Rollback
+-- ============================================================
+--
+--   alter view public.v_plata_en_manos set (security_invoker = false);
+--
+--   alter policy depositos_cuenta_select on depositos_cuenta
+--     using (es_admin());
+--
+-- SIN APLICAR: se aplica en prod `public` solo con el OK de Fran (SQL
+-- Editor, igual que 0063 — no figurará en `schema_migrations` si se aplica
+-- así).

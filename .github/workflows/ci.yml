@@ -1,0 +1,82 @@
+name: CI
+
+# Chequeos automáticos de cada push a main y de cada pull request: tipos,
+# lint, tests, sanidad de migraciones y build de producción.
+#
+# El deploy lo sigue haciendo Vercel con su integración Git. Este CI NO lo
+# bloquea: el plan Free de GitHub no permite branch protection en repos
+# privados, así que un CI rojo es un aviso (llega por mail), no un freno.
+#
+# No se corre `npm run test:integration`: esos tests pegan a la base de
+# PRODUCCIÓN. Acá solo van chequeos sin base de datos ni secretos reales.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Traer el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node (versión de .nvmrc)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # PageProps / LayoutProps son tipos globales que Next genera en
+      # .next/types; sin este paso, tsc falla en un checkout limpio.
+      - name: Generar tipos de rutas (Next.js)
+        run: npx next typegen
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Tipos (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+        env:
+          VITE_CONFIG_NATIVE_IGNORE_WARNING: "true"
+          # tests/fechas.test.ts parsea fechas sin offset y las formatea en
+          # hora argentina: solo da lo esperado si el huso del proceso es el
+          # de Argentina (el runner viene en UTC).
+          TZ: America/Argentina/Buenos_Aires
+
+      - name: Migraciones
+        run: ./scripts/ci/check-migraciones.sh
+
+      - name: Cache de Next.js (.next/cache)
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', '**/*.css', '!node_modules/**', '!.next/**') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      - name: Build
+        run: npm run build
+        env:
+          # Valores de relleno: el build no se conecta a Supabase.
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci
+          NEXT_TELEMETRY_DISABLED: "1"

@@ -1,0 +1,95 @@
+-- Ananja: hardening de seguridad (auditoría 2026-09-20) — `security_invoker`
+-- en 2 de las 3 vistas de `public` que quedaban sin él (creadas en
+-- 0037_plata_en_manos.sql, la única tanda que no lo seteó) + revoke de
+-- `anon` sobre `clientes` (grant heredado desde 0009_clientes.sql, nunca
+-- revocado a diferencia del resto de las tablas del esquema — ver el
+-- comentario de 0014_service_role_grants.sql: "anon/authenticated siguen
+-- con los grants explícitos por tabla de las migraciones anteriores").
+--
+-- ============================================================
+-- 1) security_invoker en v_deuda_vendedor y v_rendiciones_ananja
+-- ============================================================
+--
+-- `security_invoker = true` hace que la RLS de las tablas base de la
+-- vista se evalúe con el rol que la CONSULTA, no con su dueño (el
+-- comportamiento default de Postgres para las vistas, equivalente a un
+-- "definer implícito"). Antes de aplicarlo se analizó cada vista contra
+-- las policies RLS VIGENTES (no las de 0037) de las tablas que lee, para
+-- confirmar que ningún rol legítimo pierde filas que hoy ve:
+--
+--  - `v_deuda_vendedor` (redefinida en 0055_coordinador.sql, la versión
+--    vigente): lee `ventas_revendedor` y `rendiciones`, ambas con policy
+--    `select` alterada en 0055 a exactamente
+--    `es_admin() or vendedor_id = mi_vendedor_id() or es_coordinador_de(vendedor_id)`
+--    — el MISMO predicado que ya usa el `where` final de la vista. El
+--    `from vendedores v` de la vista también queda cubierto:
+--    `vendedores_select` (alterada en 0055) es
+--    `user_id = auth.uid() or es_vendedor() or es_coordinador_de(id)`, que
+--    para revendedor/coordinador da el mismo resultado que el filtro de la
+--    vista. Con invoker, cada fila que la vista deja pasar hoy sigue
+--    pasando la RLS de las tablas base (mismo admin/dueño/coordinador).
+--    SEGURA.
+--
+--  - `v_rendiciones_ananja` (redefinida en 0061_rendiciones_ananja_fifo.sql,
+--    la versión vigente — 0058 quedó reemplazada): lee `ventas_revendedor`,
+--    `entrega_items` (vía `entregas_revendedor`, policy con el mismo
+--    predicado admin/dueño/coordinador desde 0055) y `rendiciones` —
+--    las tres con el mismo predicado que el `where` final de la vista
+--    (`es_admin() or vendedor_id = mi_vendedor_id() or es_coordinador_de(vendedor_id)`).
+--    Los CTEs particionan `over (partition by vendedor_id ...)` para los
+--    offsets acumulados: la RLS es todo-o-nada POR vendedor_id (nunca hay
+--    visibilidad parcial de un mismo vendedor_id), así que las sumas no
+--    cambian para ninguna fila que la vista siga devolviendo. SEGURA.
+--
+-- ============================================================
+-- 2) v_plata_en_manos QUEDA AFUERA a propósito (no es segura con invoker)
+-- ============================================================
+--
+-- `v_plata_en_manos` (creada en 0037, redefinida en 0055/0057, VIGENTE
+-- desde 0058_plata_coordinador_costo.sql) deja que un coordinador consulte
+-- su PROPIA fila (`where ... es_admin() or (es_coordinador() and
+-- id = mi_vendedor_id())`), y esa fila resta de `total_centavos` (columna
+-- `depositos_centavos`) los `depositos_cuenta.monto_centavos` donde
+-- `tenedor_id` es ese mismo coordinador. Esos depósitos son reales:
+-- `confirmar_deposito_informado` (0057_coordinador_plata_stock.sql, § 3c)
+-- llama a `registrar_deposito_cuenta` con `tenedor_id = v_dep.tenedor_id`
+-- — el coordinador que avisó el depósito, nunca el admin que lo confirma.
+-- Pero la policy `depositos_cuenta_select` (0037_plata_en_manos.sql) sigue
+-- siendo `using (es_admin())` — nunca se amplió para coordinador (grep
+-- verificado contra todas las migraciones posteriores a 0037). Con
+-- `security_invoker = true`, un coordinador consultando su propia fila
+-- perdería la RLS de `depositos_cuenta` (no es admin) y `depositos_centavos`
+-- daría siempre 0 aunque haya depósitos reales confirmados — inflando
+-- `total_centavos` exactamente por lo que ya depositó, mostrándole "todavía
+-- tenés esta plata en la mano" sobre dinero que ya entregó. Se deja esta
+-- vista como está (definer implícito) hasta que `depositos_cuenta` tenga
+-- una policy que cubra `tenedor_id = mi_vendedor_id()` para coordinador.
+--
+-- ============================================================
+-- TRAMPA para el futuro: un `create or replace view` resetea las
+-- `reloptions` (incluida `security_invoker`) porque Postgres no las
+-- conserva a través de un reemplazo completo del cuerpo de la vista —
+-- solo las conserva un `alter view ... set (...)` sobre la vista ya
+-- existente. Si `v_deuda_vendedor` o `v_rendiciones_ananja` se vuelven a
+-- redefinir con `create or replace view` en una migración futura, hay que
+-- repetir el `alter view ... set (security_invoker = true)` en esa misma
+-- migración, o la vista vuelve silenciosamente a definer.
+-- ============================================================
+
+alter view public.v_deuda_vendedor set (security_invoker = true);
+alter view public.v_rendiciones_ananja set (security_invoker = true);
+
+-- ============================================================
+-- 3) clientes: revoke de anon
+-- ============================================================
+--
+-- Las policies de `clientes` (0009_clientes.sql) ya son `to authenticated`
+-- únicamente, así que `anon` no puede leer ni escribir filas hoy por RLS
+-- — este revoke es defensa en profundidad: si algún día se deshabilita
+-- RLS por error en una migración futura, `anon` sigue sin poder tocar la
+-- tabla a nivel de grants (mismo criterio que ya se usó tabla por tabla en
+-- el resto del esquema; `clientes` fue la única que quedó afuera).
+
+revoke all on public.clientes from anon;
+
+-- SIN APLICAR: se aplica en prod `public` solo con el OK de Fran.

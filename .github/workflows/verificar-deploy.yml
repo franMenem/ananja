@@ -1,0 +1,91 @@
+name: Verificar deploy
+
+# Humo post-deploy (la parte "CD"): cuando Vercel avisa que un deploy de
+# producción de Ananja quedó listo, comprobamos que la app responda y que
+# esté sirviendo el commit que se acaba de desplegar.
+#
+# - Solo corre para el environment de producción de Ananja ("Production –
+#   ananja"); el proyecto Germá del mismo repo se cancela por ignoreCommand.
+# - La URL sale de la variable de repo PRODUCTION_URL (no es un secreto). Si
+#   no existe, el job avisa y termina bien.
+# - No cambia nada en producción: solo hace GET a /api/version y /login.
+
+on:
+  deployment_status
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  verificar:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment_status.environment, 'Production') &&
+      contains(github.event.deployment_status.environment, 'ananja')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verificar que producción responde con el commit desplegado
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+          SHA_ESPERADO: ${{ github.event.deployment.sha }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${PRODUCTION_URL:-}" ]; then
+            echo "::warning::Falta la variable de repo PRODUCTION_URL (Settings > Secrets and variables > Actions > Variables). No se verificó el deploy."
+            exit 0
+          fi
+          base="${PRODUCTION_URL%/}"
+          echo "Verificando $base (commit esperado: $SHA_ESPERADO)"
+
+          intentos=6
+          espera=20
+          version=""
+          ok=0
+          for i in $(seq 1 "$intentos"); do
+            cuerpo="$(curl --silent --show-error --max-time 20 --write-out '\n%{http_code}' "$base/api/version" || true)"
+            codigo="$(printf '%s' "$cuerpo" | tail -n 1)"
+            json="$(printf '%s' "$cuerpo" | sed '$d')"
+            if [ "$codigo" = "200" ]; then
+              version="$(printf '%s' "$json" | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+              # Si la versión es un sha de git, tiene que ser el desplegado;
+              # si es otra cosa (id de deployment, "dev"), alcanza con el 200.
+              if ! [[ "$version" =~ ^[0-9a-f]{40}$ ]] || [ "$version" = "$SHA_ESPERADO" ]; then
+                ok=1
+                break
+              fi
+            fi
+            echo "Intento $i/$intentos: /api/version devolvió HTTP $codigo, versión '${version:-?}'."
+            if [ "$i" -lt "$intentos" ]; then
+              echo "Reintento en ${espera}s..."
+              sleep "$espera"
+            fi
+          done
+
+          if [ "$ok" != "1" ]; then
+            if [ "$codigo" != "200" ]; then
+              echo "::error::$base/api/version no respondió 200 (último HTTP: $codigo) tras $intentos intentos."
+              exit 1
+            fi
+            # Responde, pero con otro commit: puede ser un deploy más nuevo que
+            # ya pisó a este. Si es descendiente del esperado, no es un fallo.
+            estado="$(gh api "repos/$REPO/compare/$SHA_ESPERADO...$version" --jq .status 2>/dev/null || true)"
+            if [ "$estado" = "ahead" ] || [ "$estado" = "identical" ]; then
+              echo "::warning::Producción ya sirve un commit más nuevo ($version) que el de este deploy ($SHA_ESPERADO). No es un fallo."
+            else
+              echo "::error::Producción sirve el commit $version pero se esperaba $SHA_ESPERADO."
+              exit 1
+            fi
+          fi
+
+          codigo_login="$(curl --silent --output /dev/null --max-time 20 --write-out '%{http_code}' "$base/login" || true)"
+          if [ "$codigo_login" != "200" ]; then
+            echo "::error::$base/login devolvió HTTP $codigo_login (se esperaba 200)."
+            exit 1
+          fi
+
+          echo "Deploy verificado: /api/version 200 (versión ${version:-?}) y /login 200."

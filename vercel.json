@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "if [ \"$VERCEL_PROJECT_ID\" = \"prj_LS0DdUDEyvMy8oNLWVXIk1kwGvNf\" ]; then echo \"Germá congelada: no se despliega (ver memoria ananja-primero)\"; exit 0; else exit 1; fi",
+  "regions": ["gru1"],
+  "crons": [{ "path": "/api/cron/keepalive", "schedule": "17 12 * * *" }]
+}
