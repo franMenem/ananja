@@ -4,8 +4,8 @@ name: Verificar deploy
 # producción de Ananja quedó listo, comprobamos que la app responda y que
 # esté sirviendo el commit que se acaba de desplegar.
 #
-# - Solo corre para el environment de producción de Ananja ("Production –
-#   ananja"); el proyecto Germá del mismo repo se cancela por ignoreCommand.
+# - Solo corre para el environment de producción ("Production"). En este repo
+#   público solo está conectado el proyecto Ananja de Vercel.
 # - La URL sale de la variable de repo PRODUCTION_URL (no es un secreto). Si
 #   no existe, el job avisa y termina bien.
 # - No cambia nada en producción: solo hace GET a /api/version y /login.
@@ -21,8 +21,7 @@ jobs:
   verificar:
     if: >-
       github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment_status.environment, 'Production') &&
-      contains(github.event.deployment_status.environment, 'ananja')
+      startsWith(github.event.deployment_status.environment, 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
