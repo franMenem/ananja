@@ -20,8 +20,9 @@ le pegan al mismo endpoint:
 
 - **Vercel Cron** (`vercel.json`) — una vez por día, `17 12 * * *`. El
   plan Hobby de Vercel no permite más frecuencia que esa para cron jobs.
-- **GitHub Action** (`.github/workflows/supabase-keepalive.yml`) — cada 6
-  horas, de respaldo. Si el ping principal falla, el workflow prueba un
+- **GitHub Action** (`supabase-keepalive.yml`, vive solo en el repo privado
+  de respaldo `ananja-privado`; este repo público no la incluye porque no
+  tiene los secrets) — cada 6 horas, de respaldo. Si el ping principal falla, el workflow prueba un
   fallback directo contra Supabase (`/auth/v1/health` con la anon key,
   sin pasar por la app) antes de darse por vencido — así, si el deploy de
   Vercel está roto, igual se genera actividad contra el proyecto.
