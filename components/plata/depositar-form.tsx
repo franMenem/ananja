@@ -28,7 +28,7 @@ type DepositarFormProps = {
 
 const ERRORES: Record<string, string> = {
   NO_AUTORIZADO: "No tenés permiso para esto.",
-  TENEDOR_INVALIDO: "Esa persona no es un admin activo.",
+  TENEDOR_INVALIDO: "Esa persona no es un admin ni un coordinador activo.",
   MEDIO_INVALIDO: "Elegí Mercado Pago o Banco.",
   MONTO_INVALIDO: "Revisá el monto.",
 };
@@ -122,7 +122,7 @@ export function DepositarForm({
     setError(null);
 
     if (!tenedorId) {
-      setError("Elegí quién deposita.");
+      setError("Elegí de quién es la plata.");
       return;
     }
     if (!medioPago) {
@@ -156,7 +156,7 @@ export function DepositarForm({
             htmlFor="deposito-persona"
             className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
           >
-            Quién deposita
+            Quién tenía la plata
           </label>
           <select
             id="deposito-persona"
@@ -167,6 +167,7 @@ export function DepositarForm({
             {personas.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nombre}
+                {montosPorPersona[p.id] > 0 ? ` · ${formatCentavos(montosPorPersona[p.id])} en mano` : ""}
               </option>
             ))}
           </select>

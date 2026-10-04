@@ -239,6 +239,8 @@ export interface FilaMovimiento {
   href: string | null;
   /** Solo ajustes: datos para editar/borrar (`AjusteCajaAcciones`). */
   ajuste: { medioPago: MedioPago; nota: string; montoCentavos: number } | null;
+  /** Solo depósitos: datos para eliminar (`EliminarDepositoAccion`; el id es `id`). */
+  deposito: { medioPago: MedioPago; montoCentavos: number; tenedor: string } | null;
 }
 
 /** Cuántas filas más trae cada "Ver más" de la lista general de `/plata`. */

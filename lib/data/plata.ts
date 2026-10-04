@@ -154,19 +154,21 @@ export async function obtenerCajaSaldoInicial(
   return data ?? null;
 }
 
-/** Admins activos, para elegir "quién deposita" en `/plata/depositar`. */
-export async function listarAdminsActivos(
+/** Admins y coordinadores activos (los que pueden tener plata en mano,
+ * `registrar_deposito_cuenta`/`v_plata_en_manos` desde 0055), para elegir
+ * "quién tenía la plata" en `/plata/depositar`. */
+export async function listarTenedoresActivos(
   supabase: Supa,
 ): Promise<{ data: Pick<Tables<"vendedores">, "id" | "nombre">[]; error: string | null }> {
   const { data, error } = await supabase
     .from("vendedores")
     .select("id, nombre")
-    .eq("rol", "admin")
+    .in("rol", ["admin", "coordinador"])
     .eq("activo", true)
     .order("nombre");
   if (error) {
-    console.error("listarAdminsActivos", error);
-    return { data: [], error: "No se pudo cargar la lista de administradores." };
+    console.error("listarTenedoresActivos", error);
+    return { data: [], error: "No se pudo cargar la lista de personas." };
   }
   return { data: data ?? [], error: null };
 }
@@ -448,6 +450,7 @@ export async function cargarMovimientosPlata(
     createdAt: r.created_at,
     href: null as string | null,
     ajuste: null as FilaMovimiento["ajuste"],
+    deposito: null as FilaMovimiento["deposito"],
   });
   const unir = (...partes: (string | null | undefined)[]) =>
     partes.filter((p): p is string => Boolean(p && p.trim())).join(" · ") || null;
@@ -553,6 +556,7 @@ export async function cargarMovimientosPlata(
       mov: { tipo: "deposito" as const, medioPago: d.medio_pago, tenedorId: d.tenedor_id, montoCentavos: d.monto_centavos },
       titulo: `${describirDeposito(nombreDe(d.tenedor_id))} · ${MEDIO_PAGO_LABELS[d.medio_pago]}`,
       detalle: unir(d.nota, d.vendedor_id !== d.tenedor_id ? `lo anotó ${nombreDe(d.vendedor_id)}` : null),
+      deposito: { medioPago: d.medio_pago, montoCentavos: d.monto_centavos, tenedor: nombreDe(d.tenedor_id) },
     })),
   ];
 

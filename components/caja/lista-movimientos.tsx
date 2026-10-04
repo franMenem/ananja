@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AjusteCajaAcciones } from "@/components/caja/ajuste-caja-acciones";
+import { EliminarDepositoAccion } from "@/components/caja/eliminar-deposito-accion";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import type { FilaMovimiento } from "@/lib/data/plata";
@@ -84,6 +85,15 @@ export function ListaMovimientos({
                   montoCentavos={fila.ajuste.montoCentavos}
                   nota={fila.ajuste.nota}
                   fecha={fila.fecha}
+                  className="mt-0.5 flex gap-3"
+                />
+              )}
+              {fila.deposito && (
+                <EliminarDepositoAccion
+                  depositoId={fila.id}
+                  medioPago={fila.deposito.medioPago}
+                  montoCentavos={fila.deposito.montoCentavos}
+                  tenedor={fila.deposito.tenedor}
                   className="mt-0.5 flex gap-3"
                 />
               )}

@@ -418,3 +418,21 @@ export function calcularDeudaVendedor(
     saldoCentavos: resumen.debeCentavos,
   };
 }
+
+/**
+ * Quién aparece preseleccionado en "Pasar a la cuenta" (`/plata/depositar`).
+ * El `<select>` solo puede mostrar a quien está en `ids`: si el
+ * `?tenedor=` no es una opción válida (o no vino), se cae en la persona de
+ * la sesión y, si tampoco está, en la primera de la lista. Así el valor
+ * del select nunca queda sin opción y el depósito no se carga a nombre de
+ * otra persona sin que se note.
+ */
+export function resolverTenedorInicial(
+  tenedorParam: string | null | undefined,
+  miId: string | null | undefined,
+  ids: string[],
+): string | null {
+  if (tenedorParam && ids.includes(tenedorParam)) return tenedorParam;
+  if (miId && ids.includes(miId)) return miId;
+  return ids[0] ?? null;
+}

@@ -1,6 +1,7 @@
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { DepositarForm } from "@/components/plata/depositar-form";
-import { listarAdminsActivos, listarMontosPlataEnManos } from "@/lib/data/plata";
+import { listarMontosPlataEnManos, listarTenedoresActivos } from "@/lib/data/plata";
+import { resolverTenedorInicial } from "@/lib/dominio/plata";
 import { sesionActual } from "@/lib/sesion-actual";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,13 +29,13 @@ export default async function DepositarPage({
 
   const supabase = await createClient();
 
-  const [{ data: admins }, { data: plataEnManos }, { vendedor: miVendedor }] = await Promise.all([
-    listarAdminsActivos(supabase),
+  const [{ data: tenedores }, { data: plataEnManos }, { vendedor: miVendedor }] = await Promise.all([
+    listarTenedoresActivos(supabase),
     listarMontosPlataEnManos(supabase),
     sesionActual(),
   ]);
 
-  const personas = (admins ?? []).filter(
+  const personas = (tenedores ?? []).filter(
     (a): a is typeof a & { id: string; nombre: string } => Boolean(a.id && a.nombre),
   );
 
@@ -46,17 +47,22 @@ export default async function DepositarPage({
   // manda sobre lo que diga `v_plata_en_manos` en este instante — evita
   // que un segundo depósito concurrente (poco probable, pero posible)
   // cambie silenciosamente el monto que el admin ya vio y decidió cargar.
-  if (tenedorParam && montoQuery !== null) {
-    montosPorPersona[tenedorParam] = montoQuery;
+  // Solo si el `?tenedor=` es una opción real del select (admin o
+  // coordinador activo): si no, `resolverTenedorInicial` cae en el default.
+  const tenedorInicial = resolverTenedorInicial(
+    tenedorParam,
+    miVendedor?.id,
+    personas.map((p) => p.id),
+  );
+  if (tenedorInicial !== null && tenedorInicial === tenedorParam && montoQuery !== null) {
+    montosPorPersona[tenedorInicial] = montoQuery;
   }
-
-  const tenedorInicial = tenedorParam ?? miVendedor?.id ?? personas[0]?.id ?? null;
 
   if (personas.length === 0) {
     return (
       <div className="mx-auto w-full max-w-[720px]">
         <p className="text-sm text-text-muted">
-          No hay administradores activos para registrar un depósito.
+          No hay personas activas para registrar un depósito.
         </p>
       </div>
     );

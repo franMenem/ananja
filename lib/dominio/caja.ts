@@ -42,3 +42,17 @@ export function mensajeEliminarAjuste(
     ? `Se va a descontar ${monto} del saldo de ${medio}.`
     : `Se va a sumar ${monto} al saldo de ${medio}.`;
 }
+
+/**
+ * Mensaje de confirmación al eliminar un depósito ("pasar a la cuenta",
+ * `EliminarDepositoAccion`, `supabase/migrations/0070_eliminar_deposito_cuenta.sql`):
+ * un depósito resta de la mano de quien tenía la plata y suma a la cuenta
+ * destino, así que borrarlo hace lo inverso.
+ */
+export function mensajeEliminarDeposito(
+  tenedor: string,
+  medioPago: MedioPago,
+  montoCentavos: number,
+): string {
+  return `Se va a borrar este depósito: ${formatCentavos(montoCentavos)} vuelven a figurar en manos de ${tenedor} y salen de ${MEDIO_PAGO_LABELS[medioPago]}.`;
+}

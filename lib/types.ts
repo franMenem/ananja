@@ -5035,6 +5035,7 @@ export type Database = {
       }
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
+      eliminar_deposito_cuenta: { Args: { p_deposito_id: string }; Returns: Json }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       es_admin: { Args: never; Returns: boolean }
