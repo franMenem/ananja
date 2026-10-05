@@ -149,7 +149,7 @@ export function DeudaForm() {
           required
           value={fecha}
           onChange={(event) => setFecha(event.target.value)}
-          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
         />
       </div>
 

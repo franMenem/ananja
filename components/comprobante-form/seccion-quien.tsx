@@ -31,7 +31,7 @@ export function SeccionQuien({
       </span>
 
       <div className="flex gap-2.5">
-        <div className="flex min-h-12 flex-1 items-center border border-border bg-surface px-3.5 text-sm text-text">
+        <div className="flex min-h-12 min-w-0 flex-1 items-center border border-border bg-surface px-3.5 text-sm text-text">
           {vendedorLoading ? "Cargando…" : (vendedorNombre ?? "Sin vendedor")}
         </div>
         <input
@@ -41,7 +41,7 @@ export function SeccionQuien({
           aria-label="Fecha"
           value={fecha}
           onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
         />
       </div>
       {!vendedorLoading && !vendedorExiste && (

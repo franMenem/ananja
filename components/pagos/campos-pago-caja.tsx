@@ -89,7 +89,7 @@ export function CamposPagoCaja({
           aria-label="Fecha"
           value={fecha}
           onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
         />
         <textarea
           id={`${idPrefix}-nota`}

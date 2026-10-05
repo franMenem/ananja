@@ -205,6 +205,34 @@ body,
     cursor: not-allowed;
   }
 
+  /*
+   * Campos de fecha/hora en iOS (Safari y PWA). Con la apariencia nativa
+   * estos inputs tienen un ancho mínimo intrínseco y no obedecen `width:100%`:
+   * se pasan del padding (y hasta del borde) de la tarjeta. Sin apariencia
+   * nativa + `min-width: 0` + `max-width: 100%` se achican al contenedor, y
+   * el valor se alinea a la izquierda como el resto de los campos. El alto no
+   * se toca acá: cada input ya trae su `min-h-*` (hace falta, porque vacío y
+   * sin apariencia nativa iOS lo colapsa). Al estar en `@layer base`,
+   * cualquier utilidad de Tailwind (`w-full`, `min-h-12`, etc.) la pisa.
+   */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value,
+  input[type="datetime-local"]::-webkit-date-and-time-value,
+  input[type="month"]::-webkit-date-and-time-value {
+    text-align: left;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-mark);
     outline-offset: 2px;
