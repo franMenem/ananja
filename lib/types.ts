@@ -2286,6 +2286,60 @@ export type Database = {
           },
         ]
       }
+      movimientos_stock_borrados: {
+        Row: {
+          borrado_at: string
+          borrado_por: string | null
+          cantidad: number
+          comprobante_id: string | null
+          created_at: string
+          entrega_id: string | null
+          feria_id: string | null
+          id: string
+          lote_id: string | null
+          motivo: string | null
+          movimiento_id: string
+          nota: string | null
+          producto_id: string
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id: string
+        }
+        Insert: {
+          borrado_at?: string
+          borrado_por?: string | null
+          cantidad: number
+          comprobante_id?: string | null
+          created_at: string
+          entrega_id?: string | null
+          feria_id?: string | null
+          id?: string
+          lote_id?: string | null
+          motivo?: string | null
+          movimiento_id: string
+          nota?: string | null
+          producto_id: string
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id: string
+        }
+        Update: {
+          borrado_at?: string
+          borrado_por?: string | null
+          cantidad?: number
+          comprobante_id?: string | null
+          created_at?: string
+          entrega_id?: string | null
+          feria_id?: string | null
+          id?: string
+          lote_id?: string | null
+          motivo?: string | null
+          movimiento_id?: string
+          nota?: string | null
+          producto_id?: string
+          tipo?: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id?: string
+        }
+        Relationships: []
+      }
       notificaciones: {
         Row: {
           created_at: string
@@ -5039,6 +5093,7 @@ export type Database = {
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
       eliminar_deposito_cuenta: { Args: { p_deposito_id: string }; Returns: Json }
+      eliminar_movimiento_stock: { Args: { p_movimiento_id: string }; Returns: Json }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       es_admin: { Args: never; Returns: boolean }
