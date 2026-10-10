@@ -29,6 +29,8 @@ export function SeccionVentas({
   onCambiarFecha,
   conEntrega,
   vendedorNombre,
+  tomaDirecto,
+  delDeposito,
   productos,
   disponible,
   entregado,
@@ -53,6 +55,11 @@ export function SeccionVentas({
   onCambiarFecha: (fecha: string) => void;
   conEntrega: boolean;
   vendedorNombre: string;
+  /** "Agarra directo del depósito" (0073): se ofrecen todos los productos y
+   * lo que falte se saca del depósito (aviso, no problema). */
+  tomaDirecto: boolean;
+  /** Botellas que se van a sacar del depósito, por producto. */
+  delDeposito: { productoId: string; cantidad: number }[];
   productos: { id: string; nombre: string }[];
   disponible: Record<string, number>;
   entregado: Record<string, number>;
@@ -69,7 +76,7 @@ export function SeccionVentas({
   problemas: ProblemaCarga[];
 }) {
   const productosVenta = productos.filter(
-    (p) => (disponible[p.id] ?? 0) > 0 || lineas[p.id].some((l) => l.cantidad > 0),
+    (p) => tomaDirecto || (disponible[p.id] ?? 0) > 0 || lineas[p.id].some((l) => l.cantidad > 0),
   );
 
   return (
@@ -101,6 +108,13 @@ export function SeccionVentas({
           <p className="mt-1 text-[11px] text-text-muted">La misma fecha de la entrega.</p>
         )}
       </div>
+
+      {tomaDirecto && (
+        <p className="text-[12px] text-text-muted">
+          {vendedorNombre} agarra directo del depósito: lo que venda de más de lo que tiene se saca
+          solo del depósito y queda anotado como entrega automática.
+        </p>
+      )}
 
       {productosVenta.length === 0 ? (
         <p className="text-sm text-text-muted">
@@ -226,6 +240,18 @@ export function SeccionVentas({
             </div>
           );
         })
+      )}
+
+      {delDeposito.length > 0 && (
+        <div className="flex flex-col gap-1 border-y border-border py-3 text-sm">
+          {delDeposito.map((d) => (
+            <p key={d.productoId} className="text-text">
+              {d.cantidad} {envase(d.cantidad)} de{" "}
+              {productos.find((p) => p.id === d.productoId)?.nombre ?? "un producto"} se van a sacar
+              del depósito.
+            </p>
+          ))}
+        </div>
       )}
 
       <div className="flex flex-col gap-2">

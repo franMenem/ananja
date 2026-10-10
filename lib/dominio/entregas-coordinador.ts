@@ -17,6 +17,9 @@ export interface EntregaCruda {
   tipo: string;
   fecha: string;
   created_at: string;
+  /** La generó el sistema (0073). Opcional para quien arma filas a mano
+   * (tests): sin dato = manual. */
+  automatica?: boolean;
 }
 
 export interface ItemEntregaCrudo {
@@ -39,6 +42,10 @@ export interface FilaEntregaCoordinadora {
   tipo: "entrega" | "devolucion";
   fecha: string;
   createdAt: string;
+  /** Entrega (o devolución) que se anotó sola cuando una revendedora que
+   * "agarra directo del depósito" vendió botellas que no tenía (0073): no la
+   * hizo la coordinadora ni nadie a mano. */
+  automatica: boolean;
   revendedoraId: string;
   revendedoraNombre: string;
   /** Nombre de quien la registró cuando NO fue la propia coordinadora
@@ -56,8 +63,11 @@ export interface TotalPorProducto {
 export interface EntregasCoordinadora {
   /** De la más nueva a la más vieja. */
   filas: FilaEntregaCoordinadora[];
-  /** Entregadas − devueltas, todos los productos. */
+  /** Entregadas − devueltas, todos los productos. No cuenta las entregas
+   * automáticas (lo que las revendedoras agarraron solas del depósito). */
   totalBotellas: number;
+  /** Hay entregas automáticas en la lista (no están en los totales). */
+  hayAutomaticas: boolean;
   /** Lo mismo, por producto (solo los que no dan cero), por nombre. */
   totalPorProducto: TotalPorProducto[];
 }
@@ -92,9 +102,11 @@ export function armarEntregasCoordinadora(datos: DatosEntregasCoordinadora): Ent
     tipo: e.tipo === "devolucion" ? "devolucion" : "entrega",
     fecha: e.fecha,
     createdAt: e.created_at,
+    automatica: e.automatica === true,
     revendedoraId: e.vendedor_id,
     revendedoraNombre: nombrePorVendedor.get(e.vendedor_id) ?? "?",
-    cargadaPor: e.admin_id === coordinadorId ? null : (nombrePorVendedor.get(e.admin_id) ?? "alguien"),
+    // Una entrega automática no la cargó nadie a mano: no se dice quién.
+    cargadaPor: e.automatica === true || e.admin_id === coordinadorId ? null : (nombrePorVendedor.get(e.admin_id) ?? "alguien"),
     items: itemsPorEntrega.get(e.id) ?? [],
   }));
   filas.sort((a, b) => compararPorFechaDesc(a, b) || a.id.localeCompare(b.id));
@@ -102,6 +114,7 @@ export function armarEntregasCoordinadora(datos: DatosEntregasCoordinadora): Ent
   let totalBotellas = 0;
   const porProducto = new Map<string, number>();
   for (const f of filas) {
+    if (f.automatica) continue;
     const signo = f.tipo === "devolucion" ? -1 : 1;
     for (const it of f.items) {
       totalBotellas += signo * it.cantidad;
@@ -113,5 +126,5 @@ export function armarEntregasCoordinadora(datos: DatosEntregasCoordinadora): Ent
     .map(([productoNombre, cantidad]) => ({ productoNombre, cantidad }))
     .sort((a, b) => a.productoNombre.localeCompare(b.productoNombre));
 
-  return { filas, totalBotellas, totalPorProducto };
+  return { filas, totalBotellas, hayAutomaticas: filas.some((f) => f.automatica), totalPorProducto };
 }

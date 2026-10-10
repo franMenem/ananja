@@ -9,7 +9,7 @@ import { ENTREGA_NUEVA_ID, type CargaInput, type ResumenCarga } from "@/lib/domi
 import type { CargaParecida } from "@/lib/dominio/cargas-parecidas";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import { NEGOCIO } from "@/lib/negocio";
+import { NEGOCIO, envase } from "@/lib/negocio";
 
 /**
  * "Revisá todo": exactamente lo que se va a guardar para la revendedora
@@ -123,6 +123,12 @@ export function Revision({
                     : " · sin costo"}
                 </span>
               ))}
+              {v.faltante > 0 && (
+                <span className="text-[12px] text-text-muted">
+                  {v.faltante} {envase(v.faltante)} se sacan del depósito (entrega automática):
+                  su costo se calcula al guardar.
+                </span>
+              )}
               <span className="text-[12px] text-text">
                 Le suma {formatCentavos(v.costoCentavos ?? 0)} a lo que debe
                 {" · "}

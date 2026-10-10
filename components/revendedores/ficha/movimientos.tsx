@@ -7,6 +7,7 @@ import { Separador } from "@/components/plata/separador";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
+import { etiquetaEntregaAutomatica } from "@/lib/dominio/venta-directa";
 import { EVENTO_MOSTRAR_TODOS_MOVIMIENTOS } from "@/lib/eventos-cliente";
 import { formatFecha } from "@/lib/fechas";
 import { LIMITE_MOVIMIENTOS_VISIBLES, type MovimientoRevendedor } from "@/lib/dominio/movimientos-revendedor";
@@ -95,6 +96,11 @@ export function MovimientosFicha({
               <span className="font-medium text-text">
                 {m.tipo === "entrega" ? "Entrega" : "Devolución"} · {formatFecha(m.fecha)}
               </span>
+              {m.automatica && (
+                <p className="text-[11px] text-text-muted">
+                  {etiquetaEntregaAutomatica(m.tipo, true)}
+                </p>
+              )}
               <p className="text-xs text-text-muted">
                 {m.items.map((it, i) => {
                   const producto = nombrePorProducto.get(it.productoId) ?? "?";

@@ -46,6 +46,9 @@ type CargaFormProps = {
    * `null` → queda el admin que carga. */
   encargadoNombre: string | null;
   deudaCentavos: number;
+  /** "Agarra directo del depósito" (0073): el faltante de stock en las
+   * ventas deja de ser un problema y pasa a ser un aviso. */
+  tomaDirecto?: boolean;
   /** Pagos que ella informó y todavía no se confirmaron ni rechazaron. */
   pagosPendientes: PagoPendienteCarga[];
   productos: { id: string; nombre: string }[];
@@ -81,6 +84,7 @@ export function CargaForm({
   seccionInicial,
   encargadoNombre,
   deudaCentavos,
+  tomaDirecto = false,
   pagosPendientes,
   productos,
   lotes,
@@ -101,7 +105,14 @@ export function CargaForm({
     envasePlural: envase(2),
     formatFecha,
   };
-  const estado: EstadoRevendedora = { items, ventas, preciosManuales, deudaCentavos, hoy };
+  const estado: EstadoRevendedora = {
+    items,
+    ventas,
+    preciosManuales,
+    deudaCentavos,
+    hoy,
+    tomaDirecto,
+  };
 
   const tramos = stockConEntregaNueva(estado, entrega.input);
   const disponible = disponiblePorProducto(tramos);
@@ -198,6 +209,8 @@ export function CargaForm({
           onCambiarFecha={ventasSeccion.setFecha}
           conEntrega={entrega.activa}
           vendedorNombre={vendedorNombre}
+          tomaDirecto={tomaDirecto}
+          delDeposito={resumen.delDeposito}
           productos={productos}
           disponible={disponible}
           entregado={entregado}

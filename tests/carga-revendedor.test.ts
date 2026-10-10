@@ -851,3 +851,95 @@ describe("armarPedidoCarga: snapshot de protección del payload completo", () =>
     expect(JSON.stringify(resultado)).toBe(JSON.stringify({ p_entrega: null, p_ventas: null, p_pago: null }));
   });
 });
+
+describe("agarra directo del depósito (0073)", () => {
+  // Tiene 12 en poder (10 + 2): la persona carga 20 vendidas.
+  const conStock = estado({
+    items: [
+      item({ id: "i1", entregaId: "e1", cantidad: 10, fecha: "2026-08-01" }),
+      item({ id: "i2", entregaId: "e2", cantidad: 2, fecha: "2026-08-02", costoAnanjaUnitarioCentavos: 900_000 }),
+    ],
+  });
+  const ventas20: CargaInput = {
+    ...vacio,
+    ventas: {
+      fecha: "2026-08-15",
+      medioPago: null,
+      filas: [{ productoId: "p500", cantidad: 20, precioVentaCentavos: 1_500_000, sinPrecio: false, loteId: null }],
+    },
+  };
+
+  it("sin el flag, el faltante sigue siendo un problema que bloquea (igual que hoy)", () => {
+    const problemas = validarCarga(conStock, ventas20, textos);
+    expect(problemas).toEqual([
+      { seccion: "ventas", productoId: "p500", mensaje: "Botella 500 ml: va a tener 12 y cargaste 20 vendidas." },
+    ]);
+    expect(resumirCarga(conStock, ventas20).botellasDelDeposito).toBe(0);
+    expect(resumirCarga(conStock, ventas20).delDeposito).toEqual([]);
+  });
+
+  it("con el flag, el faltante deja de ser un problema y se informa cuántas salen del depósito", () => {
+    const e = { ...conStock, tomaDirecto: true };
+    expect(validarCarga(e, ventas20, textos)).toEqual([]);
+    const r = resumirCarga(e, ventas20);
+    expect(r.delDeposito).toEqual([{ productoId: "p500", cantidad: 8 }]);
+    expect(r.botellasDelDeposito).toBe(8);
+    // Solo las 12 propias suman a la deuda: lo del depósito lo fija el servidor.
+    expect(r.costoVentasCentavos).toBe(10 * 1_000_000 + 2 * 900_000);
+  });
+
+  it("con el flag y sin nada en poder, todo sale del depósito", () => {
+    const e = estado({ tomaDirecto: true });
+    expect(validarCarga(e, ventas20, textos)).toEqual([]);
+    expect(resumirCarga(e, ventas20).delDeposito).toEqual([{ productoId: "p500", cantidad: 20 }]);
+  });
+
+  it("con el flag y lote elegido, el faltante se mide contra ESE lote", () => {
+    const e = { ...conStock, tomaDirecto: true };
+    const conLote: CargaInput = {
+      ...vacio,
+      ventas: {
+        fecha: "2026-08-15",
+        medioPago: null,
+        filas: [{ productoId: "p500", cantidad: 15, precioVentaCentavos: 1_500_000, sinPrecio: false, loteId: "lote-a" }],
+      },
+    };
+    expect(validarCarga(e, conLote, textos)).toEqual([]);
+    expect(resumirCarga(e, conLote).delDeposito).toEqual([{ productoId: "p500", cantidad: 3 }]);
+  });
+
+  it("con el flag, lo demás se sigue validando (fecha anterior a la entrega propia)", () => {
+    const e = { ...conStock, tomaDirecto: true };
+    const antes: CargaInput = {
+      ...vacio,
+      ventas: {
+        fecha: "2026-07-01",
+        medioPago: null,
+        filas: [{ productoId: "p500", cantidad: 20, precioVentaCentavos: 1_500_000, sinPrecio: false, loteId: null }],
+      },
+    };
+    const problemas = validarCarga(e, antes, textos);
+    expect(problemas).toHaveLength(1);
+    expect(problemas[0].mensaje).toContain("Cambiá la fecha de las ventas");
+  });
+
+  it("traduce los errores nuevos del servidor, con el detalle anidado de la carga unificada", () => {
+    const err = traducirErrorCarga(
+      "ventas:DEPOSITO_INSUFICIENTE",
+      JSON.stringify({
+        seccion: "ventas",
+        fila: 0,
+        producto_id: "p500",
+        codigo: "DEPOSITO_INSUFICIENTE",
+        detalle: JSON.stringify({ producto: "Botella 500 ml", producto_id: "p500", disponible: 4 }),
+      }),
+      textos,
+    );
+    expect(err).toMatchObject({ seccion: "ventas", codigo: "DEPOSITO_INSUFICIENTE", productoId: "p500", disponible: 4 });
+    expect(err.mensaje).toBe(
+      "Ventas · Botella 500 ml: No hay tantas en el depósito para cubrir lo que le falta. Quedan 4.",
+    );
+    expect(err.permiteGuardarIgual).toBe(false);
+    expect(traducirErrorCarga("ventas:COSTO_FALTANTE", null, textos).mensaje).toContain("costos");
+  });
+});

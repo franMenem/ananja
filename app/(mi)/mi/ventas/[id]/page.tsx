@@ -109,7 +109,9 @@ export default async function VentaDetallePage({
             <span key={f.id} className="text-[13px] text-text-muted">
               {f.cantidad}
               {f.entrega_items?.entregas_revendedor
-                ? ` de la entrega del ${formatFecha(f.entrega_items.entregas_revendedor.fecha)}`
+                ? f.entrega_items.entregas_revendedor.automatica
+                  ? ` que agarraste del depósito el ${formatFecha(f.entrega_items.entregas_revendedor.fecha)}`
+                  : ` de la entrega del ${formatFecha(f.entrega_items.entregas_revendedor.fecha)}`
                 : ""}{" "}
               · le debés {formatCentavos(f.precio_costo_centavos)} c/u
             </span>
