@@ -1017,30 +1017,36 @@ export type Database = {
       entregas_revendedor: {
         Row: {
           admin_id: string
+          automatica: boolean
           created_at: string
           fecha: string
           id: string
           nota: string | null
           tipo: string
           vendedor_id: string
+          venta_grupo_id: string | null
         }
         Insert: {
           admin_id: string
+          automatica?: boolean
           created_at?: string
           fecha?: string
           id?: string
           nota?: string | null
           tipo: string
           vendedor_id: string
+          venta_grupo_id?: string | null
         }
         Update: {
           admin_id?: string
+          automatica?: boolean
           created_at?: string
           fecha?: string
           id?: string
           nota?: string | null
           tipo?: string
           vendedor_id?: string
+          venta_grupo_id?: string | null
         }
         Relationships: [
           {
@@ -2791,6 +2797,7 @@ export type Database = {
           nota: string | null
           tenedor_id: string | null
           vendedor_id: string
+          venta_grupo_id: string | null
           via: string
         }
         Insert: {
@@ -2804,6 +2811,7 @@ export type Database = {
           nota?: string | null
           tenedor_id?: string | null
           vendedor_id: string
+          venta_grupo_id?: string | null
           via?: string
         }
         Update: {
@@ -2817,6 +2825,7 @@ export type Database = {
           nota?: string | null
           tenedor_id?: string | null
           vendedor_id?: string
+          venta_grupo_id?: string | null
           via?: string
         }
         Relationships: [
@@ -2961,6 +2970,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rendiciones_borradas: {
+        Row: {
+          admin_id: string
+          borrada_at: string
+          borrada_por: string | null
+          created_at: string
+          encargado_diferencia_id: string | null
+          fecha: string
+          id: string
+          medio_pago: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos: number
+          nota: string | null
+          rendicion_id: string
+          tenedor_id: string | null
+          vendedor_id: string
+          venta_grupo_id: string | null
+          via: string
+        }
+        Insert: {
+          admin_id: string
+          borrada_at?: string
+          borrada_por?: string | null
+          created_at: string
+          encargado_diferencia_id?: string | null
+          fecha: string
+          id?: string
+          medio_pago: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos: number
+          nota?: string | null
+          rendicion_id: string
+          tenedor_id?: string | null
+          vendedor_id: string
+          venta_grupo_id?: string | null
+          via: string
+        }
+        Update: {
+          admin_id?: string
+          borrada_at?: string
+          borrada_por?: string | null
+          created_at?: string
+          encargado_diferencia_id?: string | null
+          fecha?: string
+          id?: string
+          medio_pago?: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos?: number
+          nota?: string | null
+          rendicion_id?: string
+          tenedor_id?: string | null
+          vendedor_id?: string
+          venta_grupo_id?: string | null
+          via?: string
+        }
+        Relationships: []
       }
       revendedor_precios: {
         Row: {
@@ -3122,6 +3185,7 @@ export type Database = {
           nombre: string
           revende: boolean
           rol: string
+          toma_directo: boolean
           user_id: string | null
         }
         Insert: {
@@ -3133,6 +3197,7 @@ export type Database = {
           nombre: string
           revende?: boolean
           rol?: string
+          toma_directo?: boolean
           user_id?: string | null
         }
         Update: {
@@ -3144,6 +3209,7 @@ export type Database = {
           nombre?: string
           revende?: boolean
           rol?: string
+          toma_directo?: boolean
           user_id?: string | null
         }
         Relationships: [
@@ -5127,6 +5193,10 @@ export type Database = {
           p_medio_pago?: Database["public"]["Enums"]["medio_pago"]
           p_precio_venta_centavos: number
         }
+      fijar_toma_directo: {
+        Args: { p_habilitar: boolean; p_vendedor_id: string }
+        Returns: Json
+      }
         Returns: Json
       }
       guardar_proveedor: { Args: { p_nombre: string }; Returns: undefined }
@@ -5326,6 +5396,17 @@ export type Database = {
         }
         Returns: Json
       }
+      registrar_venta_coordinador: {
+        Args: {
+          p_cantidad: number
+          p_coordinador_id: string
+          p_fecha: string
+          p_lote_id: string
+          p_nota?: string
+          p_producto_id: string
+        }
+        Returns: Json
+      }
       registrar_venta_revendedor: {
         Args: {
           p_cantidad: number
@@ -5371,6 +5452,18 @@ export type Database = {
           precio_sugerido_centavos: number
           quedan: number
         }[]
+      }
+      tomar_del_deposito: {
+        Args: {
+          p_cantidad: number
+          p_fecha: string
+          p_lote_id: string
+          p_nota?: string
+          p_producto_id: string
+          p_vendedor_id: string
+          p_venta_grupo_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
