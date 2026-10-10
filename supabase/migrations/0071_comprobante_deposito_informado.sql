@@ -83,11 +83,13 @@
 -- Errores nuevos: `COMPROBANTE_INVALIDO` (path fuera de la carpeta propia o
 -- con forma de escape). El resto es igual que en 0057.
 --
--- SIN APLICAR: queda para que Fran la aplique cuando decida (SQL Editor o
--- `supabase db push`, igual que 0063-0070 recientes). Después de aplicarla:
--- regenerar `lib/types.ts` (el repo trae la columna y el argumento editados a
--- mano en el formato del generador) y correr el bloque de verificación de solo
--- lectura del final de este archivo.
+-- APLICADA y verificada en producción (schema `public`) el 2026-10-10.
+-- Verificación por `pg_proc`, `information_schema.columns` y `pg_policies`:
+-- una sola `informar_deposito_cuenta(medio_pago, bigint, date, text, text)`,
+-- columna `imagen_path` nullable, y las policies
+-- `storage_insert_coordinador_public` y `storage_select_coordinador_public`.
+-- El bloque de verificación de solo lectura del final de este archivo sirve
+-- para volver a chequearlo cuando haga falta.
 
 -- ============================================================
 -- 1) depositos_informados.imagen_path
