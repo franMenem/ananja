@@ -336,6 +336,7 @@ export default async function RevendedorDetallePage({
         pendienteCentavos={deudaResumen.pendienteCentavos}
         rendidoCentavos={resumen?.rendido_centavos ?? 0}
         encargadoActualId={revendedor.encargado_id}
+        tomaDirecto={revendedor.toma_directo}
         coordinadores={coordinadores}
       />
 

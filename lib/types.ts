@@ -5193,10 +5193,10 @@ export type Database = {
           p_medio_pago?: Database["public"]["Enums"]["medio_pago"]
           p_precio_venta_centavos: number
         }
-      fijar_toma_directo: {
-        Args: { p_habilitar: boolean; p_vendedor_id: string }
         Returns: Json
       }
+      fijar_toma_directo: {
+        Args: { p_habilitar: boolean; p_vendedor_id: string }
         Returns: Json
       }
       guardar_proveedor: { Args: { p_nombre: string }; Returns: undefined }
