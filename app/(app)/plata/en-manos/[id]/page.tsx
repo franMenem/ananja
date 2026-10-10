@@ -3,10 +3,13 @@ import { notFound } from "next/navigation";
 
 import { FormPage } from "@/components/app/form-page";
 import { ListaMovimientos } from "@/components/caja/lista-movimientos";
+import { DesgloseLotes } from "@/components/plata/desglose-por-lote";
 import { cargarMovimientosPlata, obtenerPersonaEnManos } from "@/lib/data/plata";
+import { cargarLineasPorLote } from "@/lib/data/plata-por-lote";
 import { diasEntre, fechaArgentinaDeTimestamp, hoyISO } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { ingresosEnManos, montoEnManos } from "@/lib/dominio/movimientos-plata";
+import { armarDesglose } from "@/lib/dominio/plata-por-lote";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/server";
 import { fechaPlataEnManoMasVieja } from "@/lib/dominio/tareas";
@@ -50,6 +53,11 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
   const esCoordinador = persona.rol === "coordinador";
   const etiquetaTotal = esCoordinador ? "tiene que pasar a Ananja" : "tiene en mano";
   const etiquetaDesglose = esCoordinador ? "Tiene que pasar a Ananja" : "Tiene en mano";
+  // El desglose por lote solo aplica a una coordinadora con plata por pasar.
+  // Se pide recién acá (después de saber el rol y que el id existe) para no
+  // leer ventas y rendiciones de quien no lo muestra ni ante un id inválido.
+  const desgloseLotes =
+    esCoordinador && total > 0 ? armarDesglose(await cargarLineasPorLote(supabase, id), total) : null;
   const items = filas.map((fila) => ({ fila, montoCentavos: montoEnManos(fila.mov, id) ?? 0 }));
   const sumaLista = items.reduce((acc, i) => acc + i.montoCentavos, 0);
   const desde = fechaPlataEnManoMasVieja(
@@ -126,6 +134,8 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
           </div>
         </div>
       )}
+
+      {desgloseLotes && <DesgloseLotes desglose={desgloseLotes} />}
 
       <div className="flex items-center gap-2.5 pt-2">
         <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">

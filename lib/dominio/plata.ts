@@ -145,6 +145,93 @@ export interface RendicionEncargado {
 }
 
 /**
+ * Un tramo de una rendición: la porción de la franja de pago que cae sobre
+ * UNA venta (o sobre el excedente, `venta = null`) y la parte Ananja exacta
+ * (sin redondear) que ese tramo aporta.
+ */
+export interface TramoRendicionFifo<V> {
+  venta: V | null;
+  parteExacta: number;
+}
+
+/** Una rendición con la parte Ananja exacta (sin redondear) y los tramos que la componen. */
+export interface RendicionFifoDesglosada<V> {
+  tenedorId: string;
+  vendedorId: string;
+  parteExacta: number;
+  tramos: TramoRendicionFifo<V>[];
+}
+
+/**
+ * Recorrido FIFO de franjas compartido por `calcularParteAnanjaFifo` y por
+ * el desglose por lote (`lib/dominio/plata-por-lote.ts`): así los dos
+ * recorren exactamente las mismas franjas y no pueden divergir. Espejo de
+ * `ventas_rango`/`pagos_rango`/`partes_venta`/`excedentes` de la vista SQL
+ * (0061). Devuelve una entrada por rendición (mismo orden que `rendiciones`)
+ * con su parte Ananja exacta y los tramos que la componen: un tramo por
+ * cada venta que el pago cubre (en el orden de `ventas`) y, si el pago se
+ * pasa de lo vendido, un último tramo con `venta = null` (excedente).
+ */
+export function recorrerFranjasFifo<V extends VentaCostoAnanjaRevendedor>(
+  ventas: V[],
+  rendiciones: RendicionEncargado[],
+): RendicionFifoDesglosada<V>[] {
+  interface Franja {
+    inicio: number;
+    fin: number;
+    ananjaCentavos: number;
+    pesosCentavos: number;
+    venta: V;
+  }
+
+  // 1) Franjas de deuda por vendedor, en el orden de `ventas` (ya
+  //    cronológico — ver el docstring de `VentaCostoAnanjaRevendedor`).
+  const franjasPorVendedor = new Map<string, Franja[]>();
+  const deudaTotalPorVendedor = new Map<string, number>();
+  for (const v of ventas) {
+    const pesosCentavos = v.precioCostoCentavos * v.cantidad;
+    if (pesosCentavos <= 0) continue;
+    const inicio = deudaTotalPorVendedor.get(v.vendedorId) ?? 0;
+    const fin = inicio + pesosCentavos;
+    const franjas = franjasPorVendedor.get(v.vendedorId) ?? [];
+    franjas.push({ inicio, fin, ananjaCentavos: v.costoAnanjaCentavos * v.cantidad, pesosCentavos, venta: v });
+    franjasPorVendedor.set(v.vendedorId, franjas);
+    deudaTotalPorVendedor.set(v.vendedorId, fin);
+  }
+
+  // 2) Recorrer `rendiciones` en orden (ya cronológico por vendedor — ver
+  //    su docstring) acumulando, por vendedor, cuánto se pagó hasta ahora:
+  //    la franja de CADA pago es [pagadoPrevio, pagadoPrevio + monto).
+  const pagadoPorVendedor = new Map<string, number>();
+  return rendiciones.map((r) => {
+    const inicio = pagadoPorVendedor.get(r.vendedorId) ?? 0;
+    const fin = inicio + r.montoCentavos;
+    pagadoPorVendedor.set(r.vendedorId, fin);
+
+    const tramos: TramoRendicionFifo<V>[] = [];
+    let parteVentas = 0;
+    for (const f of franjasPorVendedor.get(r.vendedorId) ?? []) {
+      const solapa = Math.min(fin, f.fin) - Math.max(inicio, f.inicio);
+      if (solapa > 0) {
+        const parte = (solapa * f.ananjaCentavos) / f.pesosCentavos;
+        parteVentas += parte;
+        tramos.push({ venta: f.venta, parteExacta: parte });
+      }
+    }
+    const deudaTotal = deudaTotalPorVendedor.get(r.vendedorId) ?? 0;
+    const excedente = Math.max(fin - Math.max(inicio, deudaTotal), 0);
+    if (excedente > 0) tramos.push({ venta: null, parteExacta: excedente });
+
+    return {
+      tenedorId: r.tenedorId,
+      vendedorId: r.vendedorId,
+      parteExacta: parteVentas + excedente,
+      tramos,
+    };
+  });
+}
+
+/**
  * Espejo de `v_rendiciones_ananja` (0061_rendiciones_ananja_fifo.sql): la
  * parte Ananja de CADA rendición `via = 'encargado'`, calculada FIFO en
  * vez de con un ratio promedio (reemplaza a la vieja
@@ -182,52 +269,7 @@ export function calcularParteAnanjaFifo(
   ventas: VentaCostoAnanjaRevendedor[],
   rendiciones: RendicionEncargado[],
 ): MovimientoTenedor[] {
-  interface Franja {
-    inicio: number;
-    fin: number;
-    ananjaCentavos: number;
-    pesosCentavos: number;
-  }
-
-  // 1) Franjas de deuda por vendedor, en el orden de `ventas` (ya
-  //    cronológico — ver el docstring de `VentaCostoAnanjaRevendedor`).
-  const franjasPorVendedor = new Map<string, Franja[]>();
-  const deudaTotalPorVendedor = new Map<string, number>();
-  for (const v of ventas) {
-    const pesosCentavos = v.precioCostoCentavos * v.cantidad;
-    if (pesosCentavos <= 0) continue;
-    const inicio = deudaTotalPorVendedor.get(v.vendedorId) ?? 0;
-    const fin = inicio + pesosCentavos;
-    const franjas = franjasPorVendedor.get(v.vendedorId) ?? [];
-    franjas.push({ inicio, fin, ananjaCentavos: v.costoAnanjaCentavos * v.cantidad, pesosCentavos });
-    franjasPorVendedor.set(v.vendedorId, franjas);
-    deudaTotalPorVendedor.set(v.vendedorId, fin);
-  }
-
-  // 2) Recorrer `rendiciones` en orden (ya cronológico por vendedor — ver
-  //    su docstring) acumulando, por vendedor, cuánto se pagó hasta ahora:
-  //    la franja de CADA pago es [pagadoPrevio, pagadoPrevio + monto).
-  const pagadoPorVendedor = new Map<string, number>();
-  interface Parcial {
-    tenedorId: string;
-    vendedorId: string;
-    parteExacta: number;
-  }
-  const partes: Parcial[] = rendiciones.map((r) => {
-    const inicio = pagadoPorVendedor.get(r.vendedorId) ?? 0;
-    const fin = inicio + r.montoCentavos;
-    pagadoPorVendedor.set(r.vendedorId, fin);
-
-    let parteVentas = 0;
-    for (const f of franjasPorVendedor.get(r.vendedorId) ?? []) {
-      const solapa = Math.min(fin, f.fin) - Math.max(inicio, f.inicio);
-      if (solapa > 0) parteVentas += (solapa * f.ananjaCentavos) / f.pesosCentavos;
-    }
-    const deudaTotal = deudaTotalPorVendedor.get(r.vendedorId) ?? 0;
-    const excedente = Math.max(fin - Math.max(inicio, deudaTotal), 0);
-
-    return { tenedorId: r.tenedorId, vendedorId: r.vendedorId, parteExacta: parteVentas + excedente };
-  });
+  const partes = recorrerFranjasFifo(ventas, rendiciones);
 
   // 3) Redondeo por grupo (tenedorId, vendedorId) — la última fila del
   //    grupo (por orden de aparición) absorbe el resto.
