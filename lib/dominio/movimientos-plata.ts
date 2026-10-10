@@ -176,6 +176,45 @@ export function describirDeposito(tenedor: string): string {
   return `${tenedor} pasó a la cuenta`;
 }
 
+/** Nota que `confirmar_deposito_informado` (0057) le pone al depósito real
+ * cuando el aviso de la coordinadora no traía una propia. Se esconde del
+ * detalle: ya lo dice "lo avisó desde la app". */
+export const NOTA_DEPOSITO_AVISADO_POR_DEFECTO = "Depósito informado desde la app";
+
+/**
+ * Detalle de una fila de depósito ("pasó a la cuenta") en las listas de
+ * movimientos:
+ *  - cargado a mano por un admin: la nota + "lo anotó {admin}" (solo si
+ *    quien lo anotó no es la misma persona que tenía la plata);
+ *  - nacido de un aviso de una coordinadora (`depositos_informados`):
+ *    la nota (si escribió una) + "lo avisó desde la app · lo confirmó
+ *    {admin}". Para esos depósitos `depositos_cuenta.vendedor_id` es el
+ *    admin que confirmó, no quien avisó.
+ * `null` si no queda nada para mostrar.
+ */
+export function detalleDeposito(args: {
+  nota: string | null;
+  tenedorId: string;
+  /** Quien figura como autor del depósito (`depositos_cuenta.vendedor_id`). */
+  autorId: string;
+  /** El depósito salió de un aviso confirmado de una coordinadora. */
+  avisado: boolean;
+  /** Admin que confirmó el aviso (`depositos_informados.resuelto_por`); si
+   * no se sabe, se usa `autorId`. */
+  confirmoId?: string | null;
+  nombreDe: (id: string | null) => string;
+}): string | null {
+  const { nota, tenedorId, autorId, avisado, confirmoId, nombreDe } = args;
+  const partes: (string | null)[] = avisado
+    ? [
+        nota && nota.trim() !== NOTA_DEPOSITO_AVISADO_POR_DEFECTO ? nota : null,
+        "lo avisó desde la app",
+        `lo confirmó ${nombreDe(confirmoId ?? autorId)}`,
+      ]
+    : [nota, autorId !== tenedorId ? `lo anotó ${nombreDe(autorId)}` : null];
+  return partes.filter((p): p is string => Boolean(p && p.trim())).join(" · ") || null;
+}
+
 /**
  * Ingresos a la mano de una persona, para calcular desde cuándo tiene la
  * plata (`fechaPlataEnManoMasVieja` de `lib/tareas.ts`). Mismo criterio que
@@ -241,6 +280,10 @@ export interface FilaMovimiento {
   ajuste: { medioPago: MedioPago; nota: string; montoCentavos: number } | null;
   /** Solo depósitos: datos para eliminar (`EliminarDepositoAccion`; el id es `id`). */
   deposito: { medioPago: MedioPago; montoCentavos: number; tenedor: string } | null;
+  /** Solo depósitos que nacieron de un aviso con comprobante adjunto
+   * (0071): link firmado para abrirlo. `null` si no tiene o no se pudo
+   * firmar (la fila sale sin link, no falla). */
+  comprobanteUrl: string | null;
 }
 
 /** Cuántas filas más trae cada "Ver más" de la lista general de `/plata`. */

@@ -83,7 +83,29 @@ export type AccionTarea =
       /** Quién avisó (el coordinador) — el depósito real, al confirmar,
        * queda a SU nombre (`tenedor_id`), nunca al del admin que confirma. */
       tenedorNombre: string;
+      /** Comprobante de la transferencia que adjuntó (0071). `null` en los
+       * avisos viejos, anteriores a esa migración. */
+      imagenPath: string | null;
+      /** Signed URL del comprobante — la completa la página (server). */
+      comprobanteUrl?: string | null;
     };
+
+/** Path de Storage del comprobante que una tarea de confirmar (pago o
+ * depósito avisado) puede mostrar, o `null` si la tarea no tiene. */
+export function comprobantePathDeTarea(tarea: Tarea): string | null {
+  const accion = tarea.accion;
+  if (accion?.tipo === "confirmar_pago" || accion?.tipo === "confirmar_deposito") return accion.imagenPath;
+  return null;
+}
+
+/** La misma tarea con la signed URL de su comprobante (`urls`: path → URL,
+ * `null`/ausente si no se pudo firmar — la tarea queda sin link, no falla). */
+export function conComprobanteUrl(tarea: Tarea, urls: Record<string, string | null>): Tarea {
+  const path = comprobantePathDeTarea(tarea);
+  const accion = tarea.accion;
+  if (path === null || (accion?.tipo !== "confirmar_pago" && accion?.tipo !== "confirmar_deposito")) return tarea;
+  return { ...tarea, accion: { ...accion, comprobanteUrl: urls[path] ?? null } };
+}
 
 export interface Tarea {
   id: string;
@@ -141,6 +163,9 @@ export interface DepositoInformadoTarea {
   medio_pago: MedioPago;
   /** Día (Argentina) en que lo avisó — desde ahí corre la espera. */
   informado_el: string;
+  /** Path del comprobante de la transferencia (0071); `null` en los avisos
+   * viejos, anteriores a esa migración. */
+  imagen_path: string | null;
 }
 
 export interface PlataEnManoTarea {
@@ -505,6 +530,7 @@ function tareasDepositosInformados(depositos: DepositoInformadoTarea[], hoy: str
         montoCentavos: d.monto_centavos,
         medioPago: d.medio_pago,
         tenedorNombre: d.tenedor_nombre,
+        imagenPath: d.imagen_path,
       },
     };
   });

@@ -13,6 +13,8 @@ import { getSignedUrls } from "@/lib/storage";
 import {
   agruparPedidosPorPagar,
   calcularTareas,
+  comprobantePathDeTarea,
+  conComprobanteUrl,
   esPedidoViejoSinCostos,
   faltantesCostosLote,
   fechaPlataEnManoMasVieja,
@@ -487,7 +489,9 @@ async function listarPagosPorConfirmar(supabase: Supa): Promise<PagoPorConfirmar
 async function listarDepositosInformadosPorConfirmar(supabase: Supa): Promise<DepositoInformadoTarea[]> {
   const { data, error } = await supabase
     .from("depositos_informados")
-    .select("id, tenedor_id, monto_centavos, medio_pago, created_at, tenedor:vendedores!depositos_informados_tenedor_id_fkey(nombre)")
+    .select(
+      "id, tenedor_id, monto_centavos, medio_pago, created_at, imagen_path, tenedor:vendedores!depositos_informados_tenedor_id_fkey(nombre)",
+    )
     .eq("estado", "pendiente");
 
   if (error) {
@@ -502,6 +506,7 @@ async function listarDepositosInformadosPorConfirmar(supabase: Supa): Promise<De
     monto_centavos: d.monto_centavos,
     medio_pago: d.medio_pago,
     informado_el: fechaArgentinaDeTimestamp(d.created_at),
+    imagen_path: d.imagen_path,
   }));
 }
 
@@ -514,18 +519,16 @@ export async function cargarTareas(
   return { tareas: calcularTareas(fuentes.input), fuentes };
 }
 
-/** Completa la signed URL del comprobante de las tareas "Confirmar pago"
- * (para el link del BottomSheet). Solo server: una llamada a Storage para
- * todos los comprobantes juntos. */
+/** Completa la signed URL del comprobante de las tareas "Confirmar pago" y
+ * "Confirmar depósito" (para el link del BottomSheet). Solo server: una
+ * llamada a Storage para todos los comprobantes juntos. Si no se puede
+ * firmar, la tarea queda sin link (no rompe la pantalla). */
 export async function completarComprobantes(supabase: Supa, tareas: Tarea[]): Promise<Tarea[]> {
-  const paths = tareas.flatMap((t) =>
-    t.accion?.tipo === "confirmar_pago" && t.accion.imagenPath ? [t.accion.imagenPath] : [],
-  );
+  const paths = tareas.flatMap((t) => {
+    const path = comprobantePathDeTarea(t);
+    return path ? [path] : [];
+  });
   if (paths.length === 0) return tareas;
   const urls = await getSignedUrls(paths, 3600, supabase);
-  return tareas.map((t) =>
-    t.accion?.tipo === "confirmar_pago" && t.accion.imagenPath
-      ? { ...t, accion: { ...t.accion, comprobanteUrl: urls[t.accion.imagenPath] ?? null } }
-      : t,
-  );
+  return tareas.map((t) => conComprobanteUrl(t, urls));
 }

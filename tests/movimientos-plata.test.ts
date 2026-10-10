@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   describirDeposito,
   describirRendicion,
+  detalleDeposito,
   diasEnManoPorPersona,
   esMovimientoInterno,
   impactosDe,
   ingresosEnManos,
   montoEnCuenta,
   montoEnManos,
+  NOTA_DEPOSITO_AVISADO_POR_DEFECTO,
   textoDonde,
   type MovimientoPlata,
 } from "@/lib/dominio/movimientos-plata";
@@ -215,5 +217,52 @@ describe("diasEnManoPorPersona", () => {
     const dias = diasEnManoPorPersona(personas, [], "2026-09-15");
 
     expect(dias.get(LAURA)).toBeNull();
+  });
+});
+
+/**
+ * Detalle de la fila de un depósito ("pasó a la cuenta"): si lo cargó un admin
+ * a mano o si nació del aviso de una coordinadora (0057/0071).
+ */
+describe("detalleDeposito", () => {
+  const base = { tenedorId: LAURA, autorId: FRAN, avisado: false, nombreDe };
+
+  it("cargado por un admin: la nota y 'lo anotó {admin}'", () => {
+    expect(detalleDeposito({ ...base, nota: "Transferencia del viernes" })).toBe(
+      "Transferencia del viernes · lo anotó Fran",
+    );
+    expect(detalleDeposito({ ...base, nota: null })).toBe("lo anotó Fran");
+  });
+
+  it("cargado por la misma persona que tenía la plata: no dice quién lo anotó", () => {
+    expect(detalleDeposito({ ...base, autorId: LAURA, nota: null })).toBeNull();
+    expect(detalleDeposito({ ...base, autorId: LAURA, nota: "Hecho" })).toBe("Hecho");
+  });
+
+  it("nacido de un aviso: 'lo avisó desde la app · lo confirmó {admin}'", () => {
+    expect(detalleDeposito({ ...base, avisado: true, nota: null })).toBe(
+      "lo avisó desde la app · lo confirmó Fran",
+    );
+  });
+
+  it("nacido de un aviso: no repite la nota por defecto que le pone la base", () => {
+    expect(detalleDeposito({ ...base, avisado: true, nota: NOTA_DEPOSITO_AVISADO_POR_DEFECTO })).toBe(
+      "lo avisó desde la app · lo confirmó Fran",
+    );
+  });
+
+  it("nacido de un aviso: conserva una nota propia", () => {
+    expect(detalleDeposito({ ...base, avisado: true, nota: "Desde el Banco Nación" })).toBe(
+      "Desde el Banco Nación · lo avisó desde la app · lo confirmó Fran",
+    );
+  });
+
+  it("nacido de un aviso: usa al admin que resolvió el aviso y, si no se sabe, al autor del depósito", () => {
+    expect(detalleDeposito({ ...base, avisado: true, nota: null, confirmoId: LAURA })).toBe(
+      "lo avisó desde la app · lo confirmó Laura",
+    );
+    expect(detalleDeposito({ ...base, avisado: true, nota: null, confirmoId: null })).toBe(
+      "lo avisó desde la app · lo confirmó Fran",
+    );
   });
 });

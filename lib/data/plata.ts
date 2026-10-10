@@ -14,6 +14,7 @@ import { describirPagoDeuda } from "@/lib/dominio/deudas";
 import {
   describirDeposito,
   describirRendicion,
+  detalleDeposito,
   montoEnCuenta,
   montoEnManos,
   textoDonde,
@@ -26,6 +27,7 @@ import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
 import { compararPorFechaDesc } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { leerTodasLasPaginas } from "@/lib/paginado";
+import { getSignedUrls } from "@/lib/storage";
 import { describirTransferencia } from "@/lib/dominio/transferencias";
 import type { Database, Tables } from "@/lib/types";
 
@@ -299,6 +301,66 @@ export type FiltroMovimientos =
   | { tipo: "manos"; personaIds: string[] };
 
 type Pagina<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+
+/** Cuántos ids van en cada `.in(...)` — PostgREST los manda en la URL, y
+ * una lista larga de uuids la pasa del largo permitido. */
+const IDS_POR_CONSULTA = 100;
+
+/** Avisos de coordinadora (`depositos_informados`) detrás de los depósitos
+ * dados, por `deposito_id`. Consulta aparte, no un embed implícito (en este
+ * proyecto un embed ya se rompió por FKs duplicadas, PGRST201). */
+type AvisoDeposito = { resueltoPor: string | null; imagenPath: string | null };
+
+async function avisosPorDeposito(supabase: Supa, depositoIds: string[]): Promise<Map<string, AvisoDeposito>> {
+  const avisos = new Map<string, AvisoDeposito>();
+  const lotes: string[][] = [];
+  for (let i = 0; i < depositoIds.length; i += IDS_POR_CONSULTA) {
+    lotes.push(depositoIds.slice(i, i + IDS_POR_CONSULTA));
+  }
+  const respuestas = await Promise.all(
+    lotes.map((ids) =>
+      supabase.from("depositos_informados").select("deposito_id, imagen_path, resuelto_por").in("deposito_id", ids),
+    ),
+  );
+  for (const { data, error } of respuestas) {
+    if (error) {
+      console.error("cargarMovimientosPlata: depositosInformados", error);
+      continue;
+    }
+    for (const a of data ?? []) {
+      if (a.deposito_id) avisos.set(a.deposito_id, { resueltoPor: a.resuelto_por, imagenPath: a.imagen_path });
+    }
+  }
+  return avisos;
+}
+
+/**
+ * Pega el link firmado del comprobante a los depósitos de la lista FINAL
+ * (ya recortada/filtrada): se firma solo lo que se va a mostrar, no todo lo
+ * que se leyó. Si firmar falla, las filas quedan sin link y la pantalla
+ * sigue andando.
+ */
+async function conComprobantes(
+  supabase: Supa,
+  filas: FilaMovimiento[],
+  avisos: Map<string, AvisoDeposito>,
+): Promise<FilaMovimiento[]> {
+  const pathDe = (f: FilaMovimiento) => (f.mov.tipo === "deposito" ? (avisos.get(f.id)?.imagenPath ?? null) : null);
+  const paths = [...new Set(filas.flatMap((f) => pathDe(f) ?? []))];
+  if (paths.length === 0) return filas;
+
+  let urls: Record<string, string | null> = {};
+  try {
+    urls = await getSignedUrls(paths, 3600, supabase);
+  } catch (error) {
+    console.error("cargarMovimientosPlata: comprobantes", error);
+  }
+  return filas.map((f) => {
+    const path = pathDe(f);
+    return path ? { ...f, comprobanteUrl: urls[path] ?? null } : f;
+  });
+}
+
 type VendedoresPromise = PromiseLike<{ data: { id: string; nombre: string }[] | null; error: unknown }>;
 
 /**
@@ -424,6 +486,10 @@ export async function cargarMovimientosPlata(
   // repitiendo los filtros/paginado de la query de arriba) para no
   // depender de que las dos consultas paginen en el mismo orden.
   const idsEncargado = rendiciones.data.filter((r) => r.via === "encargado").map((r) => r.id);
+  const avisosPromise = avisosPorDeposito(
+    supabase,
+    depositos.data.map((d) => d.id),
+  );
   const parteAnanjaPorId = new Map<string, number>();
   if (idsEncargado.length > 0) {
     const { data, error } = await supabase
@@ -441,6 +507,8 @@ export async function cargarMovimientosPlata(
     }
   }
 
+  const avisos = await avisosPromise;
+
   const nombrePorId = new Map((vendedores.data ?? []).map((v) => [v.id, v.nombre]));
   const nombreDe = (id: string | null) => (id ? (nombrePorId.get(id) ?? "—") : "—");
   const base = (tipo: string, r: { id: string; fecha: string; created_at: string }) => ({
@@ -451,6 +519,7 @@ export async function cargarMovimientosPlata(
     href: null as string | null,
     ajuste: null as FilaMovimiento["ajuste"],
     deposito: null as FilaMovimiento["deposito"],
+    comprobanteUrl: null as FilaMovimiento["comprobanteUrl"],
   });
   const unir = (...partes: (string | null | undefined)[]) =>
     partes.filter((p): p is string => Boolean(p && p.trim())).join(" · ") || null;
@@ -555,7 +624,14 @@ export async function cargarMovimientosPlata(
       ...base("deposito", d),
       mov: { tipo: "deposito" as const, medioPago: d.medio_pago, tenedorId: d.tenedor_id, montoCentavos: d.monto_centavos },
       titulo: `${describirDeposito(nombreDe(d.tenedor_id))} · ${MEDIO_PAGO_LABELS[d.medio_pago]}`,
-      detalle: unir(d.nota, d.vendedor_id !== d.tenedor_id ? `lo anotó ${nombreDe(d.vendedor_id)}` : null),
+      detalle: detalleDeposito({
+        nota: d.nota,
+        tenedorId: d.tenedor_id,
+        autorId: d.vendedor_id,
+        avisado: avisos.has(d.id),
+        confirmoId: avisos.get(d.id)?.resueltoPor,
+        nombreDe,
+      }),
       deposito: { medioPago: d.medio_pago, montoCentavos: d.monto_centavos, tenedor: nombreDe(d.tenedor_id) },
     })),
   ];
@@ -569,5 +645,6 @@ export async function cargarMovimientosPlata(
         : conDonde;
 
   const ordenadas = propias.sort(compararPorFechaDesc);
-  return filtro.tipo === "todo" ? ordenadas.slice(0, filtro.limite) : ordenadas;
+  const finales = filtro.tipo === "todo" ? ordenadas.slice(0, filtro.limite) : ordenadas;
+  return conComprobantes(supabase, finales, avisos);
 }
