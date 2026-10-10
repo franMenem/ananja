@@ -107,3 +107,36 @@ export async function entregarComoCoordinador(
     p_permitir_negativo: false,
   });
 }
+
+/**
+ * "La coordinadora vendió N botellas" — RPC `registrar_venta_coordinador`
+ * (0073). Lo llama un admin para cualquier coordinadora o la propia
+ * coordinadora para sí misma. Es de UN lote. Es idempotente por `grupoId`:
+ * quien la use genera el id una vez por formulario y lo reusa en los
+ * reintentos; igual protege el botón contra el doble envío. Devuelve el `{data, error}` crudo;
+ * el error se traduce con `mensajeErrorVentaCoordinador`.
+ */
+export async function registrarVentaCoordinador(
+  supabase: SupabaseClient<Database>,
+  args: {
+    coordinadorId: string;
+    productoId: string;
+    cantidad: number;
+    loteId: string;
+    fecha: string;
+    nota: string | null;
+    /** Id de la venta generado en el cliente: un reintento con el mismo id no
+     * la duplica (el servidor devuelve la ya guardada, `ya_existia`). */
+    grupoId: string;
+  },
+) {
+  return supabase.rpc("registrar_venta_coordinador", {
+    p_coordinador_id: args.coordinadorId,
+    p_producto_id: args.productoId,
+    p_cantidad: args.cantidad,
+    p_lote_id: args.loteId,
+    p_fecha: args.fecha,
+    p_nota: args.nota ?? undefined,
+    p_grupo_id: args.grupoId,
+  });
+}

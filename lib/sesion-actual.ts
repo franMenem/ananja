@@ -52,6 +52,9 @@ export const sesionActual = cache(async (): Promise<SesionActual> => {
             email: null,
             creado_en: null,
             encargado_id: null,
+            // El header no lleva este flag: no usar para decidir nada, leerlo
+            // de la base (ver app/(mi)/mi/ventas/nueva/page.tsx).
+            toma_directo: false,
           }
         : null,
     };

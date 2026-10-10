@@ -1,6 +1,7 @@
 import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
 import { EncargadoRevendedor } from "@/components/revendedores/encargado-revendedor";
 import { EspacioRevendedorButton } from "@/components/revendedores/espacio-revendedor-button";
+import { TomaDirectoRevendedor } from "@/components/revendedores/toma-directo-revendedor";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 
@@ -18,6 +19,8 @@ export type CabeceraFichaProps = {
   pendienteCentavos: number;
   rendidoCentavos: number;
   encargadoActualId: string | null;
+  /** "Agarra directo del depósito" (`vendedores.toma_directo`, 0073). */
+  tomaDirecto?: boolean;
   /** Admins y coordinadores activos, elegibles como coordinador de esta
    * revendedora (0055_coordinador.sql). */
   coordinadores: Coordinador[];
@@ -53,8 +56,13 @@ export function CabeceraFicha({
   pendienteCentavos,
   rendidoCentavos,
   encargadoActualId,
+  tomaDirecto = false,
   coordinadores,
 }: CabeceraFichaProps) {
+  // Solo quien puede revender tiene botellas en su poder (un coordinador no
+  // vende; un admin solo si tiene su espacio de revendedor): el interruptor
+  // "agarra directo" no tiene sentido para el resto.
+  const puedeRevender = rol === "revendedor" || (rol === "admin" && revende);
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-6">
       <div className="flex items-start justify-between gap-3">
@@ -124,6 +132,10 @@ export function CabeceraFicha({
               coordinadores={coordinadores}
             />
           </p>
+
+          {puedeRevender && (
+            <TomaDirectoRevendedor vendedorId={vendedorId} nombre={nombre} tomaDirecto={tomaDirecto} />
+          )}
         </>
       )}
     </div>

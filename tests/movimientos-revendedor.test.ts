@@ -13,6 +13,7 @@ import {
 function entrega(fecha: string, createdAt: string, id = `e-${fecha}`): MovimientoEntrega {
   return {
     tipo: "entrega",
+    automatica: false,
     id,
     fecha,
     createdAt,
@@ -159,6 +160,7 @@ describe("entregasComoMovimientos", () => {
     );
     expect(m1).toEqual({
       tipo: "entrega",
+      automatica: false,
       id: "e1",
       fecha: "2026-09-10",
       createdAt: "2026-09-10T10:00:00Z",
@@ -215,6 +217,30 @@ describe("entregasComoMovimientos", () => {
       [],
     );
     expect(m1.items).toEqual([]);
+  });
+});
+
+describe("entregasComoMovimientos · automáticas (0073)", () => {
+  it("marca como automática la entrega (y su devolución compensatoria) que generó el sistema", () => {
+    const [entrega, devolucion, manual] = entregasComoMovimientos(
+      [
+        { id: "e1", fecha: "2026-09-10", created_at: "2026-09-10T10:00:00Z", tipo: "entrega", automatica: true },
+        { id: "e2", fecha: "2026-09-11", created_at: "2026-09-11T10:00:00Z", tipo: "devolucion", automatica: true },
+        { id: "e3", fecha: "2026-09-12", created_at: "2026-09-12T10:00:00Z", tipo: "entrega", automatica: false },
+      ],
+      [],
+    );
+    expect(entrega).toMatchObject({ tipo: "entrega", automatica: true });
+    expect(devolucion).toMatchObject({ tipo: "devolucion", automatica: true });
+    expect(manual.automatica).toBe(false);
+  });
+
+  it("sin el dato (filas viejas o armadas a mano) es manual", () => {
+    const [m] = entregasComoMovimientos(
+      [{ id: "e1", fecha: "2026-09-10", created_at: "2026-09-10T10:00:00Z", tipo: "entrega" }],
+      [],
+    );
+    expect(m.automatica).toBe(false);
   });
 });
 

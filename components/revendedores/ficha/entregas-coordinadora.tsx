@@ -6,6 +6,7 @@ import {
   type EntregasCoordinadora as Entregas,
   type FilaEntregaCoordinadora,
 } from "@/lib/dominio/entregas-coordinador";
+import { etiquetaEntregaAutomatica } from "@/lib/dominio/venta-directa";
 import { formatFecha } from "@/lib/fechas";
 import { envase } from "@/lib/negocio";
 
@@ -50,6 +51,11 @@ function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
             {entregas.totalBotellas} {envase(entregas.totalBotellas)}
           </span>
         </p>
+        {entregas.hayAutomaticas && (
+          <p className="text-[12px] text-text-muted">
+            No cuenta lo que las revendedoras agarraron solas del depósito (entregas automáticas).
+          </p>
+        )}
         {entregas.totalPorProducto.length > 1 && (
           <p className="text-[12px] text-text-muted">
             {entregas.totalPorProducto.map((t) => `${t.cantidad} × ${t.productoNombre}`).join(" · ")}
@@ -110,6 +116,9 @@ function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
             </li>
           ))}
         </ul>
+      )}
+      {fila.automatica && (
+        <p className="text-[11px] text-text-muted">{etiquetaEntregaAutomatica(fila.tipo, true)}</p>
       )}
       {fila.cargadaPor !== null && <p className="text-[11px] text-text-muted">la cargó {fila.cargadaPor}</p>}
     </div>

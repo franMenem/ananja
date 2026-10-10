@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { CantidadStepper } from "@/components/cantidad-stepper";
+import { VentaCoordinador } from "@/components/coordinador/venta-coordinador";
 import { InformarDepositoCoordinador } from "@/components/mi/informar-deposito-coordinador";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import {
@@ -40,8 +41,10 @@ type CoordinadorHomeProps = {
  * `/mi` de un coordinador (`0055_coordinador.sql`) — pedido de Fran: "en su
  * app ve SOLO las revendedoras a su cargo: cuántas botellas le entregó a
  * cada una y cuánto le deben, en pesos al costo Ananja". Sin nada de
- * Plata, Producción, Gastos ni Ganancia — la única acción es "Entregar"
- * (nunca carga ventas ni pagos).
+ * Plata, Producción, Gastos ni Ganancia — las acciones son "Entregar" (a
+ * cada revendedora) y "Vendí yo" (0073: botellas que agarró del depósito y
+ * vendió ella misma; se suman a lo que tiene que pasar a Ananja). Nunca
+ * carga ventas de otras personas ni pagos.
  */
 export function CoordinadorHome({
   vendedorId,
@@ -75,6 +78,22 @@ export function CoordinadorHome({
           <InformarDepositoCoordinador montoCentavos={plataEnManoCentavos} vendedorId={vendedorId} />
         </div>
       )}
+
+      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised p-4">
+        <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">Vendí yo</span>
+        <p className="text-[12px] text-text-muted">
+          Si agarraste botellas del depósito y las vendiste vos, anotalas acá. Se suman a lo que tenés que pasar a{" "}
+          {NEGOCIO.nombre}.
+        </p>
+        <VentaCoordinador
+          coordinadorId={vendedorId}
+          coordinadorNombre={nombre ?? "Vos"}
+          productos={productos.map((p) => ({ id: p.id, nombre: p.nombre }))}
+          modo="propia"
+          etiqueta="Vendí yo"
+          className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+        />
+      </div>
 
       {revendedoras.length === 0 ? (
         <p className="py-6 text-sm text-text-muted">

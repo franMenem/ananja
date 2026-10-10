@@ -565,3 +565,72 @@ describe("A + B + C juntos", () => {
     ]);
   });
 });
+
+describe("venta propia de una coordinadora (0073)", () => {
+  // COORD_A vendió ella misma 3 de 500 ml del lote L2 (a precio = costo) y su
+  // revendedora REV_1 vendió 2 de 250 ml del lote L1 y le pagó todo a COORD_A.
+  // La venta propia deja una rendición de ella hacia ella (vendedor = tenedor).
+  const ventas = [venta(REV_1, P250, 2, "L1", C250), venta(COORD_A, P500, 3, "L2", C500)];
+  const crudas = [
+    { id: "r1", tenedorId: COORD_A, vendedorId: REV_1, montoCentavos: 2 * C250 },
+    { id: "r2", tenedorId: COORD_A, vendedorId: COORD_A, montoCentavos: 3 * C500 },
+  ];
+  const total = 2 * C250 + 3 * C500;
+  const rindio = new Map([
+    [REV_1, 2 * C250],
+    [COORD_A, 3 * C500],
+  ]);
+
+  function armar(depositosCentavos: number, totalCentavos: number) {
+    const sinPagar = calcularSinPagar(ventas, rindio);
+    const sinPasar = calcularSinPasar({
+      ventas,
+      rendiciones: rendiciones(ventas, crudas),
+      coordinadoras: [coord(COORD_A, depositosCentavos, totalCentavos)],
+      lotes: LOTES,
+      productos: PRODUCTOS,
+    });
+    const resumen = armarResumenBotellas({
+      filas: [...sinPagar, ...sinPasar.filas],
+      sinBotella: sinPasar.sinBotella,
+      productos: PRODUCTOS,
+      nombres: new Map([
+        [COORD_A, "Coordinadora A"],
+        [REV_1, "Revendedora 1"],
+      ]),
+      coordinadoraIds: new Set([COORD_A]),
+      lotes: LOTES,
+    });
+    return { sinPagar, sinPasar, resumen };
+  }
+
+  it("lo que vendió ella no es 'vendida sin pagar': ya está rendido a sí misma", () => {
+    const { sinPagar } = armar(0, total);
+    expect(sinPagar).toEqual([]);
+  });
+
+  it("cuenta en 'cobradas por la coordinadora, sin pasar' junto con lo que cobró de su revendedora", () => {
+    const { sinPasar, resumen } = armar(0, total);
+    expect(cantidad(sinPasar.filas, { personaId: COORD_A, productoId: P500 })).toBe(3);
+    expect(cantidad(sinPasar.filas, { personaId: COORD_A, productoId: P250 })).toBe(2);
+    expect(sinPasar.sinBotella).toEqual([]);
+
+    expect(resumen.total).toBe(5);
+    expect(resumen.estados).toEqual({ enPoder: 0, sinPagar: 0, sinPasar: 5 });
+    expect(resumen.coordinadoras).toHaveLength(1);
+    expect(resumen.coordinadoras[0]).toMatchObject({ personaId: COORD_A, total: 5, sinBotellaCentavos: 0 });
+  });
+
+  it("no aparece como una revendedora más en 'Por persona': es una sola fila, la suya de coordinadora", () => {
+    const { resumen } = armar(0, total);
+    expect(resumen.porPersona).toHaveLength(1);
+    expect(resumen.porPersona[0]).toMatchObject({ personaId: COORD_A, esCoordinadora: true, total: 5 });
+    expect(resumen.porPersona.some((p) => p.personaId === REV_1)).toBe(false);
+  });
+
+  it("si ya pasó todo a la cuenta no queda nada", () => {
+    const { sinPasar, resumen } = armar(total, 0);
+    expect(sinPasar.filas).toEqual([]);
+    expect(resumen.total).toBe(0);
+  });
+});

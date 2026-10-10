@@ -14,6 +14,7 @@ import { describirPagoDeuda } from "@/lib/dominio/deudas";
 import {
   describirDeposito,
   describirRendicion,
+  esVentaPropia,
   detalleDeposito,
   montoEnCuenta,
   montoEnManos,
@@ -598,12 +599,14 @@ export async function cargarMovimientosPlata(
           medioPago: r.medio_pago,
           tenedorId: r.tenedor_id,
           montoCentavos: montoAnanja,
+          ventaPropia: esVentaPropia(r.vendedor_id, r.tenedor_id),
         },
         titulo: describirRendicion({
           via,
           medioPago: r.medio_pago,
           revendedora: nombreDe(r.vendedor_id),
           tenedor: nombreDe(r.tenedor_id),
+          ventaPropia: esVentaPropia(r.vendedor_id, r.tenedor_id),
         }),
         detalle: unir(via === "encargado" ? notaCobrado : MEDIO_PAGO_LABELS[r.medio_pago], r.nota),
       };

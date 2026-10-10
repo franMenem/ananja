@@ -64,6 +64,20 @@ export async function listarProductosPublicosResumen(
   };
 }
 
+/** ¿La persona "agarra directo del depósito"? (`vendedores.toma_directo`,
+ * 0073) — su propia fila, que la RLS le deja leer. Si la lectura falla
+ * devuelve `false`: la pantalla se comporta como siempre (con tope de
+ * stock) y el servidor igual decide; no se le muestra nada de más. */
+export async function leerTomaDirecto(supabase: Supa, vendedorId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("vendedores")
+    .select("toma_directo")
+    .eq("id", vendedorId)
+    .maybeSingle();
+  if (error) console.error("leerTomaDirecto", error);
+  return data?.toma_directo === true;
+}
+
 /** Nombre de un producto público por id — usado por `/mi/ventas/[id]`.
  * `null` si no existe o si la consulta falla. */
 export async function obtenerProductoPublicoNombre(supabase: Supa, productoId: string): Promise<string | null> {
@@ -126,11 +140,11 @@ export async function obtenerVentaRevendedorPropia(
 }
 
 export type VentaDelGrupoRow = VentaRevendedorRow & {
-  entrega_items: { entregas_revendedor: { fecha: string } | null } | null;
+  entrega_items: { entregas_revendedor: { fecha: string; automatica: boolean } | null } | null;
 };
 
 /** Todas las filas de un grupo de venta (`grupo_id`, una venta que salió
- * de dos entregas) con la fecha de la entrega de cada una — usado por
+ * de dos entregas) con la fecha de la entrega de cada una (y si fue automática, 0073) — usado por
  * `/mi/ventas/[id]` para mostrar "de dónde salió". Filtro explícito por
  * `vendedorId`, mismo motivo que {@link obtenerVentaRevendedorPropia}. */
 export async function listarVentasDelGrupo(
@@ -140,7 +154,7 @@ export async function listarVentasDelGrupo(
 ): Promise<{ data: VentaDelGrupoRow[]; error: string | null }> {
   const { data, error } = await supabase
     .from("ventas_revendedor")
-    .select("*, entrega_items(entregas_revendedor(fecha))")
+    .select("*, entrega_items(entregas_revendedor(fecha, automatica))")
     .eq("grupo_id", grupoId)
     .eq("vendedor_id", vendedorId)
     .order("created_at");

@@ -23,6 +23,7 @@ function vendedor(overrides: Partial<VendedorConRol>): VendedorConRol {
     email: null,
     creado_en: null,
     encargado_id: null,
+    toma_directo: false,
     ...overrides,
   };
 }

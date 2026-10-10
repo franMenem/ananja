@@ -100,8 +100,37 @@ describe("armarEntregasCoordinadora", () => {
     expect(resultado.totalPorProducto).toEqual([{ productoNombre: "Aceite 500 ml", cantidad: 12 }]);
   });
 
+  it("las entregas automáticas (0073) se listan marcadas, sin 'la cargó X' y fuera de los totales", () => {
+    const resultado = armarEntregasCoordinadora(
+      datos({
+        entregas: [
+          entrega("manual", "2026-09-01", "2026-09-01T10:00:00Z"),
+          entrega("auto", "2026-09-02", "2026-09-02T10:00:00Z", { admin_id: "rev-1", automatica: true }),
+          entrega("auto-dev", "2026-09-03", "2026-09-03T10:00:00Z", {
+            admin_id: "admin-1",
+            tipo: "devolucion",
+            automatica: true,
+          }),
+        ],
+        items: [item("manual", "p1", 10), item("auto", "p1", 4), item("auto-dev", "p1", 4)],
+      }),
+    );
+    const porId = new Map(resultado.filas.map((f) => [f.id, f]));
+    expect(porId.get("auto")).toMatchObject({ automatica: true, cargadaPor: null, tipo: "entrega" });
+    expect(porId.get("auto-dev")).toMatchObject({ automatica: true, cargadaPor: null, tipo: "devolucion" });
+    expect(porId.get("manual")?.automatica).toBe(false);
+    expect(resultado.hayAutomaticas).toBe(true);
+    expect(resultado.totalBotellas).toBe(10);
+    expect(resultado.totalPorProducto).toEqual([{ productoNombre: "Aceite 500 ml", cantidad: 10 }]);
+  });
+
   it("sin entregas: lista vacía y total 0", () => {
-    expect(armarEntregasCoordinadora(datos({}))).toEqual({ filas: [], totalBotellas: 0, totalPorProducto: [] });
+    expect(armarEntregasCoordinadora(datos({}))).toEqual({
+      filas: [],
+      totalBotellas: 0,
+      hayAutomaticas: false,
+      totalPorProducto: [],
+    });
   });
 
   it("una entrega sin ítems queda con la lista vacía; un producto desconocido sale como '?'", () => {

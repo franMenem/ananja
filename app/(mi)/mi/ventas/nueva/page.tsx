@@ -1,6 +1,6 @@
 import { TituloFormularioEscritorio } from "@/components/mi/titulo-formulario";
 import { VentaForm } from "@/components/mi/venta-form";
-import { listarProductosPublicosResumen } from "@/lib/data/mi";
+import { leerTomaDirecto, listarProductosPublicosResumen } from "@/lib/data/mi";
 import { stockPorEntrega } from "@/lib/dominio/revendedor-stock";
 import { ventasComoFifo } from "@/lib/dominio/revendedores";
 import {
@@ -22,6 +22,10 @@ export const dynamic = "force-dynamic";
  * (`revendedor_precios`) solo se usa como respaldo para entregas viejas sin
  * costo aprobado; el precio de la última venta, como respaldo de la
  * precarga cuando la entrega no trae sugerido.
+ *
+ * Si la persona tiene "agarra directo del depósito" (`toma_directo`, 0073),
+ * salen todos los productos y el formulario no le pone tope de cantidad: lo
+ * que no tenga entregado lo saca el servidor del depósito.
  */
 export default async function NuevaVentaPage() {
   const supabase = await createClient();
@@ -31,13 +35,21 @@ export default async function NuevaVentaPage() {
   // debería ser `null` acá, pero se cubre igual (sin productos
   // disponibles) en vez de asumirlo con `!`.
   const vacio = Promise.resolve({ data: [], error: null });
-  const [{ data: productos }, { data: stock }, { data: precios }, { data: ventas }, { data: items }] =
-    await Promise.all([
+  const [
+    { data: productos },
+    { data: stock },
+    { data: precios },
+    { data: ventas },
+    { data: items },
+    tomaDirecto,
+  ] = await Promise.all([
       listarProductosPublicosResumen(supabase),
       revendedor ? listarStockRevendedor(supabase, revendedor.id) : vacio,
       revendedor ? listarPreciosRevendedor(supabase, revendedor.id) : vacio,
       revendedor ? listarVentasRevendedor(supabase, revendedor.id) : vacio,
       revendedor ? listarEntregaItemsFifo(supabase, revendedor.id) : vacio,
+      // El flag se lee de la base (el header de sesión no lo lleva).
+      revendedor ? leerTomaDirecto(supabase, revendedor.id) : Promise.resolve(false),
     ]);
 
   const stockPorProducto = new Map(stock.map((s) => [s.producto_id, s.en_poder ?? 0]));
@@ -56,7 +68,9 @@ export default async function NuevaVentaPage() {
   // en la práctica. Filtrarlo acá deja el resto sin `?`/`!`.
   const disponibles = (productos ?? [])
     .filter((p): p is typeof p & { id: string } => p.id !== null)
-    .filter((p) => (stockPorProducto.get(p.id) ?? 0) > 0)
+    // Con "agarra directo" salen todos los productos aunque tenga 0 en
+    // poder: lo que le falte se saca del depósito (0073).
+    .filter((p) => tomaDirecto || (stockPorProducto.get(p.id) ?? 0) > 0)
     .map((p) => ({
       producto: p,
       enPoder: stockPorProducto.get(p.id) ?? 0,
@@ -68,7 +82,7 @@ export default async function NuevaVentaPage() {
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5">
       <TituloFormularioEscritorio />
-      <VentaForm productos={disponibles} />
+      <VentaForm productos={disponibles} tomaDirecto={tomaDirecto} />
     </div>
   );
 }

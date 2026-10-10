@@ -340,7 +340,7 @@ export async function cargarEntregasDeVendedores(
       leerTodasLasPaginas((desde, hasta) =>
         supabase
           .from("entregas_revendedor")
-          .select("id, vendedor_id, admin_id, tipo, fecha, created_at")
+          .select("id, vendedor_id, admin_id, tipo, fecha, created_at, automatica")
           .in("vendedor_id", chunk)
           .order("id")
           .range(desde, hasta),

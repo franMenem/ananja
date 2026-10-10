@@ -32,6 +32,10 @@ export interface ItemMovimientoEntrega {
 
 export interface MovimientoEntrega {
   tipo: "entrega" | "devolucion";
+  /** La generó el sistema (0073): la entrega que se anota sola cuando
+   * "agarra directo del depósito" y vende botellas que no tenía, o la
+   * devolución que la compensa al eliminar esa venta. */
+  automatica: boolean;
   id: string;
   fecha: string;
   createdAt: string;
@@ -60,6 +64,8 @@ export interface EntregaParaMovimiento {
   fecha: string;
   created_at: string;
   tipo: string;
+  /** Opcional para quien arma filas a mano (tests): sin dato = manual. */
+  automatica?: boolean;
 }
 
 export interface EntregaItemParaMovimiento {
@@ -94,6 +100,7 @@ export function entregasComoMovimientos(
   }
   return entregas.map((e) => ({
     tipo: e.tipo === "devolucion" ? "devolucion" : "entrega",
+    automatica: e.automatica === true,
     id: e.id,
     fecha: e.fecha,
     createdAt: e.created_at,

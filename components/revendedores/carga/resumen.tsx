@@ -35,6 +35,12 @@ export function Resumen({
         label={resumen.saldoFinalCentavos >= 0 ? "Queda debiendo" : `${NEGOCIO.nombre} le debe`}
         valor={formatCentavos(Math.abs(resumen.saldoFinalCentavos))}
       />
+      {resumen.botellasDelDeposito > 0 && (
+        <p className="text-[11px] text-text-muted">
+          {resumen.botellasDelDeposito} {envase(resumen.botellasDelDeposito)} salen del depósito con una
+          entrega automática: su costo lo calcula el sistema al guardar y no está sumado acá.
+        </p>
+      )}
       {pendienteCentavos > 0 && (
         <p className="text-[11px] text-text-muted">
           Además informó {formatCentavos(pendienteCentavos)} en pagos que todavía no se confirmaron

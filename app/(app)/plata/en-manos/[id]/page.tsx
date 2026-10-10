@@ -8,7 +8,7 @@ import { cargarMovimientosPlata, obtenerPersonaEnManos } from "@/lib/data/plata"
 import { cargarLineasPorLote } from "@/lib/data/plata-por-lote";
 import { diasEntre, fechaArgentinaDeTimestamp, hoyISO } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import { ingresosEnManos, montoEnManos } from "@/lib/dominio/movimientos-plata";
+import { ingresosEnManos, montoEnManos, ventasPropiasEnManos } from "@/lib/dominio/movimientos-plata";
 import { armarDesglose } from "@/lib/dominio/plata-por-lote";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/server";
@@ -67,8 +67,13 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
 
   const transferencias = persona.transferencias_centavos ?? 0;
   const ajustes = persona.ajustes_centavos ?? 0;
+  // `rendiciones_centavos` (vista) junta los pagos que recibió de sus
+  // revendedoras y, si es coordinadora, las botellas que vendió ella misma
+  // (0073); se separan con las filas de la lista, que ya vienen marcadas.
+  const ventasPropias = ventasPropiasEnManos(items);
   const desglose: { label: string; centavos: number }[] = [
-    { label: "Pagos de revendedoras que recibió", centavos: persona.rendiciones_centavos ?? 0 },
+    { label: "Pagos de revendedoras que recibió", centavos: (persona.rendiciones_centavos ?? 0) - ventasPropias },
+    { label: "Botellas que vendió ella", centavos: ventasPropias },
     { label: "Ventas y cobros en efectivo", centavos: persona.ventas_cobros_centavos ?? 0 },
     { label: "Transferencias (neto)", centavos: transferencias },
     { label: "Correcciones de saldo (neto)", centavos: ajustes },

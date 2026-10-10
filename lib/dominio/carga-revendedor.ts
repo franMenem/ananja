@@ -103,6 +103,11 @@ export interface EstadoRevendedora {
   deudaCentavos: number;
   /** "yyyy-mm-dd" de hoy en Argentina. */
   hoy: string;
+  /** "Agarra directo del depósito" (`vendedores.toma_directo`, 0073): lo que
+   * le falte de stock para una venta NO es un problema — el servidor lo
+   * saca del depósito con una entrega automática. Sin el flag (o si no se
+   * pasa), la carga se valida exactamente como siempre. */
+  tomaDirecto?: boolean;
 }
 
 function filasEntregaConCantidad(entrega: EntregaCarga | null): FilaEntregaCarga[] {
@@ -264,6 +269,11 @@ export function revisarVentasCarga(
 
 export interface ResumenCarga {
   botellasEntregadas: number;
+  /** Botellas que el servidor va a sacar del depósito para cubrir las
+   * ventas (0073, solo con `tomaDirecto`), por producto. Su costo NO está en
+   * `costoVentasCentavos` ni en la deuda: lo fija el servidor al guardar. */
+  delDeposito: { productoId: string; cantidad: number }[];
+  botellasDelDeposito: number;
   /** Si vende todo lo de esta entrega, cuánto le debería (con los costos cargados). */
   costoEntregaCentavos: number;
   ventas: VentaAdminRevisada[];
@@ -298,7 +308,14 @@ export function resumirCarga(estado: EstadoRevendedora, input: CargaInput): Resu
   let vendidasSinPrecio = 0;
   let costoVentasCentavos = 0;
   let gananciaConPrecioCentavos = 0;
+  const delDepositoPorProducto = new Map<string, number>();
   for (const v of ventas) {
+    if (estado.tomaDirecto && v.faltante > 0) {
+      delDepositoPorProducto.set(
+        v.productoId,
+        (delDepositoPorProducto.get(v.productoId) ?? 0) + v.faltante,
+      );
+    }
     if (v.precioVentaCentavos !== null) vendidasConPrecio += v.cantidad;
     else vendidasSinPrecio += v.cantidad;
     for (const t of v.tramos) costoVentasCentavos += (t.costoUnitarioCentavos ?? 0) * t.cantidad;
@@ -309,8 +326,15 @@ export function resumirCarga(estado: EstadoRevendedora, input: CargaInput): Resu
   const deudaDespuesVentasCentavos = deudaAntesCentavos + costoVentasCentavos;
   const pagoCentavos = input.pago?.montoCentavos ?? 0;
 
+  const delDeposito = Array.from(delDepositoPorProducto, ([productoId, cantidad]) => ({
+    productoId,
+    cantidad,
+  }));
+
   return {
     botellasEntregadas,
+    delDeposito,
+    botellasDelDeposito: delDeposito.reduce((acc, d) => acc + d.cantidad, 0),
     costoEntregaCentavos,
     ventas,
     vendidasConPrecio,
@@ -431,7 +455,7 @@ export function validarCarga(
       const lotesPorProducto = new Map<string, ReturnType<typeof lotesConStockRevendedora>>();
       const avisadoFaltante = new Set<string>();
       for (const r of resumen.ventas) {
-        if (r.faltante > 0) {
+        if (r.faltante > 0 && !estado.tomaDirecto) {
           // Automático (loteId null) comparte pool entre líneas del mismo
           // producto: un solo aviso alcanza. Con lote elegido, cada lote es
           // un pool aparte (dos líneas del mismo producto pero distinto
@@ -469,6 +493,8 @@ export function validarCarga(
             } del ${textos.formatFecha(r.entregaPosterior)}. Cambiá la fecha de las ventas.`,
           });
         } else if (r.costoCentavos === null) {
+          // (con `tomaDirecto` y faltante, `costoCentavos` es solo el de las
+          // botellas propias; lo que sale del depósito lo fija el servidor.)
           problemas.push({
             seccion: "ventas",
             productoId: r.productoId,
@@ -626,6 +652,11 @@ const MENSAJES_SECCION: Record<Exclude<SeccionCarga, "general">, Record<string, 
     SIN_ITEMS: "Las ventas no tienen cantidades.",
     STOCK_REVENDEDOR_INSUFICIENTE: "No va a tener tantas para vender.",
     STOCK_INSUFICIENTE_LOTE: "No quedan tantas en ese lote.",
+    DEPOSITO_INSUFICIENTE: "No hay tantas en el depósito para cubrir lo que le falta.",
+    GRUPO_INVALIDO: "No se pudo guardar. Recargá la página y probá de nuevo.",
+    COSTO_FALTANTE:
+      "El lote del que saldrían todavía no tiene costos cargados. Cargalos en Stock y probá de nuevo.",
+    LOTE_INVALIDO: "No se pudo elegir de qué lote sacar lo que le falta. Probá de nuevo.",
     PRECIO_NO_ASIGNADO:
       "Esas botellas no tienen costo aprobado ni precio manual: no se sabe cuánto le debe a Ananja.",
     PRECIO_INVALIDO: "Revisá el precio de venta.",
@@ -698,7 +729,10 @@ export function traducirErrorCarga(
   if (seccion === "ventas" && codigo === "FECHA_ANTERIOR_A_ENTREGA" && typeof interno.entrega_fecha === "string") {
     mensaje = `Las ventas salen de una entrega del ${textos.formatFecha(interno.entrega_fecha)}, posterior a la fecha de las ventas. Cambiá la fecha.`;
   }
-  if (disponible !== null && (codigo.startsWith("STOCK_"))) {
+  if (disponible !== null && codigo === "DEPOSITO_INSUFICIENTE") {
+    // No dice "quedan": un lote sin todos los costos no cuenta como disponible.
+    mensaje = `${mensaje} Hay ${disponible} disponibles para vender.`;
+  } else if (disponible !== null && codigo.startsWith("STOCK_")) {
     mensaje = `${mensaje} Quedan ${disponible}.`;
   }
 

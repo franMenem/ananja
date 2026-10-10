@@ -9,6 +9,7 @@ import { PlegadosFicha } from "@/components/revendedores/ficha/plegados";
 import { VolverLink } from "@/components/volver-link";
 import { listarMisRevendedoras } from "@/lib/coordinador";
 import { cargarBotellasAdeudadas } from "@/lib/data/botellas-adeudadas";
+import { obtenerLotesConStock } from "@/lib/data/lotes";
 import {
   cargarEntregasDeVendedores,
   listarEncargadosPosibles,
@@ -25,6 +26,7 @@ import {
   obtenerVendedorPorId,
 } from "@/lib/data/revendedores";
 import { armarEntregasCoordinadora } from "@/lib/dominio/entregas-coordinador";
+import { agruparVentasPropias } from "@/lib/dominio/venta-coordinador";
 import {
   entregasComoMovimientos,
   fusionarMovimientos,
@@ -87,11 +89,28 @@ export default async function RevendedorDetallePage({
   const supabase = await createClient();
 
   const cargarTandaCoordinador = async () => {
-    const [{ data: revendedoras }, plataEnMano, { data: productos }] = await Promise.all([
+    const [
+      { data: revendedoras },
+      plataEnMano,
+      { data: productos },
+      { data: ventasPropiasCrudas, error: errorVentasPropias },
+      lotesConStock,
+    ] = await Promise.all([
       listarMisRevendedoras(supabase, id),
       obtenerPlataEnManoDeTenedor(supabase, id),
       listarProductos(supabase),
+      // Lo que vendió ella misma (0073): sus propias filas de ventas_revendedor.
+      listarVentasRevendedor(supabase, id),
+      // Lotes con stock y costo para la hoja "Vendió ella".
+      obtenerLotesConStock(supabase).catch((error) => {
+        console.error("obtenerLotesConStock", error);
+        return [];
+      }),
     ]);
+    const { data: lotesVentasPropias } = await listarFechasDeLotes(
+      supabase,
+      ventasPropiasCrudas.flatMap((v) => (v.lote_id ? [v.lote_id] : [])),
+    );
 
     // "Entregas a sus revendedoras": las de las revendedoras que HOY tiene a
     // cargo. Depende de saber quiénes son, así que va después; y los
@@ -130,7 +149,37 @@ export default async function RevendedorDetallePage({
           nombrePorProducto: new Map(productos.map((p) => [p.id, p.nombre])),
           fechaPorLote: datosEntregas.fechaPorLote,
         });
-    return { revendedoras, plataEnMano, entregas, botellas };
+    const ventasPropias = errorVentasPropias
+      ? null
+      : agruparVentasPropias(
+          ventasPropiasCrudas.map((v) => ({
+            id: v.id,
+            grupo_id: v.grupo_id,
+            fecha: v.fecha,
+            created_at: v.created_at,
+            producto_id: v.producto_id,
+            lote_id: v.lote_id,
+            cantidad: v.cantidad,
+            precio_costo_centavos: v.precio_costo_centavos,
+          })),
+          new Map(productos.map((p) => [p.id, p.nombre])),
+          new Map(lotesVentasPropias.map((l) => [l.id, l.fecha])),
+        );
+    return {
+      revendedoras,
+      plataEnMano,
+      entregas,
+      botellas,
+      ventasPropias,
+      productos: productos.map((p) => ({ id: p.id, nombre: p.nombre })),
+      lotesAdmin: lotesConStock.map((l) => ({
+        loteId: l.loteId,
+        productoId: l.productoId,
+        fecha: l.fecha,
+        quedan: l.quedan,
+        costoAnanjaCentavos: l.costoAnanjaCentavos,
+      })),
+    };
   };
 
   const cargarTandaRevendedora = async () => {
@@ -224,7 +273,7 @@ export default async function RevendedorDetallePage({
   if (revendedor.rol === "coordinador") {
     // La pista acertó (mandó `?rol=coordinador`) → ya la tenemos. Si no
     // había pista o era de una revendedora, esta es la segunda tanda.
-    const { revendedoras, plataEnMano, entregas, botellas } = pistaCoordinador
+    const { revendedoras, plataEnMano, entregas, botellas, ventasPropias, productos, lotesAdmin } = pistaCoordinador
       ? (tandaAdelantada as Awaited<ReturnType<typeof cargarTandaCoordinador>>)
       : await cargarTandaCoordinador();
 
@@ -245,6 +294,11 @@ export default async function RevendedorDetallePage({
         />
 
         <FichaCoordinador
+          coordinadorId={id}
+          coordinadorNombre={revendedor.nombre}
+          productos={productos}
+          lotesAdmin={lotesAdmin}
+          ventasPropias={ventasPropias}
           revendedoras={revendedoras}
           plataEnManoCentavos={plataEnMano ?? 0}
           entregas={entregas}
@@ -336,6 +390,7 @@ export default async function RevendedorDetallePage({
         pendienteCentavos={deudaResumen.pendienteCentavos}
         rendidoCentavos={resumen?.rendido_centavos ?? 0}
         encargadoActualId={revendedor.encargado_id}
+        tomaDirecto={revendedor.toma_directo}
         coordinadores={coordinadores}
       />
 

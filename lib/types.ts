@@ -1017,30 +1017,36 @@ export type Database = {
       entregas_revendedor: {
         Row: {
           admin_id: string
+          automatica: boolean
           created_at: string
           fecha: string
           id: string
           nota: string | null
           tipo: string
           vendedor_id: string
+          venta_grupo_id: string | null
         }
         Insert: {
           admin_id: string
+          automatica?: boolean
           created_at?: string
           fecha?: string
           id?: string
           nota?: string | null
           tipo: string
           vendedor_id: string
+          venta_grupo_id?: string | null
         }
         Update: {
           admin_id?: string
+          automatica?: boolean
           created_at?: string
           fecha?: string
           id?: string
           nota?: string | null
           tipo?: string
           vendedor_id?: string
+          venta_grupo_id?: string | null
         }
         Relationships: [
           {
@@ -2286,6 +2292,60 @@ export type Database = {
           },
         ]
       }
+      movimientos_stock_borrados: {
+        Row: {
+          borrado_at: string
+          borrado_por: string | null
+          cantidad: number
+          comprobante_id: string | null
+          created_at: string
+          entrega_id: string | null
+          feria_id: string | null
+          id: string
+          lote_id: string | null
+          motivo: string | null
+          movimiento_id: string
+          nota: string | null
+          producto_id: string
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id: string
+        }
+        Insert: {
+          borrado_at?: string
+          borrado_por?: string | null
+          cantidad: number
+          comprobante_id?: string | null
+          created_at: string
+          entrega_id?: string | null
+          feria_id?: string | null
+          id?: string
+          lote_id?: string | null
+          motivo?: string | null
+          movimiento_id: string
+          nota?: string | null
+          producto_id: string
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id: string
+        }
+        Update: {
+          borrado_at?: string
+          borrado_por?: string | null
+          cantidad?: number
+          comprobante_id?: string | null
+          created_at?: string
+          entrega_id?: string | null
+          feria_id?: string | null
+          id?: string
+          lote_id?: string | null
+          motivo?: string | null
+          movimiento_id?: string
+          nota?: string | null
+          producto_id?: string
+          tipo?: Database["public"]["Enums"]["tipo_movimiento"]
+          vendedor_id?: string
+        }
+        Relationships: []
+      }
       notificaciones: {
         Row: {
           created_at: string
@@ -2737,6 +2797,7 @@ export type Database = {
           nota: string | null
           tenedor_id: string | null
           vendedor_id: string
+          venta_grupo_id: string | null
           via: string
         }
         Insert: {
@@ -2750,6 +2811,7 @@ export type Database = {
           nota?: string | null
           tenedor_id?: string | null
           vendedor_id: string
+          venta_grupo_id?: string | null
           via?: string
         }
         Update: {
@@ -2763,6 +2825,7 @@ export type Database = {
           nota?: string | null
           tenedor_id?: string | null
           vendedor_id?: string
+          venta_grupo_id?: string | null
           via?: string
         }
         Relationships: [
@@ -2907,6 +2970,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rendiciones_borradas: {
+        Row: {
+          admin_id: string
+          borrada_at: string
+          borrada_por: string | null
+          created_at: string
+          encargado_diferencia_id: string | null
+          fecha: string
+          id: string
+          medio_pago: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos: number
+          nota: string | null
+          rendicion_id: string
+          tenedor_id: string | null
+          vendedor_id: string
+          venta_grupo_id: string | null
+          via: string
+        }
+        Insert: {
+          admin_id: string
+          borrada_at?: string
+          borrada_por?: string | null
+          created_at: string
+          encargado_diferencia_id?: string | null
+          fecha: string
+          id?: string
+          medio_pago: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos: number
+          nota?: string | null
+          rendicion_id: string
+          tenedor_id?: string | null
+          vendedor_id: string
+          venta_grupo_id?: string | null
+          via: string
+        }
+        Update: {
+          admin_id?: string
+          borrada_at?: string
+          borrada_por?: string | null
+          created_at?: string
+          encargado_diferencia_id?: string | null
+          fecha?: string
+          id?: string
+          medio_pago?: Database["public"]["Enums"]["medio_pago"]
+          monto_centavos?: number
+          nota?: string | null
+          rendicion_id?: string
+          tenedor_id?: string | null
+          vendedor_id?: string
+          venta_grupo_id?: string | null
+          via?: string
+        }
+        Relationships: []
       }
       revendedor_precios: {
         Row: {
@@ -3068,6 +3185,7 @@ export type Database = {
           nombre: string
           revende: boolean
           rol: string
+          toma_directo: boolean
           user_id: string | null
         }
         Insert: {
@@ -3079,6 +3197,7 @@ export type Database = {
           nombre: string
           revende?: boolean
           rol?: string
+          toma_directo?: boolean
           user_id?: string | null
         }
         Update: {
@@ -3090,6 +3209,7 @@ export type Database = {
           nombre?: string
           revende?: boolean
           rol?: string
+          toma_directo?: boolean
           user_id?: string | null
         }
         Relationships: [
@@ -5039,6 +5159,7 @@ export type Database = {
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
       eliminar_deposito_cuenta: { Args: { p_deposito_id: string }; Returns: Json }
+      eliminar_movimiento_stock: { Args: { p_movimiento_id: string }; Returns: Json }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       es_admin: { Args: never; Returns: boolean }
@@ -5072,6 +5193,10 @@ export type Database = {
           p_medio_pago?: Database["public"]["Enums"]["medio_pago"]
           p_precio_venta_centavos: number
         }
+        Returns: Json
+      }
+      fijar_toma_directo: {
+        Args: { p_habilitar: boolean; p_vendedor_id: string }
         Returns: Json
       }
       guardar_proveedor: { Args: { p_nombre: string }; Returns: undefined }
@@ -5271,6 +5396,18 @@ export type Database = {
         }
         Returns: Json
       }
+      registrar_venta_coordinador: {
+        Args: {
+          p_cantidad: number
+          p_coordinador_id: string
+          p_fecha: string
+          p_grupo_id?: string
+          p_lote_id: string
+          p_nota?: string
+          p_producto_id: string
+        }
+        Returns: Json
+      }
       registrar_venta_revendedor: {
         Args: {
           p_cantidad: number
@@ -5316,6 +5453,18 @@ export type Database = {
           precio_sugerido_centavos: number
           quedan: number
         }[]
+      }
+      tomar_del_deposito: {
+        Args: {
+          p_cantidad: number
+          p_fecha: string
+          p_lote_id: string
+          p_nota?: string
+          p_producto_id: string
+          p_vendedor_id: string
+          p_venta_grupo_id: string
+        }
+        Returns: string
       }
     }
     Enums: {

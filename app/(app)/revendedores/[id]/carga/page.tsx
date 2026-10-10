@@ -134,6 +134,7 @@ export default async function CargaUnificadaPage({
               : null
           }
           deudaCentavos={deuda ?? 0}
+          tomaDirecto={revendedor.toma_directo}
           pagosPendientes={pagosPendientes}
           productos={productos ?? []}
           lotes={lotes}

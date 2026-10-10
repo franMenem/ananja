@@ -1,14 +1,25 @@
 import Link from "next/link";
 
+import { VentaCoordinador, type LoteDepositoAdmin } from "@/components/coordinador/venta-coordinador";
+import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
 import { EntregasCoordinadora } from "@/components/revendedores/ficha/entregas-coordinadora";
 import type { ResumenBotellas } from "@/lib/dominio/botellas-adeudadas";
 import type { RevendedoraCoordinador } from "@/lib/dominio/coordinador";
 import type { EntregasCoordinadora as Entregas } from "@/lib/dominio/entregas-coordinador";
+import { descripcionVentaPropia, type VentaPropiaFila } from "@/lib/dominio/venta-coordinador";
+import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
 
 export type FichaCoordinadorProps = {
+  coordinadorId: string;
+  coordinadorNombre: string;
+  /** Productos y lotes con stock (con costo) para la hoja "Vendió ella". */
+  productos: { id: string; nombre: string }[];
+  lotesAdmin: LoteDepositoAdmin[];
+  /** Lo que vendió ella misma (0073); `null` si la lectura falló. */
+  ventasPropias: VentaPropiaFila[] | null;
   revendedoras: RevendedoraCoordinador[];
   /** Lo que este coordinador tiene que pasar a la cuenta de Ananja
    * (`v_plata_en_manos.total_centavos`, 0057) — desde 0058, YA es solo la
@@ -39,7 +50,17 @@ export type FichaCoordinadorProps = {
  * equipo y lo que cobró (`BotellasAdeudadas`) — el botón de cambio de rol ya vive en
  * `CabeceraFicha`, arriba de este bloque.
  */
-export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas, botellas }: FichaCoordinadorProps) {
+export function FichaCoordinador({
+  coordinadorId,
+  coordinadorNombre,
+  productos,
+  lotesAdmin,
+  ventasPropias,
+  revendedoras,
+  plataEnManoCentavos,
+  entregas,
+  botellas,
+}: FichaCoordinadorProps) {
   return (
     <div className="flex flex-col gap-8">
       {plataEnManoCentavos > 0 && (
@@ -61,6 +82,25 @@ export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas, 
         variante="equipo"
         nota="Entre sus revendedoras y la plata que cobró."
       />
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Ventas propias</span>
+          <VentaCoordinador
+            coordinadorId={coordinadorId}
+            coordinadorNombre={coordinadorNombre}
+            productos={productos}
+            modo="admin"
+            lotesAdmin={lotesAdmin}
+            etiqueta="Vendió ella"
+          />
+        </div>
+        <p className="text-[12px] text-text-muted">
+          Botellas que agarró del depósito y vendió ella misma. Se suman a lo que tiene que pasar a{" "}
+          {NEGOCIO.nombre}.
+        </p>
+        <VentasPropias ventas={ventasPropias} coordinadorNombre={coordinadorNombre} />
+      </section>
 
       <section className="flex flex-col gap-3">
         <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
@@ -94,6 +134,45 @@ export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas, 
       </section>
 
       <EntregasCoordinadora entregas={entregas} />
+    </div>
+  );
+}
+
+function VentasPropias({
+  ventas,
+  coordinadorNombre,
+}: {
+  ventas: VentaPropiaFila[] | null;
+  coordinadorNombre: string;
+}) {
+  if (ventas === null) {
+    return <p className="py-2 text-sm text-text-muted">No se pudieron cargar las ventas.</p>;
+  }
+  if (ventas.length === 0) {
+    return <p className="py-2 text-sm text-text-muted">Todavía no cargó ventas propias.</p>;
+  }
+  return (
+    <div className="flex flex-col">
+      {ventas.map((v) => (
+        <div key={v.grupoId} className="flex flex-col gap-1.5 border-b border-border py-3 text-sm">
+          <div className="flex items-start justify-between gap-3">
+            <span className="min-w-0 break-words text-text">
+              <span className="text-[12px] tabular-nums text-text-muted">{formatFecha(v.fecha)}</span>
+              {" · "}
+              {descripcionVentaPropia(v)}
+            </span>
+            <span className="shrink-0 text-right tabular-nums text-text">{formatCentavos(v.montoCentavos)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[11px] text-text-muted">Suma a lo que tiene que pasar</span>
+            <EliminarVentaButton
+              ventaId={v.ventaId}
+              redirectHref={null}
+              ventaCoordinadora={{ nombre: coordinadorNombre }}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

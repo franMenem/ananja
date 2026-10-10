@@ -12,13 +12,14 @@ import { SetFormHeader } from "@/components/page-header-context";
 import { formatFecha, hoyISO } from "@/lib/fechas";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { NEGOCIO, concordar, envase } from "@/lib/negocio";
+import { atribuirVenta, type TramoStock } from "@/lib/dominio/revendedor-stock";
 import {
-  atribuirVenta,
-  costoTotalVenta,
-  gananciaVenta,
-  vendeBajoCosto,
-  type TramoStock,
-} from "@/lib/dominio/revendedor-stock";
+  cantidadDeVentaValida,
+  leerDetalleError,
+  mensajeErrorVentaPropia,
+  resumirVentaPropia,
+  topeCantidadVenta,
+} from "@/lib/dominio/venta-directa";
 import { registrarVentaRevendedor } from "@/lib/revendedores";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types";
@@ -67,12 +68,26 @@ function precioInputInicial(centavos: number | null): string {
  * al guardar), cuánto le va a deber a Ananja y cuánto gana; si vende por
  * debajo de lo que le debe, avisa pero deja guardar.
  * `STOCK_REVENDEDOR_INSUFICIENTE` abre un `BottomSheet` SIN "Guardar
- * igual" — acá no hay bypass
- *.
+ * igual" — acá no hay bypass.
+ *
+ * `tomaDirecto` ("agarra directo del depósito", 0073): salen todos los
+ * productos aunque tenga 0 en poder, la cantidad no tiene tope y no hay
+ * error de "Revisá la cantidad" por stock — lo que no tenga entregado lo
+ * saca el servidor del depósito y queda anotado como entrega automática.
+ * Ella no puede ver el stock ni los costos del depósito, así que para esa
+ * parte no se muestra costo ni ganancia (`resumirVentaPropia`); si el
+ * depósito tampoco alcanza, el servidor responde `DEPOSITO_INSUFICIENTE`.
+ * Sin el flag, todo queda como siempre.
  */
-export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
+export function VentaForm({
+  productos,
+  tomaDirecto = false,
+}: {
+  productos: ProductoDisponible[];
+  tomaDirecto?: boolean;
+}) {
   const router = useRouter();
-  const disponibles = productos.filter((p) => p.enPoder > 0);
+  const disponibles = tomaDirecto ? productos : productos.filter((p) => p.enPoder > 0);
 
   const [productoId, setProductoId] = useState<string | null>(
     disponibles[0]?.producto.id ?? null,
@@ -106,15 +121,7 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
         fecha,
       )
     : null;
-  const costoTotal = atribucion ? costoTotalVenta(atribucion.tramos) : null;
-  const ganancia =
-    atribucion && precioVentaCentavos !== null
-      ? gananciaVenta(atribucion.tramos, precioVentaCentavos)
-      : null;
-  const bajoCosto =
-    atribucion !== null &&
-    precioVentaCentavos !== null &&
-    vendeBajoCosto(atribucion.tramos, precioVentaCentavos);
+  const resumen = atribucion ? resumirVentaPropia(atribucion, precioVentaCentavos, tomaDirecto) : null;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -124,7 +131,7 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
       setError("Elegí un producto.");
       return;
     }
-    if (cantidad < 1 || cantidad > seleccionado.enPoder) {
+    if (!cantidadDeVentaValida(cantidad, seleccionado.enPoder, tomaDirecto)) {
       setError("Revisá la cantidad.");
       return;
     }
@@ -155,35 +162,18 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
     });
 
     if (rpcError) {
+      const detalleCrudo = (rpcError as { details?: string }).details;
       if (rpcError.message === "STOCK_REVENDEDOR_INSUFICIENTE") {
-        let detalle: { producto?: string; disponible?: number } = {};
-        try {
-          detalle = JSON.parse((rpcError as { details?: string }).details ?? "{}");
-        } catch {
-          // sin detalle parseable, se muestra el mensaje genérico igual
-        }
+        // sin detalle parseable, se muestra el mensaje genérico igual
+        const detalle = leerDetalleError(detalleCrudo);
         setAlerta({
-          producto: detalle.producto ?? "un producto",
-          disponible: detalle.disponible ?? 0,
+          producto: typeof detalle.producto === "string" ? detalle.producto : "un producto",
+          disponible: typeof detalle.disponible === "number" ? detalle.disponible : 0,
         });
         setSaving(false);
         return;
       }
-      if (rpcError.message === "PRECIO_NO_ASIGNADO") {
-        setError(`${NEGOCIO.nombre} todavía no te asignó precio para este producto.`);
-      } else if (rpcError.message === "CANTIDAD_INVALIDA") {
-        setError("Revisá la cantidad.");
-      } else if (rpcError.message === "PRECIO_INVALIDO") {
-        setError("Ingresá a cuánto la vendiste.");
-      } else if (rpcError.message === "FECHA_FUTURA") {
-        setError("La fecha de la venta no puede ser posterior a hoy.");
-      } else if (rpcError.message === "FECHA_ANTERIOR_A_ENTREGA") {
-        setError("La fecha de la venta es anterior a la entrega de esas botellas. Revisá la fecha.");
-      } else if (rpcError.message === "NO_AUTORIZADO") {
-        setError("No tenés permiso para esto.");
-      } else {
-        setError("No se pudo guardar la venta. Probá de nuevo.");
-      }
+      setError(mensajeErrorVentaPropia(rpcError.message, detalleCrudo));
       setSaving(false);
       return;
     }
@@ -239,8 +229,18 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
                 Cantidad (tenés {seleccionado.enPoder})
               </span>
               <div className="mt-1.5">
-                <CantidadStepper value={cantidad} onChange={setCantidad} min={1} max={seleccionado.enPoder} />
+                <CantidadStepper
+                  value={cantidad}
+                  onChange={setCantidad}
+                  min={1}
+                  max={topeCantidadVenta(seleccionado.enPoder, tomaDirecto)}
+                />
               </div>
+              {tomaDirecto && (
+                <p className="mt-1.5 text-[12px] text-text-muted">
+                  Lo que no tengas entregado se anota como agarrado del depósito.
+                </p>
+              )}
             </div>
 
             <div>
@@ -263,19 +263,44 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
               )}
             </div>
 
-            {atribucion && (
+            {atribucion && resumen && (
               <div className="flex flex-col gap-1 border-y border-border py-3 text-sm">
-                {costoTotal === null ? (
+                {resumen.delDeposito > 0 && (
+                  <p className="text-text">
+                    {resumen.delDeposito} {envase(resumen.delDeposito)} se anotan como agarradas del
+                    depósito.
+                  </p>
+                )}
+                {resumen.sinPrecioAsignado ? (
                   <p className="text-accent">
                     {NEGOCIO.nombre} todavía no te asignó precio para este producto.
                   </p>
-                ) : (
+                ) : resumen.delDeposito > 0 ? (
+                  <>
+                    {resumen.costoPropioCentavos !== null && (
+                      <p className="text-text">
+                        Por las {resumen.propias} que ya tenías entregadas le vas a deber a{" "}
+                        {NEGOCIO.nombre}{" "}
+                        <span className="font-medium tabular-nums">
+                          {formatCentavos(resumen.costoPropioCentavos)}
+                        </span>
+                        .
+                      </p>
+                    )}
+                    <p className="text-[11px] text-text-muted">
+                      Lo de las {resumen.delDeposito} del depósito lo calcula {NEGOCIO.nombre} al
+                      guardar: todavía no podemos mostrarte ese costo ni cuánto ganás en total.
+                    </p>
+                  </>
+                ) : resumen.costoTotalCentavos !== null ? (
                   <p className="text-text">
                     Le vas a deber a {NEGOCIO.nombre}{" "}
-                    <span className="font-medium tabular-nums">{formatCentavos(costoTotal)}</span>{" "}
+                    <span className="font-medium tabular-nums">
+                      {formatCentavos(resumen.costoTotalCentavos)}
+                    </span>{" "}
                     por esta venta.
                   </p>
-                )}
+                ) : null}
                 {atribucion.tramos.length > 0 && (
                   <p className="text-[11px] text-text-muted">
                     {atribucion.tramos
@@ -296,13 +321,16 @@ export function VentaForm({ productos }: { productos: ProductoDisponible[] }) {
                     {formatFecha(atribucion.entregaPosterior)}. Cambiá la fecha.
                   </p>
                 )}
-                {ganancia !== null && (
+                {resumen.gananciaCentavos !== null && (
                   <p className="text-text">
-                    Ganás <span className="font-medium tabular-nums">{formatCentavos(ganancia)}</span>{" "}
+                    Ganás{" "}
+                    <span className="font-medium tabular-nums">
+                      {formatCentavos(resumen.gananciaCentavos)}
+                    </span>{" "}
                     en esta venta.
                   </p>
                 )}
-                {bajoCosto && (
+                {resumen.bajoCosto && (
                   <p className="text-accent">
                     Ojo: a ese precio vendés por debajo de lo que le debés a {NEGOCIO.nombre} por{" "}
                     {envase(1)}. Si es así, podés guardarla igual.
