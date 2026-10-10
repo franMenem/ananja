@@ -109,7 +109,11 @@
 -- no-admin no lee la tabla de borrados y nadie puede insertar ni borrar en
 -- ella por REST.
 --
--- SIN APLICAR: queda para que Fran la aplique.
+-- APLICADA y verificada en producción (schema `public`) el 2026-10-10: por
+-- `pg_proc` (firma única y cuerpo idéntico al de este archivo),
+-- `information_schema.columns`, RLS/policies y ACL; no por la tabla de
+-- tracking de migraciones. Ver el bloque de verificación de solo lectura al
+-- final de este archivo.
 
 -- ============================================================
 -- 1) Registro de movimientos borrados
