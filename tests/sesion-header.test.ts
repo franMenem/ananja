@@ -149,6 +149,7 @@ describe("payloadSesionParaHeader", () => {
     email: null,
     creado_en: null,
     encargado_id: null,
+    toma_directo: false,
     user_id: "u1",
   };
 
