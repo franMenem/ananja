@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
@@ -12,6 +12,7 @@ import type { MedioPago } from "@/lib/dominio/caja";
 import { hoyISO } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
+import { subirComprobanteDepositoCoordinador, validarArchivoComprobante } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import { validarMontoDeposito } from "@/lib/dominio/tareas";
 import { MEDIOS_DESTINO_TRANSFERENCIA } from "@/lib/dominio/transferencias";
@@ -24,6 +25,12 @@ const ERRORES: Record<string, string> = {
   // Un solo aviso pendiente por vez (0057, revisión adversarial): ya hay
   // uno esperando que un admin lo confirme o lo rechace.
   AVISO_PENDIENTE: "Ya avisaste un depósito y está esperando confirmación.",
+  // Comprobante (0071): siempre es una transferencia, así que la UI lo exige.
+  // `COMPROBANTE_REQUERIDO` y `SUBIDA_FALLIDA` los arma este componente
+  // (no vienen de la base).
+  COMPROBANTE_REQUERIDO: "Adjuntá el comprobante de la transferencia.",
+  COMPROBANTE_INVALIDO: "No se pudo usar ese comprobante. Elegilo de nuevo.",
+  SUBIDA_FALLIDA: "No se pudo subir el comprobante. Probá de nuevo.",
 };
 
 type InformarDepositoCoordinadorProps = {
@@ -31,6 +38,9 @@ type InformarDepositoCoordinadorProps = {
    * (`v_plata_en_manos.total_centavos` propio, ya sin su margen propio
    * desde 0058): precarga el monto y es el tope sin "Guardar igual". */
   montoCentavos: number;
+  /** Id de la coordinadora logueada: el comprobante se sube a
+   * `coordinadores/<vendedorId>/` (la única carpeta donde puede escribir). */
+  vendedorId: string;
 };
 
 /**
@@ -44,10 +54,20 @@ type InformarDepositoCoordinadorProps = {
  * si escribe de más. Sin fecha editable (siempre hoy) ni nota: esta
  * pantalla es la única que ve un coordinador (`/mi` a secas, sin subrutas),
  * así que no hay un formulario más completo al que mandarlo.
+ *
+ * Comprobante (0071_comprobante_deposito_informado.sql): obligatorio en la
+ * UI (siempre es una transferencia). Al enviar se sube primero el archivo y
+ * recién después se llama al RPC con `p_imagen_path`. Si el RPC falla, el
+ * archivo ya está en Storage: se recuerda el path (`subido`, atado al
+ * `File` elegido) para reintentar sin volver a subirlo y no dejar archivos
+ * huérfanos; si la persona elige otro archivo, ese path se descarta solo
+ * (cambia el `File`).
  */
-export function InformarDepositoCoordinador({ montoCentavos }: InformarDepositoCoordinadorProps) {
+export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: InformarDepositoCoordinadorProps) {
   const router = useRouter();
   const [medio, setMedio] = useState<MedioPago | null>(null);
+  const [archivo, setArchivo] = useState<File | null>(null);
+  const subido = useRef<{ archivo: File; path: string } | null>(null);
 
   const {
     abierto,
@@ -72,23 +92,63 @@ export function InformarDepositoCoordinador({ montoCentavos }: InformarDepositoC
     },
     ejecutar: async ({ centavos }) => {
       if (!medio) return { error: { message: "MEDIO_INVALIDO" } };
+      if (!archivo) return { error: { message: "COMPROBANTE_REQUERIDO" } };
+
+      // Subir solo si este archivo todavía no se subió (reintento tras un
+      // fallo del RPC: se reusa el path, ver comentario del componente).
+      let path = subido.current?.archivo === archivo ? subido.current.path : null;
+      if (path === null) {
+        try {
+          path = await subirComprobanteDepositoCoordinador(archivo, vendedorId);
+          subido.current = { archivo, path };
+        } catch {
+          return { error: { message: "SUBIDA_FALLIDA" } };
+        }
+      }
+
       const supabase = createClient();
-      return await supabase.rpc("informar_deposito_cuenta", {
+      const resultado = await supabase.rpc("informar_deposito_cuenta", {
         p_medio_pago: medio,
         p_monto_centavos: centavos,
         p_fecha: hoyISO(),
+        p_imagen_path: path,
       });
+      // La base no aceptó ese path: no sirve reintentar con el mismo.
+      if (resultado.error?.message === "COMPROBANTE_INVALIDO") subido.current = null;
+      return resultado;
     },
     codigoExcede: "SALDO_INSUFICIENTE",
     campoTopeEnDetalle: "disponible",
     erroresPorCodigo: ERRORES,
     mensajeErrorGenerico: "No se pudo avisar el depósito. Probá de nuevo.",
-    onOk: () => router.refresh(),
+    onOk: () => {
+      setArchivo(null);
+      subido.current = null;
+      router.refresh();
+    },
   });
+
+  function elegirArchivo(event: React.ChangeEvent<HTMLInputElement>) {
+    const elegido = event.target.files?.[0] ?? null;
+    // Se limpia el input para poder volver a elegir el mismo archivo.
+    event.target.value = "";
+    if (!elegido) return;
+    const problema = validarArchivoComprobante(elegido);
+    if (problema) {
+      setError(problema);
+      return;
+    }
+    setError(null);
+    setArchivo(elegido);
+  }
 
   function guardar() {
     if (!medio) {
       setError("Elegí Mercado Pago o Banco.");
+      return;
+    }
+    if (!archivo) {
+      setError(ERRORES.COMPROBANTE_REQUERIDO);
       return;
     }
     void enviar();
@@ -108,7 +168,8 @@ export function InformarDepositoCoordinador({ montoCentavos }: InformarDepositoC
         <h2 className="font-display text-[24px] text-primary">Avisar depósito</h2>
         <p className="mt-1 text-[13px] text-text-muted">
           Registrá cuánto de lo que tenés que pasar ({formatCentavos(montoCentavos)}) ya pasaste a la
-          cuenta de {NEGOCIO.nombre}. Un admin lo va a confirmar.
+          cuenta de {NEGOCIO.nombre} y adjuntá el comprobante de la transferencia. Un admin lo va a
+          confirmar.
         </p>
 
         <div className="mt-4 flex flex-col gap-4">
@@ -131,6 +192,28 @@ export function InformarDepositoCoordinador({ montoCentavos }: InformarDepositoC
               opciones={MEDIOS_DESTINO_TRANSFERENCIA}
               ocultarRotulo
               className="mt-1.5"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+              Comprobante de la transferencia
+            </span>
+            <label
+              htmlFor="informar-deposito-comprobante"
+              className="flex min-h-12 flex-col items-center justify-center gap-0.5 border border-dashed border-border px-3 py-2 text-center text-sm break-all text-text hover:border-primary"
+            >
+              {archivo ? archivo.name : "Sacar foto o elegir archivo"}
+              {archivo && (
+                <span className="text-[11px] tracking-[0.12em] text-text-muted uppercase">Tocá para cambiarlo</span>
+              )}
+            </label>
+            <input
+              id="informar-deposito-comprobante"
+              type="file"
+              accept="image/*,.pdf,.heic"
+              className="sr-only"
+              disabled={guardando}
+              onChange={elegirArchivo}
             />
           </div>
         </div>

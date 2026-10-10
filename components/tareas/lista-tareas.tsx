@@ -65,6 +65,8 @@ export function ListaTareas({ tareas, medioDeposito }: ListaTareasProps) {
                 montoCentavos={tarea.accion.montoCentavos}
                 medioPago={tarea.accion.medioPago}
                 tenedorNombre={tarea.accion.tenedorNombre}
+                comprobanteUrl={tarea.accion.comprobanteUrl ?? null}
+                tieneComprobante={tarea.accion.imagenPath !== null}
               />
             ) : tarea.accion?.tipo === "depositar" ? (
               <>

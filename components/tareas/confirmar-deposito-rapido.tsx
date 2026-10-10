@@ -33,6 +33,11 @@ type ConfirmarDepositoRapidoProps = {
   /** El coordinador que avisó — el depósito real, al confirmar, queda a
    * su nombre (nunca al del admin que confirma). */
   tenedorNombre: string;
+  /** Link firmado al comprobante de la transferencia (0071); `null` si no
+   * tiene o no se pudo firmar. */
+  comprobanteUrl: string | null;
+  /** El aviso tiene comprobante adjunto (`false` en los avisos viejos). */
+  tieneComprobante: boolean;
 };
 
 /**
@@ -108,6 +113,18 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
       <div className="mt-4 flex flex-col gap-1.5 border-y border-border py-3 text-sm text-text">
         <p>Medio: {MEDIO_PAGO_LABELS[props.medioPago]}</p>
         <p>A la cuenta de {NEGOCIO.nombre}</p>
+        {props.comprobanteUrl ? (
+          <a
+            href={props.comprobanteUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="self-start border-b border-mark text-[12px] tracking-[0.12em] uppercase"
+          >
+            Ver comprobante
+          </a>
+        ) : (
+          props.tieneComprobante && <p className="text-text-muted">No se pudo abrir el comprobante.</p>
+        )}
       </div>
       <p className="mt-3 text-[13px] text-text-muted">
         Confirmalo solo si la plata llegó a la cuenta de {NEGOCIO.nombre}.

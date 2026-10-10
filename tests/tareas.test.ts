@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   agruparPedidosPorPagar,
   calcularTareas,
+  comprobantePathDeTarea,
+  conComprobanteUrl,
   contarTareasPendientes,
   diasEntre,
   esPedidoViejoSinCostos,
@@ -66,6 +68,7 @@ function depositoInformado(extra: Partial<DepositoInformadoTarea> = {}): Deposit
     monto_centavos: 400_000_00,
     medio_pago: "mercado_pago",
     informado_el: HOY,
+    imagen_path: null,
     ...extra,
   };
 }
@@ -172,7 +175,16 @@ describe("confirmar depósito informado por un coordinador", () => {
       montoCentavos: 400_000_00,
       medioPago: "mercado_pago",
       tenedorNombre: "Laura",
+      imagenPath: null,
     });
+  });
+
+  it("lleva el path del comprobante que adjuntó (0071)", () => {
+    const [tarea] = calcularTareas({
+      ...BASE,
+      depositosInformados: [depositoInformado({ imagen_path: "coordinadores/laura-id/2026/09/a.jpg" })],
+    });
+    expect(tarea.accion).toMatchObject({ tipo: "confirmar_deposito", imagenPath: "coordinadores/laura-id/2026/09/a.jpg" });
   });
 
   it("le toca a cualquier admin aunque miVendedorId sea null o distinto del tenedor", () => {
@@ -583,5 +595,57 @@ describe("orden y badge", () => {
         t("d", "informativo", HOY),
       ]),
     ).toBe(4);
+  });
+});
+
+/**
+ * Comprobante de las tareas de confirmar (pago de revendedora o depósito
+ * avisado por una coordinadora): qué path hay que firmar y cómo se le pega
+ * la URL firmada a la tarea.
+ */
+describe("comprobantePathDeTarea / conComprobanteUrl", () => {
+  const PATH_DEPOSITO = "coordinadores/laura-id/2026/09/a.jpg";
+  const PATH_PAGO = "revendedores/v1/2026/09/b.jpg";
+
+  function tareaDeposito(imagen_path: string | null) {
+    return calcularTareas({ ...BASE, depositosInformados: [depositoInformado({ imagen_path })] })[0];
+  }
+  function tareaPago(imagen_path: string | null) {
+    return calcularTareas({ ...BASE, pagosPorConfirmar: [pago({ imagen_path })] })[0];
+  }
+
+  it("devuelve el path del comprobante de un depósito avisado y de un pago", () => {
+    expect(comprobantePathDeTarea(tareaDeposito(PATH_DEPOSITO))).toBe(PATH_DEPOSITO);
+    expect(comprobantePathDeTarea(tareaPago(PATH_PAGO))).toBe(PATH_PAGO);
+  });
+
+  it("devuelve null si el aviso no tiene comprobante (avisos viejos)", () => {
+    expect(comprobantePathDeTarea(tareaDeposito(null))).toBeNull();
+    expect(comprobantePathDeTarea(tareaPago(null))).toBeNull();
+  });
+
+  it("devuelve null para tareas que no son de confirmar", () => {
+    const [tarea] = calcularTareas({
+      ...BASE,
+      plataEnManos: [{ tenedor_id: "x", nombre: "X", total_centavos: 1_000_00, activo: true, desde: null }],
+    });
+    expect(comprobantePathDeTarea(tarea)).toBeNull();
+  });
+
+  it("pega la URL firmada en la acción del depósito", () => {
+    const tarea = conComprobanteUrl(tareaDeposito(PATH_DEPOSITO), { [PATH_DEPOSITO]: "https://firmada/a" });
+    expect(tarea.accion).toMatchObject({ tipo: "confirmar_deposito", comprobanteUrl: "https://firmada/a" });
+  });
+
+  it("si no se pudo firmar, deja la URL en null sin romper", () => {
+    const sinFirma = conComprobanteUrl(tareaDeposito(PATH_DEPOSITO), { [PATH_DEPOSITO]: null });
+    const ausente = conComprobanteUrl(tareaDeposito(PATH_DEPOSITO), {});
+    expect(sinFirma.accion).toMatchObject({ comprobanteUrl: null });
+    expect(ausente.accion).toMatchObject({ comprobanteUrl: null });
+  });
+
+  it("deja igual una tarea sin comprobante", () => {
+    const tarea = tareaDeposito(null);
+    expect(conComprobanteUrl(tarea, { cualquiera: "https://x" })).toBe(tarea);
   });
 });

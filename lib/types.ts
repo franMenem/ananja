@@ -710,6 +710,7 @@ export type Database = {
           estado: string
           fecha: string
           id: string
+          imagen_path: string | null
           medio_pago: Database["public"]["Enums"]["medio_pago"]
           monto_centavos: number
           motivo_rechazo: string | null
@@ -724,6 +725,7 @@ export type Database = {
           estado?: string
           fecha: string
           id?: string
+          imagen_path?: string | null
           medio_pago: Database["public"]["Enums"]["medio_pago"]
           monto_centavos: number
           motivo_rechazo?: string | null
@@ -738,6 +740,7 @@ export type Database = {
           estado?: string
           fecha?: string
           id?: string
+          imagen_path?: string | null
           medio_pago?: Database["public"]["Enums"]["medio_pago"]
           monto_centavos?: number
           motivo_rechazo?: string | null
@@ -5075,6 +5078,7 @@ export type Database = {
       informar_deposito_cuenta: {
         Args: {
           p_fecha?: string
+          p_imagen_path?: string
           p_medio_pago: Database["public"]["Enums"]["medio_pago"]
           p_monto_centavos: number
           p_nota?: string

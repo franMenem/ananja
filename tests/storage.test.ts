@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { esPathStorageValido } from "@/lib/storage";
+import { esPathStorageValido, validarArchivoComprobante } from "@/lib/storage";
 
 /**
  * `esPathStorageValido` (`lib/storage.ts`) — validación de FORMA de un
@@ -20,6 +20,14 @@ describe("esPathStorageValido", () => {
     expect(
       esPathStorageValido(
         "revendedores/3fa85f64-5717-4562-b3fc-2c963f66afa6/2026/09/3fa85f64-5717-4562-b3fc-2c963f66afa6.pdf",
+      ),
+    ).toBe(true);
+  });
+
+  it("acepta el shape con carpeta de coordinadora (comprobante de depósito)", () => {
+    expect(
+      esPathStorageValido(
+        "coordinadores/3fa85f64-5717-4562-b3fc-2c963f66afa6/2026/10/3fa85f64-5717-4562-b3fc-2c963f66afa6.heic",
       ),
     ).toBe(true);
   });
@@ -59,5 +67,33 @@ describe("esPathStorageValido", () => {
 
   it("es insensible a mayúsculas en la extensión", () => {
     expect(esPathStorageValido("2026/09/uuid.JPG")).toBe(true);
+  });
+});
+
+/**
+ * `validarArchivoComprobante` (`lib/storage.ts`) — el mismo chequeo de
+ * tamaño y tipo que hace `subirComprobante`, expuesto para avisar antes de
+ * empezar a guardar.
+ */
+describe("validarArchivoComprobante", () => {
+  const archivo = (tipo: string, bytes = 10) =>
+    new File([new Uint8Array(bytes)], "comprobante", { type: tipo });
+
+  it("acepta fotos y PDF", () => {
+    for (const tipo of ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"]) {
+      expect(validarArchivoComprobante(archivo(tipo))).toBeNull();
+    }
+  });
+
+  it("rechaza un tipo no soportado", () => {
+    expect(validarArchivoComprobante(archivo("text/plain"))).toMatch(/Formato no soportado/);
+  });
+
+  it("rechaza un archivo de más de 10 MB", () => {
+    expect(validarArchivoComprobante(archivo("image/jpeg", 10 * 1024 * 1024 + 1))).toMatch(/10 MB/);
+  });
+
+  it("acepta justo 10 MB", () => {
+    expect(validarArchivoComprobante(archivo("image/jpeg", 10 * 1024 * 1024))).toBeNull();
   });
 });

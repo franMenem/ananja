@@ -89,13 +89,27 @@ export function ListaMovimientos({
                 />
               )}
               {fila.deposito && (
-                <EliminarDepositoAccion
-                  depositoId={fila.id}
-                  medioPago={fila.deposito.medioPago}
-                  montoCentavos={fila.deposito.montoCentavos}
-                  tenedor={fila.deposito.tenedor}
-                  className="mt-0.5 flex gap-3"
-                />
+                <div className="mt-0.5 flex gap-3">
+                  {fila.comprobanteUrl && (
+                    <a
+                      href={fila.comprobanteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-primary"
+                    >
+                      Ver comprobante
+                    </a>
+                  )}
+                  {/* `contents`: el botón Eliminar queda en esta misma fila,
+                      al lado del link, sin su propio contenedor. */}
+                  <EliminarDepositoAccion
+                    depositoId={fila.id}
+                    medioPago={fila.deposito.medioPago}
+                    montoCentavos={fila.deposito.montoCentavos}
+                    tenedor={fila.deposito.tenedor}
+                    className="contents"
+                  />
+                </div>
               )}
             </div>
           </div>
