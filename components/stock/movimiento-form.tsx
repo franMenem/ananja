@@ -10,6 +10,7 @@ import { SelectorLote, type FilaLote } from "@/components/lotes/selector-lote";
 import { SetFormHeader } from "@/components/page-header-context";
 import { obtenerStockActualProducto } from "@/lib/data/stock";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
+import { MOTIVOS_EGRESO_MANUAL } from "@/lib/dominio/movimientos-stock";
 import { lotesDeProducto, type LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { fusionarFilasDuplicadas, hayDescuadre } from "@/lib/dominio/lotes-split";
 import { createClient } from "@/lib/supabase/client";
@@ -27,15 +28,7 @@ type Producto = Pick<
  * afuera de este selector a propósito: los ajustes de stock tienen su
  * propio flujo (`/stock/insumos/ajuste`), acá el egreso manual es siempre
  * una venta suelta, una degustación, una rotura o un regalo — u "otro". */
-type MotivoEgreso = "venta" | "degustacion" | "rotura" | "regalo" | "otro";
-
-const MOTIVOS: { value: MotivoEgreso; label: string }[] = [
-  { value: "venta", label: "Venta" },
-  { value: "degustacion", label: "Degustación" },
-  { value: "rotura", label: "Rotura" },
-  { value: "regalo", label: "Regalo" },
-  { value: "otro", label: "Otro" },
-];
+type MotivoEgreso = (typeof MOTIVOS_EGRESO_MANUAL)[number]["value"];
 
 type MovimientoFormProps = {
   productos: Producto[];
@@ -248,7 +241,7 @@ export function MovimientoForm({
             onChange={(event) => setMotivo(event.target.value as MotivoEgreso)}
             className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
           >
-            {MOTIVOS.map((m) => (
+            {MOTIVOS_EGRESO_MANUAL.map((m) => (
               <option key={m.value} value={m.value}>
                 {m.label}
               </option>
