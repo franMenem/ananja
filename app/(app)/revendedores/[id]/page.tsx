@@ -1,3 +1,4 @@
+import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
 import { AccionesFicha } from "@/components/revendedores/ficha/acciones";
 import { CabeceraFicha } from "@/components/revendedores/ficha/cabecera";
 import { EnPoderFicha } from "@/components/revendedores/ficha/en-poder";
@@ -7,6 +8,7 @@ import { PagosFicha } from "@/components/revendedores/ficha/pagos";
 import { PlegadosFicha } from "@/components/revendedores/ficha/plegados";
 import { VolverLink } from "@/components/volver-link";
 import { listarMisRevendedoras } from "@/lib/coordinador";
+import { cargarBotellasAdeudadas } from "@/lib/data/botellas-adeudadas";
 import {
   cargarEntregasDeVendedores,
   listarEncargadosPosibles,
@@ -95,10 +97,22 @@ export default async function RevendedorDetallePage({
     // cargo. Depende de saber quiénes son, así que va después; y los
     // nombres de quienes cargaron una entrega (un admin, que no está entre
     // las revendedoras) dependen de las entregas.
-    const { data: datosEntregas, error: errorEntregas } = await cargarEntregasDeVendedores(
-      supabase,
-      revendedoras.map((r) => r.id),
-    );
+    // Las botellas que se le deben a Ananja (sus revendedoras + su plata)
+    // se piden en paralelo; si fallan, el bloque dice "No se pudo calcular."
+    const [{ data: datosEntregas, error: errorEntregas }, botellas] = await Promise.all([
+      cargarEntregasDeVendedores(
+        supabase,
+        revendedoras.map((r) => r.id),
+      ),
+      cargarBotellasAdeudadas(supabase, {
+        tipo: "coordinadora",
+        coordinadoraId: id,
+        revendedoraIds: revendedoras.map((r) => r.id),
+      }).catch((error) => {
+        console.error("cargarBotellasAdeudadas", error);
+        return null;
+      }),
+    ]);
     const nombrePorVendedor = new Map(revendedoras.map((r) => [r.id, r.nombre]));
     const idsSinNombre = [
       ...new Set(datosEntregas.entregas.map((e) => e.admin_id).filter((adminId) => !nombrePorVendedor.has(adminId))),
@@ -116,7 +130,7 @@ export default async function RevendedorDetallePage({
           nombrePorProducto: new Map(productos.map((p) => [p.id, p.nombre])),
           fechaPorLote: datosEntregas.fechaPorLote,
         });
-    return { revendedoras, plataEnMano, entregas };
+    return { revendedoras, plataEnMano, entregas, botellas };
   };
 
   const cargarTandaRevendedora = async () => {
@@ -135,6 +149,7 @@ export default async function RevendedorDetallePage({
       { data: borradasFilas },
       { data: valorStock },
       vigente,
+      botellas,
     ] = await Promise.all([
       listarProductos(supabase),
       listarPreciosRevendedor(supabase, id),
@@ -160,6 +175,11 @@ export default async function RevendedorDetallePage({
       // ver `EnPoderFicha`.
       listarValorStockDeVendedor(supabase, id),
       obtenerVersionVigente(supabase).catch(() => null),
+      // "Le debe a Ananja N botellas": en poder + vendidas sin pagar.
+      cargarBotellasAdeudadas(supabase, { tipo: "revendedora", vendedorId: id }).catch((error) => {
+        console.error("cargarBotellasAdeudadas", error);
+        return null;
+      }),
     ]);
     // Fecha de los lotes de esas entregas, para rotular "Lote del D/M" en
     // el hilo de movimientos (depende de los ítems, así que va después).
@@ -183,6 +203,7 @@ export default async function RevendedorDetallePage({
       borradasFilas,
       valorStock,
       vigente,
+      botellas,
     };
   };
 
@@ -203,7 +224,7 @@ export default async function RevendedorDetallePage({
   if (revendedor.rol === "coordinador") {
     // La pista acertó (mandó `?rol=coordinador`) → ya la tenemos. Si no
     // había pista o era de una revendedora, esta es la segunda tanda.
-    const { revendedoras, plataEnMano, entregas } = pistaCoordinador
+    const { revendedoras, plataEnMano, entregas, botellas } = pistaCoordinador
       ? (tandaAdelantada as Awaited<ReturnType<typeof cargarTandaCoordinador>>)
       : await cargarTandaCoordinador();
 
@@ -227,6 +248,7 @@ export default async function RevendedorDetallePage({
           revendedoras={revendedoras}
           plataEnManoCentavos={plataEnMano ?? 0}
           entregas={entregas}
+          botellas={botellas}
         />
       </div>
     );
@@ -250,6 +272,7 @@ export default async function RevendedorDetallePage({
     borradasFilas,
     valorStock,
     vigente,
+    botellas,
   } = pistaCoordinador
     ? await cargarTandaRevendedora()
     : (tandaAdelantada as Awaited<ReturnType<typeof cargarTandaRevendedora>>);
@@ -317,6 +340,8 @@ export default async function RevendedorDetallePage({
       />
 
       <AccionesFicha vendedorId={id} />
+
+      <BotellasAdeudadas resumen={botellas} variante="revendedora" />
 
       <EnPoderFicha
         vendedorId={id}
