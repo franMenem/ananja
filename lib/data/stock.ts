@@ -66,20 +66,42 @@ export type MovimientoStockRow = {
   cantidad: number;
   created_at: string;
   nota: string | null;
+  motivo: string | null;
   comprobante_id: string | null;
+  entrega_id: string | null;
+  feria_id: string | null;
+  lote_id: string | null;
+  /** Fecha ("yyyy-mm-dd") del lote del movimiento; `null` sin lote o si no se pudo leer. */
+  fecha_lote: string | null;
   productos: { nombre: string; presentacion_ml: number } | null;
   vendedores: { nombre: string } | null;
 };
 
+/** Fechas ("yyyy-mm-dd") de los lotes pedidos, por id. Consulta aparte (sin
+ * embed de PostgREST). Tolerante: si falla, devuelve un mapa vacío y los
+ * movimientos se muestran sin la fecha del lote. */
+async function fechasDeLotes(supabase: Supa, loteIds: string[]): Promise<Map<string, string>> {
+  const ids = [...new Set(loteIds)];
+  if (ids.length === 0) return new Map();
+  const { data, error } = await supabase.from("lotes_produccion").select("id, fecha").in("id", ids);
+  if (error) {
+    console.error("fechasDeLotes", error);
+    return new Map();
+  }
+  return new Map((data ?? []).map((l) => [l.id, l.fecha]));
+}
+
 /** Últimos 200 movimientos de stock (ingresos/egresos), para
- * `/stock/movimientos`. Un solo `select` — no hace falta `Promise.all`. */
+ * `/stock/movimientos`. Trae también motivo, lote (con su fecha, vía una
+ * segunda consulta a `lotes_produccion` unida en memoria) y los ids que
+ * dicen si el movimiento es manual (`esMovimientoStockBorrable`). */
 export async function listarMovimientosStock(
   supabase: Supa,
 ): Promise<{ data: MovimientoStockRow[]; error: string | null }> {
   const { data, error } = await supabase
     .from("movimientos_stock")
     .select(
-      "id, tipo, cantidad, created_at, nota, comprobante_id, productos(nombre, presentacion_ml), vendedores(nombre)",
+      "id, tipo, cantidad, created_at, nota, motivo, comprobante_id, entrega_id, feria_id, lote_id, productos(nombre, presentacion_ml), vendedores(nombre)",
     )
     .order("created_at", { ascending: false })
     .limit(200);
@@ -89,7 +111,89 @@ export async function listarMovimientosStock(
     return { data: [], error: "No se pudo cargar el historial." };
   }
 
-  return { data: data ?? [], error: null };
+  const filas = data ?? [];
+  const fechas = await fechasDeLotes(
+    supabase,
+    filas.flatMap((m) => (m.lote_id ? [m.lote_id] : [])),
+  );
+
+  return {
+    data: filas.map((m) => ({ ...m, fecha_lote: m.lote_id ? (fechas.get(m.lote_id) ?? null) : null })),
+    error: null,
+  };
+}
+
+export type MovimientoStockBorrado = {
+  id: string;
+  tipo: string;
+  cantidad: number;
+  motivo: string | null;
+  nota: string | null;
+  /** Cuándo se cargó el movimiento original. */
+  created_at: string;
+  borrado_at: string;
+  producto: string | null;
+  fecha_lote: string | null;
+  lote_id: string | null;
+  /** Quién lo borró; `null` si no se sabe. */
+  borrado_por: string | null;
+};
+
+/** Últimos 100 movimientos de stock eliminados (`movimientos_stock_borrados`,
+ * 0072), con nombres resueltos por consultas aparte (la tabla no tiene FKs).
+ *
+ * TOLERANTE a propósito: la migración 0072 se aplica en producción DESPUÉS del
+ * deploy, así que mientras tanto la tabla no existe. Ante cualquier error
+ * (tabla inexistente, sin permiso, conexión) se loguea y devuelve `[]` — la
+ * página se ve igual que antes, sin la sección de eliminados. */
+export async function listarMovimientosStockBorrados(supabase: Supa): Promise<MovimientoStockBorrado[]> {
+  try {
+    const { data, error } = await supabase
+      .from("movimientos_stock_borrados")
+      .select("id, tipo, cantidad, motivo, nota, created_at, borrado_at, producto_id, lote_id, borrado_por")
+      .order("borrado_at", { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.error("listarMovimientosStockBorrados", error.message);
+      return [];
+    }
+    const filas = data ?? [];
+    if (filas.length === 0) return [];
+
+    const productoIds = [...new Set(filas.map((f) => f.producto_id))];
+    const borradorIds = [...new Set(filas.flatMap((f) => (f.borrado_por ? [f.borrado_por] : [])))];
+
+    const [fechas, { data: productos }, { data: borradores }] = await Promise.all([
+      fechasDeLotes(
+        supabase,
+        filas.flatMap((f) => (f.lote_id ? [f.lote_id] : [])),
+      ),
+      supabase.from("productos").select("id, nombre").in("id", productoIds),
+      borradorIds.length > 0
+        ? supabase.from("vendedores").select("id, nombre").in("id", borradorIds)
+        : Promise.resolve({ data: [] as { id: string; nombre: string }[] }),
+    ]);
+    const nombreProducto = new Map((productos ?? []).map((p) => [p.id, p.nombre]));
+    const nombreBorrador = new Map((borradores ?? []).map((v) => [v.id, v.nombre]));
+
+    return filas.map((f) => ({
+      id: f.id,
+      tipo: f.tipo,
+      cantidad: f.cantidad,
+      motivo: f.motivo,
+      nota: f.nota,
+      created_at: f.created_at,
+      borrado_at: f.borrado_at,
+      producto: nombreProducto.get(f.producto_id) ?? null,
+      fecha_lote: f.lote_id ? (fechas.get(f.lote_id) ?? null) : null,
+      lote_id: f.lote_id,
+      borrado_por: f.borrado_por ? (nombreBorrador.get(f.borrado_por) ?? null) : null,
+    }));
+  } catch (e) {
+    console.error("listarMovimientosStockBorrados", e);
+    return [];
+  }
 }
 
 /** Productos (id, nombre, presentación), para selectores de
