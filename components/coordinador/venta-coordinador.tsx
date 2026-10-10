@@ -189,6 +189,12 @@ function VentaCoordinadorSheet({
   const [error, setError] = useState<string | null>(null);
   const [guardado, setGuardado] = useState<string | null>(null);
   const enviando = useRef(false);
+  // Id de la venta: se genera una vez al abrir la hoja y se renueva si cambia
+  // cualquier dato del formulario. Un reintento tras un error de red reusa el
+  // mismo, así un doble envío no crea dos ventas (el servidor devuelve la ya
+  // guardada).
+  const [grupoId, setGrupoId] = useState(() => crypto.randomUUID());
+  const renovarGrupo = () => setGrupoId(crypto.randomUUID());
 
   const lotes = lotesDe(productoId);
   // Si no eligió ninguno (o el elegido ya no existe), el más viejo con stock.
@@ -202,11 +208,13 @@ function VentaCoordinadorSheet({
     setLoteElegido(null);
     setCantidad(1);
     setError(null);
+    renovarGrupo();
   }
 
   function elegirLote(id: string) {
     setLoteElegido(id);
     setError(null);
+    renovarGrupo();
   }
 
   async function guardar() {
@@ -223,6 +231,7 @@ function VentaCoordinadorSheet({
       loteId: lote.loteId,
       fecha,
       nota: nota.trim() || null,
+      grupoId,
     });
 
     if (rpcError) {
@@ -332,6 +341,7 @@ function VentaCoordinadorSheet({
                     onChange={(v) => {
                       setCantidad(v);
                       setError(null);
+                      renovarGrupo();
                     }}
                     min={1}
                     max={lote?.quedan}
@@ -349,7 +359,10 @@ function VentaCoordinadorSheet({
                   required
                   max={hoyISO()}
                   value={fecha}
-                  onChange={(event) => setFecha(event.target.value)}
+                  onChange={(event) => {
+                    setFecha(event.target.value);
+                    renovarGrupo();
+                  }}
                   className={CAMPO}
                 />
               </div>
@@ -361,7 +374,10 @@ function VentaCoordinadorSheet({
                 <textarea
                   id="nota-venta-coordinador"
                   value={nota}
-                  onChange={(event) => setNota(event.target.value)}
+                  onChange={(event) => {
+                    setNota(event.target.value);
+                    renovarGrupo();
+                  }}
                   rows={2}
                   className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
                 />

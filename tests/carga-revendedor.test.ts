@@ -937,7 +937,7 @@ describe("agarra directo del depósito (0073)", () => {
     );
     expect(err).toMatchObject({ seccion: "ventas", codigo: "DEPOSITO_INSUFICIENTE", productoId: "p500", disponible: 4 });
     expect(err.mensaje).toBe(
-      "Ventas · Botella 500 ml: No hay tantas en el depósito para cubrir lo que le falta. Quedan 4.",
+      "Ventas · Botella 500 ml: No hay tantas en el depósito para cubrir lo que le falta. Hay 4 disponibles para vender.",
     );
     expect(err.permiteGuardarIgual).toBe(false);
     expect(traducirErrorCarga("ventas:COSTO_FALTANTE", null, textos).mensaje).toContain("costos");

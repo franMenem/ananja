@@ -111,6 +111,7 @@ const ERRORES_VENTA_COORDINADOR: Record<string, string> = {
   ...ERRORES_RPC_COMUNES,
   COORDINADOR_INVALIDO: "Esa persona ya no es coordinadora.",
   LOTE_INVALIDO: "Elegí de qué lote sale.",
+  GRUPO_INVALIDO: "No se pudo guardar. Cerrá y volvé a intentar.",
   COSTO_FALTANTE: `Ese lote todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
   CANTIDAD_INVALIDA: "Revisá la cantidad.",
   FECHA_INVALIDA: "Revisá la fecha.",
@@ -126,10 +127,9 @@ export function mensajeErrorVentaCoordinador(
     const d = leerDetalleError(detalleCrudo).disponible;
     const disponible = typeof d === "number" && Number.isFinite(d) ? Math.max(0, Math.floor(d)) : null;
     if (disponible === null) {
-      return `En el depósito no hay tantas ${NEGOCIO.envase.plural} de ese lote. Cargá menos.`;
+      return `En el depósito no hay tantas ${NEGOCIO.envase.plural} disponibles para vender en ese lote. Cargá menos.`;
     }
-    if (disponible === 0) return `En el depósito no quedan ${NEGOCIO.envase.plural} de ese lote.`;
-    return `En ese lote del depósito quedan ${disponible}. Cargá hasta esa cantidad.`;
+    return `En el depósito hay ${disponible} disponibles para vender en ese lote. Cargá hasta esa cantidad.`;
   }
   return traducirErrorRpc(codigo, ERRORES_VENTA_COORDINADOR, "No se pudo guardar. Probá de nuevo.");
 }

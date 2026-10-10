@@ -621,15 +621,21 @@ export function agruparMargenVendedorPorPeriodo(
 
 /** Filas de un período puntual de {@link agruparMargenVendedorPorPeriodo},
  * ordenadas de mayor a menor margen — `[]` si ese período no tiene ningún
- * vendedor con algo que mostrar todavía. */
+ * vendedor con algo que mostrar todavía.
+ *
+ * `excluir`: ids que NO van en la tabla — las coordinadoras (0073): las
+ * botellas que vende una coordinadora entran al margen de Ananja, pero ella
+ * vende a precio = costo, así que aparecería con $0 como si fuera una
+ * revendedora más. */
 export function margenVendedoresDePeriodo(
   porPeriodo: Map<string, Map<string, ResumenMargenVendedor>>,
   periodo: string,
+  excluir?: ReadonlySet<string>,
 ): ResumenMargenVendedor[] {
   const porVendedor = porPeriodo.get(periodo) ?? new Map<string, ResumenMargenVendedor>();
-  return Array.from(porVendedor.values()).sort(
-    (a, b) => b.margenVendedorCentavos - a.margenVendedorCentavos,
-  );
+  return Array.from(porVendedor.values())
+    .filter((v) => !excluir?.has(v.vendedorId))
+    .sort((a, b) => b.margenVendedorCentavos - a.margenVendedorCentavos);
 }
 
 /**

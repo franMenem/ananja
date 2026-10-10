@@ -801,6 +801,17 @@ describe("agruparMargenVendedorPorPeriodo / margenVendedoresDePeriodo — /ganan
     ]);
   });
 
+  it("excluye a las coordinadoras de la tabla (venden a precio = costo y saldrían con $0, 0073)", () => {
+    const porMes = agruparMargenVendedorPorPeriodo(FILAS, "mes");
+    const todos = margenVendedoresDePeriodo(porMes, "2026-01");
+    const sinRevendedora = margenVendedoresDePeriodo(porMes, "2026-01", new Set(["revendedora"]));
+    expect(todos.map((f) => f.vendedorId)).toEqual(["revendedora", "admin"]);
+    expect(sinRevendedora.map((f) => f.vendedorId)).toEqual(["admin"]);
+    // Un conjunto vacío o un id que no está no cambia nada.
+    expect(margenVendedoresDePeriodo(porMes, "2026-01", new Set())).toEqual(todos);
+    expect(margenVendedoresDePeriodo(porMes, "2026-01", new Set(["otra"]))).toEqual(todos);
+  });
+
   it("un período sin ningún vendedor con algo que aportar devuelve []", () => {
     const porMes = agruparMargenVendedorPorPeriodo(FILAS, "mes");
     expect(margenVendedoresDePeriodo(porMes, "2026-02")).toEqual([]);

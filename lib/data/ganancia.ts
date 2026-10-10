@@ -159,6 +159,19 @@ export async function listarGastosConCategoria(
   return { data: (data ?? []) as unknown as GastoConCategoriaCrudo[], error: null };
 }
 
+/** Ids de las coordinadoras (`vendedores.rol = 'coordinador'`) — `/ganancia`
+ * las deja fuera de "Ganancia de los vendedores": venden a precio = costo
+ * (0073) y saldrían con $0. Si la consulta falla devuelve `[]` y la tabla las
+ * muestra (no tira la pantalla por un dato decorativo). */
+export async function listarCoordinadorIds(supabase: Supa): Promise<string[]> {
+  const { data, error } = await supabase.from("vendedores").select("id").eq("rol", "coordinador");
+  if (error) {
+    console.error("listarCoordinadorIds", error);
+    return [];
+  }
+  return (data ?? []).map((v) => v.id);
+}
+
 export interface VendedorNombre {
   id: string;
   nombre: string;

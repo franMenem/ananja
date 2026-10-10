@@ -121,12 +121,16 @@ describe("cantidad y montos", () => {
 describe("errores", () => {
   it("DEPOSITO_INSUFICIENTE dice cuántas quedan en el lote", () => {
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", JSON.stringify({ disponible: 3, lote_id: "x" }))).toBe(
-      "En ese lote del depósito quedan 3. Cargá hasta esa cantidad.",
+      "En el depósito hay 3 disponibles para vender en ese lote. Cargá hasta esa cantidad.",
     );
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", '{"disponible":0}')).toBe(
-      "En el depósito no quedan botellas de ese lote.",
+      "En el depósito hay 0 disponibles para vender en ese lote. Cargá hasta esa cantidad.",
     );
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", "roto")).toContain("no hay tantas");
+  });
+
+  it("GRUPO_INVALIDO tiene un texto genérico", () => {
+    expect(mensajeErrorVentaCoordinador("GRUPO_INVALIDO", null)).toBe("No se pudo guardar. Cerrá y volvé a intentar.");
   });
 
   it("traduce el resto de los códigos del servidor y cae a un genérico", () => {

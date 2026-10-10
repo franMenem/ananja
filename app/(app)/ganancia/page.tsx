@@ -9,6 +9,7 @@ import { TablaPorMes } from "@/components/ganancia/tabla-por-mes";
 import { VentasPorMes } from "@/components/ganancia/ventas-por-mes";
 import {
   cargarDatosGraficos,
+  listarCoordinadorIds,
   listarGastosConCategoria,
   listarMargenVentas,
   listarVendedoresNombre,
@@ -58,6 +59,7 @@ export default function GananciaPage() {
   const [margenRows, setMargenRows] = useState<FilaMargenPeriodo[]>([]);
   const [gastosOperativos, setGastosOperativos] = useState<GastoOperativo[]>([]);
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
+  const [coordinadorIds, setCoordinadorIds] = useState<ReadonlySet<string>>(new Set());
   const [datosGraficos, setDatosGraficos] = useState<DatosGraficos>(DATOS_GRAFICOS_VACIOS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,11 +72,12 @@ export default function GananciaPage() {
       setError(null);
 
       const supabase = createClient();
-      const [margenRes, gastosRes, vendedoresRes, graficosRes] = await Promise.all([
+      const [margenRes, gastosRes, vendedoresRes, graficosRes, idsCoordinadoras] = await Promise.all([
         listarMargenVentas(supabase),
         listarGastosConCategoria(supabase),
         listarVendedoresNombre(supabase),
         cargarDatosGraficos(supabase),
+        listarCoordinadorIds(supabase),
       ]);
 
       if (cancelled) return;
@@ -88,6 +91,7 @@ export default function GananciaPage() {
       setMargenRows(mapearFilasMargenVentas(margenRes.data));
       setGastosOperativos(filtrarGastosOperativos(gastosRes.data));
       setVendedores(vendedoresRes.data);
+      setCoordinadorIds(new Set(idsCoordinadoras));
 
       if (graficosRes.error) {
         console.error("ganancia: gráfico de líneas", graficosRes.error);
@@ -125,8 +129,9 @@ export default function GananciaPage() {
     periodoActual,
   );
 
-  const vendedoresEsteMes = margenVendedoresDePeriodo(vendedorPorMes, mesActual);
-  const vendedoresEsteAnio = margenVendedoresDePeriodo(vendedorPorAnio, anioActual);
+  // Las coordinadoras no van en esta tabla (venden a precio = costo, 0073).
+  const vendedoresEsteMes = margenVendedoresDePeriodo(vendedorPorMes, mesActual, coordinadorIds);
+  const vendedoresEsteAnio = margenVendedoresDePeriodo(vendedorPorAnio, anioActual, coordinadorIds);
   const nombreDe = (vendedorId: string) => vendedores.find((v) => v.id === vendedorId)?.nombre ?? "Vendedor";
   const algunCostoEstimadoGlobal = margenRows.some(
     (fila) => fila.costoEstimado && fila.margenAnanjaCentavos !== null,

@@ -106,16 +106,16 @@ describe("errores del servidor", () => {
   it("DEPOSITO_INSUFICIENTE dice cuántas quedan, con el detalle del servidor", () => {
     const detalle = JSON.stringify({ producto: "Botella 500 ml", producto_id: "p500", disponible: 6 });
     expect(mensajeErrorVentaPropia("DEPOSITO_INSUFICIENTE", detalle)).toBe(
-      "En el depósito quedan 6. Cargá hasta esa cantidad o avisale a Ananja.",
+      "En el depósito hay 6 disponibles para vender. Cargá hasta esa cantidad o avisale a Ananja.",
     );
   });
 
   it("DEPOSITO_INSUFICIENTE con 0 o sin detalle no inventa números", () => {
     expect(mensajeDepositoInsuficiente(0)).toBe(
-      "En el depósito no quedan botellas de ese producto. Avisale a Ananja.",
+      "En el depósito hay 0 disponibles para vender. Cargá hasta esa cantidad o avisale a Ananja.",
     );
     expect(mensajeErrorVentaPropia("DEPOSITO_INSUFICIENTE", "no es json")).toBe(
-      "En el depósito no hay tantas botellas. Cargá menos o avisale a Ananja.",
+      "En el depósito no hay tantas botellas disponibles para vender. Cargá menos o avisale a Ananja.",
     );
     expect(mensajeErrorVentaPropia("DEPOSITO_INSUFICIENTE", undefined)).toContain("no hay tantas");
   });

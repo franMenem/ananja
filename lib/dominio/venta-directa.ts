@@ -117,13 +117,12 @@ export function disponibleEnDeposito(detalle: Record<string, unknown>): number |
 
 /** Mensaje para la revendedora cuando el depósito no alcanza. */
 export function mensajeDepositoInsuficiente(disponible: number | null): string {
+  // No afirma que el depósito está vacío: un lote sin todos sus costos
+  // cargados no se puede usar y "disponible" solo cuenta lo que sí se puede.
   if (disponible === null) {
-    return `En el depósito no hay tantas ${NEGOCIO.envase.plural}. Cargá menos o avisale a ${NEGOCIO.nombre}.`;
+    return `En el depósito no hay tantas ${NEGOCIO.envase.plural} disponibles para vender. Cargá menos o avisale a ${NEGOCIO.nombre}.`;
   }
-  if (disponible === 0) {
-    return `En el depósito no quedan ${NEGOCIO.envase.plural} de ese producto. Avisale a ${NEGOCIO.nombre}.`;
-  }
-  return `En el depósito quedan ${disponible}. Cargá hasta esa cantidad o avisale a ${NEGOCIO.nombre}.`;
+  return `En el depósito hay ${disponible} disponibles para vender. Cargá hasta esa cantidad o avisale a ${NEGOCIO.nombre}.`;
 }
 
 /** Errores de `registrar_venta_revendedor` que no necesitan el `detail`.
@@ -138,6 +137,7 @@ const ERRORES_VENTA_PROPIA: Record<string, string> = {
   FECHA_ANTERIOR_A_ENTREGA:
     "La fecha de la venta es anterior a la entrega de esas botellas. Revisá la fecha.",
   COSTO_FALTANTE: `Ese lote todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
+  GRUPO_INVALIDO: "No se pudo guardar. Cerrá y volvé a intentar.",
   LOTE_INVALIDO: `No se pudo elegir de dónde sacar las botellas. Avisale a ${NEGOCIO.nombre}.`,
 };
 

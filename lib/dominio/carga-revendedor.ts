@@ -653,6 +653,7 @@ const MENSAJES_SECCION: Record<Exclude<SeccionCarga, "general">, Record<string, 
     STOCK_REVENDEDOR_INSUFICIENTE: "No va a tener tantas para vender.",
     STOCK_INSUFICIENTE_LOTE: "No quedan tantas en ese lote.",
     DEPOSITO_INSUFICIENTE: "No hay tantas en el depósito para cubrir lo que le falta.",
+    GRUPO_INVALIDO: "No se pudo guardar. Recargá la página y probá de nuevo.",
     COSTO_FALTANTE:
       "El lote del que saldrían todavía no tiene costos cargados. Cargalos en Stock y probá de nuevo.",
     LOTE_INVALIDO: "No se pudo elegir de qué lote sacar lo que le falta. Probá de nuevo.",
@@ -728,7 +729,10 @@ export function traducirErrorCarga(
   if (seccion === "ventas" && codigo === "FECHA_ANTERIOR_A_ENTREGA" && typeof interno.entrega_fecha === "string") {
     mensaje = `Las ventas salen de una entrega del ${textos.formatFecha(interno.entrega_fecha)}, posterior a la fecha de las ventas. Cambiá la fecha.`;
   }
-  if (disponible !== null && (codigo.startsWith("STOCK_") || codigo === "DEPOSITO_INSUFICIENTE")) {
+  if (disponible !== null && codigo === "DEPOSITO_INSUFICIENTE") {
+    // No dice "quedan": un lote sin todos los costos no cuenta como disponible.
+    mensaje = `${mensaje} Hay ${disponible} disponibles para vender.`;
+  } else if (disponible !== null && codigo.startsWith("STOCK_")) {
     mensaje = `${mensaje} Quedan ${disponible}.`;
   }
 
