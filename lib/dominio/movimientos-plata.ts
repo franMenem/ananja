@@ -66,6 +66,10 @@ export type MovimientoPlata =
       medioPago: MedioPago;
       tenedorId: string | null;
       montoCentavos: number;
+      /** Venta propia de una coordinadora (0073): ella "se rinde a sí misma"
+       * (`vendedor_id = tenedor_id`) lo que vendió. No cambia dónde cae la
+       * plata, solo cómo se la nombra. */
+      ventaPropia?: boolean;
     }
   | {
       tipo: "transferencia";
@@ -155,14 +159,41 @@ export function textoDonde(m: MovimientoPlata, nombreDe: (id: string | null) => 
   return `${corto(origen.destino)} → ${corto(destino.destino)}`;
 }
 
+/** `true` si la rendición es una venta propia de una coordinadora (0073,
+ * `registrar_venta_coordinador`): la persona que "rinde" es la misma que
+ * tiene la plata. Una rendición normal siempre es de una revendedora hacia
+ * otra persona. */
+export function esVentaPropia(vendedorId: string | null, tenedorId: string | null): boolean {
+  return vendedorId !== null && tenedorId !== null && vendedorId === tenedorId;
+}
+
+/** Cuánto de lo que una persona tiene en mano viene de botellas que vendió
+ * ella misma (ventas propias de coordinadora): suma, entre las filas de su
+ * lista de movimientos, las rendiciones marcadas `ventaPropia`. El resto de
+ * `v_plata_en_manos.rendiciones_centavos` son pagos de revendedoras que
+ * recibió. Sin tocar la vista SQL. */
+export function ventasPropiasEnManos(
+  items: { fila: { mov: MovimientoPlata }; montoCentavos: number }[],
+): number {
+  return items.reduce((acc, { fila, montoCentavos }) => {
+    const { mov } = fila;
+    return mov.tipo === "rendicion" && mov.via === "encargado" && mov.ventaPropia ? acc + montoCentavos : acc;
+  }, 0);
+}
+
 /** Título de un pago de revendedora, dicho según dónde quedó la plata. */
 export function describirRendicion(args: {
   via: ViaRendicion;
   medioPago: MedioPago;
   revendedora: string;
   tenedor: string;
+  /** Venta propia de una coordinadora (ver {@link esVentaPropia}). */
+  ventaPropia?: boolean;
 }): string {
-  const { via, medioPago, revendedora, tenedor } = args;
+  const { via, medioPago, revendedora, tenedor, ventaPropia } = args;
+  if (via === "encargado" && ventaPropia) {
+    return `${revendedora} vendió botellas`;
+  }
   if (via === "encargado") {
     return `Pago de ${revendedora} recibido por ${tenedor} · por ${etiquetaMedioPago(medioPago)}`;
   }

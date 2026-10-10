@@ -6,12 +6,14 @@ import {
   detalleDeposito,
   diasEnManoPorPersona,
   esMovimientoInterno,
+  esVentaPropia,
   impactosDe,
   ingresosEnManos,
   montoEnCuenta,
   montoEnManos,
   NOTA_DEPOSITO_AVISADO_POR_DEFECTO,
   textoDonde,
+  ventasPropiasEnManos,
   type MovimientoPlata,
 } from "@/lib/dominio/movimientos-plata";
 
@@ -264,5 +266,66 @@ describe("detalleDeposito", () => {
     expect(detalleDeposito({ ...base, avisado: true, nota: null, confirmoId: null })).toBe(
       "lo avisó desde la app · lo confirmó Fran",
     );
+  });
+});
+
+describe("venta propia de una coordinadora (0073)", () => {
+  it("la rendición de ella hacia ella se llama 'vendió botellas', no 'pago recibido por ella misma'", () => {
+    expect(
+      describirRendicion({
+        via: "encargado",
+        medioPago: "efectivo",
+        revendedora: "Teresa",
+        tenedor: "Teresa",
+        ventaPropia: true,
+      }),
+    ).toBe("Teresa vendió botellas");
+    // Sin la marca, el título de siempre.
+    expect(
+      describirRendicion({ via: "encargado", medioPago: "efectivo", revendedora: "Sofi", tenedor: "Laura" }),
+    ).toBe("Pago de Sofi recibido por Laura · por Efectivo");
+  });
+
+  it("se reconoce por vendedor = tenedor", () => {
+    expect(esVentaPropia("t", "t")).toBe(true);
+    expect(esVentaPropia("sofi", "t")).toBe(false);
+    expect(esVentaPropia("t", null)).toBe(false);
+    expect(esVentaPropia(null, null)).toBe(false);
+  });
+
+  it("sigue sumando en manos del tenedor y no toca ninguna cuenta (igual que cualquier pago recibido)", () => {
+    const m: MovimientoPlata = {
+      tipo: "rendicion",
+      via: "encargado",
+      medioPago: "efectivo",
+      tenedorId: LAURA,
+      montoCentavos: 24_000_00,
+      ventaPropia: true,
+    };
+    expect(montoEnManos(m, LAURA)).toBe(24_000_00);
+    expect(montoEnCuenta(m, "banco")).toBeNull();
+    expect(montoEnCuenta(m, "mercado_pago")).toBeNull();
+  });
+
+  it("separa, de lo que recibió, las botellas que vendió ella (para el resumen de en-manos)", () => {
+    const rend = (monto: number, ventaPropia: boolean): MovimientoPlata => ({
+      tipo: "rendicion",
+      via: "encargado",
+      medioPago: "efectivo",
+      tenedorId: LAURA,
+      montoCentavos: monto,
+      ventaPropia,
+    });
+    const items = [
+      { fila: { mov: rend(10_00, false) }, montoCentavos: 10_00 },
+      { fila: { mov: rend(24_00, true) }, montoCentavos: 24_00 },
+      { fila: { mov: rend(6_00, true) }, montoCentavos: 6_00 },
+      {
+        fila: { mov: { tipo: "gasto", medioPago: "efectivo", vendedorId: LAURA, montoCentavos: 5_00 } as MovimientoPlata },
+        montoCentavos: -5_00,
+      },
+    ];
+    expect(ventasPropiasEnManos(items)).toBe(30_00);
+    expect(ventasPropiasEnManos([])).toBe(0);
   });
 });
