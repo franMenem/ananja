@@ -6,13 +6,9 @@ import { useState } from "react";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
+import { ERRORES_ELIMINAR_VENTA, textoEliminarVentaCoordinadora } from "@/lib/dominio/venta-coordinador";
 import { eliminarVentaRevendedor } from "@/lib/revendedores";
 import { createClient } from "@/lib/supabase/client";
-
-const ERRORES: Record<string, string> = {
-  VENTA_NO_ENCONTRADA: "No encontramos esta venta.",
-  NO_AUTORIZADO: "No tenés permiso para borrar esta venta.",
-};
 
 /**
  * Botón + confirmación para borrar una venta entera (`eliminar_venta_revendedor`)
@@ -20,14 +16,23 @@ const ERRORES: Record<string, string> = {
  * y en `/revendedores/[id]` (un admin, cualquier venta). Mismo patrón de
  * `BottomSheet` de confirmación que `AsignarRolButton`/`PrecioRevendedorRow`,
  * variante `accent` por ser destructiva (design/handoff README § Modales).
+ *
+ * `ventaCoordinadora` (0073): la venta propia de una coordinadora ("vendió N
+ * botellas") — al borrarla las botellas vuelven al depósito y se le descuenta
+ * de lo que tiene que pasar a Ananja; si esa plata ya se pasó (o está
+ * avisada) el servidor responde `YA_PASO_LA_PLATA` y no se borra nada.
  */
 export function EliminarVentaButton({
   ventaId,
   redirectHref = "/mi/ventas",
+  ventaCoordinadora,
 }: {
   ventaId: string;
   /** Adónde ir después de borrar; `null` = quedarse y refrescar. */
   redirectHref?: string | null;
+  /** Es la venta propia de una coordinadora (nombre para el texto de la
+   * confirmación); sin esto, una venta de revendedora de siempre. */
+  ventaCoordinadora?: { nombre: string };
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -41,7 +46,7 @@ export function EliminarVentaButton({
     const { error: rpcError } = await eliminarVentaRevendedor(supabase, ventaId);
 
     if (rpcError) {
-      setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo borrar la venta. Probá de nuevo."));
+      setError(traducirErrorRpc(rpcError.message, ERRORES_ELIMINAR_VENTA, "No se pudo borrar la venta. Probá de nuevo."));
       setSaving(false);
       return;
     }
@@ -64,7 +69,9 @@ export function EliminarVentaButton({
 
       <BottomSheet open={open} ariaLabel="Borrar esta venta" variant="accent">
         <h2 className="font-display text-[24px] text-primary">¿Borrar esta venta?</h2>
-        <p className="mt-2 text-sm text-text-muted">No se puede deshacer.</p>
+        <p className="mt-2 text-sm text-text-muted">
+          {ventaCoordinadora ? textoEliminarVentaCoordinadora(ventaCoordinadora.nombre) : "No se puede deshacer."}
+        </p>
         {error && (
           <p role="alert" className="mt-3 text-sm text-accent">
             {error}
