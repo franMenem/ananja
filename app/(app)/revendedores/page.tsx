@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
+import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
 import { EspacioRevendedorButton } from "@/components/revendedores/espacio-revendedor-button";
 import { RechazarPendienteButton } from "@/components/revendedores/rechazar-pendiente-button";
 import {
   agruparValorStockPorVendedor,
   calcularTotalRevendedor,
 } from "@/lib/dominio/calculos";
+import { cargarBotellasAdeudadas } from "@/lib/data/botellas-adeudadas";
 import {
   listarAdminsActivos,
   listarAdminsConEspacio,
@@ -72,6 +74,7 @@ export default async function RevendedoresPage() {
     { data: stock },
     { data: resumenes },
     { data: valorStock },
+    botellas,
   ] = await Promise.all([
     listarPendientesAprobacion(supabase),
     listarRevendedoresRol(supabase),
@@ -89,6 +92,12 @@ export default async function RevendedoresPage() {
     listarStockRevendedorTodos(supabase),
     listarResumenRevendedorTodos(supabase),
     listarValorStockRevendedorTodos(supabase),
+    // "Se le deben a Ananja N botellas": si falla, el bloque dice "No se
+    // pudo calcular." y el resto del listado se ve igual.
+    cargarBotellasAdeudadas(supabase, { tipo: "todo" }).catch((error) => {
+      console.error("cargarBotellasAdeudadas", error);
+      return null;
+    }),
   ]);
 
   const revendedorasPorCoordinador = new Map<string, number>();
@@ -146,6 +155,8 @@ export default async function RevendedoresPage() {
           + Sumar persona
         </Link>
       </div>
+
+      <BotellasAdeudadas resumen={botellas} variante="equipo" mostrarPorPersona />
 
       <section className="flex flex-col gap-3">
         <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">

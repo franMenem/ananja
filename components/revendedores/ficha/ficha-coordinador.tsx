@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
 import { EntregasCoordinadora } from "@/components/revendedores/ficha/entregas-coordinadora";
+import type { ResumenBotellas } from "@/lib/dominio/botellas-adeudadas";
 import type { RevendedoraCoordinador } from "@/lib/dominio/coordinador";
 import type { EntregasCoordinadora as Entregas } from "@/lib/dominio/entregas-coordinador";
 import { formatCentavos } from "@/lib/money";
@@ -16,6 +18,10 @@ export type FichaCoordinadorProps = {
   /** Entregas y devoluciones a sus revendedoras a cargo; `null` si la
    * lectura falló. */
   entregas: Entregas | null;
+  /** Botellas que se le deben a Ananja entre sus revendedoras a cargo y la
+   * plata que cobró sin pasar (`cargarBotellasAdeudadas`); `null` si la
+   * lectura falló. */
+  botellas: ResumenBotellas | null;
 };
 
 /**
@@ -29,10 +35,11 @@ export type FichaCoordinadorProps = {
  * `armarRevendedorasCoordinador`) y cuánto tiene que pasar a la cuenta de
  * Ananja (0058: no es lo mismo que "tiene en mano" — puede tener más si
  * cobra con margen propio) y las entregas que les hizo, con su lote
- * (`EntregasCoordinadora`) — el botón de cambio de rol ya vive en
+ * (`EntregasCoordinadora`) y cuántas botellas se le deben a Ananja entre su
+ * equipo y lo que cobró (`BotellasAdeudadas`) — el botón de cambio de rol ya vive en
  * `CabeceraFicha`, arriba de este bloque.
  */
-export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas }: FichaCoordinadorProps) {
+export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas, botellas }: FichaCoordinadorProps) {
   return (
     <div className="flex flex-col gap-8">
       {plataEnManoCentavos > 0 && (
@@ -48,6 +55,12 @@ export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas }
           </p>
         </div>
       )}
+
+      <BotellasAdeudadas
+        resumen={botellas}
+        variante="equipo"
+        nota="Entre sus revendedoras y la plata que cobró."
+      />
 
       <section className="flex flex-col gap-3">
         <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
