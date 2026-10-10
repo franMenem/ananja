@@ -16,7 +16,7 @@ function entrega(fecha: string, createdAt: string, id = `e-${fecha}`): Movimient
     id,
     fecha,
     createdAt,
-    items: [{ productoId: "p1", cantidad: 1, costoCentavos: 100, costoLoteCentavos: 90 }],
+    items: [{ productoId: "p1", cantidad: 1, costoCentavos: 100, costoLoteCentavos: 90, loteId: null, loteFecha: null }],
   };
 }
 
@@ -137,6 +137,7 @@ describe("entregasComoMovimientos", () => {
           cantidad: 7,
           costo_ananja_unitario_centavos: 600_000,
           costo_lote_unitario_centavos: 500_000,
+          lote_id: "l1",
         },
         {
           entrega_id: "e1",
@@ -144,6 +145,7 @@ describe("entregasComoMovimientos", () => {
           cantidad: 3,
           costo_ananja_unitario_centavos: null,
           costo_lote_unitario_centavos: null,
+          lote_id: null,
         },
         {
           entrega_id: "e2",
@@ -151,6 +153,7 @@ describe("entregasComoMovimientos", () => {
           cantidad: 2,
           costo_ananja_unitario_centavos: null,
           costo_lote_unitario_centavos: null,
+          lote_id: null,
         },
       ],
     );
@@ -160,13 +163,49 @@ describe("entregasComoMovimientos", () => {
       fecha: "2026-09-10",
       createdAt: "2026-09-10T10:00:00Z",
       items: [
-        { productoId: "p1", cantidad: 7, costoCentavos: 600_000, costoLoteCentavos: 500_000 },
-        { productoId: "p2", cantidad: 3, costoCentavos: null, costoLoteCentavos: null },
+        {
+          productoId: "p1",
+          cantidad: 7,
+          costoCentavos: 600_000,
+          costoLoteCentavos: 500_000,
+          loteId: "l1",
+          loteFecha: null,
+        },
+        { productoId: "p2", cantidad: 3, costoCentavos: null, costoLoteCentavos: null, loteId: null, loteFecha: null },
       ],
     });
     expect(m2.tipo).toBe("devolucion");
     expect(m2.items).toEqual([
-      { productoId: "p1", cantidad: 2, costoCentavos: null, costoLoteCentavos: null },
+      { productoId: "p1", cantidad: 2, costoCentavos: null, costoLoteCentavos: null, loteId: null, loteFecha: null },
+    ]);
+  });
+
+  it("rotula cada ítem con la fecha de su lote cuando se la pasan", () => {
+    const [m1] = entregasComoMovimientos(
+      [{ id: "e1", fecha: "2026-09-10", created_at: "2026-09-10T10:00:00Z", tipo: "entrega" }],
+      [
+        {
+          entrega_id: "e1",
+          producto_id: "p1",
+          cantidad: 4,
+          costo_ananja_unitario_centavos: null,
+          costo_lote_unitario_centavos: null,
+          lote_id: "l1",
+        },
+        {
+          entrega_id: "e1",
+          producto_id: "p1",
+          cantidad: 1,
+          costo_ananja_unitario_centavos: null,
+          costo_lote_unitario_centavos: null,
+          lote_id: "l-sin-fecha",
+        },
+      ],
+      new Map([["l1", "2026-08-03"]]),
+    );
+    expect(m1.items.map((i) => [i.loteId, i.loteFecha])).toEqual([
+      ["l1", "2026-08-03"],
+      ["l-sin-fecha", null],
     ]);
   });
 

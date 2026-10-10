@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { EntregasCoordinadora } from "@/components/revendedores/ficha/entregas-coordinadora";
 import type { RevendedoraCoordinador } from "@/lib/dominio/coordinador";
+import type { EntregasCoordinadora as Entregas } from "@/lib/dominio/entregas-coordinador";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
 
@@ -11,6 +13,9 @@ export type FichaCoordinadorProps = {
    * parte Ananja de lo que le rindieron sus revendedoras, sin su margen
    * propio (que no se muestra en ningún lado). */
   plataEnManoCentavos: number;
+  /** Entregas y devoluciones a sus revendedoras a cargo; `null` si la
+   * lectura falló. */
+  entregas: Entregas | null;
 };
 
 /**
@@ -23,10 +28,11 @@ export type FichaCoordinadorProps = {
  * revendedoras a cargo (mismos números que ve él en `/mi`,
  * `armarRevendedorasCoordinador`) y cuánto tiene que pasar a la cuenta de
  * Ananja (0058: no es lo mismo que "tiene en mano" — puede tener más si
- * cobra con margen propio) — el botón de cambio de rol ya vive en
+ * cobra con margen propio) y las entregas que les hizo, con su lote
+ * (`EntregasCoordinadora`) — el botón de cambio de rol ya vive en
  * `CabeceraFicha`, arriba de este bloque.
  */
-export function FichaCoordinador({ revendedoras, plataEnManoCentavos }: FichaCoordinadorProps) {
+export function FichaCoordinador({ revendedoras, plataEnManoCentavos, entregas }: FichaCoordinadorProps) {
   return (
     <div className="flex flex-col gap-8">
       {plataEnManoCentavos > 0 && (
@@ -73,6 +79,8 @@ export function FichaCoordinador({ revendedoras, plataEnManoCentavos }: FichaCoo
           </div>
         )}
       </section>
+
+      <EntregasCoordinadora entregas={entregas} />
     </div>
   );
 }
