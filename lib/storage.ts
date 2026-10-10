@@ -82,14 +82,14 @@ function extensionFor(file: File): string {
 }
 
 /**
- * Valida y sube un comprobante al bucket privado, devolviendo el path
- * (no la URL) para guardar en `comprobantes.imagen_path`.
+ * Validación de un archivo antes de subirlo (tamaño y tipo), sin tocar la
+ * red: devuelve el mensaje de error en español, o `null` si está bien. La
+ * usa {@link subirComprobante} y también los formularios que quieren
+ * avisar el problema ANTES de iniciar el guardado.
  */
-export async function subirComprobante(file: File, carpeta?: string): Promise<string> {
+export function validarArchivoComprobante(file: File): string | null {
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new ArchivoInvalidoError(
-      "El archivo supera el tamaño máximo permitido (10 MB).",
-    );
+    return "El archivo supera el tamaño máximo permitido (10 MB).";
   }
 
   if (
@@ -97,9 +97,20 @@ export async function subirComprobante(file: File, carpeta?: string): Promise<st
       file.type as (typeof ALLOWED_MIME_TYPES)[number],
     )
   ) {
-    throw new ArchivoInvalidoError(
-      "Formato no soportado. Usá una foto (JPG, PNG, HEIC, WebP) o un PDF.",
-    );
+    return "Formato no soportado. Usá una foto (JPG, PNG, HEIC, WebP) o un PDF.";
+  }
+
+  return null;
+}
+
+/**
+ * Valida y sube un comprobante al bucket privado, devolviendo el path
+ * (no la URL) para guardar en `comprobantes.imagen_path`.
+ */
+export async function subirComprobante(file: File, carpeta?: string): Promise<string> {
+  const errorValidacion = validarArchivoComprobante(file);
+  if (errorValidacion) {
+    throw new ArchivoInvalidoError(errorValidacion);
   }
 
   const now = new Date();
@@ -129,6 +140,17 @@ export async function subirComprobante(file: File, carpeta?: string): Promise<st
  */
 export function subirComprobantePagoRevendedor(file: File, vendedorId: string): Promise<string> {
   return subirComprobante(file, `revendedores/${vendedorId}`);
+}
+
+/**
+ * Comprobante de un depósito que avisa una coordinadora ("avisé que la pasé
+ * a la cuenta") — va a `coordinadores/<vendedorId>/`, la única carpeta donde
+ * una coordinadora puede subir y leer (policies `storage_*_coordinador_*` de
+ * 0071_comprobante_deposito_informado.sql; el RPC `informar_deposito_cuenta`
+ * rechaza cualquier otro path con `COMPROBANTE_INVALIDO`).
+ */
+export function subirComprobanteDepositoCoordinador(file: File, vendedorId: string): Promise<string> {
+  return subirComprobante(file, `coordinadores/${vendedorId}`);
 }
 
 /**

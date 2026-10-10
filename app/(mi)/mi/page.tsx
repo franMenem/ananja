@@ -61,6 +61,7 @@ export default async function MiPage() {
 
     return (
       <CoordinadorHome
+        vendedorId={revendedor.id}
         nombre={revendedor.nombre}
         revendedoras={revendedoras}
         productos={(productos ?? []).filter(

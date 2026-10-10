@@ -24,6 +24,8 @@ import { createClient } from "@/lib/supabase/client";
 type Producto = { id: string; nombre: string; presentacionMl: number | null };
 
 type CoordinadorHomeProps = {
+  /** Id del coordinador logueado: la carpeta de Storage de sus comprobantes. */
+  vendedorId: string;
   nombre: string | null;
   revendedoras: RevendedoraCoordinador[];
   productos: Producto[];
@@ -41,7 +43,13 @@ type CoordinadorHomeProps = {
  * Plata, Producción, Gastos ni Ganancia — la única acción es "Entregar"
  * (nunca carga ventas ni pagos).
  */
-export function CoordinadorHome({ nombre, revendedoras, productos, plataEnManoCentavos }: CoordinadorHomeProps) {
+export function CoordinadorHome({
+  vendedorId,
+  nombre,
+  revendedoras,
+  productos,
+  plataEnManoCentavos,
+}: CoordinadorHomeProps) {
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-6 pb-8">
       <div>
@@ -64,7 +72,7 @@ export function CoordinadorHome({ nombre, revendedoras, productos, plataEnManoCe
           <p className="text-[12px] text-text-muted">
             Pasala a la cuenta de {NEGOCIO.nombre} y avisanos.
           </p>
-          <InformarDepositoCoordinador montoCentavos={plataEnManoCentavos} />
+          <InformarDepositoCoordinador montoCentavos={plataEnManoCentavos} vendedorId={vendedorId} />
         </div>
       )}
 
