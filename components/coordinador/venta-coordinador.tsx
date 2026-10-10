@@ -120,6 +120,12 @@ function VentaCoordinadorSheet({
   const [lotesPropia, setLotesPropia] = useState<Record<string, LoteVentaCoordinador[]> | null>(null);
   const [errorLotes, setErrorLotes] = useState<string | null>(null);
 
+  // Admin: los lotes ya están al montar, así que arranca en el primer producto
+  // con stock. Propia: arranca en el primero y se corrige al llegar los lotes.
+  const [productoId, setProductoId] = useState<string>(
+    () => (esAdmin ? productos.find((p) => lotesDe(p.id).length > 0)?.id : undefined) ?? productos[0]?.id ?? "",
+  );
+
   useEffect(() => {
     if (esAdmin) return;
     let cancelado = false;
@@ -176,11 +182,6 @@ function VentaCoordinadorSheet({
   }
 
   const listo = esAdmin || lotesPropia !== null;
-  // Admin: los lotes ya están al montar, así que arranca en el primer producto
-  // con stock. Propia: arranca en el primero y se corrige al llegar los lotes.
-  const [productoId, setProductoId] = useState<string>(
-    () => (esAdmin ? productos.find((p) => lotesDe(p.id).length > 0)?.id : undefined) ?? productos[0]?.id ?? "",
-  );
   const [loteElegido, setLoteElegido] = useState<string | null>(null);
   const [cantidad, setCantidad] = useState(1);
   const [fecha, setFecha] = useState(hoyISO());
