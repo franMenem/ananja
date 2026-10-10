@@ -5401,6 +5401,7 @@ export type Database = {
           p_cantidad: number
           p_coordinador_id: string
           p_fecha: string
+          p_grupo_id?: string
           p_lote_id: string
           p_nota?: string
           p_producto_id: string

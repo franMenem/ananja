@@ -79,8 +79,31 @@
 --     `movimientos_stock` con EXACTAMENTE la misma forma que los de
 --     `registrar_entrega_revendedor` (el trigger de foto de costo sigue
 --     congelando `costo_lote_unitario`/`costo_produccion_unitario`), y
---     serializa el depósito con un advisory lock por producto (dos personas
---     agarrando a la vez del mismo lote ya no pueden pisarse).
+--     serializa el depósito con UN lock global (`pg_advisory_xact_lock` con
+--     clave fija `hashtext('ananja:deposito')`): dos personas agarrando a la
+--     vez ya no pueden pisarse. Es global y no por producto a propósito: un
+--     lock por producto puede dar deadlock entre dos cargas que tocan los
+--     mismos productos en distinto orden (A: 250 → 500, B: 500 → 250; se
+--     reprodujo con `registrar_carga_revendedor`), y el volumen de esta app es
+--     mínimo. ORDEN DE LOCKS, igual en todos los caminos (carga unificada,
+--     venta de revendedora, venta de coordinadora, eliminar): primero la fila
+--     del vendedor (`for no key update`, donde corresponde) y DESPUÉS el lock
+--     global del depósito; el lock global nunca se toma antes de pedir la fila
+--     de un vendedor. `eliminar_venta_revendedor` no toma la fila del vendedor
+--     y toma el lock global (solo si hay entregas automáticas que compensar)
+--     antes de escribir nada.
+--
+--     COSTOS COMPLETOS: un lote solo se puede tomar si tiene los costos
+--     COMPLETOS (`public.lote_costos_completos(lote, producto)`: aceite +
+--     envase del producto + transporte), no basta `tiene_costos`.
+--     `v_costo_lote_vigente.tiene_costos` es solo `total_centavos > 0`, y un
+--     lote con apenas el envase cargado ya figura con costo (parcial). Con un
+--     costo parcial la foto `costo_lote_unitario` del ítem queda en null (el
+--     trigger exige costos completos); al completarse los costos la foto
+--     pasaría a otro valor y la rendición de la coordinadora (calculada con
+--     el costo parcial) quedaría por debajo de lo que `v_plata_en_manos`
+--     espera: la app le pediría plata que nunca se le cobró. El FIFO saltea
+--     esos lotes y un lote pedido explícitamente da `COSTO_FALTANTE`.
 --
 --     COSTO COBRADO de la entrega automática (la regla): el costo Ananja
 --     VIGENTE del lote (`v_costo_lote_vigente.costo_ananja_centavos`, con el
@@ -153,7 +176,8 @@
 --     la rendición quedaría una deuda huérfana.
 --
 --  7) `public.registrar_venta_coordinador(p_coordinador_id, p_producto_id,
---     p_cantidad, p_lote_id, p_fecha, p_nota default null) returns json`:
+--     p_cantidad, p_lote_id, p_fecha, p_nota default null, p_grupo_id default
+--     null) returns json`:
 --     security definer. Autoriza a un admin (cualquier coordinadora activa) o
 --     a la propia coordinadora para sí misma. Una carga = un lote (por eso
 --     `p_lote_id` es obligatorio): así el precio de venta de todas las filas
@@ -163,6 +187,12 @@
 --     `rendiciones` de ella hacia ella por Σ cantidad × costo, `medio_pago =
 --     'efectivo'` (convención: es plata que ella tiene en mano; ver riesgo
 --     abajo). Devuelve `{grupo_id, entrega_id, rendicion_id, monto_centavos}`.
+--     IDEMPOTENTE con `p_grupo_id` (la UI manda uno por envío, igual que en
+--     las ventas de revendedora): si ya hay una rendición con ese
+--     `venta_grupo_id` de esa coordinadora, devuelve lo guardado más
+--     `ya_existia: true` sin escribir nada (y sin revalidar stock ni fecha);
+--     un grupo que ya existe pero es de otra persona es `GRUPO_INVALIDO`.
+--     Sin `p_grupo_id` genera uno nuevo (dos llamadas son dos ventas).
 --
 -- Errores NUEVOS (la UI tiene que traducirlos):
 --   - `DEPOSITO_INSUFICIENTE`: no hay tantas botellas en el depósito.
@@ -177,14 +207,17 @@
 --     depósito pendiente). `detail` JSON `{en_mano_centavos, ...}`.
 --   - `COORDINADOR_INVALIDO`: el destino de `registrar_venta_coordinador` no
 --     es una coordinadora activa.
+--   - `GRUPO_INVALIDO` (ya existía en `insertar_venta_revendedor`): ahora
+--     también lo da `registrar_venta_coordinador` con un `p_grupo_id` que
+--     pertenece a otra persona.
 --   Existentes que también salen de las funciones nuevas: `NO_AUTORIZADO`,
 --   `REVENDEDOR_INVALIDO` (`fijar_toma_directo`), `LOTE_INVALIDO` (falta el
 --   lote o no corresponde al producto), `COSTO_FALTANTE` (el lote pedido
---   tiene stock pero todavía no tiene costos cargados), `CANTIDAD_INVALIDA`,
---   `FECHA_INVALIDA`, `FECHA_FUTURA`.
+--   tiene stock pero todavía no tiene los costos COMPLETOS cargados),
+--   `CANTIDAD_INVALIDA`, `FECHA_INVALIDA`, `FECHA_FUTURA`.
 --
 -- Riesgos y decisiones a tener presentes:
---   - Carrera sobre el depósito: el advisory lock serializa SOLO a quienes
+--   - Carrera sobre el depósito: el lock global serializa SOLO a quienes
 --     pasan por `tomar_del_deposito`. `registrar_entrega_revendedor` y
 --     `crear_comprobante` no lo toman (esta migración no los toca), así que
 --     una entrega manual simultánea del mismo producto sigue pudiendo
@@ -198,6 +231,19 @@
 --     en el hilo de esa persona como entrega de la persona misma
 --     (`admin_id` = quien cargó la venta); la UI la identifica por
 --     `automatica`.
+--   - LIMITACIÓN CONOCIDA de la devolución compensatoria (a nivel de lote):
+--     `stock_revendedor_por_entrega` descuenta las devoluciones con lote del
+--     ítem MÁS NUEVO al más viejo de ese lote. Escenario: la persona agarra
+--     directo 3 botellas del lote X al costo vigente (entrega automática A);
+--     después un admin le carga a mano una entrega del MISMO lote X con otro
+--     costo (por ejemplo con un plus). Si ahora se elimina la venta original,
+--     la devolución compensatoria de 3 se lleva botellas de la entrega manual
+--     (la más nueva) y queda en poder la automática al costo viejo. Las
+--     CANTIDADES quedan bien (depósito y en poder cierran), pero el costo
+--     cobrado por esas botellas queda distorsionado (la deuda sale al costo de
+--     la automática, no al de la manual). No se corrige acá: hace falta
+--     devolver contra un ítem puntual, y el modelo de devoluciones es por
+--     producto/lote.
 --   - La toma directa saca del depósito a la fecha de la VENTA (`p_fecha`),
 --     no a la de hoy: una venta vieja cargada tarde deja el egreso en el
 --     stock actual pero con la fecha de entrega de la venta.
@@ -400,12 +446,13 @@ begin
   end if;
 
   -- Serializa a quienes agarran del depósito: el lock de la fila del
-  -- vendedor (que ya toma `insertar_venta_revendedor`) solo ordena a la
-  -- MISMA persona, y el stock del depósito es compartido. Dos tomas del
-  -- mismo producto se ejecutan una atrás de la otra; la segunda lee el stock
-  -- ya descontado por la primera (READ COMMITTED: cada sentencia ve lo
+  -- vendedor (que ya toma el llamador) solo ordena a la MISMA persona, y el
+  -- stock del depósito es compartido. Lock GLOBAL y no por producto, para
+  -- que no pueda haber deadlock por orden de productos (ver cabecera). Dos
+  -- tomas se ejecutan una atrás de la otra; la segunda lee el stock ya
+  -- descontado por la primera (READ COMMITTED: cada sentencia ve lo
   -- commiteado hasta ese momento).
-  perform pg_advisory_xact_lock(hashtext('deposito'), hashtext(p_producto_id::text));
+  perform pg_advisory_xact_lock(hashtext('ananja:deposito'));
 
   select coalesce(sum(s.quedan), 0)::int into v_disponible
   from v_stock_por_lote s
@@ -414,11 +461,12 @@ begin
     and s.quedan > 0
     and c.tiene_costos
     and c.costo_ananja_centavos > 0
+    and public.lote_costos_completos(s.lote_id, s.producto_id)
     and (p_lote_id is null or s.lote_id = p_lote_id);
 
   if v_disponible < p_cantidad then
     -- El lote pedido tiene botellas pero todavía no tiene los costos
-    -- completos (no se puede cobrar): error propio, igual que
+    -- COMPLETOS (no se puede cobrar): error propio, igual que
     -- `registrar_entrega_revendedor` de una coordinadora.
     if p_lote_id is not null
       and exists (
@@ -429,6 +477,7 @@ begin
         select 1 from v_costo_lote_vigente c
         where c.lote_id = p_lote_id and c.producto_id = p_producto_id
           and c.tiene_costos and c.costo_ananja_centavos > 0
+          and public.lote_costos_completos(c.lote_id, c.producto_id)
       )
     then
       raise exception 'COSTO_FALTANTE';
@@ -474,6 +523,7 @@ begin
       and s.quedan > 0
       and c.tiene_costos
       and c.costo_ananja_centavos > 0
+      and public.lote_costos_completos(s.lote_id, s.producto_id)
       and (p_lote_id is null or s.lote_id = p_lote_id)
     order by l.fecha, l.created_at, l.id
   loop
@@ -790,6 +840,19 @@ begin
     end if;
   end if;
 
+  -- Si hay entregas automáticas que compensar, se escribirán movimientos de
+  -- stock: primero el lock global del depósito (mismo orden que en el resto
+  -- de los caminos, ver cabecera), antes de borrar nada.
+  if exists (
+    select 1 from entregas_revendedor e
+    where e.vendedor_id = v_dueño_id
+      and e.tipo = 'entrega'
+      and e.automatica
+      and e.venta_grupo_id = v_grupo_id
+  ) then
+    perform pg_advisory_xact_lock(hashtext('ananja:deposito'));
+  end if;
+
   delete from ventas_revendedor where grupo_id = v_grupo_id and vendedor_id = v_dueño_id;
 
   -- ── NUEVO (a): compensar las entregas automáticas de esta venta ─────────
@@ -915,7 +978,8 @@ create function public.registrar_venta_coordinador(
   p_cantidad int,
   p_lote_id uuid,
   p_fecha date,
-  p_nota text default null
+  p_nota text default null,
+  p_grupo_id uuid default null
 )
 returns json
 language plpgsql
@@ -924,7 +988,9 @@ set search_path = public
 as $$
 declare
   v_yo uuid;
-  v_grupo_id uuid := gen_random_uuid();
+  v_grupo_id uuid := coalesce(p_grupo_id, gen_random_uuid());
+  v_dueño_grupo uuid;
+  v_rend public.rendiciones%rowtype;
   v_entrega_id uuid;
   v_costo bigint;
   v_monto bigint;
@@ -946,6 +1012,55 @@ begin
     raise exception 'COORDINADOR_INVALIDO';
   end if;
 
+  -- Fila de la coordinadora primero (mismo orden de locks que el resto, ver
+  -- cabecera): serializa dos envíos idénticos del mismo `p_grupo_id`.
+  perform 1 from vendedores where id = p_coordinador_id for no key update;
+
+  -- Reintento idempotente (timeout, doble envío): si ya existe una venta
+  -- con ese grupo, se devuelve lo guardado sin escribir nada. Va ANTES de las
+  -- demás validaciones y del depósito: el reintento no tiene que fallar
+  -- porque el stock o la fecha cambiaron. Un grupo de otra persona (o que no
+  -- es una venta de coordinadora con su rendición) es `GRUPO_INVALIDO`, el
+  -- mismo criterio que `insertar_venta_revendedor`.
+  if p_grupo_id is not null then
+    select vr.vendedor_id into v_dueño_grupo
+    from ventas_revendedor vr where vr.grupo_id = p_grupo_id limit 1;
+
+    if v_dueño_grupo is null then
+      select r.vendedor_id into v_dueño_grupo
+      from rendiciones r where r.venta_grupo_id = p_grupo_id limit 1;
+    end if;
+
+    if v_dueño_grupo is not null then
+      if v_dueño_grupo <> p_coordinador_id then
+        raise exception 'GRUPO_INVALIDO';
+      end if;
+
+      select * into v_rend
+      from rendiciones r
+      where r.venta_grupo_id = p_grupo_id and r.vendedor_id = p_coordinador_id
+      order by r.created_at, r.id
+      limit 1;
+
+      if not found then
+        raise exception 'GRUPO_INVALIDO';
+      end if;
+
+      return json_build_object(
+        'grupo_id', p_grupo_id,
+        'entrega_id', (
+          select e.id from entregas_revendedor e
+          where e.venta_grupo_id = p_grupo_id and e.vendedor_id = p_coordinador_id
+            and e.tipo = 'entrega' and e.automatica
+          order by e.created_at, e.id limit 1
+        ),
+        'rendicion_id', v_rend.id,
+        'monto_centavos', v_rend.monto_centavos,
+        'ya_existia', true
+      );
+    end if;
+  end if;
+
   -- Una carga = un lote: así el precio (= costo Ananja) es uno solo y el
   -- margen de vendedor queda en 0.
   if p_lote_id is null then
@@ -963,8 +1078,6 @@ begin
   if p_fecha > (now() at time zone 'America/Argentina/Buenos_Aires')::date then
     raise exception 'FECHA_FUTURA';
   end if;
-
-  perform 1 from vendedores where id = p_coordinador_id for no key update;
 
   -- (a) Baja del depósito al costo Ananja vigente del lote.
   v_entrega_id := public.tomar_del_deposito(
@@ -1003,8 +1116,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.registrar_venta_coordinador(uuid, uuid, int, uuid, date, text) from anon, public;
-grant execute on function public.registrar_venta_coordinador(uuid, uuid, int, uuid, date, text) to authenticated;
+revoke execute on function public.registrar_venta_coordinador(uuid, uuid, int, uuid, date, text, uuid) from anon, public;
+grant execute on function public.registrar_venta_coordinador(uuid, uuid, int, uuid, date, text, uuid) to authenticated;
 
 -- ============================================================
 -- Verificación post-aplicación (SOLO LECTURA — correr en el SQL Editor):
@@ -1074,7 +1187,8 @@ grant execute on function public.registrar_venta_coordinador(uuid, uuid, int, uu
 --   --   proconfig = {search_path=public}; prosecdef = true en
 --   --   fijar_toma_directo, eliminar_venta_revendedor y
 --   --   registrar_venta_coordinador; false en tomar_del_deposito e
---   --   insertar_venta_revendedor
+--   --   insertar_venta_revendedor. La firma de registrar_venta_coordinador es
+--   --   (uuid, uuid, integer, uuid, date, text, uuid) (el último, p_grupo_id)
 --
 --   -- f) ACL: internas sin authenticated/anon/public; públicas sin anon/public
 --   select p.proname, p.proacl
