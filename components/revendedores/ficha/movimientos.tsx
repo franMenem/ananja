@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { Separador } from "@/components/plata/separador";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
+import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { EVENTO_MOSTRAR_TODOS_MOVIMIENTOS } from "@/lib/eventos-cliente";
 import { formatFecha } from "@/lib/fechas";
@@ -95,18 +96,30 @@ export function MovimientosFicha({
                 {m.tipo === "entrega" ? "Entrega" : "Devolución"} · {formatFecha(m.fecha)}
               </span>
               <p className="text-xs text-text-muted">
-                {m.items
-                  .map((it) => {
-                    if (it.costoCentavos === null) {
-                      return `${it.cantidad} × ${nombrePorProducto.get(it.productoId) ?? "?"}`;
-                    }
-                    const costoLote =
-                      it.costoLoteCentavos !== null
-                        ? ` · costo ${NEGOCIO.nombre} ${formatCentavos(it.costoLoteCentavos)}`
-                        : "";
-                    return `${it.cantidad} × ${nombrePorProducto.get(it.productoId) ?? "?"} (le cobrás ${formatCentavos(it.costoCentavos)} c/u${costoLote})`;
-                  })
-                  .join(", ")}
+                {m.items.map((it, i) => {
+                  const producto = nombrePorProducto.get(it.productoId) ?? "?";
+                  const costos =
+                    it.costoCentavos === null
+                      ? ""
+                      : ` (le cobrás ${formatCentavos(it.costoCentavos)} c/u${
+                          it.costoLoteCentavos !== null
+                            ? ` · costo ${NEGOCIO.nombre} ${formatCentavos(it.costoLoteCentavos)}`
+                            : ""
+                        })`;
+                  return (
+                    <Fragment key={i}>
+                      {i > 0 && ", "}
+                      {it.cantidad} × {producto}
+                      {it.loteId !== null && (
+                        <>
+                          {" · "}
+                          <LoteLink loteId={it.loteId} fecha={it.loteFecha} />
+                        </>
+                      )}
+                      {costos}
+                    </Fragment>
+                  );
+                })}
               </p>
             </div>
           ),

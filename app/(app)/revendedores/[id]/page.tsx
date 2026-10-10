@@ -8,9 +8,11 @@ import { PlegadosFicha } from "@/components/revendedores/ficha/plegados";
 import { VolverLink } from "@/components/volver-link";
 import { listarMisRevendedoras } from "@/lib/coordinador";
 import {
+  cargarEntregasDeVendedores,
   listarEncargadosPosibles,
   listarEntregaItemsDeVendedor,
   listarEntregasDeVendedor,
+  listarFechasDeLotes,
   listarProductos,
   listarRendicionesDeVendedor,
   listarVendedoresPorIds,
@@ -20,6 +22,7 @@ import {
   obtenerPlataEnManoDeTenedor,
   obtenerVendedorPorId,
 } from "@/lib/data/revendedores";
+import { armarEntregasCoordinadora } from "@/lib/dominio/entregas-coordinador";
 import {
   entregasComoMovimientos,
   fusionarMovimientos,
@@ -82,11 +85,38 @@ export default async function RevendedorDetallePage({
   const supabase = await createClient();
 
   const cargarTandaCoordinador = async () => {
-    const [{ data: revendedoras }, plataEnMano] = await Promise.all([
+    const [{ data: revendedoras }, plataEnMano, { data: productos }] = await Promise.all([
       listarMisRevendedoras(supabase, id),
       obtenerPlataEnManoDeTenedor(supabase, id),
+      listarProductos(supabase),
     ]);
-    return { revendedoras, plataEnMano };
+
+    // "Entregas a sus revendedoras": las de las revendedoras que HOY tiene a
+    // cargo. Depende de saber quiénes son, así que va después; y los
+    // nombres de quienes cargaron una entrega (un admin, que no está entre
+    // las revendedoras) dependen de las entregas.
+    const { data: datosEntregas, error: errorEntregas } = await cargarEntregasDeVendedores(
+      supabase,
+      revendedoras.map((r) => r.id),
+    );
+    const nombrePorVendedor = new Map(revendedoras.map((r) => [r.id, r.nombre]));
+    const idsSinNombre = [
+      ...new Set(datosEntregas.entregas.map((e) => e.admin_id).filter((adminId) => !nombrePorVendedor.has(adminId))),
+    ];
+    const { data: quienes } = await listarVendedoresPorIds(supabase, idsSinNombre);
+    for (const q of quienes) nombrePorVendedor.set(q.id, q.nombre);
+
+    const entregas = errorEntregas
+      ? null
+      : armarEntregasCoordinadora({
+          coordinadorId: id,
+          entregas: datosEntregas.entregas,
+          items: datosEntregas.items,
+          nombrePorVendedor,
+          nombrePorProducto: new Map(productos.map((p) => [p.id, p.nombre])),
+          fechaPorLote: datosEntregas.fechaPorLote,
+        });
+    return { revendedoras, plataEnMano, entregas };
   };
 
   const cargarTandaRevendedora = async () => {
@@ -131,12 +161,19 @@ export default async function RevendedorDetallePage({
       listarValorStockDeVendedor(supabase, id),
       obtenerVersionVigente(supabase).catch(() => null),
     ]);
+    // Fecha de los lotes de esas entregas, para rotular "Lote del D/M" en
+    // el hilo de movimientos (depende de los ítems, así que va después).
+    const { data: lotes } = await listarFechasDeLotes(
+      supabase,
+      entregaItems.flatMap((i) => (i.lote_id ? [i.lote_id] : [])),
+    );
     return {
       productos,
       precios,
       stock,
       entregas,
       entregaItems,
+      fechaPorLote: new Map(lotes.map((l) => [l.id, l.fecha])),
       ventas,
       rendiciones,
       resumen,
@@ -166,7 +203,7 @@ export default async function RevendedorDetallePage({
   if (revendedor.rol === "coordinador") {
     // La pista acertó (mandó `?rol=coordinador`) → ya la tenemos. Si no
     // había pista o era de una revendedora, esta es la segunda tanda.
-    const { revendedoras, plataEnMano } = pistaCoordinador
+    const { revendedoras, plataEnMano, entregas } = pistaCoordinador
       ? (tandaAdelantada as Awaited<ReturnType<typeof cargarTandaCoordinador>>)
       : await cargarTandaCoordinador();
 
@@ -186,7 +223,11 @@ export default async function RevendedorDetallePage({
           coordinadores={[]}
         />
 
-        <FichaCoordinador revendedoras={revendedoras} plataEnManoCentavos={plataEnMano ?? 0} />
+        <FichaCoordinador
+          revendedoras={revendedoras}
+          plataEnManoCentavos={plataEnMano ?? 0}
+          entregas={entregas}
+        />
       </div>
     );
   }
@@ -199,6 +240,7 @@ export default async function RevendedorDetallePage({
     stock,
     entregas,
     entregaItems,
+    fechaPorLote,
     ventas,
     rendiciones,
     resumen,
@@ -245,7 +287,7 @@ export default async function RevendedorDetallePage({
   // `primerGrupoSinPrecio` puede encontrar una venta sin precio aunque sea
   // vieja y quede fuera de lo que se ve de entrada.
   const movimientos = fusionarMovimientos(
-    entregasComoMovimientos(entregas ?? [], entregaItems ?? []),
+    entregasComoMovimientos(entregas ?? [], entregaItems ?? [], fechaPorLote),
     ventasComoMovimientos(ventas),
     Number.POSITIVE_INFINITY,
   );

@@ -22,6 +22,12 @@ export interface ItemMovimientoEntrega {
    * (`entrega_items.costo_lote_unitario_centavos`, 0044) — `null` si no
    * salió de un lote con costo. */
   costoLoteCentavos: number | null;
+  /** Lote de producción del que salieron (o al que volvieron) estas
+   * botellas — `null` en ítems viejos sin lote asignado. */
+  loteId: string | null;
+  /** `lotes_produccion.fecha` de `loteId` ("yyyy-mm-dd"), para rotularlo
+   * "Lote del D/M" — `null` si no hay lote o no se pudo leer su fecha. */
+  loteFecha: string | null;
 }
 
 export interface MovimientoEntrega {
@@ -62,13 +68,16 @@ export interface EntregaItemParaMovimiento {
   cantidad: number;
   costo_ananja_unitario_centavos: number | null;
   costo_lote_unitario_centavos: number | null;
+  lote_id: string | null;
 }
 
 /** `entregas_revendedor` + `entrega_items` (filas crudas de Supabase) → un
- * movimiento por entrega, con sus ítems adentro. */
+ * movimiento por entrega, con sus ítems adentro. `fechaPorLote` (id de lote
+ * → su fecha) rotula cada ítem con su lote. */
 export function entregasComoMovimientos(
   entregas: EntregaParaMovimiento[],
   items: EntregaItemParaMovimiento[],
+  fechaPorLote: ReadonlyMap<string, string> = new Map(),
 ): MovimientoEntrega[] {
   const itemsPorEntrega = new Map<string, ItemMovimientoEntrega[]>();
   for (const item of items) {
@@ -78,6 +87,8 @@ export function entregasComoMovimientos(
       cantidad: item.cantidad,
       costoCentavos: item.costo_ananja_unitario_centavos,
       costoLoteCentavos: item.costo_lote_unitario_centavos,
+      loteId: item.lote_id,
+      loteFecha: item.lote_id ? (fechaPorLote.get(item.lote_id) ?? null) : null,
     });
     itemsPorEntrega.set(item.entrega_id, lista);
   }

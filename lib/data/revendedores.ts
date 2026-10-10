@@ -23,6 +23,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { listarProductos as listarProductosCatalogo } from "@/lib/data/catalogos";
+import type { EntregaCruda, ItemEntregaCrudo } from "@/lib/dominio/entregas-coordinador";
+import { leerTodasLasPaginas } from "@/lib/paginado";
 import type { Database, Tables } from "@/lib/types";
 
 type Supa = SupabaseClient<Database>;
@@ -274,6 +276,115 @@ export async function listarEntregaItemsDeVendedor(
     return { data: [], error: "No se pudo cargar los ítems de entrega." };
   }
   return { data: (data ?? []) as unknown as EntregaItemDeVendedorRow[], error: null };
+}
+
+/** Ids por consulta `.in(...)` — con uuids de 36 caracteres la URL queda muy por debajo del límite. */
+const TAMANO_LOTE_IDS = 100;
+
+function trozos<T>(items: T[], tamano: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += tamano) out.push(items.slice(i, i + tamano));
+  return out;
+}
+
+/** Fecha de cada lote de producción (`lotes_produccion.fecha`) — los lotes
+ * no tienen nombre: se rotulan "Lote del D/M" con esta fecha. Lista vacía
+ * sin consultar si `ids` viene vacío. Si falla, `data: []`: quien la use
+ * puede mostrar "Lote" a secas (el link al lote no depende de la fecha). */
+export async function listarFechasDeLotes(
+  supabase: Supa,
+  ids: string[],
+): Promise<{ data: { id: string; fecha: string }[]; error: string | null }> {
+  const unicos = [...new Set(ids)];
+  if (unicos.length === 0) return { data: [], error: null };
+  const respuestas = await Promise.all(
+    trozos(unicos, TAMANO_LOTE_IDS).map((chunk) => supabase.from("lotes_produccion").select("id, fecha").in("id", chunk)),
+  );
+  const filas: { id: string; fecha: string }[] = [];
+  for (const { data, error } of respuestas) {
+    if (error) {
+      console.error("listarFechasDeLotes", error);
+      return { data: [], error: "No se pudo cargar la fecha de los lotes." };
+    }
+    filas.push(...(data ?? []));
+  }
+  return { data: filas, error: null };
+}
+
+export type EntregasDeVendedores = {
+  entregas: EntregaCruda[];
+  items: ItemEntregaCrudo[];
+  /** id de lote → fecha, de los lotes que aparecen en `items`. */
+  fechaPorLote: Map<string, string>;
+};
+
+/**
+ * Entregas y devoluciones hechas a un grupo de vendedores (las revendedoras
+ * a cargo de una coordinadora), con sus ítems y la fecha de cada lote —
+ * insumo de "Entregas a sus revendedoras" en `/revendedores/[id]`. Consultas
+ * separadas + join en memoria (sin embeds de PostgREST: `entregas_revendedor`
+ * tiene dos FKs a `vendedores`, PGRST201). Si cualquier lectura de entregas
+ * o ítems falla devuelve el error (no una lista vacía, que la pantalla
+ * mostraría como "todavía no hay entregas"); la fecha de lotes es
+ * decorativa y su falla no tira el resto.
+ */
+export async function cargarEntregasDeVendedores(
+  supabase: Supa,
+  vendedorIds: string[],
+): Promise<{ data: EntregasDeVendedores; error: string | null }> {
+  const vacio: EntregasDeVendedores = { entregas: [], items: [], fechaPorLote: new Map() };
+  if (vendedorIds.length === 0) return { data: vacio, error: null };
+
+  const porVendedores = await Promise.all(
+    trozos(vendedorIds, TAMANO_LOTE_IDS).map((chunk) =>
+      leerTodasLasPaginas((desde, hasta) =>
+        supabase
+          .from("entregas_revendedor")
+          .select("id, vendedor_id, admin_id, tipo, fecha, created_at")
+          .in("vendedor_id", chunk)
+          .order("id")
+          .range(desde, hasta),
+      ),
+    ),
+  );
+  const entregas: EntregaCruda[] = [];
+  for (const { data, error } of porVendedores) {
+    if (error) {
+      console.error("cargarEntregasDeVendedores: entregas", error);
+      return { data: vacio, error: "No se pudo cargar las entregas." };
+    }
+    entregas.push(...data);
+  }
+
+  const porEntregas = await Promise.all(
+    trozos(
+      entregas.map((e) => e.id),
+      TAMANO_LOTE_IDS,
+    ).map((chunk) =>
+      leerTodasLasPaginas((desde, hasta) =>
+        supabase
+          .from("entrega_items")
+          .select("id, entrega_id, producto_id, cantidad, lote_id")
+          .in("entrega_id", chunk)
+          .order("id")
+          .range(desde, hasta),
+      ),
+    ),
+  );
+  const items: ItemEntregaCrudo[] = [];
+  for (const { data, error } of porEntregas) {
+    if (error) {
+      console.error("cargarEntregasDeVendedores: ítems", error);
+      return { data: vacio, error: "No se pudo cargar las entregas." };
+    }
+    items.push(...data);
+  }
+
+  const { data: lotes } = await listarFechasDeLotes(
+    supabase,
+    items.flatMap((i) => (i.lote_id ? [i.lote_id] : [])),
+  );
+  return { data: { entregas, items, fechaPorLote: new Map(lotes.map((l) => [l.id, l.fecha])) }, error: null };
 }
 
 /** Rendiciones de un vendedor ordenadas SOLO por fecha descendente — a
