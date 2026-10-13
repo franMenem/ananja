@@ -161,7 +161,24 @@
 -- código viejo sin 0074, código nuevo sin 0074 y código nuevo con 0074. Ver
 -- el bloque de verificación de solo lectura al final de este archivo.
 --
--- SIN APLICAR: se aplica en prod `public` solo con el OK de Fran.
+-- APLICADA y verificada en producción (schema `public`) el 2026-10-13, con el
+-- nombre `0074_fotos_costo_entrega_solo_admin_public` (versión
+-- `20261013140335`), con el código (commit 9249a36) ya desplegado antes. La
+-- verificación fue de solo lectura y con sesiones simuladas: para un admin,
+-- `v_plata_en_manos`, `v_rendiciones_ananja`, `v_valor_stock_revendedor`,
+-- `v_cobranza_lote`, `v_costo_lote_venta` y `v_margen_ventas` dieron idéntico
+-- antes y después (misma cantidad de filas y mismo hash); para la
+-- coordinadora, `v_plata_en_manos` y `v_rendiciones_ananja` también; las
+-- revendedoras y la coordinadora ya no tienen permiso de lectura sobre las dos
+-- columnas de foto, reciben 0 filas de `entrega_items_costos()` y de
+-- `v_costo_lote_venta`, y siguen leyendo sus ítems por las 7 columnas
+-- permitidas; `mi_stock_cobrado_con_margen()` dio el mismo resultado que la
+-- comparación de columnas previa; las tres funciones nuevas son security
+-- definer con `search_path = public` y sin execute para anon/public; las
+-- cuatro vistas siguen con `security_invoker = true`. Se verificó por
+-- `pg_proc`, `information_schema` y ACL; no por la tabla de tracking de
+-- migraciones. Ver el bloque de verificación de solo lectura al final de este
+-- archivo.
 
 -- ============================================================
 -- 1) entrega_items_costos — único camino de lectura de las fotos

@@ -78,8 +78,16 @@
 --
 -- `lib/types.ts` no cambia: la firma es la misma.
 --
--- SIN APLICAR todavía. Después de aplicarla, el bloque de verificación de
--- solo lectura del final de este archivo sirve para chequearla.
+-- APLICADA y verificada en producción (schema `public`) el 2026-10-13, con el
+-- nombre `0075_informar_pago_revendedor_path_seguro_public` (versión
+-- `20261013140507`). Antes de aplicar se comprobó que la definición vigente en
+-- prod era la de 0055 (sin deriva). Verificada por `pg_proc` y ACL (no por la
+-- tabla de tracking de migraciones): una sola firma
+-- `informar_pago_revendedor(bigint,medio_pago,date,text,text)`, security
+-- definer, `search_path = public`, ACL sin anon ni public; el cuerpo trae los
+-- chequeos de `..`, `%2e` y `chr(9)`/`chr(10)`/`chr(13)`; y 0 filas existentes
+-- en `pagos_revendedor` con las formas ahora rechazadas. Ver el bloque de
+-- verificación de solo lectura al final de este archivo.
 --
 -- Rollback (si hiciera falta): volver a correr la definición de
 -- `informar_pago_revendedor` de la sección 6b de
