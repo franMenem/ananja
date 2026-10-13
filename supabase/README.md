@@ -71,6 +71,10 @@ resueltas, queda intacta). Para `--schema public` este reemplazo es un
 no-op (`public` → `public`), así que no rompe la invariante de que
 `0001`-`0013` renderizan byte a byte igual a sus fuentes.
 
+El `public` también se reemplaza cuando viene entre comillas
+(`set search_path = 'public'`, como en 0053/0054/0055/0057/0062),
+conservando las comillas.
+
 Las mismas migraciones también hardcodean el prefijo de schema en vez de
 dejarlo resolver por `search_path`: `create function public.foo()`,
 `execute function public.foo()`, `revoke execute on function public.foo()

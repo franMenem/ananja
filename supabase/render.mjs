@@ -114,10 +114,17 @@ function replacePlaceholders(content, schema, bucket) {
 // cuando aparece justo después de `search_path =` / `search_path to`. Para
 // --schema public el reemplazo es un no-op (public -> public), así que
 // preserva el byte a byte idéntico de 0001-0013 contra sus fuentes.
-const SEARCH_PATH_PUBLIC_RE = /(search_path\s*(?:=|to)\s*)public\b/gi;
+//
+// Ese `public` puede venir entre comillas simples o dobles (`set search_path
+// = 'public'`, como en 0053/0054/0055/0057/0062): se reemplaza igual y se
+// conservan las mismas comillas de apertura y cierre (`'public'` ->
+// `'<schema>'`). Sin esto, esas funciones `security definer` se crearían en
+// el schema del otro negocio pero resolverían sus tablas sin calificar
+// contra `public` (las de Ananja).
+const SEARCH_PATH_PUBLIC_RE = /(search_path\s*(?:=|to)\s*)(['"]?)public\b\2/gi;
 
 function replaceSearchPathPublic(content, schema) {
-  return content.replace(SEARCH_PATH_PUBLIC_RE, `$1${schema}`);
+  return content.replace(SEARCH_PATH_PUBLIC_RE, `$1$2${schema}$2`);
 }
 
 // Las mismas migraciones sueltas (0011/0012) también hardcodean el schema
