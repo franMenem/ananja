@@ -78,4 +78,60 @@ describe("esEndpointPushPermitido", () => {
     expect(esEndpointPushPermitido("no-es-una-url")).toBe(false);
     expect(esEndpointPushPermitido("")).toBe(false);
   });
+
+  it("acepta las formas reales de endpoint con token percent-encoded, query y ':'", () => {
+    expect(
+      esEndpointPushPermitido("https://fcm.googleapis.com/fcm/send/cXyZ-_12:APA91bH_k-9"),
+    ).toBe(true);
+    expect(
+      esEndpointPushPermitido("https://db5.notify.windows.com/w/?token=BQYAAAB%2fA%2bb%3d%3d"),
+    ).toBe(true);
+    expect(
+      esEndpointPushPermitido("https://updates.push.services.mozilla.com/wpush/v2/gAAAAAB-_x"),
+    ).toBe(true);
+    expect(esEndpointPushPermitido("https://web.push.apple.com/QAA-123_xyz")).toBe(true);
+  });
+});
+
+/**
+ * Diferencial de parsers (auditoría de seguridad 2026-10-11): `web-push`
+ * conecta al hostname que saca `url.parse` (legacy) del string crudo, no al
+ * que ve `new URL` (WHATWG). Un host "permitido" para uno puede ser otro
+ * para el otro: ninguna de estas formas tiene que pasar.
+ */
+describe("esEndpointPushPermitido: bypass por diferencial de parsers", () => {
+  it.each([
+    ["punto y coma", "https://atacante.example;.push.apple.com/x"],
+    ["comilla simple", "https://atacante.example'.push.apple.com/x"],
+    ["comilla doble", 'https://atacante.example".push.apple.com/x'],
+    ["llave de apertura", "https://atacante.example{.push.apple.com/x"],
+    ["llave de cierre", "https://atacante.example}.push.apple.com/x"],
+    ["barra invertida", "https://atacante.example\\.push.apple.com/x"],
+    ["barra invertida + userinfo", "https://atacante.example\\@fcm.googleapis.com/x"],
+    ["barra invertida tras el host válido", "https://fcm.googleapis.com\\@atacante.example/x"],
+    ["tab", "https://atacante.example\t.push.apple.com/x"],
+    ["salto de línea", "https://atacante.example\n.push.apple.com/x"],
+    ["retorno de carro", "https://atacante.example\r.push.apple.com/x"],
+    ["espacio", "https://atacante.example .push.apple.com/x"],
+    ["tab dentro del host permitido", "https://fcm.googleapis.com\t.atacante.example/x"],
+    ["@ con el host permitido como userinfo", "https://fcm.googleapis.com@atacante.example/x"],
+    ["@ con userinfo y dominio permitido", "https://x.push.apple.com@atacante.example/x"],
+    ["# antes del @", "https://atacante.example#@fcm.googleapis.com/x"],
+    ["? antes del @", "https://atacante.example?@fcm.googleapis.com/x"],
+    ["espacio inicial", " https://fcm.googleapis.com/fcm/send/abc"],
+    ["tab final", "https://fcm.googleapis.com/fcm/send/abc\t"],
+    ["salto de línea en el path", "https://fcm.googleapis.com/fcm/send/a\nbc"],
+    ["caracteres no ASCII", "https://fcm.googleapis.com/fcm/send/ñ"],
+  ])("rechaza %s", (_nombre, endpoint) => {
+    expect(esEndpointPushPermitido(endpoint)).toBe(false);
+  });
+
+  it("sigue aceptando un :443 explícito (puerto por defecto de https, mismo destino)", () => {
+    expect(esEndpointPushPermitido("https://fcm.googleapis.com:443/fcm/send/abc")).toBe(true);
+  });
+
+  it("sigue rechazando cualquier otro puerto explícito", () => {
+    expect(esEndpointPushPermitido("https://fcm.googleapis.com:8443/fcm/send/abc")).toBe(false);
+    expect(esEndpointPushPermitido("https://fcm.googleapis.com:80/fcm/send/abc")).toBe(false);
+  });
 });
