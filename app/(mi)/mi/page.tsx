@@ -2,7 +2,12 @@ import { AvisoPagoRechazado } from "@/components/mi/aviso-pago-rechazado";
 import { CoordinadorHome } from "@/components/mi/coordinador-home";
 import { MiInicioVista, type StockProductoMi } from "@/components/mi/inicio-vista";
 import { listarMisRevendedoras } from "@/lib/coordinador";
-import { listarProductosPublicos, listarValorStockMi, obtenerMiPlataEnMano } from "@/lib/data/mi";
+import {
+  leerStockCobradoConMargen,
+  listarProductosPublicos,
+  listarValorStockMi,
+  obtenerMiPlataEnMano,
+} from "@/lib/data/mi";
 import { obtenerDeudaVendedor } from "@/lib/data/revendedores";
 import { hoyISO } from "@/lib/fechas";
 import {
@@ -86,6 +91,7 @@ export default async function MiPage() {
     { data: rendiciones },
     deuda,
     { data: valorStock },
+    tieneCoordinadorConMargen,
     encargado,
   ] = await Promise.all([
     listarProductosPublicos(supabase),
@@ -103,23 +109,22 @@ export default async function MiPage() {
     // (lo que se le cobró A ELLA, no el costo real de Ananja) — es SU
     // deuda, al precio de quien se lo entregó.
     revendedor ? listarValorStockMi(supabase, revendedor.id) : vacio,
+    // ¿Lo que tiene en poder se lo cobraron distinto de lo que cuesta
+    // realmente? Solo el sí/no: el costo real ya no se le muestra a quien no
+    // es admin (0074_fotos_costo_entrega_solo_admin.sql).
+    revendedor ? leerStockCobradoConMargen(supabase, revendedor.id) : Promise.resolve(false),
     revendedor ? obtenerMiEncargado(supabase) : Promise.resolve(null),
   ]);
 
   // "Valor en poder" total y a quién se lo debe (0059): si lo que le
   // cobraron (valor_en_poder_centavos) es distinto de lo que cuesta
-  // realmente (valor_en_poder_ananja_centavos), quien se lo entregó le
+  // realmente (`tieneCoordinadorConMargen`), quien se lo entregó le
   // cobra con margen — un coordinador, nunca un admin (que siempre cobra
   // al costo real) — así que corresponde el nombre de su encargado. Si
   // coinciden (no hay margen, o no tiene nada en poder todavía), sigue
   // siendo "Ananja" — mismo criterio que ya usa esta pantalla para "Le
   // debés a {encargado}" en la deuda de lo vendido.
   const valorEnPoderCentavos = (valorStock ?? []).reduce((acc, f) => acc + (f.valor_en_poder_centavos ?? 0), 0);
-  const valorEnPoderAnanjaCentavos = (valorStock ?? []).reduce(
-    (acc, f) => acc + (f.valor_en_poder_ananja_centavos ?? 0),
-    0,
-  );
-  const tieneCoordinadorConMargen = valorEnPoderCentavos !== valorEnPoderAnanjaCentavos;
 
   const stockPorProducto = new Map(stock.map((s) => [s.producto_id, s.en_poder ?? 0]));
   const precioManualPorProducto = new Map(precios.map((p) => [p.producto_id, p.precio_centavos]));

@@ -13,6 +13,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { leerCostosDeEntregaItems } from "@/lib/data/entrega-items-costos";
 import {
   calcularLineasPorLote,
   type LineaLote,
@@ -109,17 +110,27 @@ export async function cargarLineasPorLote(supabase: Supa, tenedorId: string): Pr
   const depositosDb = orFail(depositosRes, "depósitos");
   const lotesDb = orFail(lotesRes, "lotes");
 
-  // 3) Costos y lote de las entregas de esas ventas (join en memoria).
+  // 3) Costos y lote de las entregas de esas ventas (join en memoria). La
+  //    foto del costo Ananja (`costo_lote_unitario_centavos`) no se puede
+  //    pedir a la tabla (0074): sale de `entrega_items_costos()`.
   const entregaItemIds = [...new Set(ventasDb.map((v) => v.entrega_item_id).filter((id): id is string => !!id))];
-  const itemsRes = await Promise.all(
-    trozos(entregaItemIds, TAMANO_LOTE_IDS).map((ids) =>
-      supabase
-        .from("entrega_items")
-        .select("id, lote_id, costo_lote_unitario_centavos, costo_ananja_unitario_centavos")
-        .in("id", ids),
+  const [itemsRes, costosRes] = await Promise.all([
+    Promise.all(
+      trozos(entregaItemIds, TAMANO_LOTE_IDS).map((ids) =>
+        supabase.from("entrega_items").select("id, lote_id, costo_ananja_unitario_centavos").in("id", ids),
+      ),
     ),
+    leerCostosDeEntregaItems(supabase, entregaItemIds),
+  ]);
+  const costoPorItem = orFail(costosRes, "entrega_items_costos");
+  const itemPorId = new Map(
+    itemsRes
+      .flatMap((res) => orFail(res, "entrega_items"))
+      .map((i) => [
+        i.id,
+        { ...i, costo_lote_unitario_centavos: costoPorItem.get(i.id)?.costo_lote_unitario_centavos ?? null },
+      ]),
   );
-  const itemPorId = new Map(itemsRes.flatMap((res) => orFail(res, "entrega_items")).map((i) => [i.id, i]));
 
   const ventas: VentaConLote[] = ventasDb.map((v) => {
     const item = v.entrega_item_id ? itemPorId.get(v.entrega_item_id) : undefined;

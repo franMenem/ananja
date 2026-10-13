@@ -23,6 +23,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { listarProductos as listarProductosCatalogo } from "@/lib/data/catalogos";
+import { leerCostosDeEntregaItems } from "@/lib/data/entrega-items-costos";
 import type { EntregaCruda, ItemEntregaCrudo } from "@/lib/dominio/entregas-coordinador";
 import { leerTodasLasPaginas } from "@/lib/paginado";
 import type { Database, Tables } from "@/lib/types";
@@ -262,20 +263,39 @@ export async function listarEntregasDeVendedor(
 /** Ítems de entrega de un vendedor con la fila completa (a diferencia de
  * `listarEntregaItemsFifo` de `lib/revendedores.ts`, que solo trae las
  * columnas del reparto FIFO) — insumo de `entregasComoMovimientos` en
- * `/revendedores/[id]`. */
+ * `/revendedores/[id]`. Las dos fotos de costo no se pueden pedir a la tabla
+ * (0074, por eso ya no se pide `*`): salen de `entrega_items_costos()`. */
 export async function listarEntregaItemsDeVendedor(
   supabase: Supa,
   vendedorId: string,
 ): Promise<{ data: EntregaItemDeVendedorRow[]; error: string | null }> {
   const { data, error } = await supabase
     .from("entrega_items")
-    .select("*, entregas_revendedor!inner(vendedor_id)")
+    .select(
+      "id, entrega_id, producto_id, cantidad, lote_id, costo_ananja_unitario_centavos, precio_sugerido_centavos, entregas_revendedor!inner(vendedor_id)",
+    )
     .eq("entregas_revendedor.vendedor_id", vendedorId);
   if (error) {
     console.error("listarEntregaItemsDeVendedor", error);
     return { data: [], error: "No se pudo cargar los ítems de entrega." };
   }
-  return { data: (data ?? []) as unknown as EntregaItemDeVendedorRow[], error: null };
+  const items = data ?? [];
+  const costos = await leerCostosDeEntregaItems(
+    supabase,
+    items.map((i) => i.id),
+  );
+  if (costos.error) {
+    console.error("listarEntregaItemsDeVendedor: costos", costos.error);
+    return { data: [], error: "No se pudo cargar los ítems de entrega." };
+  }
+  return {
+    data: items.map((i) => ({
+      ...i,
+      costo_lote_unitario_centavos: costos.data.get(i.id)?.costo_lote_unitario_centavos ?? null,
+      costo_produccion_unitario_centavos: costos.data.get(i.id)?.costo_produccion_unitario_centavos ?? null,
+    })) as unknown as EntregaItemDeVendedorRow[],
+    error: null,
+  };
 }
 
 /** Ids por consulta `.in(...)` — con uuids de 36 caracteres la URL queda muy por debajo del límite. */

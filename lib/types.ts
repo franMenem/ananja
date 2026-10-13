@@ -5162,6 +5162,14 @@ export type Database = {
       eliminar_movimiento_stock: { Args: { p_movimiento_id: string }; Returns: Json }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
+      entrega_items_costos: {
+        Args: never
+        Returns: {
+          costo_lote_unitario_centavos: number
+          costo_produccion_unitario_centavos: number
+          entrega_item_id: string
+        }[]
+      }
       es_admin: { Args: never; Returns: boolean }
       es_coordinador: { Args: never; Returns: boolean }
       es_coordinador_de: { Args: { p_vendedor_id: string }; Returns: boolean }
@@ -5254,6 +5262,7 @@ export type Database = {
           nombre: string
         }[]
       }
+      mi_stock_cobrado_con_margen: { Args: never; Returns: boolean }
       mi_vendedor_id: { Args: never; Returns: string }
       productos_publicos: {
         Args: never
@@ -5433,6 +5442,13 @@ export type Database = {
           p_vendedor_id: string
         }
         Returns: Json
+      }
+      rendiciones_parte_ananja: {
+        Args: never
+        Returns: {
+          monto_ananja_centavos: number
+          rendicion_id: string
+        }[]
       }
       repartir_resto_mayor: {
         Args: { p_pesos: number[]; p_total: number }

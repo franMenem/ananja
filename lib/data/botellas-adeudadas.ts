@@ -19,6 +19,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { listarProductos } from "@/lib/data/catalogos";
+import { leerCostosDeEntregaItems } from "@/lib/data/entrega-items-costos";
 import {
   armarResumenBotellas,
   calcularSinPagar,
@@ -192,20 +193,34 @@ export async function cargarBotellasAdeudadas(supabase: Supa, alcance: AlcanceBo
         ),
   ]);
 
-  // 4) Ítems de esas entregas (lote, costos, producto).
-  const itemsDb = await leer(
-    entregasDb.map((e) => e.id),
-    "entrega_items",
-    (ids, desde, hasta) =>
-      supabase
-        .from("entrega_items")
-        .select(
-          "id, entrega_id, producto_id, lote_id, cantidad, costo_lote_unitario_centavos, costo_ananja_unitario_centavos, precio_sugerido_centavos",
-        )
-        .in("entrega_id", ids ?? [])
-        .order("id")
-        .range(desde, hasta),
-  );
+  // 4) Ítems de esas entregas (lote, costos, producto). La foto del costo
+  //    Ananja (`costo_lote_unitario_centavos`) no se puede pedir a la tabla
+  //    (0074): sale de `entrega_items_costos()`, para los ítems de los que
+  //    salió alguna venta (los únicos de los que se usa, más abajo en B).
+  const [itemsCrudos, costosRes] = await Promise.all([
+    leer(
+      entregasDb.map((e) => e.id),
+      "entrega_items",
+      (ids, desde, hasta) =>
+        supabase
+          .from("entrega_items")
+          .select(
+            "id, entrega_id, producto_id, lote_id, cantidad, costo_ananja_unitario_centavos, precio_sugerido_centavos",
+          )
+          .in("entrega_id", ids ?? [])
+          .order("id")
+          .range(desde, hasta),
+    ),
+    leerCostosDeEntregaItems(
+      supabase,
+      ventasDb.flatMap((v) => (v.entrega_item_id ? [v.entrega_item_id] : [])),
+    ),
+  ]);
+  const costoPorItem = orFail(costosRes, "entrega_items_costos");
+  const itemsDb = itemsCrudos.map((i) => ({
+    ...i,
+    costo_lote_unitario_centavos: costoPorItem.get(i.id)?.costo_lote_unitario_centavos ?? null,
+  }));
   const itemPorId = new Map(itemsDb.map((i) => [i.id, i]));
   const entregaPorId = new Map(entregasDb.map((e) => [e.id, e]));
 

@@ -18,6 +18,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { esFuncionSinMigrar } from "@/lib/data/entrega-items-costos";
 import type { Database, Tables } from "@/lib/types";
 
 type Supa = SupabaseClient<Database>;
@@ -25,10 +26,7 @@ type Supa = SupabaseClient<Database>;
 export type ProductoPublicoRow = Tables<"v_productos_publicos">;
 export type ProductoPublicoResumen = { id: string; nombre: string; presentacion_ml: number | null };
 export type VentaRevendedorRow = Tables<"ventas_revendedor">;
-export type ValorStockMiRow = Pick<
-  Tables<"v_valor_stock_revendedor">,
-  "valor_en_poder_centavos" | "valor_en_poder_ananja_centavos"
->;
+export type ValorStockMiRow = Pick<Tables<"v_valor_stock_revendedor">, "valor_en_poder_centavos">;
 
 /** Catálogo público de productos (`v_productos_publicos`, RLS acota
  * `productos` a `es_vendedor()` — este es lo que SÍ puede leer una
@@ -109,13 +107,46 @@ export async function listarValorStockMi(
 ): Promise<{ data: ValorStockMiRow[]; error: string | null }> {
   const { data, error } = await supabase
     .from("v_valor_stock_revendedor")
-    .select("valor_en_poder_centavos, valor_en_poder_ananja_centavos")
+    .select("valor_en_poder_centavos")
     .eq("vendedor_id", vendedorId);
   if (error) {
     console.error("listarValorStockMi", error);
     return { data: [], error: "No se pudo cargar el valor de stock." };
   }
   return { data: data ?? [], error: null };
+}
+
+/** ¿A quien mira le cobraron lo que tiene en su poder con margen sobre el
+ * costo Ananja? — decide el nombre del renglón "Tu stock: Le debés a ..."
+ * de `/mi` (el de su encargado si `true`, "Ananja" si no). RPC
+ * `mi_stock_cobrado_con_margen` (0074): devuelve solo el sí/no de su propio
+ * stock, nunca un monto (el costo Ananja ya no se le muestra a quien no es
+ * admin). Si la lectura falla devuelve `false` ("Ananja"), como pasaba
+ * cuando fallaba la lectura del valor de stock.
+ *
+ * TOLERANTE a la base todavía sin migrar (0074 se aplica a mano, después
+ * del deploy): si la función no existe, hace la comparación que hacía la
+ * página hasta ahora con las dos columnas de `v_valor_stock_revendedor`. */
+export async function leerStockCobradoConMargen(supabase: Supa, vendedorId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("mi_stock_cobrado_con_margen");
+  if (!error) return data === true;
+  if (!esFuncionSinMigrar(error)) {
+    console.error("leerStockCobradoConMargen", error);
+    return false;
+  }
+
+  const previo = await supabase
+    .from("v_valor_stock_revendedor")
+    .select("valor_en_poder_centavos, valor_en_poder_ananja_centavos")
+    .eq("vendedor_id", vendedorId);
+  if (previo.error) {
+    console.error("leerStockCobradoConMargen", previo.error);
+    return false;
+  }
+  const filas = previo.data ?? [];
+  const cobrado = filas.reduce((acc, f) => acc + (f.valor_en_poder_centavos ?? 0), 0);
+  const costoAnanja = filas.reduce((acc, f) => acc + (f.valor_en_poder_ananja_centavos ?? 0), 0);
+  return cobrado !== costoAnanja;
 }
 
 /** Una venta propia por id — filtro explícito por `vendedorId` (además del
