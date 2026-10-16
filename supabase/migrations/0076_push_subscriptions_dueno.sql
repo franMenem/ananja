@@ -79,6 +79,24 @@
 --
 -- `lib/types.ts` cambia a mano (la columna, su FK y la función); regenerarlo
 -- con el generador de Supabase debería dar lo mismo.
+--
+-- APLICADA y verificada en producción (schema `public`) el 2026-10-16, con el
+-- nombre `0076_push_subscriptions_dueno_public` (versión `20261016123315`),
+-- con el código (commit cc8fbff) ya desplegado antes. Antes de aplicar se
+-- comprobó que la policy de INSERT vigente era la de 0013 (`es_vendedor()`),
+-- que `endpoint` tiene la restricción única `push_subscriptions_endpoint_key`,
+-- que la tabla tenía 2 filas y que la función no existía. Verificada después,
+-- de solo lectura, por catálogo (no por la tabla de tracking de migraciones):
+-- columna `vendedor_id uuid` nullable; índice `idx_push_subscriptions_vendedor_id`;
+-- FK `push_subscriptions_vendedor_id_fkey` con `on delete cascade`; policy
+-- `push_subscriptions_insert` para `authenticated` con `es_vendedor() AND
+-- (vendedor_id IS NULL OR vendedor_id = mi_vendedor_id())`; función
+-- `guardar_suscripcion_push(text,jsonb)` security definer, `search_path =
+-- public`, dueño `postgres` y sin execute para anon/public; grants de la tabla
+-- sin cambios (solo INSERT y DELETE a `authenticated`). Las 2 filas existentes
+-- quedaron sin dueño (0 con dueño), como estaba previsto: cada admin vuelve a
+-- recibir avisos al abrir la app una vez en cada dispositivo. El schema `miel`
+-- no se tocó.
 
 -- ============================================================
 -- 1) Columna del dueño + índice de la FK
