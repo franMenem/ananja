@@ -376,6 +376,88 @@ export function mensajeErrorPassword(mensaje: string, code?: string | null): str
   return "No se pudo guardar la contraseña. Probá de nuevo.";
 }
 
+// ============================================================
+// Contraseña ACTUAL al cambiarla (hallazgo F5, CWE-620)
+// ============================================================
+
+/** Un enlace de mail (recuperar contraseña, invitación, magic link) vale
+ * como prueba de identidad para elegir una contraseña nueva SIN pedir la
+ * actual durante este tiempo desde que se usó. Pasado ese plazo, la sesión
+ * se trata como una sesión común. */
+export const MINUTOS_LINK_SIN_PASSWORD_ACTUAL = 60;
+
+/** Métodos del claim `amr` que corresponden a un enlace de mail. `otp` y
+ * `recovery` son los que cubre el diseño; `invite` y `magiclink` son el
+ * mismo tipo de prueba (un mail a la casilla de la persona) y así no
+ * quedan trabadas cuentas cuyo servidor de Auth rotule el enlace con otro
+ * nombre. Los de un login normal (`password`, `token_refresh`, etc.) NO
+ * están. */
+const METODOS_AMR_LINK_DE_MAIL: readonly string[] = ["otp", "recovery", "invite", "magiclink"];
+
+/** Margen para relojes desfasados entre el servidor de Auth y el nuestro. */
+const TOLERANCIA_RELOJ_SEGUNDOS = 60;
+
+/** `true` si `app_metadata` (la del servidor — `getUser()`, nunca
+ * `user_metadata`, que la persona puede reescribir) trae un flag de
+ * contraseña obligatoria: contraseña temporal o cuenta nueva sin
+ * contraseña propia. En esos casos no hay contraseña actual que pedir. */
+export function eximePasswordActualPorFlags(
+  appMetadata: Record<string, unknown> | null | undefined,
+): boolean {
+  return appMetadata?.[FLAG_MUST_CHANGE_PASSWORD] === true || appMetadata?.[FLAG_BIENVENIDA] === true;
+}
+
+/**
+ * ¿Hay que pedir la contraseña ACTUAL para cambiarla? Regla pura, sin I/O.
+ * Se la salta (devuelve `false`) solo si:
+ *  - `app_metadata` trae `must_change_password` o `bienvenida_pendiente` en
+ *    `true` (ver {@link eximePasswordActualPorFlags}), o
+ *  - el claim `amr` del JWT (ya verificado por el que llama, con
+ *    `getClaims()`) tiene una entrada con timestamp y método de enlace de
+ *    mail ({@link METODOS_AMR_LINK_DE_MAIL}) de hace menos de
+ *    {@link MINUTOS_LINK_SIN_PASSWORD_ACTUAL} minutos.
+ * Todo lo demás (login con contraseña, `amr` ausente, en formato
+ * `string[]` sin timestamps, entradas raras, timestamp futuro) la pide.
+ */
+export function exigePasswordActual(
+  appMetadata: Record<string, unknown> | null | undefined,
+  amr: unknown,
+  ahoraSegundos: number = Math.floor(Date.now() / 1000),
+): boolean {
+  if (eximePasswordActualPorFlags(appMetadata)) return false;
+  if (!Array.isArray(amr)) return true;
+
+  const plazo = MINUTOS_LINK_SIN_PASSWORD_ACTUAL * 60;
+  const linkReciente = amr.some((entrada) => {
+    if (typeof entrada !== "object" || entrada === null) return false;
+    const { method, timestamp } = entrada as { method?: unknown; timestamp?: unknown };
+    if (typeof method !== "string" || !METODOS_AMR_LINK_DE_MAIL.includes(method)) return false;
+    if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) return false;
+    const edad = ahoraSegundos - timestamp;
+    return edad >= -TOLERANCIA_RELOJ_SEGUNDOS && edad < plazo;
+  });
+  return !linkReciente;
+}
+
+export const MENSAJE_PASSWORD_ACTUAL_FALTA = "Escribí tu contraseña actual.";
+export const MENSAJE_PASSWORD_ACTUAL_INCORRECTA = "La contraseña actual no es correcta.";
+export const MENSAJE_SESION_NO_VERIFICADA = "No pudimos verificar tu sesión. Probá de nuevo en un rato.";
+
+/** Traduce el error de verificar la contraseña actual (`signInWithPassword`). */
+export function mensajeErrorPasswordActual(error: ErrorAuthLike | null | undefined): string {
+  const code = error?.code ?? "";
+  const status = error?.status ?? 0;
+  const message = error?.message ?? "";
+
+  if (code === "over_request_rate_limit" || status === 429) {
+    return "Demasiados intentos seguidos. Esperá unos minutos y probá de nuevo.";
+  }
+  if (code === "invalid_credentials" || /invalid login credentials/i.test(message)) {
+    return MENSAJE_PASSWORD_ACTUAL_INCORRECTA;
+  }
+  return "No pudimos verificar tu contraseña actual. Probá de nuevo en un rato.";
+}
+
 /** `null` si la contraseña es aceptable; si no, el mensaje de error. */
 export function validarPassword(password: string, confirmacion: string): string | null {
   if (password.length < PASSWORD_MIN_LENGTH) {

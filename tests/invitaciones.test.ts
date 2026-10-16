@@ -4,10 +4,15 @@ import {
   destinoPorRol,
   esInvitacionPendiente,
   esTipoOtp,
+  exigePasswordActual,
+  FLAG_BIENVENIDA,
   FLAG_MUST_CHANGE_PASSWORD,
   flagCuentaActivo,
   mensajeErrorAuth,
   mensajeErrorPassword,
+  mensajeErrorPasswordActual,
+  MENSAJE_PASSWORD_ACTUAL_INCORRECTA,
+  MINUTOS_LINK_SIN_PASSWORD_ACTUAL,
   modoReenvio,
   negocioDeUsuario,
   nextPorDefecto,
@@ -296,6 +301,91 @@ describe("contraseña", () => {
   it("traduce errores de updateUser", () => {
     expect(mensajeErrorPassword("", "same_password")).toMatch(/distinta/);
     expect(mensajeErrorPassword("Password should be at least 6 characters")).toMatch(/débil/);
+  });
+});
+
+describe("exigePasswordActual (F5: contraseña actual al cambiarla)", () => {
+  const ahora = 1_800_000_000;
+  const haceMin = (min: number) => ahora - min * 60;
+  const link = (method: string, min: number) => [{ method, timestamp: haceMin(min) }];
+
+  it("sesión común (login con contraseña) → la pide", () => {
+    expect(exigePasswordActual({}, link("password", 1), ahora)).toBe(true);
+    expect(exigePasswordActual(null, link("password", 0), ahora)).toBe(true);
+  });
+
+  it("must_change_password o bienvenida_pendiente en app_metadata → no la pide", () => {
+    expect(exigePasswordActual({ [FLAG_MUST_CHANGE_PASSWORD]: true }, link("password", 500), ahora)).toBe(false);
+    expect(exigePasswordActual({ [FLAG_BIENVENIDA]: true }, undefined, ahora)).toBe(false);
+  });
+
+  it("flags en false o con otro tipo no eximen", () => {
+    expect(exigePasswordActual({ [FLAG_MUST_CHANGE_PASSWORD]: false }, undefined, ahora)).toBe(true);
+    expect(exigePasswordActual({ [FLAG_BIENVENIDA]: "true" }, undefined, ahora)).toBe(true);
+  });
+
+  it("link de mail de menos de una hora (otp y recovery) → no la pide", () => {
+    expect(exigePasswordActual({}, link("otp", 5), ahora)).toBe(false);
+    expect(exigePasswordActual({}, link("recovery", 59), ahora)).toBe(false);
+    expect(exigePasswordActual({}, link("recovery", 0), ahora)).toBe(false);
+  });
+
+  it("link de hace una hora o más → la pide", () => {
+    expect(MINUTOS_LINK_SIN_PASSWORD_ACTUAL).toBe(60);
+    expect(exigePasswordActual({}, link("recovery", 60), ahora)).toBe(true);
+    expect(exigePasswordActual({}, link("otp", 61), ahora)).toBe(true);
+  });
+
+  it("alcanza con que UNA entrada sea un link reciente", () => {
+    const amr = [...link("password", 300), ...link("otp", 3)];
+    expect(exigePasswordActual({}, amr, ahora)).toBe(false);
+  });
+
+  it("amr ausente, formato string[] o raro → la pide", () => {
+    expect(exigePasswordActual({}, undefined, ahora)).toBe(true);
+    expect(exigePasswordActual({}, null, ahora)).toBe(true);
+    expect(exigePasswordActual({}, ["otp", "recovery"], ahora)).toBe(true);
+    expect(exigePasswordActual({}, "otp", ahora)).toBe(true);
+    expect(exigePasswordActual({}, [null, 5, {}, { method: "otp" }], ahora)).toBe(true);
+    expect(exigePasswordActual({}, [{ method: "otp", timestamp: "ahora" }], ahora)).toBe(true);
+    expect(exigePasswordActual({}, [{ method: "otp", timestamp: Number.NaN }], ahora)).toBe(true);
+    expect(exigePasswordActual({}, [{ method: "totp", timestamp: haceMin(1) }], ahora)).toBe(true);
+  });
+
+  it("timestamp en el futuro (más allá del margen de reloj) no exime", () => {
+    expect(exigePasswordActual({}, link("otp", -30), ahora)).toBe(true);
+    expect(exigePasswordActual({}, [{ method: "otp", timestamp: ahora + 30 }], ahora)).toBe(false);
+  });
+
+  it("user_metadata nunca exime (la función ni lo recibe; un flag solo ahí no cambia nada)", () => {
+    // Quien llama pasa SOLO app_metadata; el flag escrito en user_metadata
+    // por la propia persona no llega a esta regla.
+    const userMetadata = { [FLAG_MUST_CHANGE_PASSWORD]: true, [FLAG_BIENVENIDA]: true };
+    expect(exigePasswordActual({ user_metadata: userMetadata }, link("password", 1), ahora)).toBe(true);
+  });
+});
+
+describe("mensajeErrorPasswordActual", () => {
+  it("contraseña incorrecta", () => {
+    expect(mensajeErrorPasswordActual({ code: "invalid_credentials", status: 400 })).toBe(
+      MENSAJE_PASSWORD_ACTUAL_INCORRECTA,
+    );
+    expect(mensajeErrorPasswordActual({ message: "Invalid login credentials" })).toBe(
+      "La contraseña actual no es correcta.",
+    );
+  });
+
+  it("límite de intentos (429 / over_request_rate_limit)", () => {
+    const esperado = "Demasiados intentos seguidos. Esperá unos minutos y probá de nuevo.";
+    expect(mensajeErrorPasswordActual({ code: "over_request_rate_limit", status: 429 })).toBe(esperado);
+    expect(mensajeErrorPasswordActual({ status: 429 })).toBe(esperado);
+  });
+
+  it("cualquier otro error → mensaje genérico, nunca el crudo ni 'incorrecta'", () => {
+    const m = mensajeErrorPasswordActual({ status: 500, message: "boom" });
+    expect(m).toMatch(/No pudimos verificar/);
+    expect(m).not.toMatch(/boom|no es correcta/);
+    expect(mensajeErrorPasswordActual(null)).toMatch(/No pudimos verificar/);
   });
 });
 

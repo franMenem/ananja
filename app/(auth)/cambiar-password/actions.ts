@@ -3,13 +3,22 @@
 import {
   FLAG_BIENVENIDA,
   FLAG_MUST_CHANGE_PASSWORD,
+  MENSAJE_PASSWORD_ACTUAL_FALTA,
+  MENSAJE_SESION_NO_VERIFICADA,
   mensajeErrorPassword,
+  mensajeErrorPasswordActual,
   validarPassword,
 } from "@/lib/dominio/invitaciones";
+import { decidirPasswordActual, verificarPasswordActual } from "@/lib/password-actual-server";
 import { createAdminClient, ServiceRoleNoConfigurada } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-export type ResultadoCambioPassword = { ok: boolean; mensaje?: string };
+export type ResultadoCambioPassword = {
+  ok: boolean;
+  mensaje?: string;
+  /** El servidor exige la contraseña actual: el formulario muestra el campo. */
+  pedirActual?: boolean;
+};
 
 const SESION_VENCIDA = "Tu sesión venció. Pedí un link nuevo desde la pantalla de ingreso.";
 
@@ -38,6 +47,15 @@ function logError(donde: string, error: { code?: string | null; status?: number 
  *     servidor) — NUNCA de un id que mande el cliente.
  *  2. Se valida la contraseña con las mismas reglas que ya usaba el
  *     formulario (`validarPassword`).
+ *  2b. Desde una sesión común se pide y verifica la contraseña ACTUAL
+ *     (hallazgo F5, CWE-620: quien agarra un rato un dispositivo con la
+ *     sesión abierta no puede quedarse con la cuenta). No se pide con un
+ *     flag de contraseña obligatoria en `app_metadata` ni con un enlace de
+ *     mail usado hace menos de una hora; la decisión es SOLO del servidor
+ *     (`decidirPasswordActual`: `app_metadata` de `getUser()` + claim `amr`
+ *     de `getClaims()`) — nada que mande el cliente la activa. La
+ *     verificación no toca las cookies de la sesión real
+ *     (`verificarPasswordActual`).
  *  3. Se cambia la contraseña con la sesión de la propia persona
  *     (`supabase.auth.updateUser({ password })` del cliente de servidor:
  *     mismo endpoint `PUT /user` que usaba el cliente de navegador, pero
@@ -70,6 +88,7 @@ function logError(donde: string, error: { code?: string | null; status?: number 
 export async function guardarPasswordNueva(
   password: string,
   confirmacion: string,
+  passwordActual?: string,
 ): Promise<ResultadoCambioPassword> {
   const invalida = validarPassword(password, confirmacion);
   if (invalida) return { ok: false, mensaje: invalida };
@@ -79,6 +98,20 @@ export async function guardarPasswordNueva(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, mensaje: SESION_VENCIDA };
+
+  const decision = await decidirPasswordActual(supabase, user.app_metadata, user.id);
+  if (decision === "sin_verificar") return { ok: false, mensaje: MENSAJE_SESION_NO_VERIFICADA };
+  if (decision === "pedir") {
+    const actual = typeof passwordActual === "string" ? passwordActual : "";
+    if (!actual) return { ok: false, mensaje: MENSAJE_PASSWORD_ACTUAL_FALTA, pedirActual: true };
+    if (!user.email) return { ok: false, mensaje: MENSAJE_SESION_NO_VERIFICADA };
+
+    const verificacion = await verificarPasswordActual(user.email, actual, user.id);
+    if (!verificacion.ok) {
+      logError("guardarPasswordNueva verificarPasswordActual", verificacion.error);
+      return { ok: false, mensaje: mensajeErrorPasswordActual(verificacion.error), pedirActual: true };
+    }
+  }
 
   const { error: updateError } = await supabase.auth.updateUser({ password });
   if (updateError) {

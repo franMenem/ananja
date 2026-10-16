@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth-shell";
 import { PasswordForm } from "@/components/auth/password-form";
 import { destinoPorRol, flagCuentaActivo, FLAG_MUST_CHANGE_PASSWORD } from "@/lib/dominio/invitaciones";
+import { decidirPasswordActual } from "@/lib/password-actual-server";
 import { obtenerVendedorPorUserId } from "@/lib/rol-vendedor";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,7 +17,9 @@ export const dynamic = "force-dynamic";
  *  2. Link de recuperación ("¿Olvidaste tu contraseña?" →
  *     `/auth/confirm?type=recovery` deja la sesión y redirige acá).
  *  3. Cambio voluntario (link discreto al pie de /tareas, antes en
- *     /notificaciones — pantalla retirada 2026-09-16).
+ *     /notificaciones — pantalla retirada 2026-09-16): único caso que pide
+ *     la contraseña actual (hallazgo F5), salvo enlace de mail de menos de
+ *     una hora.
  * Después de guardar va al shell que le toca por rol (revendedora → `/mi`,
  * admin → `/`).
  */
@@ -29,6 +32,8 @@ export default async function CambiarPasswordPage() {
   if (!user) redirect("/login");
 
   const vendedor = await obtenerVendedorPorUserId(supabase, user.id);
+  // Solo visual: la que decide es `guardarPasswordNueva` con la misma regla.
+  const pedirPasswordActual = (await decidirPasswordActual(supabase, user.app_metadata, user.id)) === "pedir";
   const temporal = flagCuentaActivo(user.app_metadata, user.user_metadata, FLAG_MUST_CHANGE_PASSWORD);
 
   return (
@@ -41,6 +46,7 @@ export default async function CambiarPasswordPage() {
         etiqueta="Contraseña nueva"
         textoBoton="Guardar contraseña"
         destino={destinoPorRol(vendedor)}
+        pedirPasswordActual={pedirPasswordActual}
       />
     </AuthShell>
   );

@@ -14,6 +14,10 @@ type PasswordFormProps = {
   /** Ruta a la que va después de guardar (el proxy corrige si no le
    * corresponde por rol). */
   destino: string;
+  /** Muestra el campo "Contraseña actual" desde el principio (cambio
+   * voluntario desde una sesión común). Solo visual: la que decide si hace
+   * falta es la server action, y si la pide el campo aparece igual. */
+  pedirPasswordActual?: boolean;
 };
 
 /**
@@ -31,8 +35,10 @@ type PasswordFormProps = {
  * que la propia persona podía reescribir sola (el agujero de seguridad que
  * resolvió esa migración a `app_metadata`, ver el comentario de la acción).
  */
-export function PasswordForm({ etiqueta, textoBoton, destino }: PasswordFormProps) {
+export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActual = false }: PasswordFormProps) {
   const router = useRouter();
+  const [pedirActual, setPedirActual] = useState(pedirPasswordActual);
+  const [passwordActual, setPasswordActual] = useState("");
   const [password, setPassword] = useState("");
   const [confirmacion, setConfirmacion] = useState("");
   const [visible, setVisible] = useState(false);
@@ -50,10 +56,11 @@ export function PasswordForm({ etiqueta, textoBoton, destino }: PasswordFormProp
     }
 
     setLoading(true);
-    const resultado = await guardarPasswordNueva(password, confirmacion);
+    const resultado = await guardarPasswordNueva(password, confirmacion, pedirActual ? passwordActual : undefined);
 
     if (!resultado.ok) {
       setLoading(false);
+      if (resultado.pedirActual) setPedirActual(true);
       setError(resultado.mensaje ?? "No se pudo guardar la contraseña. Probá de nuevo.");
       return;
     }
@@ -82,6 +89,31 @@ export function PasswordForm({ etiqueta, textoBoton, destino }: PasswordFormProp
           {visible ? "Ocultar" : "Mostrar"}
         </button>
       </div>
+
+      {pedirActual && (
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="password-actual"
+            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          >
+            Contraseña actual
+          </label>
+          <input
+            id="password-actual"
+            name="password-actual"
+            type={inputType}
+            autoComplete="current-password"
+            required
+            value={passwordActual}
+            onChange={(event) => setPasswordActual(event.target.value)}
+            className={inputClass(passwordActual)}
+            placeholder="••••••••"
+          />
+          <p className="text-xs text-text-muted">
+            Si la olvidaste, cerrá sesión y usá “¿Olvidaste tu contraseña?”.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
