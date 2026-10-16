@@ -2,6 +2,7 @@ import { AppHeader } from "@/components/app-header";
 import { AppRail } from "@/components/app-rail";
 import { InstalarAppBanner } from "@/components/instalar-app-banner";
 import { PageHeaderProvider } from "@/components/page-header-context";
+import { PushReenlazar } from "@/components/push-reenlazar";
 import { SectorChips } from "@/components/sector-chips";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import { TabBar } from "@/components/tab-bar";
@@ -15,6 +16,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       <TareasBadgeProvider>
       <div className="flex min-h-full min-w-0 flex-1 flex-col bg-background lg:flex-row">
         <ServiceWorkerRegister />
+        <PushReenlazar />
 
         <AppHeader />
         <SectorChips />

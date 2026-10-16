@@ -2706,20 +2706,59 @@ export type Database = {
           endpoint: string
           id: string
           keys: Json
+          vendedor_id: string | null
         }
         Insert: {
           created_at?: string
           endpoint: string
           id?: string
           keys: Json
+          vendedor_id?: string | null
         }
         Update: {
           created_at?: string
           endpoint?: string
           id?: string
           keys?: Json
+          vendedor_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_encargados"
+            referencedColumns: ["encargado_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_vendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_plata_en_manos"
+            referencedColumns: ["tenedor_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_resumen_revendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recetas: {
         Row: {
@@ -5208,6 +5247,10 @@ export type Database = {
         Returns: Json
       }
       guardar_proveedor: { Args: { p_nombre: string }; Returns: undefined }
+      guardar_suscripcion_push: {
+        Args: { p_endpoint: string; p_keys: Json }
+        Returns: Json
+      }
       informar_deposito_cuenta: {
         Args: {
           p_fecha?: string

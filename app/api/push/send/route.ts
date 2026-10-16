@@ -4,6 +4,10 @@ import webpush from "web-push";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 import { esEndpointPushPermitido } from "@/lib/push-endpoint";
+import {
+  filtrarSuscripcionesDeAdmins,
+  tieneColumnaDueno,
+} from "@/lib/push-suscripciones";
 import { esAdminAutenticado } from "@/lib/rol-vendedor";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/types";
@@ -32,6 +36,11 @@ import type { Database } from "@/lib/types";
  * Lee todas las suscripciones con la service role key: `push_subscriptions`
  * no otorga select al cliente autenticado (contracts/database.md), solo
  * insert/delete del propio endpoint.
+ *
+ * Solo manda a las suscripciones cuyo dueño (`vendedor_id`, migración 0076)
+ * sigue siendo un admin activo; las que no tienen dueño todavía (aún sin
+ * reenlazar) no reciben nada. Con la base sin migrar (las filas no traen
+ * `vendedor_id`) manda a todas, como antes.
  */
 export const runtime = "nodejs";
 
@@ -200,6 +209,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ enviadas: 0, purgadas: 0 }, { status: 200 });
   }
 
+  let destinatarios = subscripciones;
+
+  if (tieneColumnaDueno(subscripciones)) {
+    const { data: admins, error: adminsError } = await serviceClient
+      .from("vendedores")
+      .select("id")
+      .eq("rol", "admin")
+      .eq("activo", true);
+
+    if (adminsError || !admins) {
+      // Sin saber quién sigue siendo admin no se manda a nadie.
+      console.error("[api/push/send] no se pudieron leer los admins activos:", adminsError);
+      return NextResponse.json({ enviadas: 0, purgadas: 0 }, { status: 200 });
+    }
+
+    destinatarios = filtrarSuscripcionesDeAdmins(
+      subscripciones,
+      new Set(admins.map((admin) => admin.id)),
+    );
+  }
+
   const payload = JSON.stringify({
     tipo,
     titulo,
@@ -212,7 +242,7 @@ export async function POST(request: Request) {
   const endpointsAPurgar: string[] = [];
 
   await Promise.all(
-    subscripciones.map(async (sub) => {
+    destinatarios.map(async (sub) => {
       const keys = sub.keys as { p256dh?: string; auth?: string } | null;
       if (!keys?.p256dh || !keys?.auth) return;
 

@@ -27,3 +27,39 @@ export async function notificarPush(
     // Falla de red u otro error: se ignora, el push es best-effort.
   }
 }
+
+/**
+ * Reenlace silencioso (hallazgo F7, migración 0076): las suscripciones que
+ * ya existían quedaron sin dueño y no reciben avisos hasta que el navegador
+ * vuelva a mandarlas a `/api/push/subscribe`, que ahora las ata a quien
+ * tiene la sesión abierta. Se llama una vez al abrir el shell de admin.
+ *
+ * Solo si el navegador soporta push, el permiso ya está concedido y hay una
+ * suscripción existente: nunca pide permiso ni crea una suscripción nueva.
+ * Se traga cualquier error: no tiene que molestar ni cambiar lo que se ve.
+ */
+export async function reenlazarSuscripcionPush(): Promise<void> {
+  try {
+    if (
+      typeof window === "undefined" ||
+      !("Notification" in window) ||
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window) ||
+      Notification.permission !== "granted"
+    ) {
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return;
+
+    await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...subscription.toJSON(), reenlazar: true }),
+    });
+  } catch {
+    // Best-effort: sin red o sin soporte, no pasa nada.
+  }
+}

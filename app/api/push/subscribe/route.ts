@@ -1,18 +1,29 @@
 import { NextResponse } from "next/server";
 
 import { esEndpointPushPermitido } from "@/lib/push-endpoint";
+import { esFuncionPushSinMigrar } from "@/lib/push-suscripciones";
 import { esAdminAutenticado } from "@/lib/rol-vendedor";
 import { createClient } from "@/lib/supabase/server";
 
 /**
  * Registra (o reemplaza) una suscripción de Web Push del dispositivo actual
  * — ver contracts/api-routes.md § POST /api/push/subscribe.
+ *
+ * La suscripción queda atada a quien llama (`vendedor_id`, hallazgo F7,
+ * migración 0076) por `guardar_suscripcion_push`: el dueño sale de la
+ * sesión, nunca del body. `reenlazar: true` lo manda solo el reenlace
+ * silencioso del shell de admin (`lib/push-client.ts`): vuelve a atar una
+ * suscripción que ya existía.
+ *
+ * Código desplegado antes de la migración (la función no existe todavía):
+ * se inserta como hasta ahora, sin dueño; y un reenlace no toca la tabla.
  */
 export const runtime = "nodejs";
 
 type PushSubscriptionPayload = {
   endpoint?: string;
   keys?: { p256dh?: string; auth?: string };
+  reenlazar?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -49,6 +60,35 @@ export async function POST(request: Request) {
   // guardar una URL interna/arbitraria y usar el servidor como proxy.
   if (!esEndpointPushPermitido(endpoint)) {
     return NextResponse.json({ error: "Endpoint de push no permitido." }, { status: 400 });
+  }
+
+  const { error: rpcError } = await supabase.rpc("guardar_suscripcion_push", {
+    p_endpoint: endpoint,
+    p_keys: { p256dh, auth },
+  });
+
+  if (!rpcError) {
+    return NextResponse.json({ ok: true }, { status: 201 });
+  }
+
+  if (!esFuncionPushSinMigrar(rpcError)) {
+    if (rpcError.message?.includes("NO_AUTORIZADO")) {
+      return NextResponse.json({ error: "NO_AUTORIZADO" }, { status: 403 });
+    }
+    if (rpcError.message?.includes("SUSCRIPCION_INVALIDA")) {
+      return NextResponse.json({ error: "Suscripción inválida." }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: "No se pudo guardar la suscripción." },
+      { status: 500 },
+    );
+  }
+
+  // La migración 0076 todavía no se aplicó: no hay dueño que atar. El
+  // reenlace silencioso no tiene nada que hacer (evita un 500 en cada
+  // apertura de la app); el alta normal sigue como antes de 0076.
+  if (body?.reenlazar === true) {
+    return NextResponse.json({ ok: true }, { status: 200 });
   }
 
   const { error: insertError } = await supabase
