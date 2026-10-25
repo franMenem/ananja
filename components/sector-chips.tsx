@@ -8,22 +8,16 @@ import { resolverNavegacion } from "@/lib/navegacion";
 /**
  * Chips horizontales con TODAS las secciones del sector actual (incluida
  * la activa, marcada), para saltar entre ellas — ej. desde Gastos llegar
- * directo a Plata/Ganancia (`components/app-header.tsx` § chrome móvil).
- * Solo mobile: en escritorio el rail (`app-rail.tsx`) ya muestra todas
- * las secciones a la vez.
- *
- * Se oculta en Inicio y Tareas (sin secciones, `ubicacion.seccion`
- * siempre `null` ahí) y también cuando el sector tiene una sola sección
- * (nada que elegir). En Ventas/Producción/Plata, `seccion` no es nunca
- * `null` en la práctica: toda ruta bajo el sector cae en alguna de sus
- * secciones (Plata incluida — ver `resolverNavegacion`), así que los
- * chips se ven en cualquier pantalla de esos tres sectores.
+ * directo a Ganancia (`components/app-header.tsx` § chrome móvil). Se ven
+ * en los cuatro sectores (Hoy: Resumen / Para hacer). Solo mobile: en
+ * escritorio el rail (`app-rail.tsx`) ya muestra todas las secciones a la
+ * vez.
  */
 export function SectorChips() {
   const pathname = usePathname();
   const ubicacion = resolverNavegacion(pathname);
 
-  if (!ubicacion?.seccion || ubicacion.sector.secciones.length < 2) {
+  if (!ubicacion || ubicacion.sector.secciones.length < 2) {
     return null;
   }
 

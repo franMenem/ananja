@@ -31,7 +31,8 @@ export const dynamic = "force-dynamic";
  * rediseño "de 10 bloques a 5" (2026-09-16): `?abrir=entrega|ventas|pago`
  * abre esa sección con las otras plegadas — lo usan los redirects
  * permanentes de las rutas viejas `/entrega`, `/ventas/nueva` y
- * `/rendicion` (`next.config.ts`); sin el parámetro, abre Entrega.
+ * `/rendicion` (`next.config.ts`) y el botón "+" (que lo manda como
+ * `?seccion=`); sin el parámetro, abre Entrega.
  *
  * El chequeo de admin va acá además del RPC (`es_admin()`): una revendedora
  * nunca llega a `(app)` por el proxy, pero esta pantalla no depende de eso.
@@ -51,7 +52,11 @@ export default async function CargaUnificadaPage({
   // `?abrir=entrega|ventas|pago` abre esa sección con las otras plegadas
   // (usado por los redirects de las rutas viejas /entrega, /ventas/nueva y
   // /rendicion); sin parámetro, abre Entrega.
-  const abrirParam = Array.isArray(sp.abrir) ? sp.abrir[0] : sp.abrir;
+  // `?seccion=` es el nombre que usa el botón "+" (`components/cargar/`);
+  // `?abrir=` sigue andando por los redirects viejos. Si vienen los dos,
+  // gana `seccion`.
+  const primero = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const abrirParam = primero(sp.seccion) ?? primero(sp.abrir);
   const seccionInicial = SECCIONES.has(abrirParam ?? "") ? (abrirParam as "entrega" | "ventas" | "pago") : "entrega";
   const supabase = await createClient();
 
@@ -124,7 +129,11 @@ export default async function CargaUnificadaPage({
             fijo en "Cargar movimiento" aunque mobile mostrara "Revisá
             todo"). */}
         <FormHeaderDesktop />
+        {/* `key`: si ya se está en esta pantalla y el botón "+" manda a otra
+            sección (misma ruta, otro `?seccion=`), el formulario se vuelve
+            a montar para que arranque con esa sección abierta. */}
         <CargaForm
+          key={`${id}:${seccionInicial}`}
           vendedorId={id}
           vendedorNombre={revendedor.nombre}
           seccionInicial={seccionInicial}

@@ -116,6 +116,25 @@ export async function listarRevendedoresRol(supabase: Supa): Promise<{ data: Ven
   return { data: data ?? [], error: null };
 }
 
+/** Revendedoras que se pueden elegir para cargarles algo (entrega, venta,
+ * pago): `revendedor` activo, y admins activos con espacio propio
+ * (`revende = true`) — el mismo criterio con el que la pantalla de carga
+ * (`/revendedores/[id]/carga`) acepta o rechaza a una persona. Solo
+ * `id` y `nombre`, por nombre. Lo usa el botón "+" (`components/cargar/`). */
+export async function listarRevendedorasActivas(supabase: Supa): Promise<{ id: string; nombre: string }[]> {
+  const { data, error } = await supabase
+    .from("vendedores")
+    .select("id, nombre")
+    .eq("activo", true)
+    .or("rol.eq.revendedor,and(rol.eq.admin,revende.eq.true)")
+    .order("nombre");
+  if (error) {
+    console.error("listarRevendedorasActivas", error);
+    return [];
+  }
+  return data ?? [];
+}
+
 /** Admins activos con su propio espacio de revendedor habilitado
  * (`revende = true`) — aparecen en la tabla "Revendedores" con el tag
  * "admin". */

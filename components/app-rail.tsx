@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
-import { IconLogout, IconRailToggle } from "@/components/icons";
+import { useCargar } from "@/components/cargar/cargar-provider";
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
+import { IconLogout, IconMas, IconRailToggle } from "@/components/icons";
 import { useTareasPendientes } from "@/components/tareas-badge";
 import { VerComoRevendedor } from "@/components/ver-como-revendedor";
 import { NEGOCIO } from "@/lib/negocio";
@@ -22,10 +24,6 @@ function leerSidebarColapsadoServer(): boolean {
   return false;
 }
 
-const [INICIO, ...RESTO] = SECTORES;
-const TAREAS = RESTO[RESTO.length - 1];
-const SECTORES_CON_SECCIONES = RESTO.slice(0, -1);
-
 function itemClassName(active: boolean, colapsado: boolean): string {
   const layout = colapsado ? "justify-center px-0" : "gap-3 px-6";
   const color = active
@@ -35,17 +33,16 @@ function itemClassName(active: boolean, colapsado: boolean): string {
 }
 
 /**
- * Rail lateral de escritorio (`>= md`) — design/handoff README § Chrome compartido, ancho
+ * Rail lateral de escritorio (`>= lg`) — design/handoff README § Chrome compartido, ancho
  * 238px expandido / 64px colapsado. Reemplaza la cabecera y la tab bar
  * móviles en pantallas grandes.
  *
- * Reagrupado por sectores (`lib/navegacion.ts`, única fuente de verdad
- * compartida con `tab-bar.tsx`/`app-header.tsx`): Inicio suelto, luego
- * cada sector con secciones (Ventas/Producción/Plata) como encabezado en
- * mayúsculas + sus secciones debajo, y Tareas suelto al final. El
- * encabezado de sector es solo texto, sin link — no hace falta: acá ya
- * se listan todas las secciones debajo (a diferencia de mobile, que
- * navega a la primera sección del sector vía `destinoDeSector`).
+ * Arriba, debajo de la marca, el botón "+ Cargar" (abre la hoja "¿Qué
+ * pasó?", `components/cargar/`); después los cuatro sectores de
+ * `lib/navegacion.ts` (única fuente de verdad compartida con
+ * `tab-bar.tsx`/`app-header.tsx`), cada uno con su encabezado y sus
+ * secciones. El encabezado es solo texto, sin link: acá ya se listan todas
+ * las secciones. El número de tareas pendientes va sobre "Para hacer".
  *
  * La lista de ítems scrollea sola (`overflow-y-auto` + `min-h-0`) si no
  * entran verticalmente; el header (marca) y el footer ("ver como
@@ -73,6 +70,7 @@ export function AppRail() {
   const pathname = usePathname();
   const router = useRouter();
   const cantidadTareas = useTareasPendientes();
+  const { abrir } = useCargar();
   const ubicacion = resolverNavegacion(pathname);
 
   const colapsado = useSyncExternalStore(
@@ -126,21 +124,23 @@ export function AppRail() {
         </button>
       </div>
 
-      <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto pt-2">
-        <li>
-          <Link
-            href={INICIO.href}
-            aria-current={ubicacion?.sector.id === INICIO.id ? "page" : undefined}
-            aria-label={colapsado ? INICIO.label : undefined}
-            title={colapsado ? INICIO.label : undefined}
-            className={itemClassName(ubicacion?.sector.id === INICIO.id, colapsado)}
-          >
-            <INICIO.Icon className="h-[19px] w-[19px] shrink-0" />
-            {!colapsado && <span>{INICIO.label}</span>}
-          </Link>
-        </li>
+      <div className={colapsado ? "flex justify-center px-0 pt-4" : "px-4 pt-4"}>
+        <button
+          type="button"
+          onClick={(e) => abrir(e.currentTarget)}
+          aria-label={colapsado ? "Cargar algo" : undefined}
+          title={colapsado ? "Cargar algo" : undefined}
+          className={`flex items-center ${BOTON_PRIMARIO} ${
+            colapsado ? "h-11 min-h-11 w-11 px-0" : "w-full gap-2 px-4"
+          }`}
+        >
+          <IconMas className="h-5 w-5 shrink-0" />
+          {!colapsado && <span>Cargar</span>}
+        </button>
+      </div>
 
-        {SECTORES_CON_SECCIONES.map((sector) => (
+      <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto pt-2">
+        {SECTORES.map((sector) => (
           <li key={sector.id} className="mt-4 first:mt-2">
             {!colapsado && (
               <span className="block px-6 pb-1 text-[13px] font-medium text-text-muted">
@@ -149,18 +149,42 @@ export function AppRail() {
             )}
             <ul>
               {sector.secciones.map((seccion) => {
-                const active = ubicacion?.seccion?.id === seccion.id;
+                const active = ubicacion?.seccion.id === seccion.id;
+                const conBadge = seccion.id === "para-hacer" && cantidadTareas > 0;
                 return (
                   <li key={seccion.id}>
                     <Link
                       href={seccion.href}
                       aria-current={active ? "page" : undefined}
-                      aria-label={colapsado ? seccion.label : undefined}
+                      aria-label={
+                        colapsado
+                          ? conBadge
+                            ? `${seccion.label} (${cantidadTareas})`
+                            : seccion.label
+                          : undefined
+                      }
                       title={colapsado ? seccion.label : undefined}
                       className={itemClassName(active, colapsado)}
                     >
-                      <seccion.Icon className="h-[19px] w-[19px] shrink-0" />
+                      <span className="relative flex h-[19px] w-[19px] shrink-0 items-center justify-center">
+                        <seccion.Icon className="h-[19px] w-[19px]" />
+                        {/* Colapsado: número superpuesto al ícono (el
+                            contexto es igual de angosto que la tab bar). */}
+                        {colapsado && conBadge && (
+                          <span
+                            aria-hidden="true"
+                            className="absolute -top-1.5 -right-2 rounded-full bg-accent px-[5px] py-px text-[13px] leading-tight text-white"
+                          >
+                            {cantidadTareas}
+                          </span>
+                        )}
+                      </span>
                       {!colapsado && <span>{seccion.label}</span>}
+                      {!colapsado && conBadge && (
+                        <span className="ml-auto rounded-full bg-accent px-[7px] py-px text-[13px] text-white">
+                          {cantidadTareas}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -168,44 +192,6 @@ export function AppRail() {
             </ul>
           </li>
         ))}
-
-        <li className="mt-4">
-          <Link
-            href={TAREAS.href}
-            aria-current={ubicacion?.sector.id === TAREAS.id ? "page" : undefined}
-            aria-label={
-              colapsado
-                ? cantidadTareas > 0
-                  ? `${TAREAS.label} (${cantidadTareas})`
-                  : TAREAS.label
-                : undefined
-            }
-            title={colapsado ? TAREAS.label : undefined}
-            className={itemClassName(ubicacion?.sector.id === TAREAS.id, colapsado)}
-          >
-            <span className="relative flex h-[19px] w-[19px] shrink-0 items-center justify-center">
-              <TAREAS.Icon className="h-[19px] w-[19px]" />
-              {/* Colapsado: número superpuesto al ícono, igual que
-                  `tab-bar.tsx` (contexto igual de angosto y solo-ícono) —
-                  acá el número importa de un vistazo, a diferencia de un
-                  simple indicador binario de "hay o no hay novedades". */}
-              {colapsado && cantidadTareas > 0 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -top-1.5 -right-2 rounded-full bg-accent px-[5px] py-px text-[13px] leading-tight text-white"
-                >
-                  {cantidadTareas}
-                </span>
-              )}
-            </span>
-            {!colapsado && <span>{TAREAS.label}</span>}
-            {!colapsado && cantidadTareas > 0 && (
-              <span className="ml-auto rounded-full bg-accent px-[7px] py-px text-[13px] text-white">
-                {cantidadTareas}
-              </span>
-            )}
-          </Link>
-        </li>
       </ul>
 
       <div className="border-t border-border pt-2">

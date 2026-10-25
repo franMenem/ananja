@@ -12,15 +12,15 @@ import { resolverNavegacion } from "@/lib/navegacion";
  * Nombre de pantalla para el header móvil, derivado de
  * `lib/navegacion.ts` (antes una lista `SCREEN_NAME_BY_PREFIX` duplicada
  * acá, desincronizada del rail — ej. `/stock` mostraba "Depósito" cuando
- * el rail decía "Stock"). Inicio (pathname "/") no tiene nombre propio a
+ * el rail decía "Stock"). Hoy › Resumen (pathname "/") no tiene nombre propio a
  * propósito, igual que antes: cae al `NEGOCIO.lugar` de más abajo en vez
- * de mostrar "INICIO".
+ * de mostrar "Resumen".
  */
 function screenName(pathname: string): string | null {
   const ubicacion = resolverNavegacion(pathname);
-  if (!ubicacion || ubicacion.sector.id === "inicio") return null;
+  if (!ubicacion || ubicacion.seccion.id === "resumen") return null;
 
-  return ubicacion.seccion?.label ?? ubicacion.sector.label;
+  return ubicacion.seccion.label;
 }
 
 /**

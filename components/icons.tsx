@@ -186,3 +186,44 @@ export function IconRailToggle({ className }: IconProps) {
     </svg>
   );
 }
+
+/** Ícono de Personas — una figura humana al frente y otra detrás. */
+export function IconPersonas({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6" />
+      <path d="M15.5 5.2a3 3 0 0 1 0 5.6" />
+      <path d="M17 14.6c2.3.5 4 2.4 4 5.4" />
+    </svg>
+  );
+}
+
+/** Ícono de Plata — una billetera con la solapa del cierre. */
+export function IconBilletera({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />
+      <path d="M4 7.5V17a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 1 4 7.5Z" />
+      <circle cx="16" cy="13.5" r="1.1" />
+    </svg>
+  );
+}
+
+/** Ícono de "+" (botón de cargar). */
+export function IconMas({ className }: IconProps) {
+  return (
+    <svg {...base} strokeWidth={2.2} className={className} aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+/** Ícono de cerrar (X). */
+export function IconCerrar({ className }: IconProps) {
+  return (
+    <svg {...base} strokeWidth={2} className={className} aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
