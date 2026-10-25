@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { NotificacionesBanner } from "@/components/notificaciones-banner";
 import { ListaTareas } from "@/components/tareas/lista-tareas";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { hoyISO } from "@/lib/fechas";
 import { cargarTareas, completarComprobantes } from "@/lib/data/tareas";
 import { obtenerDestinoEfectivo } from "@/lib/data/plata";
@@ -79,7 +80,7 @@ export default async function TareasPage() {
       */}
       <div className="mx-auto flex w-full max-w-[960px] flex-col gap-5 pb-8 @3xl:grid @3xl:max-w-[1400px] @3xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1 @3xl:col-span-2">
-          <h1 className="font-display hidden text-[32px] leading-[1.05] text-text lg:block">Tareas</h1>
+          <h1 className="font-display hidden text-[28px] leading-[1.1] text-text lg:block">Para hacer</h1>
           {!error && tareas.length > 0 && (
             <p className="text-[16px] text-text-muted">
               {tareas.length} {tareas.length === 1 ? "pendiente" : "pendientes"}
@@ -102,45 +103,56 @@ export default async function TareasPage() {
               {error}
             </p>
           ) : tareas.length === 0 ? (
-            <div className="flex flex-col gap-1 py-10 text-center">
-              <p className="font-display text-[28px] text-text">Todo al día</p>
-              <p className="text-[16px] text-text-muted">No hay nada pendiente por ahora.</p>
-            </div>
+            <Tarjeta className="flex items-center gap-2.5 text-[16px] text-text">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="h-6 w-6 shrink-0 text-secondary"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="m8 12.5 2.8 2.8L16 9.5" />
+              </svg>
+              No hay nada pendiente.
+            </Tarjeta>
           ) : (
-            <ListaTareas tareas={tareas} medioDeposito={destino ?? DESTINO_EFECTIVO_DEFAULT} />
+            <Tarjeta como="section" aria-label="Para hacer">
+              <ListaTareas tareas={tareas} medioDeposito={destino ?? DESTINO_EFECTIVO_DEFAULT} />
+            </Tarjeta>
           )}
         </div>
 
         {/* Columna lateral: avisos, instalar app y cambiar contraseña */}
         <div className="mt-2 flex flex-col gap-5 @3xl:mt-0">
           {gruposAvisos.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2.5">
-                <span className="text-[13px] text-text-muted">
-                  Avisos
-                </span>
-                <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
-              </div>
+            <Tarjeta como="section" aria-labelledby="tareas-avisos" className="flex flex-col gap-3">
+              <h2 id="tareas-avisos" className="font-display text-[20px] leading-tight text-text">
+                Avisos
+              </h2>
               {gruposAvisos.map((grupo) => (
                 <div key={grupo.titulo} className="flex flex-col gap-1.5">
-                  <span className="text-[13px] text-text-muted/70">
+                  <span className="text-[14px] text-text-muted">
                     {grupo.titulo}
                   </span>
                   {grupo.items.map((aviso) => (
-                    <p key={aviso.id} className="text-[16px] text-text-muted">
+                    <p key={aviso.id} className="text-[16px] text-text">
                       {aviso.frase}
                     </p>
                   ))}
                 </div>
               ))}
-            </div>
+            </Tarjeta>
           )}
 
           <NotificacionesBanner />
 
           <Link
             href="/cambiar-password"
-            className="mb-4 self-start text-[14px] text-text-muted underline-offset-2 hover:text-text hover:underline"
+            className="mb-4 inline-flex min-h-11 items-center self-start text-[14px] text-text-muted underline-offset-2 hover:text-text hover:underline"
           >
             Cambiar contraseña
           </Link>

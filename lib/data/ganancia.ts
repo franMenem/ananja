@@ -134,8 +134,12 @@ const COLUMNAS_MARGEN_VENTAS =
  * que empujar acá. */
 export async function listarMargenVentas(
   supabase: Supa,
+  /** "yyyy-mm-dd": solo filas desde esa fecha (Hoy necesita el mes actual y
+   * el anterior, no toda la vida). Sin esto, trae todo, como `/ganancia`. */
+  desde?: string,
 ): Promise<{ data: FilaMargenVentasCruda[]; error: string | null }> {
-  const { data, error } = await supabase.from("v_margen_ventas").select(COLUMNAS_MARGEN_VENTAS);
+  const consulta = supabase.from("v_margen_ventas").select(COLUMNAS_MARGEN_VENTAS);
+  const { data, error } = await (desde ? consulta.gte("fecha", desde) : consulta);
   if (error) {
     console.error("listarMargenVentas", error);
     return { data: [], error: "No se pudo cargar la información de ganancia." };
@@ -148,10 +152,13 @@ export async function listarMargenVentas(
  * `lib/margen.ts`). */
 export async function listarGastosConCategoria(
   supabase: Supa,
+  /** "yyyy-mm-dd": solo gastos desde esa fecha (ver `listarMargenVentas`). */
+  desde?: string,
 ): Promise<{ data: GastoConCategoriaCrudo[]; error: string | null }> {
-  const { data, error } = await supabase
+  const consulta = supabase
     .from("gastos")
     .select("fecha, monto_centavos, categorias_gasto(es_costo_produccion)");
+  const { data, error } = await (desde ? consulta.gte("fecha", desde) : consulta);
   if (error) {
     console.error("listarGastosConCategoria", error);
     return { data: [], error: "No se pudo cargar la información de ganancia." };

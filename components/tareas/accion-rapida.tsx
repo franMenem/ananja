@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 
 import { BottomSheet } from "@/components/bottom-sheet";
+import { BOTON_ACCION_TAREA } from "@/components/ui/boton";
 
-const TRIGGER_CLASSNAME_DEFAULT =
-  "flex min-h-11 shrink-0 items-center justify-center bg-primary px-4 text-[14px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
+const TRIGGER_CLASSNAME_DEFAULT = BOTON_ACCION_TAREA;
 
 type AccionRapidaProps = {
   /** Texto del botón que dispara la hoja. */
   triggerLabel: ReactNode;
-  /** Solo si el trigger necesita otro estilo que el botón "Confirmar" de
-   * siempre (hoy únicamente `DepositarRapido`, por el tono claro/oscuro). */
+  /** Solo si el trigger necesita otro estilo que el botón secundario de
+   * siempre (`BOTON_ACCION_TAREA`). */
   triggerClassName?: string;
   triggerAriaLabel?: string;
   /** `aria-label` de la hoja (`BottomSheet`). */

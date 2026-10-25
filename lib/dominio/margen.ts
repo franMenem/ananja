@@ -752,6 +752,21 @@ export function filaGananciaDelPeriodo(
   );
 }
 
+/**
+ * "Ganancia de Ananja" de UN período puntual (`"2026-10"` o `"2026"`) a
+ * partir de las filas de margen y los gastos operativos ya mapeados. Es LA
+ * función que usan `/ganancia` (chip "Este mes"/"Este año") y la pantalla
+ * Hoy ("Este mes ganaste…"): así las dos muestran siempre la misma cifra.
+ */
+export function gananciaAnanjaDelPeriodo(
+  filas: FilaMargenPeriodo[],
+  gastosOperativos: GastoOperativo[],
+  granularidad: "mes" | "anio",
+  periodo: string,
+): FilaGananciaAnanjaPeriodo {
+  return filaGananciaDelPeriodo(calcularGananciaAnanjaPorPeriodo(filas, gastosOperativos, granularidad), periodo);
+}
+
 /** Clase de color Tailwind de un monto de ganancia: bordó (`text-accent`)
  * si es negativo, texto normal si no. */
 export function colorGanancia(centavos: number): string {

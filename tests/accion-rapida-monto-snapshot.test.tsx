@@ -94,7 +94,6 @@ describe("DepositarRapido / PagarDiferenciaRapido — snapshot antes de useAccio
         montoCentavos={50000}
         tenedorNombre="Marcela"
         medioInicial="banco"
-        tono="claro"
       />,
     );
     expect(html).toMatchSnapshot();

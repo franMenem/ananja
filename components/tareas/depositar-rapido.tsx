@@ -36,8 +36,6 @@ type DepositarRapidoProps = {
   tenedorNombre?: string | null;
   /** Cuenta preseleccionada (`cajas.destino_efectivo`). */
   medioInicial: MedioPago;
-  /** "claro" para usarlo sobre el bloque oliva de Inicio. */
-  tono?: "oscuro" | "claro";
 };
 
 /**
@@ -58,7 +56,6 @@ export function DepositarRapido({
   montoCentavos,
   tenedorNombre = null,
   medioInicial,
-  tono = "oscuro",
 }: DepositarRapidoProps) {
   const propia = tenedorNombre === null;
   const tituloHoja = propia ? "Pasar a la cuenta" : `Registrar que ${tenedorNombre} lo pasó`;
@@ -125,11 +122,6 @@ export function DepositarRapido({
     <AccionRapida
       triggerLabel={propia ? "Pasar a la cuenta" : "Registrar que lo pasó"}
       triggerAriaLabel={propia ? undefined : `Registrar que ${tenedorNombre} pasó su plata a la cuenta`}
-      triggerClassName={`flex min-h-11 shrink-0 items-center justify-center px-4 text-[14px] font-medium transition-colors ${
-        tono === "claro"
-          ? "bg-background text-primary hover:bg-surface-raised"
-          : "bg-primary text-primary-foreground hover:bg-primary-hover"
-      }`}
       ariaLabel={tituloHoja}
       abierto={abierto}
       onAbrir={abrir}

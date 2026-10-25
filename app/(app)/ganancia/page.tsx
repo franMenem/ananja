@@ -18,7 +18,7 @@ import {
 import {
   agruparMargenVendedorPorPeriodo,
   calcularGananciaAnanjaPorPeriodo,
-  filaGananciaDelPeriodo,
+  gananciaAnanjaDelPeriodo,
   filtrarGastosOperativos,
   mapearFilasMargenVentas,
   margenVendedoresDePeriodo,
@@ -124,10 +124,8 @@ export default function GananciaPage() {
   const mesActual = mesActualISO();
   const periodoActual = periodo === "mes" ? mesActual : anioActual;
 
-  const filaPeriodoActual = filaGananciaDelPeriodo(
-    periodo === "mes" ? filasAnanjaPorMes : filasAnanjaPorAnio,
-    periodoActual,
-  );
+  // Misma función que usa la pantalla Hoy para "Este mes ganaste…".
+  const filaPeriodoActual = gananciaAnanjaDelPeriodo(margenRows, gastosOperativos, periodo, periodoActual);
 
   // Las coordinadoras no van en esta tabla (venden a precio = costo, 0073).
   const vendedoresEsteMes = margenVendedoresDePeriodo(vendedorPorMes, mesActual, coordinadorIds);

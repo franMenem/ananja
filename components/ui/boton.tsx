@@ -11,6 +11,11 @@ export const BOTON_PRIMARIO = `${BASE} bg-primary text-primary-foreground hover:
 /** Botón secundario: borde gris, fondo blanco. */
 export const BOTON_SECUNDARIO = `${BASE} border border-[#d0cec8] bg-surface text-text hover:bg-background`;
 
+/** Botón secundario chico de una tarea ("Confirmar", "Pasar a la cuenta"…):
+ * 44px de alto, ancho completo en celular y a su tamaño desde `sm`. */
+export const BOTON_ACCION_TAREA =
+  "inline-flex min-h-11 w-full shrink-0 items-center justify-center rounded-xl border border-[#d0cec8] bg-surface px-4 text-center text-[15px] font-semibold text-text transition-colors hover:bg-background disabled:opacity-45 sm:w-auto";
+
 type BotonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variante?: "primario" | "secundario";
 };

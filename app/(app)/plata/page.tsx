@@ -21,7 +21,7 @@ import {
 } from "@/lib/data/plata";
 import { DESTINO_EFECTIVO_DEFAULT } from "@/lib/dominio/transferencias";
 import { hoyISO } from "@/lib/fechas";
-import { resumirClientes } from "@/lib/dominio/inicio";
+import { resumirClientes, resumirPlataEnManos, totalLeDeben } from "@/lib/dominio/inicio";
 import { diasEnManoPorPersona, type MedioCuenta } from "@/lib/dominio/movimientos-plata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -97,7 +97,8 @@ export default async function PlataPage() {
         Boolean(p.tenedor_id && p.nombre) && (p.total_centavos ?? 0) !== 0,
     )
     .sort((a, b) => a.nombre.localeCompare(b.nombre));
-  const totalEnManos = personas.reduce((acc, p) => acc + p.total_centavos, 0);
+  // Misma cuenta que "Plata en la cuenta › en manos de" de Hoy.
+  const totalEnManos = resumirPlataEnManos(plataEnManos ?? []).totalCentavos;
 
   // Efectivo que no está en manos de ningún admin (saldo inicial de la vieja
   // caja efectivo, o una venta en efectivo de alguien que no es admin).
@@ -118,7 +119,8 @@ export default async function PlataPage() {
     )
     .sort((a, b) => b.saldo_centavos - a.saldo_centavos);
   const clientes = resumirClientes(deudaCliente ?? []);
-  const totalLeDeben = deudores.reduce((acc, d) => acc + d.saldo_centavos, 0) + clientes.totalCentavos;
+  // Misma función que "Te deben" de Hoy.
+  const totalLeDebenCentavos = totalLeDeben(deudaVendedor ?? [], deudaCliente ?? []);
 
   const itemsMovimientos = itemsGenerales(movimientos);
 
@@ -131,7 +133,7 @@ export default async function PlataPage() {
       </div>
 
       <EnManosLista personas={personas} diasPorPersona={diasPorPersona} efectivoSinDueno={efectivoSinDueno} />
-      <LeDeben deudores={deudores} clientes={clientes} total={totalLeDeben} />
+      <LeDeben deudores={deudores} clientes={clientes} total={totalLeDebenCentavos} />
       <AnanjaDebe deudaAnanja={deudaAnanja} />
 
       {/* Últimos movimientos */}

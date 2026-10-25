@@ -115,3 +115,54 @@ export function saludoSegunHora(hora: number): string {
 export function inicioMesAnterior(anio: number, mes: number): string {
   return mes === 0 ? `${anio - 1}-12-01` : `${anio}-${String(mes).padStart(2, "0")}-01`;
 }
+
+// ─── Hoy (rediseño 2026-10, fase 3) ─────────────────────────────────────────
+// Las cifras de "Cómo estamos" salen de las MISMAS funciones que usan las
+// pantallas de origen (/plata, /stock, /ganancia): si una cambia, cambia
+// la otra.
+
+/** Plata en manos de personas, tal cual la cuenta `/plata`: quien tiene algo
+ * que contar (≠ 0, con id y nombre). `cantidad` son esas personas. */
+export function resumirPlataEnManos(
+  filas: { tenedor_id: string | null; nombre: string | null; total_centavos: number | null }[],
+): { totalCentavos: number; cantidad: number } {
+  const personas = filas.filter((f) => Boolean(f.tenedor_id && f.nombre) && (f.total_centavos ?? 0) !== 0);
+  return {
+    totalCentavos: personas.reduce((acc, f) => acc + (f.total_centavos ?? 0), 0),
+    cantidad: personas.length,
+  };
+}
+
+/** "Le deben a Ananja": revendedoras con saldo > 0 (`v_deuda_vendedor`) más
+ * clientes (`v_deuda_cliente`). Misma cifra que el bloque de `/plata`. */
+export function totalLeDeben(
+  deudaVendedor: { vendedor_id: string | null; nombre: string | null; saldo_centavos: number | null }[],
+  deudaCliente: { deuda_centavos: number | null }[],
+): number {
+  const revendedoras = deudaVendedor
+    .filter((d) => Boolean(d.vendedor_id && d.nombre) && (d.saldo_centavos ?? 0) > 0)
+    .reduce((acc, d) => acc + (d.saldo_centavos ?? 0), 0);
+  return revendedoras + resumirClientes(deudaCliente).totalCentavos;
+}
+
+/** Botellas en el depósito: Σ `v_stock_actual.stock` (lo que muestra `/stock`). */
+export function totalBotellasDeposito(filas: { stock: number | null }[]): number {
+  return filas.reduce((acc, f) => acc + (f.stock ?? 0), 0);
+}
+
+/** Variación porcentual entera de `actual` contra `anterior`. `null` si el
+ * anterior no es positivo (no hay contra qué comparar con sentido). */
+export function variacionPorcentual(actual: number, anterior: number): number | null {
+  if (anterior <= 0) return null;
+  return Math.round(((actual - anterior) / anterior) * 100);
+}
+
+/** Mes "yyyy-mm" de un año y mes 0-11. */
+export function periodoDeMes(anio: number, mes: number): string {
+  return periodo(anio, mes);
+}
+
+/** Mes "yyyy-mm" inmediatamente anterior a `anio`/`mes` (0-11). */
+export function periodoMesAnterior(anio: number, mes: number): string {
+  return mes === 0 ? periodo(anio - 1, 11) : periodo(anio, mes - 1);
+}
