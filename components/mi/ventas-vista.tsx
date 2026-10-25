@@ -34,7 +34,7 @@ export function MisVentasVista({ meses }: { meses: MesVentasMi[] }) {
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary">Ventas</h1>
+        <h1 className="font-display text-[28px] leading-[1.05] text-text">Ventas</h1>
         <Link
           href="/mi/ventas/nueva"
           className={`${BOTON_PRIMARIO} flex shrink-0 px-4`}

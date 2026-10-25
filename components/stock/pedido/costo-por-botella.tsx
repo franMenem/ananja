@@ -143,7 +143,7 @@ export function CostoPorBotella({
               </span>
             </span>
             <span className="flex flex-col items-end gap-0.5">
-              <span className="text-right font-display text-[28px] leading-none text-primary">
+              <span className="text-right font-display text-[28px] leading-none text-text">
                 {d.tiene_costos && d.costo_ananja_centavos != null ? (
                   <CifraHeroica centavos={d.costo_ananja_centavos} />
                 ) : (

@@ -66,7 +66,7 @@ export function MedioPagoChips({
               aria-pressed={selected}
               className={`min-h-[52px] px-2 text-[16px] font-medium transition-colors ${
                 selected
-                  ? "bg-primary text-background"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-surface-raised text-text"
               }`}
             >

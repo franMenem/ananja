@@ -111,7 +111,7 @@ export function DeudaForm() {
                 aria-pressed={selected}
                 className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   selected
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -134,7 +134,7 @@ export function DeudaForm() {
         labelClassName="text-[13px] text-text-muted"
         cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1"
         simboloClassName="font-display text-[18px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[28px] text-primary tabular-nums"
+        inputClassName="font-display w-full min-w-0 bg-transparent text-[28px] text-text tabular-nums"
       />
 
       <div className="flex flex-col gap-2.5">

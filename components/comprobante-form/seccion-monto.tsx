@@ -56,7 +56,7 @@ export function SeccionMonto({
           placeholder="0,00"
           cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
           simboloClassName="font-display text-[22px] text-text-muted"
-          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-primary tabular-nums"
+          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-text tabular-nums"
         />
         {montoAutocompletado && ocrEstado === "propuesto" && (
           <p className="text-[13px] text-text-muted">

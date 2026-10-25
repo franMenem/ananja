@@ -127,7 +127,7 @@ export default async function PlataPage() {
       <CuentaHeader cuentaTotal={cuentaTotal} saldoCuenta={saldoCuenta} totalEnManos={totalEnManos} />
 
       <div className="hidden items-center py-6 md:flex">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary">Plata</h1>
+        <h1 className="font-display text-[28px] leading-[1.05] text-text">Plata</h1>
       </div>
 
       <EnManosLista personas={personas} diasPorPersona={diasPorPersona} efectivoSinDueno={efectivoSinDueno} />

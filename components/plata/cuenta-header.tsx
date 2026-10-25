@@ -64,14 +64,13 @@ export function CuentaHeader({
         <NumeroGrande etiqueta={`Cuenta ${NEGOCIO.nombre}`}>
           <CifraHeroica centavos={cuentaTotal} />
         </NumeroGrande>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[16px] text-text-muted tabular-nums">
+        <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-0 text-[16px] text-text-muted tabular-nums">
           <Link
             href="/plata/cuenta/mercado_pago"
             className="inline-flex min-h-11 items-center underline decoration-mark underline-offset-2 hover:text-text"
           >
             Mercado Pago {formatCentavos(saldoCuenta.mercado_pago)}
           </Link>
-          <span aria-hidden="true">·</span>
           <Link
             href="/plata/cuenta/banco"
             className="inline-flex min-h-11 items-center underline decoration-mark underline-offset-2 hover:text-text"

@@ -157,7 +157,7 @@ export function EncargadoRevendedor({
       </button>
 
       <BottomSheet open={propuesto !== null} ariaLabel={titulo}>
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {propuesto
             ? `De acá en adelante ${revendedorNombre} le rinde la plata a ${nombreNuevo}.`

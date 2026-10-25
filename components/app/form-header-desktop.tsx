@@ -34,7 +34,7 @@ export function FormHeaderDesktop() {
       >
         ←
       </Link>
-      <h1 className="font-display text-[22px] text-primary">{formHeader.title}</h1>
+      <h1 className="font-display text-[22px] text-text">{formHeader.title}</h1>
     </div>
   );
 }

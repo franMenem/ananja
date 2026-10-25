@@ -108,7 +108,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
       <span className="text-[13px] text-text-muted">
         Depósito de {props.tenedorNombre}
       </span>
-      <p className="font-display mt-1 text-[28px] leading-none text-primary tabular-nums">
+      <p className="font-display mt-1 text-[28px] leading-none text-text tabular-nums">
         {formatCentavos(props.montoCentavos)}
       </p>
       <div className="mt-4 flex flex-col gap-1.5 border-y border-border py-3 text-[16px] text-text">
@@ -154,7 +154,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
               cargando={guardando}
               textoCargando="Guardando…"
               onClick={rechazar}
-              className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+              className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
             >
               Rechazar
             </BotonAccion>

@@ -86,7 +86,7 @@ export function CobroDeleteButton({ cobroId, montoCentavos }: CobroDeleteButtonP
             textoCargando="Eliminando…"
             type="button"
             onClick={() => void handleDelete()}
-            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

@@ -255,7 +255,7 @@ export function FacturaGastoSeccion({
         <span className="text-[13px] text-accent">
           Quitar factura
         </span>
-        <p className="font-display mt-2 text-[22px] leading-[1.3] text-primary">
+        <p className="font-display mt-2 text-[22px] leading-[1.3] text-text">
           Se va a quitar la factura de este gasto.
         </p>
         <p className="mt-2 text-[14px] text-text-muted">
@@ -283,7 +283,7 @@ export function FacturaGastoSeccion({
             textoCargando="Quitando…"
             type="button"
             onClick={handleQuitar}
-            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Quitar
           </BotonAccion>

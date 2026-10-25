@@ -109,7 +109,7 @@ export async function VentasTab() {
               Clientes
             </Link>
           </div>
-          <span className="font-display text-[32px] leading-none text-primary tabular-nums md:hidden">
+          <span className="font-display text-[32px] leading-none text-text tabular-nums md:hidden">
             {formatSinDecimales(totalMesCentavos)}
           </span>
           <span className="text-[13px] text-text-muted md:hidden">
@@ -120,7 +120,7 @@ export async function VentasTab() {
             <span className="text-[13px] text-text-muted">
               {cantidadMes} registros
             </span>
-            <h1 className="font-display text-[28px] leading-[1.05] text-primary">
+            <h1 className="font-display text-[28px] leading-[1.05] text-text">
               Comprobantes
             </h1>
           </div>

@@ -186,7 +186,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
     return (
       <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
         <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />
-        <p className="font-display text-[28px] leading-[1.2] text-primary">
+        <p className="font-display text-[28px] leading-[1.2] text-text">
           No encontramos este gasto.
         </p>
         <Link
@@ -233,7 +233,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
             simboloClassName="font-display text-[22px] text-text-muted"
-            inputClassName="font-display w-full min-w-0 bg-transparent text-[40px] text-primary tabular-nums"
+            inputClassName="font-display w-full min-w-0 bg-transparent text-[clamp(28px,9vw,40px)] text-text tabular-nums"
           />
 
           <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
@@ -298,10 +298,10 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
       ) : (
         <div className="flex flex-col gap-5">
           <div>
-            <span className="block font-display text-[24px] leading-[1.15] break-words text-primary">
+            <span className="block font-display text-[24px] leading-[1.15] break-words text-text">
               {titulo}
             </span>
-            <span className="font-display mt-1 block text-[40px] leading-[1] text-accent tabular-nums">
+            <span className="font-display mt-1 block text-[clamp(28px,9vw,40px)] leading-[1] text-accent tabular-nums">
               {formatCentavos(gasto.monto_centavos)}
             </span>
           </div>
@@ -381,7 +381,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
         <span className="text-[13px] text-accent">
           Eliminar gasto
         </span>
-        <p className="font-display mt-2 text-[24px] leading-[1.3] text-primary">
+        <p className="font-display mt-2 text-[24px] leading-[1.3] text-text">
           Se va a eliminar el gasto de {titulo} por{" "}
           {formatCentavos(gasto.monto_centavos)} y se devuelve ese monto a la
           caja {etiquetaMedioPago(gasto.medio_pago)}.
@@ -410,7 +410,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             textoCargando="Eliminando…"
             type="button"
             onClick={handleEliminar}
-            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

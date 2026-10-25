@@ -17,7 +17,7 @@ export function TextoMaterial({ cuerpo }: { cuerpo: string }) {
       {bloques.map((bloque, index) => {
         if (bloque.tipo === "subtitulo") {
           return (
-            <h2 key={index} className="font-display text-[19px] text-primary">
+            <h2 key={index} className="font-display text-[19px] text-text">
               {bloque.texto}
             </h2>
           );

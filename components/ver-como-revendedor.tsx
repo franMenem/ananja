@@ -121,7 +121,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
           ariaLabel="Activar tu espacio de revendedor"
           variant="mark"
         >
-          <h2 className="font-display text-[24px] text-primary">
+          <h2 className="font-display text-[24px] text-text">
             Todavía no tenés tu espacio de revendedor. ¿Lo activamos?
           </h2>
           <p className="mt-2 text-[16px] text-text-muted">

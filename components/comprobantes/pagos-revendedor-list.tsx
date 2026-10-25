@@ -55,7 +55,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
     return (
       <div className="flex flex-col items-center px-8 py-16 text-center">
         <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-        <p className="font-display mt-5 text-[28px] leading-[1.2] text-primary text-balance md:text-[32px]">
+        <p className="font-display mt-5 text-[28px] leading-[1.2] text-text text-balance md:text-[32px]">
           Todavía no hay pagos de revendedores.
         </p>
         <p className="mt-3.5 max-w-md text-[16px] leading-[1.6] text-text-muted text-balance">
@@ -78,7 +78,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
               onClick={() => setFiltro(f.value)}
               aria-pressed={active}
               className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[13px] transition-colors ${
-                active ? "bg-primary text-background" : "border border-border text-text-muted"
+                active ? "bg-primary text-primary-foreground" : "border border-border text-text-muted"
               }`}
             >
               {f.label}
@@ -124,7 +124,7 @@ function FilaPago({ row }: { row: PagoRevendedorItem }) {
         size="sm"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-display text-[26px] leading-none break-all text-primary tabular-nums">
+        <span className="font-display text-[26px] leading-none break-all text-text tabular-nums">
           {formatCentavos(row.montoCentavos)}
         </span>
         <span className="text-[16px] break-words text-text">

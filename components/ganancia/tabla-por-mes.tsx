@@ -70,7 +70,7 @@ export function TablaPorMes({ filas }: { filas: FilaGananciaAnanjaPeriodo[] }) {
               className="flex items-baseline justify-between gap-2 border-b border-border py-3"
             >
               <div className="flex flex-col">
-                <span className="font-display text-[19px] leading-[1.1] text-primary">
+                <span className="font-display text-[19px] leading-[1.1] text-text">
                   {labelDePeriodo(fila.periodo)}
                   {fila.algunCostoEstimado && (
                     <span className="ml-1.5 text-[13px] text-text-muted">*</span>

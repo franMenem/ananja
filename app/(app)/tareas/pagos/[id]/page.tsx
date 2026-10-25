@@ -99,7 +99,7 @@ export default async function PagoRevendedorPage({
         <span className="text-[13px] text-text-muted">
           Pago de {nombreVendedor}
         </span>
-        <span className="font-display text-[40px] leading-none text-primary tabular-nums">
+        <span className="font-display text-[clamp(28px,9vw,40px)] leading-none text-text tabular-nums">
           {formatCentavos(pago.monto_centavos)}
         </span>
       </div>

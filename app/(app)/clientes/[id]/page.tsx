@@ -73,7 +73,7 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-4">
           <div className="flex items-baseline justify-between gap-2">
-            <h1 className="font-display text-[28px] leading-[1.1] text-primary">
+            <h1 className="font-display text-[28px] leading-[1.1] text-text">
               {cliente.nombre}
             </h1>
             {!cliente.activo && (
@@ -118,7 +118,7 @@ export default async function ClienteDetailPage({
             </span>
             <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
             <div className="flex flex-col gap-0.5">
               <span className="text-[13px] text-text-muted">
                 Vendido
@@ -163,17 +163,20 @@ export default async function ClienteDetailPage({
                     className="flex items-center justify-between gap-3 py-3.5"
                   >
                     <div className="flex min-w-0 flex-col gap-0.5">
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="font-display text-[22px] leading-none text-primary tabular-nums">
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <span className="font-display text-[22px] leading-none whitespace-nowrap text-text tabular-nums">
                           {formatCentavos(comprobante.monto_centavos)}
                         </span>
                         {(deudaPorVenta.get(comprobante.id) ?? 0) > 0 && (
-                          <span className="border border-accent px-1 text-[13px] text-accent">
+                          <span className="border border-accent px-1 text-[13px] whitespace-nowrap text-accent">
                             Debe {formatCentavos(deudaPorVenta.get(comprobante.id)!)}
                           </span>
                         )}
                       </div>
-                      <p className="truncate text-[14px] text-text-muted">
+                      <p
+                        className="truncate text-[14px] text-text-muted"
+                        title={`${formatCantidadesPorPresentacion(comprobante.comprobante_items)} · ${comprobante.vendedores?.nombre ?? "—"} · ${formatFecha(comprobante.fecha)}`}
+                      >
                         {formatCantidadesPorPresentacion(comprobante.comprobante_items)} ·{" "}
                         {comprobante.vendedores?.nombre ?? "—"} ·{" "}
                         {formatFecha(comprobante.fecha)}

@@ -195,7 +195,7 @@ export function MovimientoForm({
                 onClick={() => elegirProducto(producto.id)}
                 className={`min-h-[52px] px-3 text-[16px] font-medium transition-colors ${
                   productoId === producto.id
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -299,7 +299,7 @@ export function MovimientoForm({
                 onClick={guardarMovimiento}
                 cargando={saving}
                 textoCargando="Guardando…"
-                className="min-h-12 flex-1 bg-accent px-3 text-[16px] font-medium text-background disabled:opacity-45"
+                className="min-h-12 flex-1 bg-accent px-3 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
               >
                 Guardar igual
               </BotonAccion>

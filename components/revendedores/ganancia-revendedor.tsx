@@ -67,12 +67,12 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
         <p className="py-2 text-[16px] text-text-muted">Todavía no hay ventas.</p>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-3 border-y border-border py-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-x-3 gap-y-4 border-y border-border py-4">
             <div className="min-w-0">
               <span className="text-[13px] text-text-muted">
                 {vos ? "Vendiste" : "Vendió"}
               </span>
-              <p className="font-display text-lg break-words text-text tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-text tabular-nums">
                 {formatCentavos(resumen.vendidoCentavos)}
               </p>
             </div>
@@ -80,7 +80,7 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
               <span className="text-[13px] text-text-muted">
                 Le correspondió a {NEGOCIO.nombre}
               </span>
-              <p className="font-display text-lg break-words text-text tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-text tabular-nums">
                 {formatCentavos(resumen.ananjaCentavos)}
               </p>
             </div>
@@ -88,7 +88,7 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
               <span className="text-[13px] text-text-muted">
                 {vos ? "Ganaste" : "Ganó"}
               </span>
-              <p className="font-display text-lg break-words text-accent tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-accent tabular-nums">
                 {formatCentavos(resumen.gananciaCentavos)}
               </p>
             </div>

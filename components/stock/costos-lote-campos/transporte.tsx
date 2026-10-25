@@ -27,7 +27,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
           onClick={() => setTransporteModo("porcentaje")}
           className={`min-h-11 px-3 text-[14px] font-medium transition-colors ${
             value.transporteModo === "porcentaje"
-              ? "bg-primary text-background"
+              ? "bg-primary text-primary-foreground"
               : "bg-surface-raised text-text"
           }`}
         >
@@ -38,7 +38,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
           onClick={() => setTransporteModo("fijo")}
           className={`min-h-11 px-3 text-[14px] font-medium transition-colors ${
             value.transporteModo === "fijo"
-              ? "bg-primary text-background"
+              ? "bg-primary text-primary-foreground"
               : "bg-surface-raised text-text"
           }`}
         >

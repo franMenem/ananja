@@ -74,7 +74,7 @@ export function RechazarPendienteButton({
       </button>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="accent">
-        <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[24px] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           Va a quedar desactivado, sin acceso a la app.
         </p>
@@ -91,7 +91,7 @@ export function RechazarPendienteButton({
             textoCargando="Guardando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Sí, rechazar
           </BotonAccion>

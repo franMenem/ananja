@@ -79,7 +79,7 @@ export default async function TareasPage() {
       */}
       <div className="mx-auto flex w-full max-w-[960px] flex-col gap-5 pb-8 @3xl:grid @3xl:max-w-[1400px] @3xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1 @3xl:col-span-2">
-          <h1 className="font-display hidden text-[32px] leading-[1.05] text-primary lg:block">Tareas</h1>
+          <h1 className="font-display hidden text-[32px] leading-[1.05] text-text lg:block">Tareas</h1>
           {!error && tareas.length > 0 && (
             <p className="text-[16px] text-text-muted">
               {tareas.length} {tareas.length === 1 ? "pendiente" : "pendientes"}
@@ -103,7 +103,7 @@ export default async function TareasPage() {
             </p>
           ) : tareas.length === 0 ? (
             <div className="flex flex-col gap-1 py-10 text-center">
-              <p className="font-display text-[28px] text-primary">Todo al día</p>
+              <p className="font-display text-[28px] text-text">Todo al día</p>
               <p className="text-[16px] text-text-muted">No hay nada pendiente por ahora.</p>
             </div>
           ) : (

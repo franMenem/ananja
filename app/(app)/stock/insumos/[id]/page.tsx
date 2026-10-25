@@ -49,8 +49,8 @@ export default async function InsumoDetailPage({
           <span className="text-[13px] text-text-muted">
             {TIPO_INSUMO_LABELS[insumo.tipo as keyof typeof TIPO_INSUMO_LABELS] ?? insumo.tipo}
           </span>
-          <h1 className="font-display text-[28px] text-primary">{insumo.nombre}</h1>
-          <p className="font-display text-[22px] tabular-nums text-primary">
+          <h1 className="font-display text-[28px] text-text">{insumo.nombre}</h1>
+          <p className="font-display text-[22px] tabular-nums text-text">
             {formatCantidadConUnidad(stock?.stock ?? 0, insumo.unidad)}
           </p>
           <InsumoUmbral insumoId={insumo.id} umbralMinimo={insumo.umbral_minimo} />

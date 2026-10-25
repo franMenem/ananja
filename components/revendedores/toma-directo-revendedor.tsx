@@ -92,7 +92,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
       </p>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="mark">
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {habilitar
             ? `${nombre} va a poder cargar ventas aunque no tenga botellas entregadas. Lo que le falte se saca del depósito (del lote más viejo con stock) y queda anotado como entrega automática.`

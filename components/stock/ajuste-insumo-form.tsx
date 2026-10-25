@@ -156,7 +156,7 @@ export function AjusteInsumoForm() {
                 onClick={() => setSigno(opcion.value)}
                 aria-pressed={selected}
                 className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
-                  selected ? "bg-primary text-background" : "bg-surface-raised text-text"
+                  selected ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
                 }`}
               >
                 {opcion.label}

@@ -23,7 +23,7 @@ export default async function DeudasPage() {
       <VolverLink href="/plata" label="plata" />
 
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-[28px] text-primary">Deudas</h1>
+        <h1 className="font-display text-[28px] text-text">Deudas</h1>
         <Link
           href="/plata/deudas/nueva"
           className={`${BOTON_PRIMARIO} flex gap-2 px-4`}
@@ -122,7 +122,7 @@ export default async function DeudasPage() {
           saldadas.map((deuda) => (
             <div
               key={deuda.id}
-              className="flex flex-col gap-2 border-b border-border py-3 opacity-60"
+              className="flex flex-col gap-2 border-b border-border py-3"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 flex-col">
@@ -133,7 +133,7 @@ export default async function DeudasPage() {
                     Saldada el {formatFecha(deuda.saldadaEn as string)}
                   </span>
                 </div>
-                <span className="text-[16px] tabular-nums text-text-muted">
+                <span className="shrink-0 whitespace-nowrap text-[16px] tabular-nums text-text-muted">
                   {formatMonto(deuda.moneda, deuda.montoCentavos)}
                 </span>
               </div>

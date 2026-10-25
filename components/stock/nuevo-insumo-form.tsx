@@ -122,7 +122,7 @@ export function NuevoInsumoForm() {
               onClick={() => setTipo(opcion)}
               aria-pressed={tipo === opcion}
               className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
-                tipo === opcion ? "bg-primary text-background" : "bg-surface-raised text-text"
+                tipo === opcion ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
               }`}
             >
               {TIPO_INSUMO_LABELS[opcion]}
@@ -143,7 +143,7 @@ export function NuevoInsumoForm() {
               onClick={() => setUnidad(opcion)}
               aria-pressed={unidad === opcion}
               className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
-                unidad === opcion ? "bg-primary text-background" : "bg-surface-raised text-text"
+                unidad === opcion ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
               }`}
             >
               {UNIDAD_INSUMO_LABELS[opcion]}

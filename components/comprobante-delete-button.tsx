@@ -119,7 +119,7 @@ export function ComprobanteDeleteButton({
           Eliminar comprobante
         </span>
 
-        <p className="font-display mt-3 text-2xl text-primary tabular-nums">
+        <p className="font-display mt-3 text-2xl text-text tabular-nums">
           {formatConsecuencia(items, cobradoAlMomentoCentavos, medioPago, cobros)}
         </p>
 
@@ -145,7 +145,7 @@ export function ComprobanteDeleteButton({
             textoCargando="Eliminando…"
             type="button"
             onClick={handleDelete}
-            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

@@ -141,7 +141,7 @@ export function AjustarSaldoButton({
 
       <BottomSheet open={open} ariaLabel="Ajustar saldo" variant="mark">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-[26px] text-primary">
+          <h2 className="font-display text-[26px] text-text">
             Ajustar saldo
           </h2>
           <button
@@ -170,7 +170,7 @@ export function AjustarSaldoButton({
                     aria-pressed={selected}
                     className={`min-h-11 flex-1 px-2 text-[14px] font-medium transition-colors ${
                       selected
-                        ? "bg-primary text-background"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-surface-raised text-text"
                     }`}
                   >
@@ -192,7 +192,7 @@ export function AjustarSaldoButton({
                 aria-pressed={signo === "suma"}
                 className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   signo === "suma"
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -223,7 +223,7 @@ export function AjustarSaldoButton({
             simbolo={null}
             labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums"
+            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums"
           />
 
           <div>

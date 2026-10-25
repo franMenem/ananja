@@ -67,7 +67,7 @@ export function FormularioEntrega({
             onClick={() => onCambiarTipo("entrega")}
             aria-pressed={tipo === "entrega"}
             className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
-              tipo === "entrega" ? "bg-primary text-background" : "bg-surface-raised text-text"
+              tipo === "entrega" ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
             }`}
           >
             Entrega
@@ -77,7 +77,7 @@ export function FormularioEntrega({
             onClick={() => onCambiarTipo("devolucion")}
             aria-pressed={tipo === "devolucion"}
             className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
-              tipo === "devolucion" ? "bg-primary text-background" : "bg-surface-raised text-text"
+              tipo === "devolucion" ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
             }`}
           >
             Devolución
@@ -167,7 +167,7 @@ export function FormularioEntrega({
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {tipo === "entrega" ? "Revisar entrega" : "Guardar"}
       </BotonAccion>

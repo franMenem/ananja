@@ -213,7 +213,7 @@ export function VentaForm({
                 aria-pressed={productoId === p.producto.id}
                 className={`min-h-11 px-4 text-[16px] font-medium ${
                   productoId === p.producto.id
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "border border-border text-text"
                 }`}
               >
@@ -255,7 +255,7 @@ export function VentaForm({
                 simbolo={null}
                 labelClassName="text-[13px] text-text-muted"
                 cajaClassName="mt-1 flex border-b-2 border-primary"
-                inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-primary tabular-nums focus:outline-none"
+                inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums focus:outline-none"
               />
               {sugerido !== null && (
                 <span className="mt-1 block text-[14px] text-text-muted">
@@ -382,7 +382,7 @@ export function VentaForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar venta
         </BotonAccion>
@@ -393,7 +393,7 @@ export function VentaForm({
         ariaLabel={`No tenés ${concordar("tantos", "tantas")} ${NEGOCIO.envase.plural}`}
         variant="accent"
       >
-        <h2 className="font-display text-[24px] text-primary">
+        <h2 className="font-display text-[24px] text-text">
           No tenés {concordar("tantos", "tantas")} {NEGOCIO.envase.plural}
         </h2>
         <p className="mt-2 text-[16px] text-text-muted">

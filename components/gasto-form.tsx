@@ -219,7 +219,7 @@ export function GastoForm({ volverA }: GastoFormProps) {
         labelClassName="text-[13px] text-text-muted"
         cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
         simboloClassName="font-display text-[22px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[40px] text-primary tabular-nums"
+        inputClassName="font-display w-full min-w-0 bg-transparent text-[40px] text-text tabular-nums"
       />
 
       <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />

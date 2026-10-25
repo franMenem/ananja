@@ -42,7 +42,7 @@ export function Seccion({
         className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="font-display text-[20px] text-primary">
+          <span className="font-display text-[20px] text-text">
             {numero} · {titulo}
           </span>
           <span className="text-[14px] leading-snug text-text-muted">{descripcion}</span>

@@ -67,7 +67,7 @@ export default async function VentaDetallePage({
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
       <VolverLink href="/mi/ventas" label="ventas" hover={false} />
 
-      <h1 className="font-display text-[28px] text-primary">
+      <h1 className="font-display text-[28px] text-text">
         {producto ?? "?"} × {cantidad}
       </h1>
 

@@ -297,7 +297,7 @@ export function GraficoLineas({
                   disabled={deshabilitado}
                   aria-pressed={activo}
                   className={`flex items-center gap-1.5 border border-border px-2.5 py-1.5 text-[14px] disabled:opacity-40 ${
-                    activo ? "bg-primary text-background" : "bg-surface-raised text-text"
+                    activo ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
                   }`}
                 >
                   <span

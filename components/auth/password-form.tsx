@@ -161,7 +161,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {loading ? "Guardando…" : textoBoton}
       </button>

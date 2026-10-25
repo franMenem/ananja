@@ -32,7 +32,7 @@ export default async function MiMaterialDetallePage({
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
       <VolverLink href="/mi/material" label="material" hover={false} />
 
-      <h1 className="font-display text-[28px] text-primary">{material.titulo}</h1>
+      <h1 className="font-display text-[28px] text-text">{material.titulo}</h1>
 
       <TextoMaterial cuerpo={material.cuerpo} />
     </div>

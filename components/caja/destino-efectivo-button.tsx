@@ -60,7 +60,7 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
       </button>
 
       <BottomSheet open={open} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
-        <h2 className="font-display text-[24px] text-primary">Cuenta destino del efectivo</h2>
+        <h2 className="font-display text-[24px] text-text">Cuenta destino del efectivo</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           A dónde se pasa el efectivo desde &quot;Tareas&quot;. Hoy: {MEDIO_PAGO_LABELS[destinoActual]}.
         </p>
@@ -81,7 +81,7 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
               disabled={saving !== null || medio === destinoActual}
               className={`min-h-11 border px-4 text-[16px] font-medium disabled:opacity-45 ${
                 medio === destinoActual
-                  ? "border-primary bg-primary text-background"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-border text-text"
               }`}
             >

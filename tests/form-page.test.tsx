@@ -100,7 +100,7 @@ function OldTitleBlock({
       >
         ←
       </Link>
-      <h1 className="font-display text-[22px] text-primary">{title}</h1>
+      <h1 className="font-display text-[22px] text-text">{title}</h1>
     </div>
   );
 }

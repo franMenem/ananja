@@ -35,7 +35,7 @@ export default async function ClientesPage() {
   return (
     <div className="flex flex-col gap-5 pb-8">
       <div className="flex items-baseline justify-between gap-2">
-        <h1 className="font-display text-[28px] text-primary">Clientes</h1>
+        <h1 className="font-display text-[28px] text-text">Clientes</h1>
         <Link
           href="/comprobantes"
           className="text-[13px] text-text-muted hover:text-primary-hover"

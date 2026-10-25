@@ -55,7 +55,7 @@ export function SinAccesoContent({ pendiente }: SinAccesoContentProps) {
           textoCargando="Cerrando sesión…"
           type="button"
           onClick={() => void handleCerrarSesion()}
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Cerrar sesión
         </BotonAccion>

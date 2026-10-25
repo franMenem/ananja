@@ -38,7 +38,7 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
       className="flex flex-col gap-4 border border-border border-t-2 border-t-mark bg-surface p-5 rounded-2xl"
     >
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-[26px] leading-[1.1] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[26px] leading-[1.1] text-text">{titulo}</h2>
         <p className="text-[16px] text-text-muted">
           Mandale estos datos por WhatsApp. <strong className="font-medium text-accent">La contraseña no se
           vuelve a mostrar</strong>: si la perdés, podés generar otra desde esta misma pantalla.

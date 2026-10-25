@@ -259,7 +259,7 @@ function VentaCoordinadorSheet({
   if (guardado !== null) {
     return (
       <BottomSheet open ariaLabel="Venta guardada">
-        <h2 className="font-display text-[24px] text-primary">Venta guardada</h2>
+        <h2 className="font-display text-[24px] text-text">Venta guardada</h2>
         <p className="mt-2 text-[16px] text-text">{guardado}</p>
         <button
           type="button"
@@ -274,7 +274,7 @@ function VentaCoordinadorSheet({
 
   return (
     <BottomSheet open ariaLabel={titulo}>
-      <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
+      <h2 className="font-display text-[24px] text-text">{titulo}</h2>
       <p className="mt-1 text-[16px] text-text-muted">
         Las botellas salen del depósito y se suman a lo que {esAdmin ? `${coordinadorNombre} tiene` : "tenés"} que
         pasar a {NEGOCIO.nombre}. El precio al que las {esAdmin ? "vendió" : "vendiste"} no hace falta.
@@ -298,7 +298,7 @@ function VentaCoordinadorSheet({
                   onClick={() => elegirProducto(p.id)}
                   aria-pressed={productoId === p.id}
                   className={`min-h-11 px-4 text-[16px] font-medium ${
-                    productoId === p.id ? "bg-primary text-background" : "border border-border text-text"
+                    productoId === p.id ? "bg-primary text-primary-foreground" : "border border-border text-text"
                   }`}
                 >
                   {p.nombre}

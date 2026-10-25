@@ -146,7 +146,7 @@ export default async function RevendedoresPage() {
   return (
     <div className="flex flex-col gap-10 pb-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary md:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text md:text-[32px]">
           Revendedores
         </h1>
         <Link

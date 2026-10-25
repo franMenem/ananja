@@ -19,7 +19,7 @@ type LoginFormProps = {
 
 const labelClass = "text-[13px] text-text-muted";
 const submitClass =
-  "mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45";
+  "mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45";
 
 /**
  * Ingreso con email + contraseña, y "¿Olvidaste tu contraseña?" en la

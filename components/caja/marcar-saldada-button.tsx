@@ -74,7 +74,7 @@ export function MarcarSaldadaButton({
       </button>
 
       <BottomSheet open={open} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
-        <h2 className="font-display text-[26px] text-primary">
+        <h2 className="font-display text-[26px] text-text">
           ¿Marcar saldada sin pago?
         </h2>
         <p className="mt-2 text-[16px] text-text">

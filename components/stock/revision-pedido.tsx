@@ -252,7 +252,7 @@ export function RevisionPedido({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="font-display text-[24px] leading-[1.15] text-primary">Revisá el pedido</h2>
+        <h2 className="font-display text-[24px] leading-[1.15] text-text">Revisá el pedido</h2>
         <p className="pt-1.5 text-[14px] leading-[1.5] text-text-muted">
           Lo que cuesta cada cosa y cuánto le pagás {proveedor.a}. Si te
           cobraron un monto redondeado, cargalo en &quot;Monto real&quot;: se ajusta lo
@@ -398,7 +398,7 @@ export function RevisionPedido({
             <span className="text-[13px] text-text-muted">
               Total a pagar
             </span>
-            <span className="font-display text-[26px] leading-none text-primary tabular-nums">
+            <span className="font-display text-[26px] leading-none text-text tabular-nums">
               {formatCentavos(calculo.totalAPagarCentavos)}
             </span>
           </div>

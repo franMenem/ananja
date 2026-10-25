@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { BottomSheet } from "@/components/bottom-sheet";
 
 const TRIGGER_CLASSNAME_DEFAULT =
-  "flex min-h-11 shrink-0 items-center justify-center bg-primary px-4 text-[14px] font-medium text-background transition-colors hover:bg-primary-hover";
+  "flex min-h-11 shrink-0 items-center justify-center bg-primary px-4 text-[14px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
 
 type AccionRapidaProps = {
   /** Texto del botón que dispara la hoja. */

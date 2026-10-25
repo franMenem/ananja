@@ -110,7 +110,10 @@ export default async function StockMovimientosPage() {
                   fechaLote={movimiento.fecha_lote}
                 />
               </span>
-              <span className="truncate text-text-muted">
+              <span
+                className="truncate text-text-muted"
+                title={movimiento.vendedores?.nombre ?? undefined}
+              >
                 {movimiento.vendedores?.nombre ?? "—"}
               </span>
               <span className="text-right tabular-nums text-text">
@@ -151,18 +154,18 @@ export default async function StockMovimientosPage() {
                 {esIngreso ? "+" : "−"}
               </span>
 
-              <div className="flex flex-1 flex-col gap-0.5 text-[16px]">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[16px]">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-text">
                     {esIngreso ? "Ingreso" : "Egreso"} ·{" "}
                     {movimiento.productos?.nombre ?? "Producto"} (
                     {formatPresentacion(movimiento.productos?.presentacion_ml)})
                   </span>
-                  <span className="text-text-muted tabular-nums">
+                  <span className="shrink-0 whitespace-nowrap text-text-muted tabular-nums">
                     {movimiento.cantidad} un.
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-2 text-[13px]">
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[13px]">
                   {movimiento.comprobante_id ? (
                     <Link
                       href={`/comprobantes/${movimiento.comprobante_id}`}
@@ -175,7 +178,7 @@ export default async function StockMovimientosPage() {
                       {movimiento.nota || "Sin nota"}
                     </span>
                   )}
-                  <span className="shrink-0 text-text-muted">
+                  <span className="min-w-0 text-text-muted">
                     {movimiento.vendedores?.nombre ?? "—"} ·{" "}
                     {formatFechaHora(movimiento.created_at)}
                   </span>

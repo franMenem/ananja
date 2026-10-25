@@ -166,7 +166,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
       </button>
 
       <BottomSheet open={abierto} ariaLabel="Avisar depósito">
-        <h2 className="font-display text-[24px] text-primary">Avisar depósito</h2>
+        <h2 className="font-display text-[24px] text-text">Avisar depósito</h2>
         <p className="mt-1 text-[16px] text-text-muted">
           Registrá cuánto de lo que tenés que pasar ({formatCentavos(montoCentavos)}) ya pasaste a la
           cuenta de {NEGOCIO.nombre} y adjuntá el comprobante de la transferencia. Un admin lo va a
@@ -183,7 +183,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             simbolo={null}
             labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-primary tabular-nums"
+            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums"
           />
           <div>
             <span className="text-[13px] text-text-muted">Cuenta destino</span>

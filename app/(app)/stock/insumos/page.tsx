@@ -18,8 +18,8 @@ export default async function InsumosPage() {
   return (
     <div className="flex flex-col pb-8">
       {bajoUmbral.length > 0 && (
-        <div className="-mx-5 -mt-4 flex items-center gap-2.5 bg-accent px-5 py-[11px] text-background lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
-          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-background" />
+        <div className="-mx-5 -mt-4 flex items-center gap-2.5 border-b border-warning/30 bg-warning-tint px-5 py-[11px] text-warning lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
+          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-warning" />
           <span className="text-[14px]">
             {bajoUmbral.length === 1
               ? "1 insumo está bajo el mínimo."
@@ -29,7 +29,7 @@ export default async function InsumosPage() {
       )}
 
       <div className="hidden items-center justify-between py-6 md:flex">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text">
           Insumos
         </h1>
       </div>
@@ -90,7 +90,7 @@ export default async function InsumosPage() {
                   <span className="flex flex-col items-end gap-1">
                     <Link
                       href={`/stock/insumos/${insumo.insumo_id}`}
-                      className="font-display text-[20px] whitespace-nowrap text-primary tabular-nums"
+                      className="font-display text-[20px] whitespace-nowrap text-text tabular-nums"
                     >
                       {formatCantidadConUnidad(
                         insumo.stock ?? 0,

@@ -60,7 +60,7 @@ export function SeccionEnvases({
                 className="flex flex-col gap-2 border-b border-border py-3.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-display text-[21px] text-primary">
+                  <span className="font-display text-[21px] text-text">
                     {producto.nombre}
                   </span>
                   <CantidadStepper

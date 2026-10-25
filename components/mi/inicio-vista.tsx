@@ -77,7 +77,7 @@ export function MiInicioVista({
   return (
     <div className="@container w-full">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 pb-8 @3xl:grid @3xl:max-w-[1240px] @3xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary @3xl:col-span-2 @3xl:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text @3xl:col-span-2 @3xl:text-[32px]">
           Hola{nombre ? `, ${nombre}` : ""}
         </h1>
 
@@ -161,7 +161,7 @@ export function MiInicioVista({
                 {stock.map((p) => (
                   <div key={p.id} className="flex flex-col gap-1 border-b border-border py-4">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="min-w-0 break-words font-display text-[19px] text-primary">
+                      <span className="min-w-0 break-words font-display text-[19px] text-text">
                         {p.nombre}
                       </span>
                       <span className="shrink-0 text-lg font-medium tabular-nums text-text">

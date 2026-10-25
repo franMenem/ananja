@@ -92,7 +92,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             textoCargando="Guardando…"
             type="button"
             onClick={handleRechazar}
-            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Rechazar pago
           </BotonAccion>

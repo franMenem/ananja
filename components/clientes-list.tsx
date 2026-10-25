@@ -39,7 +39,7 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
         clientes.length === 0 ? (
           <div className="flex flex-col items-center px-8 py-16 text-center">
             <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-            <p className="font-display mt-5 text-[26px] leading-[1.2] text-primary text-balance">
+            <p className="font-display mt-5 text-[26px] leading-[1.2] text-text text-balance">
               Todavía no cargaste ningún cliente.
             </p>
             <p className="mt-3.5 text-[16px] leading-[1.6] text-text-muted text-balance">
@@ -61,7 +61,7 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
                 className="flex items-center justify-between gap-3 py-3.5"
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="font-display text-[19px] text-primary">
+                  <span className="font-display text-[19px] text-text">
                     {cliente.nombre}
                   </span>
                   <span className="truncate text-[14px] text-text-muted">

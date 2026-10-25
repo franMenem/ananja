@@ -18,7 +18,7 @@ export default async function MiMaterialPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-      <h1 className="font-display text-[28px] leading-[1.05] text-primary">Material</h1>
+      <h1 className="font-display text-[28px] leading-[1.05] text-text">Material</h1>
 
       {error && (
         <p role="alert" className="text-[16px] text-accent">

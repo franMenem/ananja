@@ -34,7 +34,7 @@ export function StockBadgeContent({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="truncate font-display text-[26px] leading-[1] text-primary">
+        <span className="truncate font-display text-[26px] leading-[1] text-text">
           {nombre || formatPresentacion(presentacionMl)}
         </span>
         {bajoUmbral ? (

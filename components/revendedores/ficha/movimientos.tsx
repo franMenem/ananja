@@ -66,11 +66,11 @@ export function MovimientosFicha({
               id={m.grupoId === primerGrupoSinPrecio ? "sin-precio" : undefined}
               className="flex scroll-mt-24 flex-col gap-2 border-b border-border py-3 text-[16px]"
             >
-              <div className="flex items-start justify-between gap-3">
-                <span className="text-text">
+              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                <span className="min-w-0 text-text">
                   {formatFecha(m.fecha)} · Venta {m.cantidad} × {nombrePorProducto.get(m.productoId) ?? "?"}
                 </span>
-                <div className="flex shrink-0 flex-col items-end gap-1">
+                <div className="flex max-w-full min-w-0 flex-col items-end gap-1">
                   {m.precioVentaCentavos !== null ? (
                     <span className="text-right tabular-nums text-text">
                       {formatCentavos(m.precioVentaCentavos)}

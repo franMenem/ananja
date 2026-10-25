@@ -66,7 +66,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
       </button>
 
       <BottomSheet open={confirmando} ariaLabel={titulo} variant={activo ? "accent" : "mark"}>
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {activo
             ? "Deja de aparecer para elegirlo en ventas nuevas. Sus ventas quedan guardadas y lo podés reactivar cuando quieras."
@@ -84,7 +84,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
             cargando={saving}
             textoCargando="Guardando…"
             onClick={() => void handleToggle()}
-            className={`min-h-11 flex-[1.6] px-4 text-[16px] font-medium text-background disabled:opacity-45 ${
+            className={`min-h-11 flex-[1.6] px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45 ${
               activo ? "bg-accent" : "bg-primary hover:bg-primary-hover"
             }`}
           >

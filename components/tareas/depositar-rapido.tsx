@@ -128,13 +128,13 @@ export function DepositarRapido({
       triggerClassName={`flex min-h-11 shrink-0 items-center justify-center px-4 text-[14px] font-medium transition-colors ${
         tono === "claro"
           ? "bg-background text-primary hover:bg-surface-raised"
-          : "bg-primary text-background hover:bg-primary-hover"
+          : "bg-primary text-primary-foreground hover:bg-primary-hover"
       }`}
       ariaLabel={tituloHoja}
       abierto={abierto}
       onAbrir={abrir}
     >
-      <h2 className="font-display text-[24px] break-words text-primary">{tituloHoja}</h2>
+      <h2 className="font-display text-[24px] break-words text-text">{tituloHoja}</h2>
       <p className="mt-1 text-[16px] text-text-muted">
         {propia
           ? `Registrá cuánto de la plata que tenés en mano (${formatCentavos(montoCentavos)}) ya está en la cuenta de ${NEGOCIO.nombre}.`
@@ -152,7 +152,7 @@ export function DepositarRapido({
           simbolo={null}
           labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-primary tabular-nums"
+          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums"
         />
         <div>
           <span className="text-[13px] text-text-muted">Cuenta destino</span>
@@ -193,7 +193,7 @@ export function DepositarRapido({
               cargando={guardando}
               textoCargando="Guardando…"
               onClick={() => enviar({ permitirExceso: true })}
-              className="min-h-[52px] flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+              className="min-h-[52px] flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
             >
               Guardar igual
             </BotonAccion>

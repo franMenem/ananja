@@ -413,7 +413,7 @@ export function MontoInput({
               onPointerDown={(event) => event.preventDefault()}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => resolver()}
-              className="col-span-2 min-h-11 bg-primary text-lg text-background @[17rem]:col-span-1"
+              className="col-span-2 min-h-11 bg-primary text-lg text-primary-foreground @[17rem]:col-span-1"
             >
               =
             </button>

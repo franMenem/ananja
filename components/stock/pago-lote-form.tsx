@@ -212,7 +212,7 @@ export function PagoLoteForm({
         >
           ←
         </Link>
-        <h1 className="font-display text-[22px] text-primary">Registrar pago</h1>
+        <h1 className="font-display text-[22px] text-text">Registrar pago</h1>
       </div>
 
       <p className="text-[16px] text-text-muted">
@@ -236,7 +236,7 @@ export function PagoLoteForm({
             return (
               <div key={grupo.clave} className="flex flex-col gap-3 border-b border-border pb-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="font-display text-[20px] leading-tight text-primary">
+                  <span className="font-display text-[20px] leading-tight text-text">
                     {grupo.etiqueta}
                   </span>
                   <span className="text-[14px] text-text-muted tabular-nums">
@@ -276,7 +276,7 @@ export function PagoLoteForm({
                       placeholder="0,00"
                       cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
                       simboloClassName="font-display text-[18px] text-text-muted"
-                      inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-primary tabular-nums"
+                      inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-text tabular-nums"
                     />
                   </div>
                 ))}

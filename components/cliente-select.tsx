@@ -150,7 +150,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
         >
           <div className="flex rounded-t-2xl bg-surface sm:rounded-2xl max-h-[80dvh] w-full flex-col gap-3 border-t-2 border-mark px-5 py-[22px] sm:max-w-sm sm:border-t-2">
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-[22px] text-primary">
+              <span className="font-display text-[22px] text-text">
                 Elegir cliente
               </span>
               <button

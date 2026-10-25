@@ -24,7 +24,7 @@ export function NumeroGrande({
     <div className={`flex min-w-0 flex-col gap-1 ${className}`}>
       <span className="text-[15px] text-text-muted">{etiqueta}</span>
       <span
-        className={`font-display text-[40px] leading-none break-words ${tono ? TONOS[tono] : "text-text"}`}
+        className={`font-display text-[clamp(28px,9vw,40px)] leading-none break-words ${tono ? TONOS[tono] : "text-text"}`}
       >
         {children}
       </span>

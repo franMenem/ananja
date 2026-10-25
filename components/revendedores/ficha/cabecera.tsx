@@ -66,8 +66,8 @@ export function CabeceraFicha({
   const puedeRevender = rol === "revendedor" || (rol === "admin" && revende);
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-6">
-      <div className="flex items-start justify-between gap-3">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary md:text-[32px]">{nombre}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <h1 className="font-display min-w-0 text-[28px] leading-[1.05] text-text md:text-[32px]">{nombre}</h1>
         {rol === "revendedor" || rol === "coordinador" ? (
           <AsignarRolButton
             vendedorId={vendedorId}
@@ -118,7 +118,7 @@ export function CabeceraFicha({
             <span className="text-[13px] text-text-muted">
               Le debe a {NEGOCIO.nombre}
             </span>
-            <p className="font-display text-[40px] leading-[1.05] whitespace-nowrap text-accent">
+            <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] whitespace-nowrap text-accent">
               {formatCentavos(debeCentavos)}
             </p>
           </div>

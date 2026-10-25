@@ -68,7 +68,7 @@ export function FichaCoordinador({
           <span className="text-[13px] text-text-muted">
             Tiene que pasar a {NEGOCIO.nombre}
           </span>
-          <p className="font-display text-[40px] leading-[1.05] whitespace-nowrap text-primary">
+          <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] whitespace-nowrap text-text">
             {formatCentavos(plataEnManoCentavos)}
           </p>
           <p className="text-[14px] text-text-muted">

@@ -348,7 +348,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
       />
 
       <section className="flex flex-col gap-2 border-t-2 border-primary pt-4" aria-live="polite">
-        <h2 className="font-display text-[24px] leading-[1.15] text-primary">Revisá la factura</h2>
+        <h2 className="font-display text-[24px] leading-[1.15] text-text">Revisá la factura</h2>
         {hayLineasIncompletas && (calculo || hayLineasConError) && (
           <p className="text-[14px] leading-snug text-accent">
             {numerosLineasFuera.length === 1

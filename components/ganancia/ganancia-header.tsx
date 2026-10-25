@@ -45,7 +45,7 @@ export function GananciaHeader({
             onClick={() => onChangePeriodo(opcion.value)}
             aria-pressed={periodo === opcion.value}
             className={`border border-border px-3 py-2 text-[16px] rounded-full ${
-              periodo === opcion.value ? "bg-primary text-background" : "bg-surface text-text"
+              periodo === opcion.value ? "bg-primary text-primary-foreground" : "bg-surface text-text"
             }`}
           >
             {opcion.label}

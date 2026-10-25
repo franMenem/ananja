@@ -24,7 +24,7 @@ export function TituloFormularioEscritorio() {
       >
         ← {formHeader.backLabel}
       </Link>
-      <h1 className="font-display text-[28px] leading-[1.05] text-primary">{formHeader.title}</h1>
+      <h1 className="font-display text-[28px] leading-[1.05] text-text">{formHeader.title}</h1>
     </div>
   );
 }

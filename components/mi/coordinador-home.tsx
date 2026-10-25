@@ -57,7 +57,7 @@ export function CoordinadorHome({
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-6 pb-8">
       <div>
-        <h1 className="font-display text-[28px] leading-[1.1] text-primary md:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.1] text-text md:text-[32px]">
           {nombre ? `Hola, ${nombre}` : "Tus revendedoras"}
         </h1>
         <p className="mt-1 text-[16px] text-text-muted">
@@ -70,7 +70,7 @@ export function CoordinadorHome({
           <span className="text-[13px] text-text-muted">
             Tenés que pasar a {NEGOCIO.nombre}
           </span>
-          <p className="font-display text-[28px] leading-none text-primary tabular-nums">
+          <p className="font-display text-[28px] leading-none text-text tabular-nums">
             {formatCentavos(plataEnManoCentavos)}
           </p>
           <p className="text-[14px] text-text-muted">
@@ -276,7 +276,7 @@ function EntregarSheet({
 
   return (
     <BottomSheet open ariaLabel={`Entregar a ${revendedora.nombre}`}>
-      <h2 className="font-display text-[24px] text-primary">Entregar a {revendedora.nombre}</h2>
+      <h2 className="font-display text-[24px] text-text">Entregar a {revendedora.nombre}</h2>
       <p className="mt-1 text-[16px] text-text-muted">
         Le cobramos el costo {NEGOCIO.nombre} vigente de cada {envase(1)} — no hace falta que lo cargues vos.
       </p>

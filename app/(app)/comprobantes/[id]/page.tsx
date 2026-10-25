@@ -68,7 +68,7 @@ export default async function ComprobanteDetailPage({
             {comprobante.vendedores?.nombre ?? "—"}
           </span>
           <div className="flex items-baseline gap-2.5">
-            <span className="font-display text-[40px] leading-none text-primary tabular-nums">
+            <span className="font-display text-[clamp(28px,9vw,40px)] leading-none text-text tabular-nums">
               {formatCentavos(comprobante.monto_centavos)}
             </span>
             {deudaCentavos > 0 && (

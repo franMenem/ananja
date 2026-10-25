@@ -18,7 +18,7 @@ export function AlertaStock({
 }) {
   return (
     <BottomSheet open={alertaStock !== null} ariaLabel="No hay stock suficiente" variant="accent">
-      <h2 className="font-display text-[24px] text-primary">No hay stock suficiente</h2>
+      <h2 className="font-display text-[24px] text-text">No hay stock suficiente</h2>
       <p className="mt-2 text-[16px] text-text-muted">
         {alertaStock?.mensaje} Si igual se las llevó, podés guardar igual.
       </p>

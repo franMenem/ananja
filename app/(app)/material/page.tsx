@@ -23,7 +23,7 @@ export default async function MaterialPage() {
   return (
     <div className="flex flex-col pb-8">
       <div className="flex items-center justify-between py-6">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary md:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text md:text-[32px]">
           Material
         </h1>
         <Link

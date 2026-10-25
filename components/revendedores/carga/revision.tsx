@@ -190,7 +190,7 @@ export function Revision({
             textoCargando="Guardando…"
             type="button"
             onClick={onConfirmar}
-            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
+            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
           >
             Confirmar y guardar
           </BotonAccion>

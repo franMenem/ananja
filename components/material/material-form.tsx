@@ -184,7 +184,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar
         </BotonAccion>
@@ -206,7 +206,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           ariaLabel="Borrar este material"
           variant="accent"
         >
-          <h2 className="font-display text-[24px] text-primary">¿Borrar este material?</h2>
+          <h2 className="font-display text-[24px] text-text">¿Borrar este material?</h2>
           <p className="mt-2 text-[16px] text-text-muted">No se puede deshacer.</p>
           {errorEliminar && (
             <p role="alert" className="mt-3 text-[16px] text-accent">
@@ -219,7 +219,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
               textoCargando="Borrando…"
               type="button"
               onClick={handleEliminar}
-              className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+              className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
             >
               Sí, borrar
             </BotonAccion>

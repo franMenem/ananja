@@ -32,10 +32,10 @@ export function AuthShell({
         <span className="text-[13px] text-on-primary-muted">
           {NEGOCIO.lugar}
         </span>
-        <span className="font-display mt-2 text-[40px] leading-none text-background md:text-[40px] lg:text-[40px]">
+        <span className="font-display mt-2 text-[40px] leading-none text-primary-foreground md:text-[40px] lg:text-[40px]">
           {NEGOCIO.wordmark}
         </span>
-        <span className="mt-[18px] h-0.5 w-14 bg-mark" />
+        <span className="mt-[18px] h-0.5 w-14 bg-primary-foreground/70" />
         <p className="font-display mt-[18px] text-[22px] leading-[1.35] text-pretty text-primary-2 italic md:text-[18px] lg:text-[22px]">
           {tagline}
         </p>

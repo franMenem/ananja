@@ -6,7 +6,7 @@ const BASE =
   "min-h-12 items-center justify-center rounded-xl text-center text-[16px] font-semibold transition-colors disabled:opacity-45";
 
 /** Botón principal: una sola acción por pantalla. */
-export const BOTON_PRIMARIO = `${BASE} bg-primary text-background hover:bg-primary-hover active:bg-primary-active`;
+export const BOTON_PRIMARIO = `${BASE} bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active`;
 
 /** Botón secundario: borde gris, fondo blanco. */
 export const BOTON_SECUNDARIO = `${BASE} border border-[#d0cec8] bg-surface text-text hover:bg-background`;

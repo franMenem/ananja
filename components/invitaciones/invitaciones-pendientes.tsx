@@ -120,7 +120,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
       </div>
 
       <BottomSheet open={confirmar} ariaLabel={tituloCancelar} variant="accent">
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{tituloCancelar}</h2>
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{tituloCancelar}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {temporal
             ? "Se borra su cuenta y la contraseña temporal deja de funcionar. Si después querés sumarla, la cargás de nuevo."
@@ -138,7 +138,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
             cargando={cancelando}
             textoCargando="Cancelando…"
             onClick={cancelar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Sí, cancelar
           </BotonAccion>

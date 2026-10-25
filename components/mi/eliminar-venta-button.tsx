@@ -69,7 +69,7 @@ export function EliminarVentaButton({
       </button>
 
       <BottomSheet open={open} ariaLabel="Borrar esta venta" variant="accent">
-        <h2 className="font-display text-[24px] text-primary">¿Borrar esta venta?</h2>
+        <h2 className="font-display text-[24px] text-text">¿Borrar esta venta?</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {ventaCoordinadora ? textoEliminarVentaCoordinadora(ventaCoordinadora.nombre) : "No se puede deshacer."}
         </p>
@@ -84,7 +84,7 @@ export function EliminarVentaButton({
             textoCargando="Borrando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Sí, borrar
           </BotonAccion>

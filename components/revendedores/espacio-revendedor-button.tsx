@@ -90,7 +90,7 @@ export function EspacioRevendedorButton({
       </button>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="mark">
-        <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
+        <h2 className="font-display text-[24px] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">{copy.cuerpo}</p>
 
         {error && (

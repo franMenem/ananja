@@ -174,7 +174,7 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
       <button
         type="submit"
         disabled={enviando}
-        className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {enviando ? "Guardando…" : modo === "invitar" ? "Mandar invitación" : "Crear cuenta"}
       </button>

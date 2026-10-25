@@ -32,7 +32,7 @@ export function MiGananciaVista({
   return (
     <div className="@container w-full">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 pb-8 @3xl:grid @3xl:max-w-[1240px] @3xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary @3xl:col-span-2 @3xl:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text @3xl:col-span-2 @3xl:text-[32px]">
           Ganancia
         </h1>
 

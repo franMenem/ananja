@@ -114,7 +114,7 @@ export function RevisionFactura({
           <span className="text-[13px] text-text-muted">
             Total pagado
           </span>
-          <span className="font-display text-[26px] leading-none text-primary tabular-nums">
+          <span className="font-display text-[26px] leading-none text-text tabular-nums">
             {formatCentavos(calculo.totalPagadoCentavos)}
           </span>
         </div>

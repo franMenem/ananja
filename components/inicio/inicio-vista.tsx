@@ -72,7 +72,7 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
         <div className="flex gap-2.5">
           <Link
             href="/comprobantes/nuevo"
-            className="flex min-h-[48px] flex-[1.4] items-center justify-center bg-primary text-[14px] font-medium text-background transition-colors hover:bg-primary-hover"
+            className="flex min-h-[48px] flex-[1.4] items-center justify-center bg-primary text-[14px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             + Comprobante
           </Link>

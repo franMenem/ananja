@@ -112,7 +112,7 @@ export default function GastosPage() {
       </Tarjeta>
 
       <div className="hidden items-center justify-between gap-3 py-6 md:flex">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text">
           Gastos
         </h1>
         <div className="flex items-center gap-4">
@@ -137,7 +137,7 @@ export default function GastosPage() {
           </div>
           <Link
             href="/gastos/nuevo"
-            className="flex min-h-[46px] items-center justify-center bg-primary px-5 text-[16px] font-medium text-background transition-colors hover:bg-primary-hover rounded-xl"
+            className="flex min-h-[46px] items-center justify-center bg-primary px-5 text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover rounded-xl"
           >
             + Registrar gasto
           </Link>
@@ -151,7 +151,7 @@ export default function GastosPage() {
           onClick={() => setCategoriaFiltro("")}
           className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[14px] font-medium ${
             categoriaFiltro === ""
-              ? "bg-primary text-background"
+              ? "bg-primary text-primary-foreground"
               : "border border-border text-text"
           }`}
         >
@@ -164,7 +164,7 @@ export default function GastosPage() {
             onClick={() => setCategoriaFiltro(categoria.id)}
             className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[14px] font-medium ${
               categoriaFiltro === categoria.id
-                ? "bg-primary text-background"
+                ? "bg-primary text-primary-foreground"
                 : "border border-border text-text"
             }`}
           >
@@ -184,7 +184,7 @@ export default function GastosPage() {
       ) : gastos.length === 0 ? (
         <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
           <span aria-hidden="true" className="h-0.5 w-10 bg-mark" />
-          <p className="font-display text-[28px] leading-[1.2] text-primary">
+          <p className="font-display text-[28px] leading-[1.2] text-text">
             {hayFiltro
               ? "No hay gastos que coincidan con el filtro."
               : "Todavía no registraste ningún gasto."}
@@ -227,9 +227,9 @@ export default function GastosPage() {
                   {formatFecha(gasto.fecha)}
                 </span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate text-text">{titulo}</span>
+                  <span className="truncate text-text" title={titulo}>{titulo}</span>
                   {categoria && (
-                    <span className="truncate text-[13px] text-text-muted">{categoria}</span>
+                    <span className="truncate text-[13px] text-text-muted" title={categoria}>{categoria}</span>
                   )}
                 </span>
                 <span className="whitespace-nowrap text-right font-medium text-accent tabular-nums">
@@ -238,7 +238,7 @@ export default function GastosPage() {
                 <span className="whitespace-nowrap text-text-muted">
                   {etiquetaMedioPago(gasto.medio_pago)}
                 </span>
-                <span className="min-w-0 truncate text-text-muted">
+                <span className="min-w-0 truncate text-text-muted" title={gasto.vendedores?.nombre ?? undefined}>
                   {gasto.vendedores?.nombre ?? "—"}
                 </span>
                 <span className="whitespace-nowrap">
@@ -275,16 +275,9 @@ export default function GastosPage() {
                     >
                       −
                     </span>
-                    <span className="flex flex-1 flex-col">
-                      <span className="flex items-baseline gap-1.5">
-                        <span className="block min-w-0 font-display text-[22px] leading-[1.1] break-words text-primary">
-                          {titulo}
-                        </span>
-                        {!gasto.imagen_path && (
-                          <span className="shrink-0 border border-accent px-1 text-[13px] text-accent">
-                            Sin factura
-                          </span>
-                        )}
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="block min-w-0 font-display text-[20px] leading-[1.15] break-words text-text">
+                        {titulo}
                       </span>
                       <span className="block text-[13px] text-text-muted">
                         {categoria ? `${categoria} · ` : ""}
@@ -292,8 +285,13 @@ export default function GastosPage() {
                         {gasto.vendedores?.nombre ?? "—"} ·{" "}
                         {formatFecha(gasto.fecha)}
                       </span>
+                      {!gasto.imagen_path && (
+                        <span className="w-fit border border-accent px-1 text-[13px] whitespace-nowrap text-accent">
+                          Sin factura
+                        </span>
+                      )}
                     </span>
-                    <span className="shrink-0 text-[18px] font-medium text-accent tabular-nums">
+                    <span className="shrink-0 text-[18px] font-medium whitespace-nowrap text-accent tabular-nums">
                       {formatCentavos(gasto.monto_centavos)}
                     </span>
                   </Link>

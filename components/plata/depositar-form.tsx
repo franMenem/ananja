@@ -184,7 +184,7 @@ export function DepositarForm({
           simbolo={null}
           labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums"
+          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums"
         />
 
         <div>
@@ -243,7 +243,7 @@ export function DepositarForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar depósito
         </BotonAccion>
@@ -254,7 +254,7 @@ export function DepositarForm({
         ariaLabel="Saldo insuficiente"
         variant="accent"
       >
-        <h2 className="font-display text-[24px] text-primary">
+        <h2 className="font-display text-[24px] text-text">
           Tiene{" "}
           {saldoInsuficiente ? formatCentavos(saldoInsuficiente.disponibleCentavos) : "$ 0,00"}
           {" "}en mano
@@ -266,7 +266,7 @@ export function DepositarForm({
             textoCargando="Guardando…"
             type="button"
             onClick={handleGuardarIgual}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Guardar igual
           </BotonAccion>

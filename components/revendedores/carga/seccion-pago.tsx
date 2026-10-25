@@ -88,7 +88,7 @@ export function SeccionPago({
                 onClick={() => onCambiarVia(opcion.value)}
                 aria-pressed={selected}
                 className={`min-h-12 px-3 text-left text-[16px] font-medium transition-colors ${
-                  selected ? "bg-primary text-background" : "bg-surface-raised text-text"
+                  selected ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
                 }`}
               >
                 {opcion.label}
@@ -137,7 +137,7 @@ export function SeccionPago({
           simbolo={null}
           labelClassName={ROTULO}
           cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums focus:outline-none"
+          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums focus:outline-none"
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-[13px] text-text-muted">

@@ -425,7 +425,7 @@ export function LoteForm({
               key={producto.id}
               className="flex min-w-0 items-center justify-between gap-3 border-b border-border py-3"
             >
-              <span className="min-w-0 truncate text-[16px] text-text">
+              <span className="min-w-0 truncate text-[16px] text-text" title={producto.nombre}>
                 {producto.nombre}
               </span>
               <div className="shrink-0">
@@ -548,7 +548,7 @@ export function LoteForm({
               <span className="text-[13px] font-medium text-accent">
                 Insumo insuficiente
               </span>
-              <p className="mt-3 font-display text-[20px] leading-[1.3] text-primary">
+              <p className="mt-3 font-display text-[20px] leading-[1.3] text-text">
                 Hay {formatCantidadConUnidad(insumoAlert.disponible, unidad)}{" "}
                 de {insumoAlert.insumo}. Este lote necesita{" "}
                 {formatCantidadConUnidad(consumoInsumo, unidad)}. Si guardás
@@ -576,7 +576,7 @@ export function LoteForm({
                     setInsumoAlert(null);
                     void guardarLote(true);
                   }}
-                  className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background"
+                  className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground"
                 >
                   Guardar igual
                 </button>

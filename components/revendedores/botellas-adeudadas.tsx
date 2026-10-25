@@ -192,7 +192,7 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
           <>
             <p className="text-[16px] text-text">
               Le debe a {NEGOCIO.nombre}{" "}
-              <span className="font-display text-[26px] leading-[1.05] tabular-nums text-primary">
+              <span className="font-display text-[26px] leading-[1.05] tabular-nums text-text">
                 {cantidadTexto(resumen.total)}
               </span>
             </p>
@@ -215,7 +215,7 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
         <>
           {resumen.total > 0 ? (
             <div className="flex flex-col gap-1">
-              <p className="font-display text-[40px] leading-[1.05] tabular-nums text-primary">
+              <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] tabular-nums text-text">
                 {cantidadTexto(resumen.total)}
               </p>
               <p className="text-[16px] text-text">{textoProductos(resumen.productos)}</p>

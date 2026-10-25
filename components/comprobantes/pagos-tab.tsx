@@ -38,7 +38,7 @@ export async function PagosTab() {
           {filas.length} {filas.length === 1 ? "pago" : "pagos"}
           {pendientes > 0 ? ` · ${pendientes} por confirmar` : ""}
         </span>
-        <h1 className="font-display hidden text-[32px] leading-[1.05] text-primary md:block">
+        <h1 className="font-display hidden text-[32px] leading-[1.05] text-text md:block">
           Pagos de revendedores
         </h1>
       </div>

@@ -266,7 +266,7 @@ export function CargaForm({
         <button
           type="button"
           onClick={guardado.handleRevisar}
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Revisar todo
         </button>

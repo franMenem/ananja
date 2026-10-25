@@ -35,7 +35,7 @@ export function AlertaStock({
                 Disponibles
               </span>
             </div>
-            <p className="font-display text-[22px] leading-[1.3] text-primary">
+            <p className="font-display text-[22px] leading-[1.3] text-text">
               Quedan {Math.max(stockAlert.disponible, 0)} unidades de{" "}
               {stockAlert.producto} y estás vendiendo{" "}
               {cantidadVendiendo}. Si guardás igual, el depósito
@@ -54,7 +54,7 @@ export function AlertaStock({
             <button
               type="button"
               onClick={onGuardarIgual}
-              className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background"
+              className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground"
             >
               Guardar igual
             </button>

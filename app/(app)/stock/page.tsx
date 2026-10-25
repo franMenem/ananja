@@ -96,8 +96,8 @@ export default async function StockPage() {
   return (
     <div className="flex flex-col pb-8">
       {bajoUmbral && (
-        <div className="-mx-5 -mt-4 flex items-center gap-2.5 bg-accent px-5 py-[11px] text-background lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
-          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-background" />
+        <div className="-mx-5 -mt-4 flex items-center gap-2.5 border-b border-warning/30 bg-warning-tint px-5 py-[11px] text-warning lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
+          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-warning" />
           <span className="text-[14px]">
             {formatPresentacion(bajoUmbral.presentacion_ml)} quedó en{" "}
             <span className="font-semibold">{bajoUmbral.stock}</span> unidades
@@ -107,7 +107,7 @@ export default async function StockPage() {
       )}
 
       <div className="flex items-center justify-between py-6">
-        <h1 className="font-display text-[28px] leading-[1.05] text-primary md:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text md:text-[32px]">
           Depósito
         </h1>
       </div>
