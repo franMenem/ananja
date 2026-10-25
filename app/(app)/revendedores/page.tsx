@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
@@ -145,12 +146,12 @@ export default async function RevendedoresPage() {
   return (
     <div className="flex flex-col gap-10 pb-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-display text-[32px] leading-[1.05] text-primary md:text-[38px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text md:text-[32px]">
           Revendedores
         </h1>
         <Link
           href="/revendedores/invitar"
-          className="flex min-h-11 items-center justify-center bg-primary px-4 text-[12px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex px-4`}
         >
           + Sumar persona
         </Link>
@@ -159,11 +160,11 @@ export default async function RevendedoresPage() {
       <BotellasAdeudadas resumen={botellas} variante="equipo" mostrarPorPersona />
 
       <section className="flex flex-col gap-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Revendedores
         </span>
         {filasRevendedores.length === 0 ? (
-          <p className="py-6 text-sm text-text-muted">
+          <p className="py-6 text-[16px] text-text-muted">
             Todavía no hay ningún revendedor.
           </p>
         ) : (
@@ -171,7 +172,7 @@ export default async function RevendedoresPage() {
             {/* Tabla — escritorio */}
             <div className="hidden overflow-x-auto border border-border md:block">
               <div className="min-w-[730px]">
-                <div className="grid grid-cols-[1.3fr_90px_130px_130px_130px] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[10px] tracking-[0.14em] text-text-muted uppercase">
+                <div className="grid grid-cols-[1.3fr_90px_130px_130px_130px] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[13px] text-text-muted">
                   <span>Nombre</span>
                   <span className="text-right">En poder</span>
                   <span className="text-right">Le debe a {NEGOCIO.nombre}</span>
@@ -192,12 +193,12 @@ export default async function RevendedoresPage() {
                     <Link
                       key={r.id}
                       href={`/revendedores/${r.id}`}
-                      className="grid grid-cols-[1.3fr_90px_130px_130px_130px] items-center gap-3 border-b border-border px-3 py-3 text-sm last:border-b-0 hover:bg-border/30"
+                      className="grid grid-cols-[1.3fr_90px_130px_130px_130px] items-center gap-3 border-b border-border px-3 py-3 text-[16px] last:border-b-0 hover:bg-border/30"
                     >
                       <span className="flex items-center gap-2 font-medium text-text">
                         {r.nombre}
                         {r.rol === "admin" && (
-                          <span className="border border-border px-1.5 py-px text-[9px] tracking-[0.1em] text-text-muted uppercase">
+                          <span className="border border-border px-1.5 py-px text-[13px] text-text-muted">
                             admin
                           </span>
                         )}
@@ -219,7 +220,7 @@ export default async function RevendedoresPage() {
             </div>
 
             {/* Tarjetas — mobile */}
-            <div className="flex flex-col gap-px border border-border bg-border md:hidden">
+            <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface md:hidden">
               {filasRevendedores.map((r) => {
                 const enPoder = stockPorVendedor.get(r.id) ?? 0;
                 const resumen = resumenPorVendedor.get(r.id);
@@ -240,7 +241,7 @@ export default async function RevendedoresPage() {
                       <span className="flex min-w-0 items-center gap-2 break-words font-medium text-text">
                         {r.nombre}
                         {r.rol === "admin" && (
-                          <span className="shrink-0 border border-border px-1.5 py-px text-[9px] tracking-[0.1em] text-text-muted uppercase">
+                          <span className="shrink-0 border border-border px-1.5 py-px text-[13px] text-text-muted">
                             admin
                           </span>
                         )}
@@ -249,15 +250,15 @@ export default async function RevendedoresPage() {
                         {formatCentavos(debeCentavos)}
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1 text-[12px]">
+                    <div className="flex flex-col gap-1 text-[14px]">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">
+                        <span className="text-text-muted ">
                           En poder
                         </span>
                         <span className="tabular-nums text-text">{enPoder}</span>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">
+                        <span className="text-text-muted ">
                           Valor en poder
                         </span>
                         <span className="tabular-nums text-text">
@@ -265,7 +266,7 @@ export default async function RevendedoresPage() {
                         </span>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">
+                        <span className="text-text-muted ">
                           Total
                         </span>
                         <span className="font-medium tabular-nums text-text">
@@ -282,7 +283,7 @@ export default async function RevendedoresPage() {
       </section>
 
       <details className="group flex flex-col gap-3">
-        <summary className="flex items-center gap-1.5 select-none text-[10px] tracking-[0.22em] text-text-muted uppercase [&::-webkit-details-marker]:hidden">
+        <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
           <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
             ›
           </span>
@@ -293,14 +294,14 @@ export default async function RevendedoresPage() {
         <div className="flex flex-col gap-8 pt-1">
           {(pendientes ?? []).length > 0 && (
             <section className="flex flex-col gap-3">
-              <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Pendientes de aprobación
               </span>
 
               {/* Tabla — escritorio */}
               <div className="hidden overflow-x-auto border border-border md:block">
                 <div className="min-w-[680px]">
-                  <div className="grid grid-cols-[1.1fr_1.6fr_1fr_auto] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[10px] tracking-[0.14em] text-text-muted uppercase">
+                  <div className="grid grid-cols-[1.1fr_1.6fr_1fr_auto] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[13px] text-text-muted">
                     <span>Nombre</span>
                     <span>Email</span>
                     <span>Registrado</span>
@@ -309,7 +310,7 @@ export default async function RevendedoresPage() {
                   {(pendientes ?? []).map((p) => (
                     <div
                       key={p.id}
-                      className="grid grid-cols-[1.1fr_1.6fr_1fr_auto] items-center gap-3 border-b border-border px-3 py-3 text-sm last:border-b-0"
+                      className="grid grid-cols-[1.1fr_1.6fr_1fr_auto] items-center gap-3 border-b border-border px-3 py-3 text-[16px] last:border-b-0"
                     >
                       <span className="font-medium text-text">{p.nombre}</span>
                       <span className="truncate text-text-muted">{p.email ?? "—"}</span>
@@ -322,19 +323,19 @@ export default async function RevendedoresPage() {
                           nombre={p.nombre}
                           rolDestino="revendedor"
                           label="Hacer revendedor"
-                          className="flex min-h-9 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase"
+                          className="flex min-h-9 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
                         />
                         <AsignarRolButton
                           vendedorId={p.id}
                           nombre={p.nombre}
                           rolDestino="admin"
                           label="Hacer admin"
-                          className="flex min-h-9 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text uppercase hover:border-primary hover:text-primary"
+                          className="flex min-h-9 items-center justify-center border border-border px-3 text-[13px] font-medium text-text hover:border-primary hover:text-primary"
                         />
                         <RechazarPendienteButton
                           vendedorId={p.id}
                           nombre={p.nombre}
-                          className="flex min-h-9 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+                          className="flex min-h-9 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-accent hover:text-accent"
                         />
                       </div>
                     </div>
@@ -343,19 +344,19 @@ export default async function RevendedoresPage() {
               </div>
 
               {/* Tarjetas — mobile */}
-              <div className="flex flex-col gap-px border border-border bg-border md:hidden">
+              <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface md:hidden">
                 {(pendientes ?? []).map((p) => (
                   <div key={p.id} className="flex flex-col gap-2 bg-surface-raised p-3.5">
                     <span className="min-w-0 font-medium break-words text-text">{p.nombre}</span>
-                    <div className="flex flex-col gap-1 text-[12px]">
+                    <div className="flex flex-col gap-1 text-[14px]">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">Email</span>
+                        <span className="text-text-muted ">Email</span>
                         <span className="min-w-0 break-words text-right text-text">
                           {p.email ?? "—"}
                         </span>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">
+                        <span className="text-text-muted ">
                           Registrado
                         </span>
                         <span className="text-text">
@@ -369,19 +370,19 @@ export default async function RevendedoresPage() {
                         nombre={p.nombre}
                         rolDestino="revendedor"
                         label="Hacer revendedor"
-                        className="flex min-h-11 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase"
+                        className="flex min-h-11 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
                       />
                       <AsignarRolButton
                         vendedorId={p.id}
                         nombre={p.nombre}
                         rolDestino="admin"
                         label="Hacer admin"
-                        className="flex min-h-11 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text uppercase hover:border-primary hover:text-primary"
+                        className="flex min-h-11 items-center justify-center border border-border px-3 text-[13px] font-medium text-text hover:border-primary hover:text-primary"
                       />
                       <RechazarPendienteButton
                         vendedorId={p.id}
                         nombre={p.nombre}
-                        className="flex min-h-11 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+                        className={`${BOTON_SECUNDARIO} flex px-3 hover:border-accent hover:text-accent`}
                       />
                     </div>
                   </div>
@@ -391,17 +392,17 @@ export default async function RevendedoresPage() {
           )}
 
           <section className="flex flex-col gap-3">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Admins
             </span>
             {(admins ?? []).length === 0 ? (
-              <p className="py-6 text-sm text-text-muted">No hay admins activos.</p>
+              <p className="py-6 text-[16px] text-text-muted">No hay admins activos.</p>
             ) : (
               <>
                 {/* Tabla — escritorio */}
                 <div className="hidden overflow-x-auto border border-border md:block">
                   <div className="min-w-[560px]">
-                    <div className="grid grid-cols-[1fr_1.6fr_auto] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[10px] tracking-[0.14em] text-text-muted uppercase">
+                    <div className="grid grid-cols-[1fr_1.6fr_auto] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[13px] text-text-muted">
                       <span>Nombre</span>
                       <span>Email</span>
                       <span>Espacio de revendedor</span>
@@ -409,21 +410,21 @@ export default async function RevendedoresPage() {
                     {(admins ?? []).map((a) => (
                       <div
                         key={a.id}
-                        className="grid grid-cols-[1fr_1.6fr_auto] items-center gap-3 border-b border-border px-3 py-3 text-sm last:border-b-0"
+                        className="grid grid-cols-[1fr_1.6fr_auto] items-center gap-3 border-b border-border px-3 py-3 text-[16px] last:border-b-0"
                       >
                         <span className="font-medium text-text">{a.nombre}</span>
                         <span className="truncate text-text-muted">{a.email ?? "—"}</span>
                         <div className="flex items-center gap-2">
                           {a.revende ? (
                             <>
-                              <span className="text-[11px] tracking-[0.1em] text-text uppercase">
+                              <span className="text-[13px] text-text">
                                 Habilitado
                               </span>
                               <EspacioRevendedorButton
                                 vendedorId={a.id}
                                 nombre={a.nombre}
                                 habilitar={false}
-                                className="flex min-h-9 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+                                className="flex min-h-9 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-accent hover:text-accent"
                               />
                             </>
                           ) : (
@@ -431,7 +432,7 @@ export default async function RevendedoresPage() {
                               vendedorId={a.id}
                               nombre={a.nombre}
                               habilitar={true}
-                              className="flex min-h-9 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase"
+                              className="flex min-h-9 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
                             />
                           )}
                         </div>
@@ -441,30 +442,30 @@ export default async function RevendedoresPage() {
                 </div>
 
                 {/* Tarjetas — mobile */}
-                <div className="flex flex-col gap-px border border-border bg-border md:hidden">
+                <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface md:hidden">
                   {(admins ?? []).map((a) => (
                     <div key={a.id} className="flex flex-col gap-2 bg-surface-raised p-3.5">
                       <span className="min-w-0 font-medium break-words text-text">{a.nombre}</span>
-                      <div className="flex items-baseline justify-between gap-2 text-[12px]">
-                        <span className="text-text-muted uppercase tracking-[0.08em]">Email</span>
+                      <div className="flex items-baseline justify-between gap-2 text-[14px]">
+                        <span className="text-text-muted ">Email</span>
                         <span className="min-w-0 break-words text-right text-text">
                           {a.email ?? "—"}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2 pt-1">
-                        <span className="text-[11px] tracking-[0.08em] text-text-muted uppercase">
+                        <span className="text-[13px] text-text-muted">
                           Espacio de revendedor
                         </span>
                         {a.revende ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] tracking-[0.1em] text-text uppercase">
+                            <span className="text-[13px] text-text">
                               Habilitado
                             </span>
                             <EspacioRevendedorButton
                               vendedorId={a.id}
                               nombre={a.nombre}
                               habilitar={false}
-                              className="flex min-h-11 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+                              className={`${BOTON_SECUNDARIO} flex px-3 hover:border-accent hover:text-accent`}
                             />
                           </div>
                         ) : (
@@ -472,7 +473,7 @@ export default async function RevendedoresPage() {
                             vendedorId={a.id}
                             nombre={a.nombre}
                             habilitar={true}
-                            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase"
+                            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
                           />
                         )}
                       </div>
@@ -484,17 +485,17 @@ export default async function RevendedoresPage() {
           </section>
 
           <section className="flex flex-col gap-3">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Coordinadores
             </span>
             {(coordinadores ?? []).length === 0 ? (
-              <p className="py-6 text-sm text-text-muted">No hay coordinadores activos.</p>
+              <p className="py-6 text-[16px] text-text-muted">No hay coordinadores activos.</p>
             ) : (
               <>
                 {/* Tabla — escritorio */}
                 <div className="hidden overflow-x-auto border border-border md:block">
                   <div className="min-w-[480px]">
-                    <div className="grid grid-cols-[1.6fr_1fr] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[10px] tracking-[0.14em] text-text-muted uppercase">
+                    <div className="grid grid-cols-[1.6fr_1fr] gap-3 border-b border-border bg-border/20 px-3 py-2 text-[13px] text-text-muted">
                       <span>Nombre</span>
                       <span className="text-right">Revendedoras a cargo</span>
                     </div>
@@ -505,7 +506,7 @@ export default async function RevendedoresPage() {
                         // solo la tanda de coordinador de entrada — ver el
                         // comentario en `/revendedores/[id]/page.tsx`.
                         href={`/revendedores/${c.id}?rol=coordinador`}
-                        className="grid grid-cols-[1.6fr_1fr] items-center gap-3 border-b border-border px-3 py-3 text-sm last:border-b-0 hover:bg-border/30"
+                        className="grid grid-cols-[1.6fr_1fr] items-center gap-3 border-b border-border px-3 py-3 text-[16px] last:border-b-0 hover:bg-border/30"
                       >
                         <span className="font-medium text-text">{c.nombre}</span>
                         <span className="text-right tabular-nums text-text">
@@ -517,7 +518,7 @@ export default async function RevendedoresPage() {
                 </div>
 
                 {/* Tarjetas — mobile */}
-                <div className="flex flex-col gap-px border border-border bg-border md:hidden">
+                <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface md:hidden">
                   {(coordinadores ?? []).map((c) => (
                     <Link
                       key={c.id}
@@ -525,7 +526,7 @@ export default async function RevendedoresPage() {
                       className="flex items-baseline justify-between gap-2 bg-surface-raised p-3.5"
                     >
                       <span className="min-w-0 break-words font-medium text-text">{c.nombre}</span>
-                      <span className="shrink-0 text-[12px] text-text-muted">
+                      <span className="shrink-0 text-[14px] text-text-muted">
                         {revendedorasPorCoordinador.get(c.id) ?? 0} a cargo
                       </span>
                     </Link>

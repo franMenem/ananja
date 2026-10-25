@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -53,19 +54,19 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[11px] tracking-[0.14em] text-text-muted uppercase hover:text-primary"
+        className="text-[13px] text-text-muted hover:text-primary"
       >
         Configurar cuenta destino
       </button>
 
       <BottomSheet open={open} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
-        <h2 className="font-display text-[24px] text-primary">Cuenta destino del efectivo</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <h2 className="font-display text-[24px] text-text">Cuenta destino del efectivo</h2>
+        <p className="mt-2 text-[16px] text-text-muted">
           A dónde se pasa el efectivo desde &quot;Tareas&quot;. Hoy: {MEDIO_PAGO_LABELS[destinoActual]}.
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -78,9 +79,9 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
               cargando={saving === medio}
               textoCargando="Guardando…"
               disabled={saving !== null || medio === destinoActual}
-              className={`min-h-11 border px-4 text-[13px] font-medium tracking-[0.14em] uppercase disabled:opacity-45 ${
+              className={`min-h-11 border px-4 text-[16px] font-medium disabled:opacity-45 ${
                 medio === destinoActual
-                  ? "border-primary bg-primary text-background"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-border text-text"
               }`}
             >
@@ -91,7 +92,7 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
             type="button"
             onClick={() => !saving && setOpen(false)}
             disabled={saving !== null}
-            className="min-h-11 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} px-4`}
           >
             Cerrar
           </button>

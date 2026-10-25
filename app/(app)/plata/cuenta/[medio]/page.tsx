@@ -53,7 +53,7 @@ export default async function CuentaMedioPage({ params }: PageProps<"/plata/cuen
   return (
     <FormPage title={label} backHref="/plata" backLabel="Volver a Plata" maxWidth={760} pb>
       <div>
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Saldo en {label} · Cuenta {NEGOCIO.nombre}
         </span>
         <p
@@ -63,7 +63,7 @@ export default async function CuentaMedioPage({ params }: PageProps<"/plata/cuen
         >
           {formatCentavos(saldoCentavos)}
         </p>
-        <p className="mt-1.5 text-[12px] text-text-muted">
+        <p className="mt-1.5 text-[14px] text-text-muted">
           Saldo inicial{" "}
           <span className="text-text tabular-nums">
             {formatCentavos(caja?.saldo_inicial_centavos ?? 0)}
@@ -71,17 +71,17 @@ export default async function CuentaMedioPage({ params }: PageProps<"/plata/cuen
         </p>
       </div>
 
-      <p className="text-[12px] text-text-muted">
+      <p className="text-[14px] text-text-muted">
         Lo que quedó en manos de alguien no aparece acá.
       </p>
 
       <AjustarSaldoButton
         medioInicial={medioCuenta}
-        className="flex min-h-12 items-center justify-center border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase"
+        className="flex min-h-12 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
       />
 
       <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Movimientos
         </span>
         <span

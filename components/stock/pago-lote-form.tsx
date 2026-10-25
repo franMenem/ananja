@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -211,15 +212,15 @@ export function PagoLoteForm({
         >
           ←
         </Link>
-        <h1 className="font-display text-[22px] text-primary">Registrar pago</h1>
+        <h1 className="font-display text-[22px] text-text">Registrar pago</h1>
       </div>
 
-      <p className="text-sm text-text-muted">
+      <p className="text-[16px] text-text-muted">
         Falta {formatCentavos(pendienteCentavos)} de este pedido.
       </p>
 
       {pagadoSinConceptoCentavos > 0 && (
-        <p className="border-l-2 border-accent bg-surface-raised p-3 text-[12px] leading-[1.5] text-text">
+        <p className="border-l-2 border-accent bg-surface-raised p-3 text-[14px] leading-[1.5] text-text">
           Este pedido ya tiene {formatCentavos(pagadoSinConceptoCentavos)} pagados antes de
           separar los pagos por concepto: cuentan para el total, pero no se descuentan de
           cada concepto. En total no podés cargar más de {formatCentavos(pendienteCentavos)}.
@@ -235,10 +236,10 @@ export function PagoLoteForm({
             return (
               <div key={grupo.clave} className="flex flex-col gap-3 border-b border-border pb-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="font-display text-[20px] leading-tight text-primary">
+                  <span className="font-display text-[20px] leading-tight text-text">
                     {grupo.etiqueta}
                   </span>
-                  <span className="text-[12px] text-text-muted tabular-nums">
+                  <span className="text-[14px] text-text-muted tabular-nums">
                     Falta {formatCentavos(grupo.pendienteCentavos)}
                     {grupo.aPagarCentavos !== null &&
                     grupo.aPagarCentavos !== grupo.pendienteCentavos
@@ -250,14 +251,14 @@ export function PagoLoteForm({
                 {filasGrupo.map((fila, i) => (
                   <div key={fila.key} className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+                      <span className="text-[13px] text-text-muted">
                         {filasGrupo.length > 1 ? `Medio ${i + 1}` : "Medio de pago"}
                       </span>
                       {filasGrupo.length > 1 && (
                         <button
                           type="button"
                           onClick={() => quitarFila(fila.key)}
-                          className="min-h-11 text-[11px] font-medium tracking-[0.08em] text-accent uppercase"
+                          className="min-h-11 text-[13px] font-medium text-accent"
                         >
                           Quitar
                         </button>
@@ -275,7 +276,7 @@ export function PagoLoteForm({
                       placeholder="0,00"
                       cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
                       simboloClassName="font-display text-[18px] text-text-muted"
-                      inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-primary tabular-nums"
+                      inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-text tabular-nums"
                     />
                   </div>
                 ))}
@@ -284,12 +285,12 @@ export function PagoLoteForm({
                   <button
                     type="button"
                     onClick={() => agregarFila(grupo)}
-                    className="min-h-11 border border-border px-4 text-[12px] font-medium tracking-[0.1em] text-primary uppercase"
+                    className="min-h-11 border border-border px-4 text-[14px] font-medium text-primary"
                   >
                     + Agregar otro medio
                   </button>
                   {excedido > 0 && (
-                    <span className="text-[12px] text-accent tabular-nums">
+                    <span className="text-[14px] text-accent tabular-nums">
                       Te pasaste por {formatCentavos(excedido)}
                     </span>
                   )}
@@ -300,7 +301,7 @@ export function PagoLoteForm({
         </div>
 
         <p
-          className={`text-[12px] tabular-nums ${restante < 0 ? "text-accent" : "text-text-muted"}`}
+          className={`text-[14px] tabular-nums ${restante < 0 ? "text-accent" : "text-text-muted"}`}
         >
           Cargado {formatCentavos(totalCargado)} ·{" "}
           {restante < 0
@@ -316,7 +317,7 @@ export function PagoLoteForm({
             aria-label="Fecha"
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+            className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
           />
           <textarea
             id="pago-lote-nota"
@@ -324,12 +325,12 @@ export function PagoLoteForm({
             onChange={(event) => setNota(event.target.value)}
             rows={2}
             placeholder="Nota (opcional)"
-            className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary"
+            className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
           />
         </div>
 
         {formError && (
-          <p role="alert" className="text-xs text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             {formError}
           </p>
         )}
@@ -338,7 +339,7 @@ export function PagoLoteForm({
           cargando={submitting}
           textoCargando="Guardando…"
           type="submit"
-          className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={BOTON_PRIMARIO}
         >
           Registrar pago
         </BotonAccion>

@@ -52,7 +52,7 @@ export default async function VentaDetallePage({
     return (
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
         <VolverLink href="/mi/ventas" label="ventas" hover={false} />
-        <p className="text-sm text-text-muted">No encontramos esta venta.</p>
+        <p className="text-[16px] text-text-muted">No encontramos esta venta.</p>
       </div>
     );
   }
@@ -67,11 +67,11 @@ export default async function VentaDetallePage({
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
       <VolverLink href="/mi/ventas" label="ventas" hover={false} />
 
-      <h1 className="font-display text-[28px] text-primary">
+      <h1 className="font-display text-[28px] text-text">
         {producto ?? "?"} × {cantidad}
       </h1>
 
-      <div className="flex flex-col gap-2 text-sm text-text">
+      <div className="flex flex-col gap-2 text-[16px] text-text">
         <p>Fecha: {formatFecha(venta.fecha)}</p>
         <p>Medio de pago: {venta.medio_pago ? MEDIO_PAGO_LABELS[venta.medio_pago] : "Sin cargar"}</p>
         {precio !== null && total !== null ? (
@@ -102,11 +102,11 @@ export default async function VentaDetallePage({
 
       {filas.some((f) => f.entrega_items?.entregas_revendedor) && (
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             De dónde salió
           </span>
           {filas.map((f) => (
-            <span key={f.id} className="text-[13px] text-text-muted">
+            <span key={f.id} className="text-[16px] text-text-muted">
               {f.cantidad}
               {f.entrega_items?.entregas_revendedor
                 ? f.entrega_items.entregas_revendedor.automatica
@@ -127,7 +127,7 @@ export default async function VentaDetallePage({
       }) ? (
         <EliminarVentaButton ventaId={venta.id} />
       ) : (
-        <p className="text-[12px] text-text-muted">
+        <p className="text-[14px] text-text-muted">
           Si hay algún error en esta venta, pedile a un admin que la corrija.
         </p>
       )}

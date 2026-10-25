@@ -24,7 +24,7 @@ export function MiTabBar() {
   return (
     <nav
       aria-label="Navegación"
-      className="sticky bottom-0 z-10 border-t border-border bg-surface-raised pb-[calc(8px+env(safe-area-inset-bottom))] lg:hidden"
+      className="sticky bottom-0 z-10 border-t border-border bg-surface pb-[calc(8px+env(safe-area-inset-bottom))] lg:hidden"
     >
       <ul className="mx-auto flex w-full max-w-[480px] items-stretch justify-between">
         {tabs.map(({ href, label, Icon }) => {
@@ -34,7 +34,7 @@ export function MiTabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 flex-col items-center justify-center gap-[5px] py-2 pt-[11px] pb-2 text-[11px] tracking-[0.12em] uppercase ${
+                className={`flex min-h-11 flex-col items-center justify-center gap-[5px] py-2 pt-[11px] pb-2 text-[13px] ${
                   active
                     ? "-mt-px border-t-2 border-mark font-medium text-primary"
                     : "text-text-muted"

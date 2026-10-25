@@ -7,7 +7,7 @@
  */
 export function InstruccionesInstalarIOS({ proposito }: { proposito: string }) {
   return (
-    <p className="text-[13px] leading-[1.55] text-text-muted">
+    <p className="text-[16px] leading-[1.55] text-text-muted">
       En Safari tocá <span className="font-medium text-text">Compartir</span>{" "}
       y después{" "}
       <span className="font-medium text-text">Agregar a inicio</span> para{" "}

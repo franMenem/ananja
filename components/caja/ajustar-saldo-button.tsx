@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -140,14 +141,14 @@ export function AjustarSaldoButton({
 
       <BottomSheet open={open} ariaLabel="Ajustar saldo" variant="mark">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-[26px] text-primary">
+          <h2 className="font-display text-[26px] text-text">
             Ajustar saldo
           </h2>
           <button
             type="button"
             onClick={handleClose}
             disabled={saving}
-            className="text-[11px] tracking-[0.12em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Cerrar
           </button>
@@ -155,10 +156,10 @@ export function AjustarSaldoButton({
 
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-5">
           <div>
-            <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Caja
             </span>
-            <div className="mt-1.5 flex gap-px bg-border">
+            <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
               {MEDIOS_CAJA.map((medio) => {
                 const selected = medioPago === medio;
                 return (
@@ -167,9 +168,9 @@ export function AjustarSaldoButton({
                     type="button"
                     onClick={() => setMedioPago(medio)}
                     aria-pressed={selected}
-                    className={`min-h-11 flex-1 px-2 text-xs font-medium transition-colors ${
+                    className={`min-h-11 flex-1 px-2 text-[14px] font-medium transition-colors ${
                       selected
-                        ? "bg-primary text-background"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-surface-raised text-text"
                     }`}
                   >
@@ -181,17 +182,17 @@ export function AjustarSaldoButton({
           </div>
 
           <div>
-            <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Tipo de ajuste
             </span>
-            <div className="mt-1.5 flex gap-px bg-border">
+            <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
               <button
                 type="button"
                 onClick={() => setSigno("suma")}
                 aria-pressed={signo === "suma"}
-                className={`min-h-11 flex-1 px-3 text-sm font-semibold transition-colors ${
+                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   signo === "suma"
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -201,7 +202,7 @@ export function AjustarSaldoButton({
                 type="button"
                 onClick={() => setSigno("resta")}
                 aria-pressed={signo === "resta"}
-                className={`min-h-11 flex-1 px-3 text-sm font-semibold transition-colors ${
+                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   signo === "resta"
                     ? "bg-surface-raised text-accent"
                     : "bg-surface-raised text-text"
@@ -220,15 +221,15 @@ export function AjustarSaldoButton({
             required
             placeholder="$ 0,00"
             simbolo={null}
-            labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums"
+            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums"
           />
 
           <div>
             <label
               htmlFor="ajuste-fecha"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Fecha
             </label>
@@ -238,14 +239,14 @@ export function AjustarSaldoButton({
               required
               value={fecha}
               onChange={(event) => setFecha(event.target.value)}
-              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="ajuste-nota"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Nota (obligatoria)
             </label>
@@ -256,25 +257,25 @@ export function AjustarSaldoButton({
               onChange={(event) => setNota(event.target.value)}
               rows={2}
               placeholder="Ej. conteo inicial demo"
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
             />
           </div>
 
           {!vendedorLoading && vendedor && (
-            <p className="text-xs text-text-muted">
+            <p className="text-[14px] text-text-muted">
               Registrando como{" "}
               <span className="font-medium">{vendedor.nombre}</span>
             </p>
           )}
           {!vendedorLoading && !vendedor && (
-            <p role="alert" className="text-xs text-accent">
+            <p role="alert" className="text-[14px] text-accent">
               Tu usuario no está vinculado a un vendedor. Pedile al dueño
               que te dé de alta desde el dashboard de Supabase.
             </p>
           )}
 
           {error && (
-            <p role="alert" className="text-sm text-accent">
+            <p role="alert" className="text-[16px] text-accent">
               {error}
             </p>
           )}
@@ -284,7 +285,7 @@ export function AjustarSaldoButton({
               cargando={saving}
               textoCargando="Guardando…"
               type="submit"
-              className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
             >
               Guardar ajuste
             </BotonAccion>
@@ -292,13 +293,13 @@ export function AjustarSaldoButton({
               type="button"
               onClick={handleClose}
               disabled={saving}
-              className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Cancelar
             </button>
           </div>
 
-          <p className="text-center text-[11px] text-text-muted">
+          <p className="text-center text-[13px] text-text-muted">
             Después de guardarlo podés editar la fecha/nota o eliminarlo
             desde el historial de Caja.
           </p>

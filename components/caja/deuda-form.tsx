@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -81,7 +82,7 @@ export function DeudaForm() {
       <div className="flex flex-col gap-2.5">
         <label
           htmlFor="descripcion"
-          className="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Descripción
         </label>
@@ -91,15 +92,15 @@ export function DeudaForm() {
           required
           value={descripcion}
           onChange={(event) => setDescripcion(event.target.value)}
-          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div>
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Moneda
         </span>
-        <div className="mt-1.5 flex gap-px bg-border">
+        <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
           {(["ARS", "USD"] as const).map((opcion) => {
             const selected = moneda === opcion;
             return (
@@ -108,9 +109,9 @@ export function DeudaForm() {
                 type="button"
                 onClick={() => setMoneda(opcion)}
                 aria-pressed={selected}
-                className={`min-h-11 flex-1 px-3 text-sm font-semibold transition-colors ${
+                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   selected
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -130,16 +131,16 @@ export function DeudaForm() {
         placeholder="0,00"
         simbolo={moneda === "USD" ? "USD" : "$"}
         className="flex flex-col gap-2.5"
-        labelClassName="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+        labelClassName="text-[13px] text-text-muted"
         cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1"
         simboloClassName="font-display text-[18px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[28px] text-primary tabular-nums"
+        inputClassName="font-display w-full min-w-0 bg-transparent text-[28px] text-text tabular-nums"
       />
 
       <div className="flex flex-col gap-2.5">
         <label
           htmlFor="fecha"
-          className="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Fecha
         </label>
@@ -149,14 +150,14 @@ export function DeudaForm() {
           required
           value={fecha}
           onChange={(event) => setFecha(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2.5">
         <label
           htmlFor="nota"
-          className="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nota (opcional)
         </label>
@@ -165,12 +166,12 @@ export function DeudaForm() {
           value={nota}
           onChange={(event) => setNota(event.target.value)}
           rows={2}
-          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary"
+          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
         />
       </div>
 
       {formError && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {formError}
         </p>
       )}
@@ -179,7 +180,7 @@ export function DeudaForm() {
         cargando={submitting}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={BOTON_PRIMARIO}
       >
         Guardar deuda
       </BotonAccion>

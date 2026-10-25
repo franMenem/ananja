@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState, useTransition } from "react";
 
 import {
@@ -20,11 +21,11 @@ import { ETIQUETA_ROL, type InvitacionPendiente, type ResultadoAccion } from "@/
  */
 export function InvitacionesPendientes({ invitaciones }: { invitaciones: InvitacionPendiente[] }) {
   if (invitaciones.length === 0) {
-    return <p className="py-4 text-sm text-text-muted">No hay nadie esperando para entrar.</p>;
+    return <p className="py-4 text-[16px] text-text-muted">No hay nadie esperando para entrar.</p>;
   }
 
   return (
-    <ul className="flex flex-col gap-px border border-border bg-border">
+    <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
       {invitaciones.map((inv) => (
         <FilaInvitacion key={inv.userId} invitacion={inv} />
       ))}
@@ -71,12 +72,12 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="flex flex-wrap items-center gap-2 font-medium text-text">
           <span className="min-w-0 break-words">{invitacion.nombre}</span>
-          <span className="shrink-0 border border-border px-1.5 py-px text-[9px] tracking-[0.1em] text-text-muted uppercase">
+          <span className="shrink-0 border border-border px-1.5 py-px text-[13px] text-text-muted">
             {rol}
           </span>
         </span>
-        <span className="text-[13px] break-all text-text-muted">{invitacion.email}</span>
-        <span className="text-[12px] text-text-muted">
+        <span className="text-[16px] break-all text-text-muted">{invitacion.email}</span>
+        <span className="text-[14px] text-text-muted">
           {temporal ? (
             <>Cuenta con contraseña temporal sin usar · creada el {invitacion.invitadaEn}</>
           ) : (
@@ -87,7 +88,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
           )}
         </span>
         {resultado && (
-          <span role="status" className={`text-[13px] ${resultado.ok ? "text-text" : "text-accent"}`}>
+          <span role="status" className={`text-[16px] ${resultado.ok ? "text-text" : "text-accent"}`}>
             {resultado.mensaje}
           </span>
         )}
@@ -99,7 +100,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
             cargando={reenviando}
             textoCargando="Enviando…"
             onClick={reenviar}
-            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase disabled:opacity-45"
+            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary disabled:opacity-45 rounded-xl"
           >
             Reenviar
           </BotonAccion>
@@ -111,7 +112,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
               setErrorCancelar(null);
               setConfirmar(true);
             }}
-            className="flex min-h-11 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+            className={`${BOTON_SECUNDARIO} flex px-3 hover:border-accent hover:text-accent`}
           >
             {temporal ? "Cancelar cuenta" : "Cancelar invitación"}
           </button>
@@ -119,15 +120,15 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
       </div>
 
       <BottomSheet open={confirmar} ariaLabel={tituloCancelar} variant="accent">
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{tituloCancelar}</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{tituloCancelar}</h2>
+        <p className="mt-2 text-[16px] text-text-muted">
           {temporal
             ? "Se borra su cuenta y la contraseña temporal deja de funcionar. Si después querés sumarla, la cargás de nuevo."
             : "Se borra su cuenta y el link del mail deja de funcionar. Si después querés sumarla, la invitás de nuevo."}
         </p>
 
         {errorCancelar && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {errorCancelar}
           </p>
         )}
@@ -137,7 +138,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
             cargando={cancelando}
             textoCargando="Cancelando…"
             onClick={cancelar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Sí, cancelar
           </BotonAccion>
@@ -145,7 +146,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
             type="button"
             onClick={() => !cancelando && setConfirmar(false)}
             disabled={cancelando}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Volver
           </button>

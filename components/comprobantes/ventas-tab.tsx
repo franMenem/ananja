@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import {
@@ -98,28 +99,28 @@ export async function VentasTab() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-baseline justify-between gap-2 md:hidden">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Cobrado en {nombreMesCapitalizado.toLowerCase()}
             </span>
             <Link
               href="/clientes"
-              className="text-[11px] tracking-[0.1em] text-text-muted uppercase hover:text-primary-hover"
+              className="text-[13px] text-text-muted hover:text-primary-hover"
             >
               Clientes
             </Link>
           </div>
-          <span className="font-display text-[32px] leading-none text-primary tabular-nums md:hidden">
+          <span className="font-display text-[32px] leading-none text-text tabular-nums md:hidden">
             {formatSinDecimales(totalMesCentavos)}
           </span>
-          <span className="text-[11px] text-text-muted md:hidden">
+          <span className="text-[13px] text-text-muted md:hidden">
             {cantidadMes} registros
           </span>
 
           <div className="hidden flex-col gap-0.5 md:flex">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               {cantidadMes} registros
             </span>
-            <h1 className="font-display text-[38px] leading-[1.05] text-primary">
+            <h1 className="font-display text-[28px] leading-[1.05] text-text">
               Comprobantes
             </h1>
           </div>
@@ -128,13 +129,13 @@ export async function VentasTab() {
         <div className="hidden items-center gap-2.5 md:flex">
           <Link
             href="/clientes"
-            className="flex min-h-11 items-center border border-border px-4 text-[11px] tracking-[0.1em] text-text-muted uppercase"
+            className="flex min-h-11 items-center border border-border px-4 text-[13px] text-text-muted"
           >
             Clientes
           </Link>
           <Link
             href="/comprobantes/nuevo"
-            className="flex min-h-11 items-center gap-2 bg-primary px-5 text-[12px] font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className={`${BOTON_PRIMARIO} flex gap-2 px-5`}
           >
             + Cargar
           </Link>
@@ -146,37 +147,37 @@ export async function VentasTab() {
           238px) evitan que los rótulos largos ("Medio más usado") se
           partan en 2–3 líneas; desde `lg` (1024px) vuelve al espaciado
           del artboard. */}
-      <div className="hidden flex-wrap items-end gap-x-6 gap-y-3 bg-primary px-[26px] py-[18px] md:flex lg:gap-x-10">
+      <div className="hidden flex-wrap items-end gap-x-6 gap-y-3 rounded-2xl border border-border bg-surface px-[26px] py-[18px] md:flex lg:gap-x-10">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] tracking-[0.22em] whitespace-nowrap text-on-primary-muted uppercase">
+          <span className="text-[13px] whitespace-nowrap text-text-muted">
             Cobrado en el mes
           </span>
-          <span className="font-display text-[32px] leading-none text-background tabular-nums lg:text-[40px]">
+          <span className="font-display text-[28px] leading-none text-text tabular-nums lg:text-[40px]">
             {formatCentavos(totalMesCentavos)}
           </span>
         </div>
-        <div className="flex min-w-0 flex-1 flex-wrap gap-x-6 gap-y-3 border-l border-primary-line pl-6 lg:gap-x-8 lg:pl-[34px]">
+        <div className="flex min-w-0 flex-1 flex-wrap gap-x-6 gap-y-3 border-l border-border pl-6 lg:gap-x-8 lg:pl-[34px]">
           <div className="flex min-w-[70px] flex-col gap-0.5">
-            <span className="text-[11px] tracking-[0.14em] whitespace-nowrap text-on-primary-muted uppercase">
+            <span className="text-[13px] whitespace-nowrap text-text-muted">
               {capitalizar(NEGOCIO.envase.plural)}
             </span>
-            <span className="text-lg text-background tabular-nums">
+            <span className="text-lg text-text tabular-nums">
               {unidadesMes}
             </span>
           </div>
           <div className="flex min-w-[110px] flex-col gap-0.5">
-            <span className="text-[11px] tracking-[0.14em] whitespace-nowrap text-on-primary-muted uppercase">
+            <span className="text-[13px] whitespace-nowrap text-text-muted">
               Ticket promedio
             </span>
-            <span className="text-lg text-background tabular-nums">
+            <span className="text-lg text-text tabular-nums">
               {formatCentavos(ticketPromedioCentavos)}
             </span>
           </div>
           <div className="flex min-w-[120px] flex-col gap-0.5">
-            <span className="text-[11px] tracking-[0.14em] whitespace-nowrap text-on-primary-muted uppercase">
+            <span className="text-[13px] whitespace-nowrap text-text-muted">
               Medio más usado
             </span>
-            <span className="text-lg text-background">{medioMasUsado}</span>
+            <span className="text-lg text-text">{medioMasUsado}</span>
           </div>
         </div>
       </div>

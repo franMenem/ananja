@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -159,14 +160,14 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
       <button
         type="button"
         onClick={abrir}
-        className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+        className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
       >
         Avisé que la pasé
       </button>
 
       <BottomSheet open={abierto} ariaLabel="Avisar depósito">
-        <h2 className="font-display text-[24px] text-primary">Avisar depósito</h2>
-        <p className="mt-1 text-[13px] text-text-muted">
+        <h2 className="font-display text-[24px] text-text">Avisar depósito</h2>
+        <p className="mt-1 text-[16px] text-text-muted">
           Registrá cuánto de lo que tenés que pasar ({formatCentavos(montoCentavos)}) ya pasaste a la
           cuenta de {NEGOCIO.nombre} y adjuntá el comprobante de la transferencia. Un admin lo va a
           confirmar.
@@ -180,12 +181,12 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             onChange={setMonto}
             required
             simbolo={null}
-            labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[32px] text-primary tabular-nums"
+            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums"
           />
           <div>
-            <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">Cuenta destino</span>
+            <span className="text-[13px] text-text-muted">Cuenta destino</span>
             <MedioPagoChips
               value={medio}
               onChange={setMedio}
@@ -195,16 +196,16 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Comprobante de la transferencia
             </span>
             <label
               htmlFor="informar-deposito-comprobante"
-              className="flex min-h-12 flex-col items-center justify-center gap-0.5 border border-dashed border-border px-3 py-2 text-center text-sm break-all text-text hover:border-primary"
+              className="flex min-h-12 flex-col items-center justify-center gap-0.5 border border-dashed border-border px-3 py-2 text-center text-[16px] break-all text-text hover:border-primary"
             >
               {archivo ? archivo.name : "Sacar foto o elegir archivo"}
               {archivo && (
-                <span className="text-[11px] tracking-[0.12em] text-text-muted uppercase">Tocá para cambiarlo</span>
+                <span className="text-[13px] text-text-muted">Tocá para cambiarlo</span>
               )}
             </label>
             <input
@@ -219,7 +220,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
         </div>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -231,7 +232,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
           // (decisión a propósito, evita un aviso que después ningún admin
           // pueda confirmar sin dejarlo en negativo).
           <div className="mt-4 border-t-2 border-accent pt-3">
-            <p className="text-sm text-text">
+            <p className="text-[16px] text-text">
               Tenés {formatCentavos(excedeCentavos)} en mano — no podés avisar más que eso.
             </p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -239,7 +240,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
                 cargando={guardando}
                 textoCargando="Guardando…"
                 onClick={() => usarDisponible()}
-                className="min-h-[52px] flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+                className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
               >
                 Usar {formatCentavos(excedeCentavos)}
               </BotonAccion>
@@ -247,7 +248,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
                 type="button"
                 onClick={descartarExceso}
                 disabled={guardando}
-                className="min-h-[52px] flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+                className={`${BOTON_SECUNDARIO} flex-1 px-4`}
               >
                 Revisar
               </button>
@@ -259,7 +260,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
               cargando={guardando}
               textoCargando="Guardando…"
               onClick={guardar}
-              className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
             >
               Avisar
             </BotonAccion>
@@ -267,7 +268,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
               type="button"
               onClick={cerrar}
               disabled={guardando}
-              className="flex min-h-[52px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
             >
               Cancelar
             </button>

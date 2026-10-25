@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { CifraHeroica } from "@/components/plata/cifra-heroica";
@@ -111,13 +112,13 @@ export function CostoPorBotella({
   if (!tieneCostos) {
     return (
       <div className="flex flex-col gap-3 border-l-2 border-accent bg-surface-raised p-5">
-        <p className="text-[15px] leading-snug text-text">
+        <p className="text-[16px] leading-snug text-text">
           Este pedido todavía no tiene costos cargados, así que todavía no
           sabemos cuánto costó cada {NEGOCIO.envase.singular}.
         </p>
         <Link
           href={`/stock/lotes/${pedidoId}/costos`}
-          className="flex min-h-12 items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex px-4`}
         >
           Completar costos de este pedido
         </Link>
@@ -135,14 +136,14 @@ export function CostoPorBotella({
           d.costo_ananja_centavos !== d.costo_ananja_calculado_centavos;
         return (
           <div key={d.producto_id} className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[16px] text-text-muted">
               {formatPresentacion(d.presentacion_ml)}
-              <span className="block text-[11px]">
+              <span className="block text-[13px]">
                 producción {d.tiene_costos && d.costo_unitario_centavos != null ? formatCentavos(d.costo_unitario_centavos) : "—"}
               </span>
             </span>
             <span className="flex flex-col items-end gap-0.5">
-              <span className="text-right font-display text-[34px] leading-none text-primary">
+              <span className="text-right font-display text-[28px] leading-none text-text">
                 {d.tiene_costos && d.costo_ananja_centavos != null ? (
                   <CifraHeroica centavos={d.costo_ananja_centavos} />
                 ) : (
@@ -150,7 +151,7 @@ export function CostoPorBotella({
                 )}
               </span>
               {hayRedondeo && (
-                <span className="text-[11px] text-text-muted tabular-nums">
+                <span className="text-[13px] text-text-muted tabular-nums">
                   calculado {formatCentavos(d.costo_ananja_calculado_centavos!)}
                 </span>
               )}
@@ -176,20 +177,20 @@ export function CostoPorBotella({
             key={`vigente-${d.producto_id}`}
             className="flex flex-col gap-1 border-l-2 border-mark bg-surface-raised p-3"
           >
-            <p className="text-[13px] leading-snug text-text">
+            <p className="text-[16px] leading-snug text-text">
               {desglose.length > 1 ? `${formatPresentacion(d.presentacion_ml)} — ` : ""}
               Costo Ananja vigente del depósito{" "}
               <strong className="font-medium text-primary tabular-nums">
                 {formatCentavos(v.costo_ananja_centavos ?? 0)}
               </strong>
               {hayRedondeo && (
-                <span className="text-[11px] text-text-muted">
+                <span className="text-[13px] text-text-muted">
                   {" "}
                   (calculado {formatCentavos(v.costo_ananja_calculado_centavos!)})
                 </span>
               )}
             </p>
-            <p className="text-[11px] leading-snug text-text-muted">
+            <p className="text-[13px] leading-snug text-text-muted">
               Actualizado el {formatFechaHora(v.actualizado_en)} — original{" "}
               {formatCentavos(v.costo_ananja_original_centavos ?? 0)}. Solo afecta a las botellas
               que siguen en el depósito; lo ya entregado o vendido conserva el costo original.
@@ -201,31 +202,31 @@ export function CostoPorBotella({
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <Link
           href={`/stock/lotes/${pedidoId}/costos`}
-          className="text-[13px] font-medium tracking-[0.06em] text-primary uppercase underline decoration-mark underline-offset-4"
+          className="text-[16px] font-medium text-primary underline decoration-mark underline-offset-4"
         >
           Editar costos
         </Link>
         <Link
           href={`/stock/lotes/${pedidoId}/actualizar-costos`}
-          className="text-[13px] font-medium tracking-[0.06em] text-primary uppercase underline decoration-mark underline-offset-4"
+          className="text-[16px] font-medium text-primary underline decoration-mark underline-offset-4"
         >
           Actualizar costos del depósito
         </Link>
       </div>
       {enDepositoTotal === 0 && (
-        <p className="text-[11px] leading-snug text-text-muted">
+        <p className="text-[13px] leading-snug text-text-muted">
           Este pedido no tiene botellas en el depósito — actualizar el costo no cambiaría nada de lo
           ya entregado o vendido.
         </p>
       )}
       {valoraciones.length > 0 && (
         <details className="group border-t border-border pt-3">
-          <summary className="text-[12px] font-medium tracking-[0.06em] text-primary uppercase">
+          <summary className="text-[14px] font-medium text-primary">
             Ver historial de actualizaciones
           </summary>
           <div className="mt-3 flex flex-col gap-1.5">
             {valoraciones.map((v) => (
-              <p key={v.id} className="text-[12px] leading-snug text-text-muted">
+              <p key={v.id} className="text-[14px] leading-snug text-text-muted">
                 {formatFechaHora(v.created_at)} · {v.vendedores?.nombre ?? "—"} · costo Ananja{" "}
                 {formatCentavos(v.costo_ananja_centavos)}
                 {v.nota ? ` · ${v.nota}` : ""}
@@ -236,7 +237,7 @@ export function CostoPorBotella({
       )}
 
       <details className="group border-t border-border pt-3">
-        <summary className="text-[12px] font-medium tracking-[0.06em] text-primary uppercase">
+        <summary className="text-[14px] font-medium text-primary">
           Ver cálculo
         </summary>
         <div className="mt-3 flex flex-col gap-5">
@@ -289,26 +290,26 @@ export function CostoPorBotella({
 
             return (
               <div key={d.producto_id} className="flex flex-col gap-2.5">
-                <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+                <span className="text-[13px] text-text-muted">
                   {desglose.length > 1 ? formatPresentacion(d.presentacion_ml) : "Cálculo"}
                 </span>
                 <div className="flex flex-col gap-1.5 border-l-2 border-mark pl-4">
                   {lineas.map((linea, i) => (
-                    <p key={i} className="text-[13px] leading-snug tabular-nums text-text">
+                    <p key={i} className="text-[16px] leading-snug tabular-nums text-text">
                       {linea.antes}
                       <strong className="font-medium text-primary">{linea.resultado}</strong>
                     </p>
                   ))}
                 </div>
                 {d.tiene_costos && d.costo_ananja_centavos != null && (
-                  <p className="text-[13px] leading-snug text-text">
+                  <p className="text-[16px] leading-snug text-text">
                     Costo Ananja (incluye {d.ganancia_pct ?? "—"}% de ganancia){" "}
                     <strong className="font-medium text-primary tabular-nums">
                       {formatCentavos(d.costo_ananja_centavos)}
                     </strong>
                     {d.costo_ananja_redondeado_centavos != null &&
                       d.costo_ananja_calculado_centavos != null && (
-                        <span className="text-[11px] text-text-muted">
+                        <span className="text-[13px] text-text-muted">
                           {" "}
                           (calculado {formatCentavos(d.costo_ananja_calculado_centavos)})
                         </span>
@@ -318,7 +319,7 @@ export function CostoPorBotella({
                 {d.tiene_costos &&
                   d.precio_mayorista_sugerido_centavos != null &&
                   d.precio_minorista_sugerido_centavos != null && (
-                    <p className="text-[13px] leading-snug text-text">
+                    <p className="text-[16px] leading-snug text-text">
                       Mayorista sugerido{" "}
                       <strong className="font-medium text-primary tabular-nums">
                         {formatCentavos(d.precio_mayorista_sugerido_centavos)}
@@ -333,7 +334,7 @@ export function CostoPorBotella({
             );
           })}
           {desglose.length > 1 && (
-            <p className="text-[11px] leading-snug text-text-muted">
+            <p className="text-[13px] leading-snug text-text-muted">
               El transporte y otros gastos compartidos se reparten según el
               volumen de cada presentación (una más grande carga más que una
               más chica).

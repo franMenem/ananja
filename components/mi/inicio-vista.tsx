@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { HistorialPagos } from "@/components/mi/historial-pagos";
@@ -76,7 +77,7 @@ export function MiInicioVista({
   return (
     <div className="@container w-full">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 pb-8 @3xl:grid @3xl:max-w-[1240px] @3xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
-        <h1 className="font-display text-[30px] leading-[1.05] text-primary @3xl:col-span-2 @3xl:text-[38px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text @3xl:col-span-2 @3xl:text-[32px]">
           Hola{nombre ? `, ${nombre}` : ""}
         </h1>
 
@@ -84,14 +85,14 @@ export function MiInicioVista({
           {nombre !== null && (
             <section className="order-1 flex flex-col gap-3 border-y border-border py-4 @3xl:py-5">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+                <span className="text-[13px] text-text-muted">
                   Le debés a {NEGOCIO.nombre}
                 </span>
-                <span className="font-display text-[32px] leading-none break-words text-accent tabular-nums @3xl:text-[40px]">
+                <span className="font-display text-[28px] leading-none break-words text-accent tabular-nums @3xl:text-[40px]">
                   {formatCentavos(debeCentavos)}
                 </span>
                 {pendienteCentavos > 0 && (
-                  <span className="text-sm text-text-muted">
+                  <span className="text-[16px] text-text-muted">
                     Pendiente de confirmar{" "}
                     <span className="font-medium tabular-nums text-text">
                       {formatCentavos(pendienteCentavos)}
@@ -99,14 +100,14 @@ export function MiInicioVista({
                   </span>
                 )}
               </div>
-              <span className="text-[13px] text-text-muted">
+              <span className="text-[16px] text-text-muted">
                 {encargadoNombre
                   ? `Tu encargado es ${encargadoNombre}: le pagás a ${encargadoNombre} y ${encargadoNombre} lo pasa a la cuenta de ${NEGOCIO.nombre}.`
                   : `No tenés encargado: pagás directo a la cuenta de ${NEGOCIO.nombre}.`}
               </span>
               <Link
                 href="/mi/pagar"
-                className="flex min-h-[52px] items-center justify-center bg-primary px-4 text-center text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover"
+                className={`${BOTON_PRIMARIO} flex px-4`}
               >
                 Pagar a {destinoPago}
               </Link>
@@ -115,20 +116,20 @@ export function MiInicioVista({
 
           <Link
             href="/mi/ventas/nueva"
-            className="order-3 flex min-h-[56px] items-center justify-center border border-primary text-[14px] font-medium tracking-[0.16em] text-primary uppercase hover:bg-surface-raised"
+            className="order-3 flex min-h-[56px] items-center justify-center border border-primary text-[16px] font-medium text-primary hover:bg-surface-raised"
           >
             Registrar venta
           </Link>
 
           <section className="order-4 flex flex-col gap-2">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Tus pagos
               </span>
               {movimientos.length > 3 && (
                 <Link
                   href="/mi/ganancia"
-                  className="border-b border-mark text-[11px] tracking-[0.12em] text-text uppercase"
+                  className="border-b border-mark text-[13px] text-text"
                 >
                   Ver todos
                 </Link>
@@ -145,22 +146,22 @@ export function MiInicioVista({
         <div className="contents @3xl:flex @3xl:flex-col @3xl:gap-10">
           <section className="order-2 flex flex-col gap-2">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <span className="shrink-0 text-[10px] tracking-[0.22em] text-text-muted uppercase">Tu stock</span>
+              <span className="shrink-0 text-[13px] text-text-muted">Tu stock</span>
               {valorEnPoderCentavos > 0 && (
-                <span className="min-w-0 break-words text-right text-[12px] text-text-muted">
+                <span className="min-w-0 break-words text-right text-[14px] text-text-muted">
                   Le debés a {valorEnPoderDestino ?? NEGOCIO.nombre}{" "}
                   <span className="font-medium tabular-nums text-text">{formatCentavos(valorEnPoderCentavos)}</span>
                 </span>
               )}
             </div>
             {stock.length === 0 ? (
-              <p className="py-6 text-sm text-text-muted">Todavía no hay productos cargados.</p>
+              <p className="py-6 text-[16px] text-text-muted">Todavía no hay productos cargados.</p>
             ) : (
               <div className="flex flex-col @3xl:border-t @3xl:border-border">
                 {stock.map((p) => (
                   <div key={p.id} className="flex flex-col gap-1 border-b border-border py-4">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="min-w-0 break-words font-display text-[19px] text-primary">
+                      <span className="min-w-0 break-words font-display text-[19px] text-text">
                         {p.nombre}
                       </span>
                       <span className="shrink-0 text-lg font-medium tabular-nums text-text">
@@ -168,12 +169,12 @@ export function MiInicioVista({
                       </span>
                     </div>
                     {p.tramos.length === 0 ? (
-                      <span className="text-[11px] text-text-muted">
+                      <span className="text-[13px] text-text-muted">
                         No tenés {envase(2)} de este producto.
                       </span>
                     ) : (
                       p.tramos.map((t) => (
-                        <span key={t.entregaItemId} className="text-[11px] text-text-muted">
+                        <span key={t.entregaItemId} className="text-[13px] text-text-muted">
                           {t.quedan} de la entrega del {formatFecha(t.fecha)} ·{" "}
                           {t.costoCentavos !== null
                             ? `le debés ${formatCentavos(t.costoCentavos)} c/u`

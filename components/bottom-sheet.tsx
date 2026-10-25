@@ -36,7 +36,7 @@ export function BottomSheet({
       className="fixed inset-0 z-50 flex items-end justify-center bg-scrim sm:items-center"
     >
       <div
-        className={`paper-texture max-h-[85dvh] w-full overflow-y-auto overscroll-contain border-t-2 px-5 py-[22px] sm:max-w-sm ${
+        className={`rounded-t-2xl bg-surface sm:rounded-2xl max-h-[85dvh] w-full overflow-y-auto overscroll-contain border-t-2 px-5 py-[22px] sm:max-w-sm ${
           variant === "accent" ? "border-accent" : "border-mark"
         }`}
       >

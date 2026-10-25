@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -60,7 +61,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
   }
 
   return (
-    <div className={`flex flex-wrap gap-1.5 text-[13px] ${editing ? "items-start" : "items-center"}`}>
+    <div className={`flex flex-wrap gap-1.5 text-[16px] ${editing ? "items-start" : "items-center"}`}>
       <span className={`text-text-muted ${editing ? "flex min-h-11 items-center" : ""}`}>
         Umbral mínimo
       </span>
@@ -79,7 +80,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
           <BotonAccion
             onClick={guardar}
             cargando={saving}
-            className="min-h-11 bg-primary px-2 text-[10px] font-medium tracking-[0.06em] text-background uppercase disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} px-2`}
           >
             Ok
           </BotonAccion>
@@ -90,7 +91,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
               setInput(textoInicial);
               setError(null);
             }}
-            className="min-h-11 px-1 text-[10px] text-text-muted uppercase"
+            className="min-h-11 px-1 text-[13px] text-text-muted"
           >
             Cancelar
           </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -166,13 +167,13 @@ export function PagoDeudaForm({
                 }}
                 required
                 placeholder="0,00"
-                labelClassName="block text-[10px] tracking-[0.22em] text-text-muted uppercase"
+                labelClassName="block text-[13px] text-text-muted"
                 cajaClassName="mt-2 flex items-baseline gap-2 border-b-2 border-border pb-1.5"
                 simboloClassName="font-display text-[18px] text-text-muted"
                 inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-text tabular-nums"
               />
               {dolarCentavos === null && (
-                <p className="text-[11px] text-text-muted">
+                <p className="text-[13px] text-text-muted">
                   Sin dólar de referencia cargado — completá el monto a mano.
                 </p>
               )}
@@ -182,7 +183,7 @@ export function PagoDeudaForm({
       />
 
       {formError && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {formError}
         </p>
       )}
@@ -191,7 +192,7 @@ export function PagoDeudaForm({
         cargando={submitting}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={BOTON_PRIMARIO}
       >
         Registrar pago
       </BotonAccion>

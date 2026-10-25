@@ -28,11 +28,11 @@ export default async function InsumoDetailPage({
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href="/stock/insumos" label="insumos" />
         {errorMensaje ? (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {errorMensaje}
           </p>
         ) : (
-          <p className="text-sm text-text-muted">No encontramos el insumo.</p>
+          <p className="text-[16px] text-text-muted">No encontramos el insumo.</p>
         )}
       </div>
     );
@@ -46,18 +46,18 @@ export default async function InsumoDetailPage({
         <VolverLink href="/stock/insumos" label="insumos" />
 
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             {TIPO_INSUMO_LABELS[insumo.tipo as keyof typeof TIPO_INSUMO_LABELS] ?? insumo.tipo}
           </span>
-          <h1 className="font-display text-[28px] text-primary">{insumo.nombre}</h1>
-          <p className="font-display text-[22px] tabular-nums text-primary">
+          <h1 className="font-display text-[28px] text-text">{insumo.nombre}</h1>
+          <p className="font-display text-[22px] tabular-nums text-text">
             {formatCantidadConUnidad(stock?.stock ?? 0, insumo.unidad)}
           </p>
           <InsumoUmbral insumoId={insumo.id} umbralMinimo={insumo.umbral_minimo} />
         </div>
 
         <div className="flex items-center gap-2.5 pt-2">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Historial
           </span>
           <span
@@ -70,7 +70,7 @@ export default async function InsumoDetailPage({
 
         <div className="flex flex-col">
           {movimientos.length === 0 ? (
-            <p className="py-3 text-sm text-text-muted">
+            <p className="py-3 text-[16px] text-text-muted">
               Todavía no hay movimientos de este insumo.
             </p>
           ) : (
@@ -111,12 +111,12 @@ export default async function InsumoDetailPage({
                     {esIngreso ? "+" : "−"}
                   </span>
                   <span className="flex flex-1 flex-col">
-                    <span className="text-[13px]">{origen}</span>
-                    <span className="text-[11px] text-text-muted">
+                    <span className="text-[16px]">{origen}</span>
+                    <span className="text-[13px] text-text-muted">
                       {formatFechaHoraSinAnio(m.created_at)} · {m.vendedores?.nombre ?? "—"}
                     </span>
                   </span>
-                  <span className="shrink-0 text-[13px] text-text-muted tabular-nums">
+                  <span className="shrink-0 text-[16px] text-text-muted tabular-nums">
                     {formatCantidadConUnidad(m.cantidad, insumo.unidad)}
                   </span>
                 </div>

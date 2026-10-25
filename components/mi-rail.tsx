@@ -23,9 +23,9 @@ function leerSidebarColapsadoServer(): boolean {
 function itemClassName(active: boolean, colapsado: boolean): string {
   const layout = colapsado ? "justify-center px-0" : "gap-3 px-6";
   const color = active
-    ? "border-mark bg-primary-active font-medium text-background"
-    : "border-transparent text-on-primary-muted hover:text-background";
-  return `flex min-h-11 w-full items-center border-l-2 py-3 text-left text-xs tracking-[0.14em] uppercase ${layout} ${color}`;
+    ? "border-mark bg-[#fff1eb] font-medium text-primary"
+    : "border-transparent text-text-muted hover:text-text";
+  return `flex min-h-11 w-full items-center border-l-2 py-3 text-left text-[14px] ${layout} ${color}`;
 }
 
 /**
@@ -66,21 +66,21 @@ export function MiRail() {
   return (
     <nav
       aria-label="Navegación principal"
-      className={`hidden shrink-0 flex-col bg-primary py-5 transition-[width] duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start ${
+      className={`hidden shrink-0 flex-col border-r border-border bg-surface py-5 transition-[width] duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start ${
         colapsado ? "w-16" : "w-[238px]"
       }`}
     >
       <div
-        className={`flex items-center border-b border-primary-line pb-[22px] ${
+        className={`flex items-center border-b border-border pb-[22px] ${
           colapsado ? "justify-center px-0" : "justify-between px-6"
         }`}
       >
         {!colapsado && (
           <Link href="/mi" className="min-w-0">
-            <span className="font-display block text-[28px] tracking-[0.16em] text-background">
+            <span className="font-display block text-[28px] text-text">
               {NEGOCIO.wordmark}
             </span>
-            <span className="mt-1 block text-[10px] tracking-[0.10em] text-on-primary-muted uppercase">
+            <span className="mt-1 block text-[13px] text-text-muted">
               {vendedor?.rol === "coordinador" ? "Espacio coordinador" : "Espacio revendedor"}
             </span>
           </Link>
@@ -91,7 +91,7 @@ export function MiRail() {
           aria-label={colapsado ? "Expandir menú" : "Colapsar menú"}
           title={colapsado ? "Expandir menú" : "Colapsar menú"}
           aria-expanded={!colapsado}
-          className="flex h-11 w-11 shrink-0 items-center justify-center text-on-primary-muted"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-text-muted"
         >
           <IconRailToggle className="h-[18px] w-[18px]" />
         </button>
@@ -117,7 +117,7 @@ export function MiRail() {
         })}
       </ul>
 
-      <div className="border-t border-primary-line pt-2">
+      <div className="border-t border-border pt-2">
         {vendedor?.rol === "admin" && (
           <Link
             href="/"

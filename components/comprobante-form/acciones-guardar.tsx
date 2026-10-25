@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { BotonAccion } from "@/components/boton-accion";
 
 type AccionesGuardarProps = {
@@ -26,14 +27,14 @@ export function AccionesGuardar({
     <>
       {formError && (
         <div className="flex flex-col gap-2">
-          <p role="alert" className="text-xs text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             {formError}
           </p>
           {showRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="min-h-11 self-start border border-accent px-4 text-xs font-medium tracking-[0.1em] text-accent uppercase"
+              className="min-h-11 self-start border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
             >
               Reintentar
             </button>
@@ -47,12 +48,12 @@ export function AccionesGuardar({
           textoCargando="Guardando…"
           type="submit"
           disabled={uploading}
-          className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={BOTON_PRIMARIO}
         >
           Guardar comprobante
         </BotonAccion>
         {resumenDescuento && (
-          <p className="text-center text-[11px] text-text-muted">
+          <p className="text-center text-[13px] text-text-muted">
             Descuenta {resumenDescuento} del depósito.
           </p>
         )}

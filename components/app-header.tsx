@@ -35,16 +35,16 @@ export function AppHeader() {
 
   if (formHeader) {
     return (
-      <header className="sticky top-0 z-10 border-b-2 border-mark bg-primary pt-[env(safe-area-inset-top)] lg:hidden">
+      <header className="sticky top-0 z-10 border-b border-border bg-surface pt-[env(safe-area-inset-top)] lg:hidden">
         <div className="flex items-start gap-3 px-5 pt-[14px] pb-3">
           <Link
             href={formHeader.backHref}
             aria-label={formHeader.backLabel}
-            className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-background"
+            className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-text"
           >
             ←
           </Link>
-          <h1 className="line-clamp-2 font-display text-[22px] text-background">
+          <h1 className="line-clamp-2 font-display text-[20px] text-text">
             {formHeader.title}
           </h1>
         </div>
@@ -53,18 +53,18 @@ export function AppHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b-2 border-mark bg-primary pt-[env(safe-area-inset-top)] lg:hidden">
+    <header className="sticky top-0 z-10 border-b border-border bg-surface pt-[env(safe-area-inset-top)] lg:hidden">
       <div className="flex items-center justify-between px-5 pt-[14px] pb-3">
         <Link
           href="/"
-          className="font-display text-[25px] tracking-[0.16em] text-background"
+          className="font-display text-[20px] text-text"
         >
           {NEGOCIO.wordmark}
         </Link>
         {/* En pantallas muy angostas el nombre de pantalla se esconde para
             dejar lugar al botón "Vista revendedor" (siempre visible para un
             admin, ver `VerComoRevendedor`). */}
-        <span className="hidden text-[11px] tracking-[0.16em] text-on-primary-muted uppercase min-[400px]:inline">
+        <span className="hidden text-[13px] text-text-muted min-[400px]:inline">
           {name ?? NEGOCIO.lugar}
         </span>
         <VerComoRevendedor variante="header" />

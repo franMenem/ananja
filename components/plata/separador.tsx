@@ -7,7 +7,7 @@
 export function Separador({ titulo, total }: { titulo: string; total?: string }) {
   return (
     <div className="flex items-baseline gap-2.5 pb-3">
-      <span className="shrink-0 text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="shrink-0 text-[13px] text-text-muted">
         {titulo}
       </span>
       <span

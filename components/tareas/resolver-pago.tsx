@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -60,11 +61,11 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[13px] text-text-muted">{explicacion}</p>
+      <p className="text-[16px] text-text-muted">{explicacion}</p>
 
       {rechazando && (
         <div>
-          <label htmlFor="motivo" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="motivo" className="text-[13px] text-text-muted">
             ¿Por qué lo rechazás?
           </label>
           <textarea
@@ -73,13 +74,13 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             onChange={(event) => setMotivo(event.target.value)}
             rows={2}
             placeholder="Ej.: no me llegó la transferencia"
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
       )}
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -91,7 +92,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             textoCargando="Guardando…"
             type="button"
             onClick={handleRechazar}
-            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Rechazar pago
           </BotonAccion>
@@ -102,7 +103,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
               setError(null);
             }}
             disabled={saving}
-            className="flex min-h-[52px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
           >
             Cancelar
           </button>
@@ -114,7 +115,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             textoCargando="Guardando…"
             type="button"
             onClick={handleConfirmar}
-            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
           >
             Confirmar que lo recibí
           </BotonAccion>
@@ -122,7 +123,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             type="button"
             onClick={() => setRechazando(true)}
             disabled={saving}
-            className="flex min-h-[52px] flex-1 items-center justify-center border border-accent px-4 text-[13px] font-medium tracking-[0.14em] text-accent uppercase disabled:opacity-45"
+            className="flex min-h-[52px] flex-1 items-center justify-center border border-accent px-4 text-[16px] font-medium text-accent disabled:opacity-45 rounded-xl"
           >
             Rechazar
           </button>

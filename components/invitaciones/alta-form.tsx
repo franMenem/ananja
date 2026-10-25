@@ -19,7 +19,7 @@ import {
 
 type Admin = { id: string; nombre: string };
 
-const labelClass = "text-[10px] tracking-[0.18em] text-text-muted uppercase";
+const labelClass = "text-[13px] text-text-muted";
 const inputClass =
   "min-h-11 w-full border-0 border-b border-border bg-transparent text-base text-text focus:border-primary";
 
@@ -70,7 +70,7 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
     return (
       <div className="flex flex-col gap-4">
         {estado?.estado === "aviso" && (
-          <p role="alert" className="border-l-2 border-accent pl-3 text-sm text-accent">
+          <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">
             {estado.mensaje}
           </p>
         )}
@@ -121,8 +121,8 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
               className="mt-1 size-4 shrink-0 accent-primary"
             />
             <span className="flex min-w-0 flex-col gap-1">
-              <span className="text-[15px] font-medium text-text">{m.titulo}</span>
-              <span className="text-[13px] leading-snug text-text-muted">{m.descripcion}</span>
+              <span className="text-[16px] font-medium text-text">{m.titulo}</span>
+              <span className="text-[16px] leading-snug text-text-muted">{m.descripcion}</span>
             </span>
           </label>
         ))}
@@ -132,13 +132,13 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
 
       {mostrarMensaje && estado.estado !== "ok" && (
         <div role="alert" className="flex flex-col gap-2 border-l-2 border-accent pl-3">
-          <p className="text-sm text-accent">{estado.mensaje}</p>
+          <p className="text-[16px] text-accent">{estado.mensaje}</p>
 
           {estado.sugerirTemporal && modo === "invitar" && (
             <button
               type="button"
               onClick={() => setModo("temporal")}
-              className="flex min-h-11 items-center self-start border border-primary px-4 text-[12px] font-medium tracking-[0.12em] text-primary uppercase"
+              className="flex min-h-11 items-center self-start border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
             >
               Usar contraseña temporal
             </button>
@@ -149,7 +149,7 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
               type="button"
               onClick={reintentar}
               disabled={reintentando}
-              className="flex min-h-11 items-center self-start border border-primary px-4 text-[12px] font-medium tracking-[0.12em] text-primary uppercase disabled:opacity-45"
+              className="flex min-h-11 items-center self-start border border-primary px-4 text-[14px] font-medium text-primary disabled:opacity-45 rounded-xl"
             >
               {reintentando
                 ? "Un momento…"
@@ -160,13 +160,13 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
           )}
 
           {reintentoActual && !reintentoActual.credenciales && (
-            <p className={`text-sm ${reintentoActual.ok ? "text-text" : "text-accent"}`}>{reintentoActual.mensaje}</p>
+            <p className={`text-[16px] ${reintentoActual.ok ? "text-text" : "text-accent"}`}>{reintentoActual.mensaje}</p>
           )}
         </div>
       )}
 
       {mostrarMensaje && estado.estado === "ok" && (
-        <p role="status" className="border-l-2 border-mark pl-3 text-sm text-text">
+        <p role="status" className="border-l-2 border-mark pl-3 text-[16px] text-text">
           {estado.mensaje}
         </p>
       )}
@@ -174,7 +174,7 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
       <button
         type="submit"
         disabled={enviando}
-        className="flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {enviando ? "Guardando…" : modo === "invitar" ? "Mandar invitación" : "Crear cuenta"}
       </button>
@@ -204,7 +204,7 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
           className={inputClass}
           placeholder="Nombre y apellido"
         />
-        <p className="text-xs text-text-muted">Es el nombre que va a ver todo el equipo.</p>
+        <p className="text-[14px] text-text-muted">Es el nombre que va a ver todo el equipo.</p>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -222,7 +222,7 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
           className={inputClass}
           placeholder="nombre@mail.com"
         />
-        <p className="text-xs text-text-muted">Con este email va a entrar a la app.</p>
+        <p className="text-[14px] text-text-muted">Con este email va a entrar a la app.</p>
       </div>
 
       <fieldset className="flex flex-col gap-2">
@@ -244,8 +244,8 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
                 className="mt-1 size-4 shrink-0 accent-primary"
               />
               <span className="flex min-w-0 flex-col gap-1">
-                <span className="text-[15px] font-medium text-text">{ETIQUETA_ROL[r]}</span>
-                <span className="text-[13px] leading-snug text-text-muted">{DESCRIPCION_ROL[r]}</span>
+                <span className="text-[16px] font-medium text-text">{ETIQUETA_ROL[r]}</span>
+                <span className="text-[16px] leading-snug text-text-muted">{DESCRIPCION_ROL[r]}</span>
               </span>
             </label>
           ))}
@@ -261,7 +261,7 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
             id="encargadoId"
             name="encargadoId"
             defaultValue={valores?.encargadoId ?? ""}
-            className="min-h-11 w-full max-w-[320px] border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="min-h-11 w-full max-w-[320px] border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           >
             <option value="">Sin coordinador por ahora</option>
             {coordinadores.map((a) => (
@@ -270,7 +270,7 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
               </option>
             ))}
           </select>
-          <p className="text-xs text-text-muted">A quién le rinde la plata. Lo podés cambiar después.</p>
+          <p className="text-[14px] text-text-muted">A quién le rinde la plata. Lo podés cambiar después.</p>
         </div>
       )}
     </div>

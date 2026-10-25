@@ -37,12 +37,12 @@ export function SeccionMonto({
         <div className="flex items-baseline justify-between gap-2">
           <label
             htmlFor="monto"
-            className="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             2 · Monto
           </label>
           {montoAutocompletado && ocrEstado === "propuesto" && (
-            <span className="text-[10px] font-medium tracking-[0.14em] text-accent uppercase">
+            <span className="text-[13px] font-medium text-accent">
               Leído de la foto
             </span>
           )}
@@ -56,10 +56,10 @@ export function SeccionMonto({
           placeholder="0,00"
           cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
           simboloClassName="font-display text-[22px] text-text-muted"
-          inputClassName="font-display w-full min-w-0 text-[50px] leading-none text-primary tabular-nums"
+          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-text tabular-nums"
         />
         {montoAutocompletado && ocrEstado === "propuesto" && (
-          <p className="text-[11px] text-text-muted">
+          <p className="text-[13px] text-text-muted">
             Verificalo antes de guardar — el número se leyó automáticamente.
           </p>
         )}

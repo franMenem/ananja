@@ -20,11 +20,11 @@ export function TituloFormularioEscritorio() {
     <div className="hidden flex-col gap-3 lg:flex">
       <Link
         href={formHeader.backHref}
-        className="w-fit text-[11px] tracking-[0.14em] text-text-muted uppercase hover:text-primary-hover"
+        className="w-fit text-[13px] text-text-muted hover:text-primary-hover"
       >
         ← {formHeader.backLabel}
       </Link>
-      <h1 className="font-display text-[34px] leading-[1.05] text-primary">{formHeader.title}</h1>
+      <h1 className="font-display text-[28px] leading-[1.05] text-text">{formHeader.title}</h1>
     </div>
   );
 }

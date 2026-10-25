@@ -77,16 +77,16 @@ export function UpdateBanner() {
   return (
     <div
       role="status"
-      className="order-none flex items-center justify-between gap-3 border-t-2 border-mark bg-primary px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-background lg:order-first lg:border-t-0 lg:border-b-2 lg:pb-3"
+      className="order-none flex items-center justify-between gap-3 border-t-2 border-warning bg-warning-tint px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-warning lg:order-first lg:border-t-0 lg:border-b-2 lg:pb-3"
     >
-      <span className="text-[12px] font-medium tracking-[0.08em] uppercase">
+      <span className="text-[14px] font-medium ">
         Hay una versión nueva
       </span>
       <div className="flex shrink-0 items-center gap-3">
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="relative min-h-9 border border-background px-3 text-[11px] font-medium tracking-[0.12em] text-background uppercase before:absolute before:inset-x-0 before:inset-y-[-7px] before:content-['']"
+          className="relative min-h-9 border border-warning px-3 text-[13px] font-medium text-warning before:absolute before:inset-x-0 before:inset-y-[-7px] before:content-['']"
         >
           Actualizar
         </button>
@@ -94,7 +94,7 @@ export function UpdateBanner() {
           type="button"
           onClick={() => setDismissed(true)}
           aria-label="Descartar aviso de actualización"
-          className="relative flex min-h-9 min-w-9 items-center justify-center text-[16px] leading-none text-background before:absolute before:inset-[-7px] before:content-['']"
+          className="relative flex min-h-9 min-w-9 items-center justify-center text-[16px] leading-none text-warning before:absolute before:inset-[-7px] before:content-['']"
         >
           ×
         </button>

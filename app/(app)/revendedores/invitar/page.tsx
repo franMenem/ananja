@@ -51,7 +51,7 @@ export default async function InvitarPage() {
       pb
     >
       {servicio === "sin_clave" && (
-        <p role="alert" className="border-l-2 border-accent pl-3 text-sm text-accent">
+        <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">
           Falta configurar la clave SUPABASE_SERVICE_ROLE_KEY en Vercel: sin ella la app no puede crear
           cuentas.
         </p>
@@ -60,11 +60,11 @@ export default async function InvitarPage() {
       <AltaForm coordinadores={coordinadores ?? []} />
 
       <section className="flex flex-col gap-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Pendientes de entrar
         </span>
         {servicio === "error" ? (
-          <p className="text-sm text-accent">No se pudieron cargar las invitaciones. Recargá la página.</p>
+          <p className="text-[16px] text-accent">No se pudieron cargar las invitaciones. Recargá la página.</p>
         ) : (
           <InvitacionesPendientes invitaciones={invitaciones} />
         )}

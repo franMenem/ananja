@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -178,19 +179,19 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
   }
 
   if (loading) {
-    return <p className="py-6 text-sm text-text-muted">Cargando…</p>;
+    return <p className="py-6 text-[16px] text-text-muted">Cargando…</p>;
   }
 
   if (notFound || !gasto) {
     return (
       <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
         <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />
-        <p className="font-display text-[28px] leading-[1.2] text-primary">
+        <p className="font-display text-[28px] leading-[1.2] text-text">
           No encontramos este gasto.
         </p>
         <Link
           href={volver.href}
-          className="text-[13px] font-medium tracking-[0.1em] text-accent uppercase"
+          className="text-[16px] font-medium text-accent"
         >
           {volver.label}
         </Link>
@@ -216,7 +217,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
       pb
     >
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -229,10 +230,10 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             value={monto}
             onChange={setMonto}
             required
-            labelClassName="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+            labelClassName="text-[13px] text-text-muted"
             cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
             simboloClassName="font-display text-[22px] text-text-muted"
-            inputClassName="font-display w-full min-w-0 bg-transparent text-[42px] text-primary tabular-nums"
+            inputClassName="font-display w-full min-w-0 bg-transparent text-[clamp(28px,9vw,40px)] text-text tabular-nums"
           />
 
           <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
@@ -242,7 +243,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
           <div>
             <label
               htmlFor="fecha"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Fecha
             </label>
@@ -252,14 +253,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               required
               value={fecha}
               onChange={(event) => setFecha(event.target.value)}
-              className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+              className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="nota"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Nota (opcional)
             </label>
@@ -268,7 +269,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               value={nota}
               onChange={(event) => setNota(event.target.value)}
               rows={3}
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
             />
           </div>
 
@@ -277,7 +278,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               cargando={saving}
               textoCargando="Guardando…"
               type="submit"
-              className="min-h-12 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
             >
               Guardar cambios
             </BotonAccion>
@@ -288,7 +289,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
                 setError(null);
               }}
               disabled={saving}
-              className="min-h-12 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Cancelar
             </button>
@@ -297,17 +298,17 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
       ) : (
         <div className="flex flex-col gap-5">
           <div>
-            <span className="block font-display text-[24px] leading-[1.15] break-words text-primary">
+            <span className="block font-display text-[24px] leading-[1.15] break-words text-text">
               {titulo}
             </span>
-            <span className="font-display mt-1 block text-[46px] leading-[1] text-accent tabular-nums">
+            <span className="font-display mt-1 block text-[clamp(28px,9vw,40px)] leading-[1] text-accent tabular-nums">
               {formatCentavos(gasto.monto_centavos)}
             </span>
           </div>
 
           <dl className="flex flex-col">
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[11px] text-text-muted uppercase">
+              <dt className="text-[13px] text-text-muted">
                 Categoría
               </dt>
               <dd className="text-right text-text">
@@ -315,13 +316,13 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[11px] text-text-muted uppercase">
+              <dt className="text-[13px] text-text-muted">
                 Medio de pago
               </dt>
               <dd className="text-text">{etiquetaMedioPago(gasto.medio_pago)}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[11px] text-text-muted uppercase">
+              <dt className="text-[13px] text-text-muted">
                 Vendedor
               </dt>
               <dd className="text-text">
@@ -329,14 +330,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[11px] text-text-muted uppercase">
+              <dt className="text-[13px] text-text-muted">
                 Fecha
               </dt>
               <dd className="text-text">{formatFecha(gasto.fecha)}</dd>
             </div>
             {gasto.nota && (
               <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-                <dt className="text-[11px] text-text-muted uppercase">
+                <dt className="text-[13px] text-text-muted">
                   Nota
                 </dt>
                 <dd className="text-right text-text">{gasto.nota}</dd>
@@ -357,14 +358,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="min-h-12 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase"
+              className="min-h-12 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
             >
               Editar
             </button>
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="min-h-12 flex-1 border border-accent px-4 text-[13px] font-medium tracking-[0.14em] text-accent uppercase"
+              className="min-h-12 flex-1 border border-accent px-4 text-[16px] font-medium text-accent rounded-xl"
             >
               Eliminar
             </button>
@@ -377,20 +378,20 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
         ariaLabel="Eliminar gasto"
         variant="accent"
       >
-        <span className="text-[10px] tracking-[0.2em] text-accent uppercase">
+        <span className="text-[13px] text-accent">
           Eliminar gasto
         </span>
-        <p className="font-display mt-2 text-[24px] leading-[1.3] text-primary">
+        <p className="font-display mt-2 text-[24px] leading-[1.3] text-text">
           Se va a eliminar el gasto de {titulo} por{" "}
           {formatCentavos(gasto.monto_centavos)} y se devuelve ese monto a la
           caja {etiquetaMedioPago(gasto.medio_pago)}.
         </p>
-        <p className="mt-2 text-[12px] text-text-muted">
+        <p className="mt-2 text-[14px] text-text-muted">
           No se puede deshacer.
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 text-[12px] text-accent">
+          <p role="alert" className="mt-3 text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -400,7 +401,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             type="button"
             onClick={() => setConfirmingDelete(false)}
             disabled={deleting}
-            className="min-h-12 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>
@@ -409,7 +410,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             textoCargando="Eliminando…"
             type="button"
             onClick={handleEliminar}
-            className="min-h-12 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

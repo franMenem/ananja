@@ -66,18 +66,18 @@ export function CamposPagoCaja({
           required
           placeholder="0,00"
           simbolo={montoSimbolo}
-          labelClassName="block text-[10px] tracking-[0.22em] text-text-muted uppercase"
+          labelClassName="block text-[13px] text-text-muted"
           cajaClassName="mt-2 flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
           simboloClassName="font-display text-[22px] text-text-muted"
-          inputClassName="font-display w-full min-w-0 text-[50px] leading-none text-primary tabular-nums"
+          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-text tabular-nums"
         />
-        <p className="text-[11px] text-text-muted">{captionMonto}</p>
+        <p className="text-[13px] text-text-muted">{captionMonto}</p>
       </div>
 
       {extra}
 
       <div className="flex flex-col gap-2.5">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">{medioLabel}</span>
+        <span className="text-[13px] text-text-muted">{medioLabel}</span>
         <MedioPagoChips value={medioValue} onChange={onMedioChange} ocultarRotulo />
       </div>
 
@@ -89,7 +89,7 @@ export function CamposPagoCaja({
           aria-label="Fecha"
           value={fecha}
           onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
         />
         <textarea
           id={`${idPrefix}-nota`}
@@ -97,7 +97,7 @@ export function CamposPagoCaja({
           onChange={(event) => onNotaChange(event.target.value)}
           rows={2}
           placeholder="Nota (opcional)"
-          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary"
+          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
         />
       </div>
     </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -124,17 +125,17 @@ export function DepositarRapido({
     <AccionRapida
       triggerLabel={propia ? "Pasar a la cuenta" : "Registrar que lo pasó"}
       triggerAriaLabel={propia ? undefined : `Registrar que ${tenedorNombre} pasó su plata a la cuenta`}
-      triggerClassName={`flex min-h-11 shrink-0 items-center justify-center px-4 text-xs font-medium tracking-[0.12em] uppercase transition-colors ${
+      triggerClassName={`flex min-h-11 shrink-0 items-center justify-center px-4 text-[14px] font-medium transition-colors ${
         tono === "claro"
           ? "bg-background text-primary hover:bg-surface-raised"
-          : "bg-primary text-background hover:bg-primary-hover"
+          : "bg-primary text-primary-foreground hover:bg-primary-hover"
       }`}
       ariaLabel={tituloHoja}
       abierto={abierto}
       onAbrir={abrir}
     >
-      <h2 className="font-display text-[24px] break-words text-primary">{tituloHoja}</h2>
-      <p className="mt-1 text-[13px] text-text-muted">
+      <h2 className="font-display text-[24px] break-words text-text">{tituloHoja}</h2>
+      <p className="mt-1 text-[16px] text-text-muted">
         {propia
           ? `Registrá cuánto de la plata que tenés en mano (${formatCentavos(montoCentavos)}) ya está en la cuenta de ${NEGOCIO.nombre}.`
           : `Registrá cuánto de la plata que tiene ${tenedorNombre} en mano (${formatCentavos(montoCentavos)}) ya está en la cuenta de ${NEGOCIO.nombre}.`}{" "}
@@ -149,12 +150,12 @@ export function DepositarRapido({
           onChange={setMonto}
           required
           simbolo={null}
-          labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[32px] text-primary tabular-nums"
+          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums"
         />
         <div>
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">Cuenta destino</span>
+          <span className="text-[13px] text-text-muted">Cuenta destino</span>
           <MedioPagoChips
             value={medio}
             onChange={setMedio}
@@ -166,14 +167,14 @@ export function DepositarRapido({
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-accent">
+        <p role="alert" className="mt-3 text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {saldoInsuficiente !== null ? (
         <div className="mt-4 border-t-2 border-accent pt-3">
-          <p className="text-sm text-text">
+          <p className="text-[16px] text-text">
             {propia ? "Tenés" : `${tenedorNombre} tiene`} {formatCentavos(saldoInsuficiente)} en mano. Si guardás
             el monto escrito, queda negativo.
           </p>
@@ -183,7 +184,7 @@ export function DepositarRapido({
                 cargando={guardando}
                 textoCargando="Guardando…"
                 onClick={() => usarDisponible()}
-                className="min-h-[52px] flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+                className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
               >
                 Usar {formatCentavos(saldoInsuficiente)}
               </BotonAccion>
@@ -192,7 +193,7 @@ export function DepositarRapido({
               cargando={guardando}
               textoCargando="Guardando…"
               onClick={() => enviar({ permitirExceso: true })}
-              className="min-h-[52px] flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+              className="min-h-[52px] flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
             >
               Guardar igual
             </BotonAccion>
@@ -200,7 +201,7 @@ export function DepositarRapido({
               type="button"
               onClick={descartarExceso}
               disabled={guardando}
-              className="min-h-[52px] flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Revisar
             </button>
@@ -212,7 +213,7 @@ export function DepositarRapido({
             cargando={guardando}
             textoCargando="Guardando…"
             onClick={guardar}
-            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
           >
             Guardar depósito
           </BotonAccion>
@@ -220,7 +221,7 @@ export function DepositarRapido({
             type="button"
             onClick={cerrar}
             disabled={guardando}
-            className="flex min-h-[52px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
           >
             Cancelar
           </button>
@@ -229,7 +230,7 @@ export function DepositarRapido({
 
       <Link
         href={`/plata/depositar?tenedor=${tenedorId}&monto=${montoCentavos}`}
-        className="mt-4 inline-block border-b border-mark text-[11px] tracking-[0.12em] text-text uppercase"
+        className="mt-4 inline-block border-b border-mark text-[13px] text-text"
       >
         Otra fecha o con nota →
       </Link>

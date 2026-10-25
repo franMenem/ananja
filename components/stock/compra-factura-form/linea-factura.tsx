@@ -41,17 +41,17 @@ export function LineaFacturaCampos({
     <div
       role="group"
       aria-label={`Línea ${indice + 1}`}
-      className="flex flex-col gap-3 border border-border bg-surface-raised p-4"
+      className="flex flex-col gap-3 border border-border bg-surface-raised p-4 rounded-2xl"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11px] tracking-[0.14em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Línea {indice + 1}
         </span>
         {mostrarQuitar && (
           <button
             type="button"
             onClick={onQuitar}
-            className="min-h-11 px-2 text-[11px] tracking-[0.12em] text-accent uppercase"
+            className="min-h-11 px-2 text-[13px] text-accent"
           >
             Quitar
           </button>

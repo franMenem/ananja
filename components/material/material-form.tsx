@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -118,7 +119,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label htmlFor="titulo" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="titulo" className="text-[13px] text-text-muted">
             Título
           </label>
           <input
@@ -127,12 +128,12 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
             required
             value={titulo}
             onChange={(event) => setTitulo(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         <div>
-          <label htmlFor="cuerpo" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="cuerpo" className="text-[13px] text-text-muted">
             Cuerpo
           </label>
           <textarea
@@ -140,21 +141,21 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
             value={cuerpo}
             onChange={(event) => setCuerpo(event.target.value)}
             rows={12}
-            className="mt-1.5 w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="mt-1.5 w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
-          <p className="mt-1 text-[11px] text-text-muted">
+          <p className="mt-1 text-[13px] text-text-muted">
             Línea en blanco separa párrafos · <code>#&nbsp;</code> subtítulo ·{" "}
             <code>-&nbsp;</code> lista
           </p>
         </div>
 
         <div>
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Vista previa
           </span>
-          <div className="mt-1.5 border border-border bg-surface px-4 py-3">
+          <div className="mt-1.5 border border-border bg-surface px-4 py-3 rounded-xl">
             {cuerpo.trim() === "" ? (
-              <p className="text-sm text-text-muted">
+              <p className="text-[16px] text-text-muted">
                 La vista previa aparece acá a medida que escribís.
               </p>
             ) : (
@@ -163,7 +164,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-text">
+        <label className="flex items-center gap-2 text-[16px] text-text">
           <input
             type="checkbox"
             checked={publicado}
@@ -174,7 +175,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
         </label>
 
         {error && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -183,7 +184,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar
         </BotonAccion>
@@ -192,7 +193,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           <button
             type="button"
             onClick={() => setConfirmarEliminar(true)}
-            className="text-[11px] tracking-[0.14em] text-accent uppercase"
+            className="text-[13px] text-accent"
           >
             Eliminar
           </button>
@@ -205,10 +206,10 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           ariaLabel="Borrar este material"
           variant="accent"
         >
-          <h2 className="font-display text-[24px] text-primary">¿Borrar este material?</h2>
-          <p className="mt-2 text-sm text-text-muted">No se puede deshacer.</p>
+          <h2 className="font-display text-[24px] text-text">¿Borrar este material?</h2>
+          <p className="mt-2 text-[16px] text-text-muted">No se puede deshacer.</p>
           {errorEliminar && (
-            <p role="alert" className="mt-3 text-sm text-accent">
+            <p role="alert" className="mt-3 text-[16px] text-accent">
               {errorEliminar}
             </p>
           )}
@@ -218,7 +219,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
               textoCargando="Borrando…"
               type="button"
               onClick={handleEliminar}
-              className="min-h-11 flex-[1.6] bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+              className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
             >
               Sí, borrar
             </BotonAccion>
@@ -226,7 +227,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
               type="button"
               onClick={() => !eliminando && setConfirmarEliminar(false)}
               disabled={eliminando}
-              className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Cancelar
             </button>

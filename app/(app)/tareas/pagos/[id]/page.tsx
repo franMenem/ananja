@@ -43,7 +43,7 @@ export default async function PagoRevendedorPage({
     return (
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href="/tareas" label="tareas" />
-        <p className="text-sm text-text-muted">No encontramos este pago.</p>
+        <p className="text-[16px] text-text-muted">No encontramos este pago.</p>
       </div>
     );
   }
@@ -96,15 +96,15 @@ export default async function PagoRevendedorPage({
       <VolverLink href="/tareas" label="tareas" />
 
       <div className="flex flex-col gap-1">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Pago de {nombreVendedor}
         </span>
-        <span className="font-display text-[40px] leading-none text-primary tabular-nums">
+        <span className="font-display text-[clamp(28px,9vw,40px)] leading-none text-text tabular-nums">
           {formatCentavos(pago.monto_centavos)}
         </span>
       </div>
 
-      <div className="flex flex-col gap-2 border-y border-border py-4 text-sm text-text">
+      <div className="flex flex-col gap-2 border-y border-border py-4 text-[16px] text-text">
         <p>Medio: {MEDIO_PAGO_LABELS[pago.medio_pago]}</p>
         <p>Fecha: {formatFecha(pago.fecha)}</p>
         <p>{destino}</p>
@@ -118,17 +118,17 @@ export default async function PagoRevendedorPage({
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Comprobante</span>
+        <span className="text-[13px] text-text-muted">Comprobante</span>
         {!pago.imagen_path ? (
-          <p className="text-sm text-text-muted">Sin comprobante (pago en efectivo).</p>
+          <p className="text-[16px] text-text-muted">Sin comprobante (pago en efectivo).</p>
         ) : !imagenUrl ? (
-          <p className="text-sm text-accent">No se pudo abrir el comprobante.</p>
+          <p className="text-[16px] text-accent">No se pudo abrir el comprobante.</p>
         ) : esPdf ? (
           <a
             href={imagenUrl}
             target="_blank"
             rel="noreferrer"
-            className="self-start border-b border-mark text-[12px] tracking-[0.12em] text-text uppercase"
+            className="self-start border-b border-mark text-[14px] text-text"
           >
             Ver comprobante (PDF)
           </a>
@@ -148,7 +148,7 @@ export default async function PagoRevendedorPage({
         <ResolverPago pagoId={pago.id} explicacion={explicacion} />
       ) : (
         estado === "pendiente" && (
-          <p className="text-sm text-text-muted">
+          <p className="text-[16px] text-text-muted">
             Este pago lo confirma {pago.destinatario?.nombre ?? "su encargado"}.
           </p>
         )

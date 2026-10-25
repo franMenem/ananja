@@ -30,7 +30,7 @@ export function ListaMovimientos({
   vacio: string;
 }) {
   if (items.length === 0) {
-    return <p className="py-3 text-sm text-text-muted">{vacio}</p>;
+    return <p className="py-3 text-[16px] text-text-muted">{vacio}</p>;
   }
 
   return (
@@ -53,7 +53,7 @@ export function ListaMovimientos({
               {signo}
             </span>
 
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[13px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[16px]">
               <div className="flex items-baseline justify-between gap-3">
                 {fila.href ? (
                   <Link
@@ -74,7 +74,7 @@ export function ListaMovimientos({
                   {formatCentavos(Math.abs(montoCentavos))}
                 </span>
               </div>
-              <div className="flex items-baseline justify-between gap-3 text-[11px] text-text-muted">
+              <div className="flex items-baseline justify-between gap-3 text-[13px] text-text-muted">
                 <span className="min-w-0 break-words">{detalle}</span>
                 <span className="shrink-0">{formatFecha(fila.fecha)}</span>
               </div>
@@ -95,7 +95,7 @@ export function ListaMovimientos({
                       href={fila.comprobanteUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-primary"
+                      className="text-[13px] text-text-muted hover:text-primary"
                     >
                       Ver comprobante
                     </a>

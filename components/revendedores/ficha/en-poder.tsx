@@ -40,7 +40,7 @@ export function EnPoderFicha({ vendedorId, productos }: { vendedorId: string; pr
         titulo="Valor en poder"
         total={valorTotalCentavos > 0 ? formatCentavos(valorTotalCentavos) : undefined}
       />
-      <p className="text-[12px] text-text-muted">
+      <p className="text-[14px] text-text-muted">
         Lo que le debe a {NEGOCIO.nombre} por cada {NEGOCIO.envase.singular} se aprueba en cada entrega.
         El precio de acá solo se usa para entregas viejas que no lo tienen.
       </p>
@@ -53,7 +53,7 @@ export function EnPoderFicha({ vendedorId, productos }: { vendedorId: string; pr
             precioActualCentavos={p.precioActualCentavos}
             precioMayoristaCentavos={p.precioMayoristaCentavos}
           />
-          <span className="pb-1 text-[11px] text-text-muted">En poder: {p.enPoder}</span>
+          <span className="pb-1 text-[13px] text-text-muted">En poder: {p.enPoder}</span>
         </div>
       ))}
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -75,7 +76,7 @@ export function StockCard({ stock, segmentosDeposito = [] }: StockCardProps) {
 
   return (
     <div
-      className={`flex flex-col gap-3 bg-surface-raised p-[18px] md:border-r md:border-b md:border-border ${
+      className={`flex flex-col gap-3 bg-surface p-[18px] rounded-2xl border border-border ${
         bajoUmbral ? "border-l-[3px] border-accent" : "border-l-[3px] border-secondary"
       }`}
     >
@@ -88,7 +89,7 @@ export function StockCard({ stock, segmentosDeposito = [] }: StockCardProps) {
       />
 
       {segmentosDeposito.length > 0 && (
-        <p className="text-[11px] text-text-muted tabular-nums">
+        <p className="text-[13px] text-text-muted tabular-nums">
           {segmentosDeposito
             .map((segmento, i) =>
               segmento.loteId ? (
@@ -107,7 +108,7 @@ export function StockCard({ stock, segmentosDeposito = [] }: StockCardProps) {
         </p>
       )}
 
-      <div className="flex items-center gap-1.5 border-t border-border pt-3 text-[11px]">
+      <div className="flex items-center gap-1.5 border-t border-border pt-3 text-[13px]">
         <span className={editingUmbral ? "flex min-h-11 items-center text-text-muted" : "text-text-muted"}>
           Umbral mínimo
         </span>
@@ -127,7 +128,7 @@ export function StockCard({ stock, segmentosDeposito = [] }: StockCardProps) {
             <BotonAccion
               onClick={guardarUmbral}
               cargando={saving}
-              className="min-h-11 bg-primary px-2 text-[10px] font-medium tracking-[0.06em] text-background uppercase disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} px-2`}
             >
               Ok
             </BotonAccion>
@@ -138,7 +139,7 @@ export function StockCard({ stock, segmentosDeposito = [] }: StockCardProps) {
                 setUmbralInput(textoInicialCampoNumerico(stock.umbral_minimo ?? 0, "entero"));
                 setError(null);
               }}
-              className="min-h-11 px-1 text-[10px] text-text-muted uppercase"
+              className="min-h-11 px-1 text-[13px] text-text-muted"
             >
               Cancelar
             </button>

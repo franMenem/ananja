@@ -29,7 +29,7 @@ export function SeccionFoto({
 }: SeccionFotoProps) {
   return (
     <div className="flex flex-col gap-2.5">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         1 · Foto del comprobante (opcional)
       </span>
 
@@ -48,32 +48,32 @@ export function SeccionFoto({
         ) : previewIsPdf ? (
           <div className="flex flex-col items-center gap-2.5 p-4 text-text-muted">
             <IconReceipt className="h-[30px] w-[30px]" />
-            <span className="text-xs tracking-[0.1em] uppercase">
+            <span className="text-[14px] ">
               {fileName ?? "Archivo PDF"}
             </span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2.5 p-4 text-text-muted">
             <IconReceipt className="h-[30px] w-[30px]" />
-            <span className="text-xs tracking-[0.1em] uppercase">
+            <span className="text-[14px] ">
               Ningún comprobante elegido
             </span>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
         >
           Subir archivo
         </button>
@@ -101,17 +101,17 @@ export function SeccionFoto({
       />
 
       {uploading && (
-        <p className="text-[11px] text-text-muted">Subiendo comprobante…</p>
+        <p className="text-[13px] text-text-muted">Subiendo comprobante…</p>
       )}
       {uploadError && (
         <div className="flex items-center justify-between gap-2">
-          <p role="alert" className="text-xs text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             {uploadError}
           </p>
           <button
             type="button"
             onClick={onRetryUpload}
-            className="min-h-11 shrink-0 border border-border px-3 text-xs font-medium tracking-[0.1em] text-text uppercase"
+            className="min-h-11 shrink-0 border border-border px-3 text-[14px] font-medium text-text"
           >
             Reintentar
           </button>

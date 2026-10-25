@@ -58,13 +58,13 @@ export function Revision({
 }) {
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-xs leading-relaxed text-text-muted">
+      <p className="text-[14px] leading-relaxed text-text-muted">
         Esto es exactamente lo que se va a guardar para{" "}
         <span className="font-medium text-text">{vendedorNombre}</span>. Se guarda todo junto.
       </p>
 
       {input.entrega && (
-        <div className="flex flex-col gap-1.5 text-sm">
+        <div className="flex flex-col gap-1.5 text-[16px]">
           <span className={ROTULO}>Entrega del {formatFecha(input.entrega.fecha)}</span>
           {input.entrega.filas
             .filter((f) => f.cantidad > 0)
@@ -73,7 +73,7 @@ export function Revision({
                 <span className="font-medium text-text">
                   {nombres[f.productoId]} × {f.cantidad}
                 </span>
-                <span className="text-[12px] text-text-muted">
+                <span className="text-[14px] text-text-muted">
                   {f.loteId && fechaLotePorId[f.loteId]
                     ? `Lote del ${formatFecha(fechaLotePorId[f.loteId])}`
                     : "Sin lote"}
@@ -84,7 +84,7 @@ export function Revision({
                 </span>
               </div>
             ))}
-          <span className="text-[12px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Si vende todo, por esta entrega le va a deber{" "}
             {formatCentavos(resumen.costoEntregaCentavos)}.
           </span>
@@ -92,7 +92,7 @@ export function Revision({
       )}
 
       {input.ventas && (
-        <div className="flex flex-col gap-1.5 text-sm">
+        <div className="flex flex-col gap-1.5 text-[16px]">
           <span className={ROTULO}>
             Ventas del {formatFecha(input.ventas.fecha)}
             {input.ventas.medioPago ? ` · ${MEDIO_PAGO_LABELS[input.ventas.medioPago]}` : " · sin medio"}
@@ -110,7 +110,7 @@ export function Revision({
                 </span>
               </div>
               {v.tramos.map((t) => (
-                <span key={t.entregaItemId} className="text-[12px] text-text-muted">
+                <span key={t.entregaItemId} className="text-[14px] text-text-muted">
                   {t.cantidad} de{" "}
                   {t.entregaId === ENTREGA_NUEVA_ID
                     ? `la entrega que estás cargando (${formatFecha(t.fecha)})`
@@ -124,12 +124,12 @@ export function Revision({
                 </span>
               ))}
               {v.faltante > 0 && (
-                <span className="text-[12px] text-text-muted">
+                <span className="text-[14px] text-text-muted">
                   {v.faltante} {envase(v.faltante)} se sacan del depósito (entrega automática):
                   su costo se calcula al guardar.
                 </span>
               )}
-              <span className="text-[12px] text-text">
+              <span className="text-[14px] text-text">
                 Le suma {formatCentavos(v.costoCentavos ?? 0)} a lo que debe
                 {" · "}
                 {v.gananciaCentavos !== null
@@ -142,20 +142,20 @@ export function Revision({
       )}
 
       {input.pago && (
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-1 text-[16px]">
           <span className={ROTULO}>Pago del {formatFecha(input.pago.fecha)}</span>
           <span className="font-medium text-text">
             {formatCentavos(input.pago.montoCentavos ?? 0)}
             {input.pago.medioPago ? ` · ${MEDIO_PAGO_LABELS[input.pago.medioPago]}` : ""}
           </span>
-          <span className="text-[12px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             {viaLabel}.{" "}
             {input.pago.via === "encargado"
               ? `Queda en manos de ${encargadoNombre ?? "vos"} hasta que se deposite.`
               : `Entra directo a la cuenta de ${NEGOCIO.nombre}.`}
           </span>
           {input.pago.nota.trim() && (
-            <span className="text-[12px] text-text-muted">Nota: {input.pago.nota.trim()}</span>
+            <span className="text-[14px] text-text-muted">Nota: {input.pago.nota.trim()}</span>
           )}
         </div>
       )}
@@ -164,7 +164,7 @@ export function Revision({
 
       {error && (
         <div role="alert" className="flex flex-col gap-2">
-          <p className="text-sm text-accent">{error}</p>
+          <p className="text-[16px] text-accent">{error}</p>
           {yaGuardada && (
             <Link
               href={`/revendedores/${vendedorId}`}
@@ -190,7 +190,7 @@ export function Revision({
             textoCargando="Guardando…"
             type="button"
             onClick={onConfirmar}
-            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
           >
             Confirmar y guardar
           </BotonAccion>
@@ -198,7 +198,7 @@ export function Revision({
             type="button"
             onClick={onVolverAEditar}
             disabled={saving || avisoBuscando}
-            className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[16px] font-medium text-text-muted disabled:opacity-45"
           >
             Volver a editar
           </button>

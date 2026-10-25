@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -93,18 +94,18 @@ export function AsignarRolButton({
         onClick={() => setOpen(true)}
         className={
           className ??
-          "flex min-h-11 items-center justify-center border border-primary px-4 text-[13px] font-medium tracking-[0.12em] text-primary uppercase"
+          "flex min-h-11 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary"
         }
       >
         {label}
       </button>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="mark">
-        <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
-        <p className="mt-2 text-sm text-text-muted">{CUERPO[rolDestino]}</p>
+        <h2 className="font-display text-[24px] text-text">{titulo}</h2>
+        <p className="mt-2 text-[16px] text-text-muted">{CUERPO[rolDestino]}</p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -115,7 +116,7 @@ export function AsignarRolButton({
             textoCargando="Guardando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
           >
             {`Sí, ${label.toLowerCase()}`}
           </BotonAccion>
@@ -123,7 +124,7 @@ export function AsignarRolButton({
             type="button"
             onClick={() => !saving && setOpen(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>

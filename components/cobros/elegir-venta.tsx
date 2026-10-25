@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -32,21 +33,21 @@ export function ClienteElegirVenta({ ventas }: ClienteElegirVentaProps) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex min-h-11 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.1em] text-background uppercase transition-colors hover:bg-primary-hover"
+        className={`${BOTON_PRIMARIO} flex px-4`}
       >
         Registrar cobro
       </button>
 
       {open && (
         <div className="flex flex-col border border-border">
-          <p className="border-b border-border px-3.5 py-2 text-[11px] tracking-[0.12em] text-text-muted uppercase">
+          <p className="border-b border-border px-3.5 py-2 text-[13px] text-text-muted">
             Elegí la venta a cobrar
           </p>
           {ventas.map((venta) => (
             <Link
               key={venta.id}
               href={`/comprobantes/${venta.id}/cobro`}
-              className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5 text-sm text-text last:border-b-0 hover:bg-surface-raised"
+              className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5 text-[16px] text-text last:border-b-0 hover:bg-surface-raised"
             >
               <span>{formatFecha(venta.fecha)}</span>
               <span className="tabular-nums text-accent">

@@ -13,6 +13,7 @@
  * duplicar el borde.
  */
 
+import { Pastilla } from "@/components/ui/pastilla";
 import { formatPresentacion } from "@/lib/negocio";
 
 type StockBadgeContentProps = {
@@ -33,19 +34,19 @@ export function StockBadgeContent({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="truncate font-display text-[26px] leading-[1] text-primary">
+        <span className="truncate font-display text-[26px] leading-[1] text-text">
           {nombre || formatPresentacion(presentacionMl)}
         </span>
-        <span
-          className={`text-[10px] tracking-[0.14em] whitespace-nowrap uppercase ${
-            bajoUmbral ? "text-accent" : "text-text-muted"
-          }`}
-        >
-          {bajoUmbral ? "Stock bajo" : `Mínimo ${umbralMinimo}`}
-        </span>
+        {bajoUmbral ? (
+          <Pastilla variante="aviso" className="w-fit">
+            Stock bajo
+          </Pastilla>
+        ) : (
+          <span className="text-[13px] whitespace-nowrap text-text-muted">{`Mínimo ${umbralMinimo}`}</span>
+        )}
       </div>
       <span
-        className={`shrink-0 font-display text-[64px] leading-[0.85] tabular-nums md:text-[96px] ${
+        className={`shrink-0 font-display text-[40px] leading-[0.85] tabular-nums md:text-[40px] ${
           bajoUmbral ? "text-accent" : "text-primary"
         }`}
       >
@@ -60,7 +61,7 @@ type StockBadgeProps = StockBadgeContentProps;
 export function StockBadge(props: StockBadgeProps) {
   return (
     <div
-      className={`bg-surface-raised p-[18px] ${
+      className={`rounded-2xl border border-border bg-surface p-[18px] ${
         props.bajoUmbral ? "border-l-[3px] border-accent" : "border-l-[3px] border-secondary"
       }`}
     >

@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -61,17 +62,17 @@ export default async function ComprobanteDetailPage({
         <VolverLink href="/comprobantes" label="comprobantes" />
 
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             {formatFecha(comprobante.fecha)} ·{" "}
             {etiquetaMedioPago(comprobante.medio_pago)} ·{" "}
             {comprobante.vendedores?.nombre ?? "—"}
           </span>
           <div className="flex items-baseline gap-2.5">
-            <span className="font-display text-[44px] leading-none text-primary tabular-nums">
+            <span className="font-display text-[clamp(28px,9vw,40px)] leading-none text-text tabular-nums">
               {formatCentavos(comprobante.monto_centavos)}
             </span>
             {deudaCentavos > 0 && (
-              <span className="border border-accent px-1.5 py-0.5 text-[10px] tracking-[0.12em] text-accent uppercase">
+              <span className="border border-accent px-1.5 py-0.5 text-[13px] text-accent">
                 Debe {formatCentavos(deudaCentavos)}
               </span>
             )}
@@ -79,7 +80,7 @@ export default async function ComprobanteDetailPage({
         </div>
 
         {!hasImagen ? (
-          <div className="flex min-h-32 items-center justify-center border border-border bg-surface-raised p-6 text-sm text-accent">
+          <div className="flex min-h-32 items-center justify-center border border-border bg-surface-raised p-6 text-[16px] text-accent rounded-2xl">
             Sin comprobante
           </div>
         ) : isPdf ? (
@@ -87,10 +88,10 @@ export default async function ComprobanteDetailPage({
             href={signedUrl ?? "#"}
             target="_blank"
             rel="noreferrer"
-            className="flex min-h-32 flex-col items-center justify-center gap-2.5 border border-border bg-surface-raised p-6 text-center"
+            className="flex min-h-32 flex-col items-center justify-center gap-2.5 border border-border bg-surface-raised p-6 text-center rounded-2xl"
           >
             <IconReceipt className="h-9 w-9 text-text-muted" />
-            <span className="text-xs font-medium tracking-[0.1em] text-primary uppercase">
+            <span className="text-[14px] font-medium text-primary">
               Ver PDF del comprobante
             </span>
           </a>
@@ -102,12 +103,12 @@ export default async function ComprobanteDetailPage({
             className="max-h-[70vh] w-full border border-border object-contain"
           />
         ) : (
-          <div className="flex min-h-32 items-center justify-center border border-border bg-surface-raised p-6 text-sm text-text-muted">
+          <div className="flex min-h-32 items-center justify-center border border-border bg-surface-raised p-6 text-[16px] text-text-muted rounded-2xl">
             No se pudo cargar la imagen.
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5 text-[13px] text-text">
+        <div className="flex flex-col gap-1.5 text-[16px] text-text">
           <p>
             {items
               .map((item) => {
@@ -145,10 +146,10 @@ export default async function ComprobanteDetailPage({
 
         <div className="flex flex-col gap-3 border-t border-border pt-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Cobrado / Debe
             </span>
-            <span className="text-sm font-medium tabular-nums text-text">
+            <span className="text-[16px] font-medium tabular-nums text-text">
               {formatCentavos(cobradoTotalCentavos)}
               {deudaCentavos > 0 && (
                 <span className="ml-2 text-accent">
@@ -171,7 +172,7 @@ export default async function ComprobanteDetailPage({
           {deudaCentavos > 0 && (
             <Link
               href={`/comprobantes/${id}/cobro`}
-              className="flex min-h-11 items-center justify-center border border-primary px-4 text-xs font-medium tracking-[0.1em] text-primary uppercase"
+              className="flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
             >
               Registrar cobro
             </Link>
@@ -181,7 +182,7 @@ export default async function ComprobanteDetailPage({
         <div className="flex gap-2.5">
           <Link
             href={`/comprobantes/${id}/editar`}
-            className="flex min-h-11 flex-1 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.1em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
           >
             Editar
           </Link>

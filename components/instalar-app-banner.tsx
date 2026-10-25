@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -108,7 +109,7 @@ export function InstalarAppBanner() {
 
   return (
     <div className="order-none flex flex-col gap-2.5 border-y border-border bg-surface-raised px-5 py-3.5 lg:order-first">
-      <p className="text-[13px] leading-[1.55] text-text-muted">
+      <p className="text-[16px] leading-[1.55] text-text-muted">
         Instalá {NEGOCIO.nombre} en tu {esTactil ? "celular" : "compu"}.
       </p>
 
@@ -122,7 +123,7 @@ export function InstalarAppBanner() {
             onClick={handleInstalar}
             cargando={instalando}
             textoCargando="Instalando…"
-            className="flex min-h-11 shrink-0 items-center bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex shrink-0 px-4`}
           >
             Instalar
           </BotonAccion>
@@ -132,7 +133,7 @@ export function InstalarAppBanner() {
           <button
             type="button"
             onClick={() => setMostrarInstruccionesIOS(true)}
-            className="flex min-h-11 shrink-0 items-center border border-primary px-[18px] text-xs font-medium tracking-[0.12em] text-primary uppercase transition-colors hover:bg-primary/[.06]"
+            className="flex min-h-11 shrink-0 items-center border border-primary px-[18px] text-[14px] font-medium text-primary transition-colors hover:bg-primary/[.06] rounded-xl"
           >
             Cómo instalar
           </button>
@@ -141,7 +142,7 @@ export function InstalarAppBanner() {
         <button
           type="button"
           onClick={descartar}
-          className="text-xs font-medium tracking-[0.12em] text-text-muted uppercase underline-offset-2 hover:text-text hover:underline"
+          className="text-[14px] font-medium text-text-muted underline-offset-2 hover:text-text hover:underline"
         >
           Ahora no
         </button>

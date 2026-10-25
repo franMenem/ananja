@@ -179,7 +179,7 @@ export function CargaForm({
       {/* Se oculta (no se desmonta) durante la revisión: "Volver a editar"
           conserva todo lo cargado. */}
       <div hidden={guardado.revisando} className="flex flex-col gap-5">
-        <p className="text-xs leading-relaxed text-text-muted">
+        <p className="text-[14px] leading-relaxed text-text-muted">
           Para <span className="font-medium text-text">{vendedorNombre}</span>. Sumá solo las
           partes que necesites: lo que le entregaste, lo que vendió y lo que pagó. Se guarda todo
           junto, o no se guarda nada.
@@ -258,7 +258,7 @@ export function CargaForm({
         <Resumen resumen={resumen} pendienteCentavos={pendienteCentavos} />
 
         {guardado.error && !guardado.revisando && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {guardado.error}
           </p>
         )}
@@ -266,7 +266,7 @@ export function CargaForm({
         <button
           type="button"
           onClick={guardado.handleRevisar}
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Revisar todo
         </button>

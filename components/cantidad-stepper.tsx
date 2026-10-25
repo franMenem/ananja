@@ -102,11 +102,11 @@ export function CantidadStepper({
             const parsed = Number.parseInt(event.target.value, 10);
             onChange(Number.isFinite(parsed) ? clamp(parsed) : min);
           }}
-          className={`font-display h-[46px] ${dim.valorAncho} shrink-0 bg-transparent text-center ${dim.valorTexto} text-primary tabular-nums`}
+          className={`font-display h-[46px] ${dim.valorAncho} shrink-0 bg-transparent text-center ${dim.valorTexto} text-text tabular-nums`}
         />
       ) : (
         <span
-          className={`font-display ${dim.valorAncho} text-center ${dim.valorTexto} text-primary tabular-nums`}
+          className={`font-display ${dim.valorAncho} text-center ${dim.valorTexto} text-text tabular-nums`}
         >
           {value}
         </span>
@@ -116,7 +116,7 @@ export function CantidadStepper({
         aria-label={ariaLabelSumar ?? `Sumar una unidad${ariaLabelSufijo}`}
         onClick={() => onChange(clamp(value + 1))}
         disabled={sumaDeshabilitada}
-        className={`flex ${dim.boton}${anchoFijo} items-center justify-center bg-primary ${dim.textoBoton} text-background disabled:opacity-45`}
+        className={`flex ${dim.boton}${anchoFijo} items-center justify-center bg-primary ${dim.textoBoton} text-primary-foreground disabled:opacity-45`}
       >
         +
       </button>

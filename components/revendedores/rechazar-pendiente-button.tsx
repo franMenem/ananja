@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -66,20 +67,20 @@ export function RechazarPendienteButton({
         onClick={() => setOpen(true)}
         className={
           className ??
-          "flex min-h-11 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.12em] text-text-muted uppercase hover:border-accent hover:text-accent"
+          "flex min-h-11 items-center justify-center border border-border px-4 text-[16px] font-medium text-text-muted hover:border-accent hover:text-accent"
         }
       >
         Rechazar
       </button>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="accent">
-        <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <h2 className="font-display text-[24px] text-text">{titulo}</h2>
+        <p className="mt-2 text-[16px] text-text-muted">
           Va a quedar desactivado, sin acceso a la app.
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -90,7 +91,7 @@ export function RechazarPendienteButton({
             textoCargando="Guardando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Sí, rechazar
           </BotonAccion>
@@ -98,7 +99,7 @@ export function RechazarPendienteButton({
             type="button"
             onClick={() => !saving && setOpen(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>

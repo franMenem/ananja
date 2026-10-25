@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -85,7 +86,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
   return (
     <FormPage title={`En manos de ${nombre}`} backHref="/plata" backLabel="Volver a Plata" maxWidth={760} pb>
       <div>
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           {nombre} {etiquetaTotal}
         </span>
         <p
@@ -95,7 +96,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
         >
           {formatCentavos(total)}
         </p>
-        <p className="mt-1.5 text-[12px] leading-relaxed text-text-muted">
+        <p className="mt-1.5 text-[14px] leading-relaxed text-text-muted">
           {total > 0
             ? `Es plata de ${NEGOCIO.nombre} que todavía no pasó a la cuenta${
                 desde ? ` (la más vieja, ${desdeTexto(diasEntre(desde, hoyISO()))})` : ""
@@ -111,7 +112,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
       {total > 0 && (
         <Link
           href={`/plata/depositar?tenedor=${id}&monto=${total}`}
-          className="flex min-h-12 items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex px-4`}
         >
           Pasar a la cuenta
         </Link>
@@ -122,7 +123,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
           {desglose.map((d) => (
             <div
               key={d.label}
-              className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[13px]"
+              className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]"
             >
               <span className="min-w-0 text-text-muted">{d.label}</span>
               <span
@@ -133,7 +134,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
               </span>
             </div>
           ))}
-          <div className="flex items-baseline justify-between gap-3 py-2 text-[13px] font-medium">
+          <div className="flex items-baseline justify-between gap-3 py-2 text-[16px] font-medium">
             <span className="text-text">{etiquetaDesglose}</span>
             <span className="tabular-nums text-text">{formatCentavos(total)}</span>
           </div>
@@ -143,7 +144,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
       {desgloseLotes && <DesgloseLotes desglose={desgloseLotes} />}
 
       <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Movimientos
         </span>
         <span
@@ -153,7 +154,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
       </div>
 
       {sumaLista !== total && (
-        <p className="text-[12px] text-accent">
+        <p className="text-[14px] text-accent">
           Ojo: los movimientos de abajo suman {formatCentavos(sumaLista)} y el total dice{" "}
           {formatCentavos(total)}. Puede faltar algún movimiento en la lista.
         </p>

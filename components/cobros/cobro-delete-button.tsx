@@ -54,21 +54,21 @@ export function CobroDeleteButton({ cobroId, montoCentavos }: CobroDeleteButtonP
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative text-[11px] tracking-[0.14em] text-text-muted uppercase before:absolute before:inset-x-[-8px] before:inset-y-[-14px] before:content-[''] hover:text-accent"
+        className="relative text-[13px] text-text-muted before:absolute before:inset-x-[-8px] before:inset-y-[-14px] before:content-[''] hover:text-accent"
       >
         Eliminar
       </button>
 
       <BottomSheet open={open} ariaLabel="Eliminar cobro" variant="accent">
-        <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+        <span className="text-[13px] font-medium text-accent">
           Eliminar cobro
         </span>
-        <p className="mt-3 text-[15px] text-text">
+        <p className="mt-3 text-[16px] text-text">
           Se elimina el cobro de {formatCentavos(montoCentavos)}. La deuda de la
           venta vuelve a subir por ese monto.
         </p>
         {error && (
-          <p role="alert" className="mt-2 text-xs text-accent">
+          <p role="alert" className="mt-2 text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -77,7 +77,7 @@ export function CobroDeleteButton({ cobroId, montoCentavos }: CobroDeleteButtonP
             type="button"
             onClick={() => setOpen(false)}
             disabled={deleting}
-            className="min-h-11 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
           >
             Cancelar
           </button>
@@ -86,7 +86,7 @@ export function CobroDeleteButton({ cobroId, montoCentavos }: CobroDeleteButtonP
             textoCargando="Eliminando…"
             type="button"
             onClick={() => void handleDelete()}
-            className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

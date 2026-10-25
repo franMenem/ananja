@@ -133,10 +133,10 @@ export default async function StockLoteDetallePage({
           >
             ←
           </Link>
-          <h1 className="font-display text-[22px] text-primary">{titulo}</h1>
+          <h1 className="font-display text-[22px] text-text">{titulo}</h1>
         </div>
 
-        {lote.nota && <p className="text-[13px] text-text-muted">{lote.nota}</p>}
+        {lote.nota && <p className="text-[16px] text-text-muted">{lote.nota}</p>}
 
         <CostoPorBotella
           pedidoId={id}
@@ -165,7 +165,7 @@ export default async function StockLoteDetallePage({
         />
 
         {enManosError && (
-          <p role="alert" className="text-[13px] text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {enManosError}
           </p>
         )}

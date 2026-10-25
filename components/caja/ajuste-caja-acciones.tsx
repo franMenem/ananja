@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -141,14 +142,14 @@ export function AjusteCajaAcciones({
         <button
           type="button"
           onClick={abrirEditar}
-          className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-primary"
+          className="text-[13px] text-text-muted hover:text-primary"
         >
           Editar
         </button>
         <button
           type="button"
           onClick={abrirEliminar}
-          className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-accent"
+          className="text-[13px] text-text-muted hover:text-accent"
         >
           Eliminar
         </button>
@@ -156,17 +157,17 @@ export function AjusteCajaAcciones({
 
       <BottomSheet open={sheet === "editar"} ariaLabel="Editar ajuste" variant="mark">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-[26px] text-primary">Editar ajuste</h2>
+          <h2 className="font-display text-[26px] text-text">Editar ajuste</h2>
           <button
             type="button"
             onClick={cerrar}
             disabled={saving}
-            className="text-[11px] tracking-[0.12em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Cerrar
           </button>
         </div>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-[16px] text-text-muted">
           {formatCentavos(Math.abs(montoCentavos))} en {MEDIO_PAGO_LABELS[medioPago]} — el
           monto y la caja no se pueden cambiar acá; si están mal, eliminá este
           ajuste y cargá uno nuevo.
@@ -176,7 +177,7 @@ export function AjusteCajaAcciones({
           <div>
             <label
               htmlFor="ajuste-editar-fecha"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Fecha
             </label>
@@ -186,14 +187,14 @@ export function AjusteCajaAcciones({
               required
               value={fechaInput}
               onChange={(event) => setFechaInput(event.target.value)}
-              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="ajuste-editar-nota"
-              className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+              className="text-[13px] text-text-muted"
             >
               Nota (obligatoria)
             </label>
@@ -203,12 +204,12 @@ export function AjusteCajaAcciones({
               value={notaInput}
               onChange={(event) => setNotaInput(event.target.value)}
               rows={2}
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
             />
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-accent">
+            <p role="alert" className="text-[16px] text-accent">
               {error}
             </p>
           )}
@@ -218,7 +219,7 @@ export function AjusteCajaAcciones({
               cargando={saving}
               textoCargando="Guardando…"
               type="submit"
-              className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
             >
               Guardar cambios
             </BotonAccion>
@@ -226,7 +227,7 @@ export function AjusteCajaAcciones({
               type="button"
               onClick={cerrar}
               disabled={saving}
-              className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Cancelar
             </button>
@@ -235,15 +236,15 @@ export function AjusteCajaAcciones({
       </BottomSheet>
 
       <BottomSheet open={sheet === "eliminar"} ariaLabel="Eliminar ajuste" variant="accent">
-        <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+        <span className="text-[13px] font-medium text-accent">
           Eliminar ajuste
         </span>
-        <p className="mt-3 text-[15px] text-text">
+        <p className="mt-3 text-[16px] text-text">
           {mensajeEliminarAjuste(medioPago, montoCentavos)}
         </p>
-        {nota && <p className="mt-2 text-sm text-text-muted">{nota}</p>}
+        {nota && <p className="mt-2 text-[16px] text-text-muted">{nota}</p>}
         {error && (
-          <p role="alert" className="mt-2 text-xs text-accent">
+          <p role="alert" className="mt-2 text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -252,7 +253,7 @@ export function AjusteCajaAcciones({
             type="button"
             onClick={cerrar}
             disabled={saving}
-            className="min-h-11 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
           >
             Cancelar
           </button>
@@ -261,7 +262,7 @@ export function AjusteCajaAcciones({
             textoCargando="Eliminando…"
             type="button"
             onClick={() => void handleEliminar()}
-            className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

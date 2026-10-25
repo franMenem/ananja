@@ -129,10 +129,10 @@ export function CostosLoteCampos({
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-5">
       <div>
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Costos del pedido (opcional)
         </span>
-        <p className="pt-1.5 text-[11px] leading-[1.5] text-text-muted">
+        <p className="pt-1.5 text-[13px] leading-[1.5] text-text-muted">
           Se puede guardar el pedido sin costos y completarlos después. Litros
           de {NEGOCIO.materiaPrima.nombre} y etiquetas se calculan solos a
           partir de la cantidad — solo hace falta el precio.

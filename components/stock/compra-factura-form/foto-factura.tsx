@@ -36,27 +36,27 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
 
   return (
     <div>
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Foto de la factura (opcional)
       </span>
-      <div className="mt-1.5 flex min-h-[120px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center">
+      <div className="mt-1.5 flex min-h-[120px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center rounded-xl">
         <IconExpense className="h-[30px] w-[30px] text-text-muted" />
-        <span className="max-w-full break-words text-[12px] tracking-[0.1em] text-text-muted uppercase">
+        <span className="max-w-full break-words text-[14px] text-text-muted">
           {foto ? foto.name : "Ningún comprobante elegido"}
         </span>
       </div>
-      <div className="mt-1.5 grid grid-cols-2 gap-px bg-border">
+      <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
         >
           Subir archivo
         </button>
@@ -79,7 +79,7 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
         className="sr-only"
       />
       {error && (
-        <p role="alert" className="mt-1 text-sm text-accent">
+        <p role="alert" className="mt-1 text-[16px] text-accent">
           {error}
         </p>
       )}

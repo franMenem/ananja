@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -67,25 +68,25 @@ export function MarcarSaldadaButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-primary"
+        className="text-[13px] text-text-muted hover:text-primary"
       >
         Marcar saldada sin pago
       </button>
 
       <BottomSheet open={open} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
-        <h2 className="font-display text-[26px] text-primary">
+        <h2 className="font-display text-[26px] text-text">
           ¿Marcar saldada sin pago?
         </h2>
-        <p className="mt-2 text-sm text-text">
+        <p className="mt-2 text-[16px] text-text">
           {descripcion} · {montoLabel}
         </p>
-        <p className="mt-3 text-sm text-accent">
+        <p className="mt-3 text-[16px] text-accent">
           Esto marca la deuda como saldada SIN descontar plata de ninguna
           caja. Si la pagaste, usá «Registrar pago» para que se descuente
           de la caja.
         </p>
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -95,7 +96,7 @@ export function MarcarSaldadaButton({
             textoCargando="Guardando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-1 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex-1 px-4`}
           >
             Confirmar
           </BotonAccion>
@@ -103,7 +104,7 @@ export function MarcarSaldadaButton({
             type="button"
             onClick={() => setOpen(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>

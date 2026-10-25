@@ -44,12 +44,12 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
 
   return (
     <section className="flex flex-col gap-4">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         {vos ? "Tu ganancia" : "Ganancia como revendedora"}
       </span>
 
       {resumen.unidadesSinPrecio > 0 && (
-        <p className="text-[12px] text-accent">
+        <p className="text-[14px] text-accent">
           {resumen.unidadesSinPrecio} {envase(resumen.unidadesSinPrecio)} sin precio de venta: no
           cuentan en la ganancia hasta que{" "}
           {vos ? "cargues a cuánto las vendiste" : "se cargue a cuánto las vendió"}.{" "}
@@ -64,31 +64,31 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
       )}
 
       {ventas.length === 0 ? (
-        <p className="py-2 text-sm text-text-muted">Todavía no hay ventas.</p>
+        <p className="py-2 text-[16px] text-text-muted">Todavía no hay ventas.</p>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-3 border-y border-border py-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-x-3 gap-y-4 border-y border-border py-4">
             <div className="min-w-0">
-              <span className="text-[10px] tracking-[0.12em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 {vos ? "Vendiste" : "Vendió"}
               </span>
-              <p className="font-display text-lg break-words text-text tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-text tabular-nums">
                 {formatCentavos(resumen.vendidoCentavos)}
               </p>
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] tracking-[0.12em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Le correspondió a {NEGOCIO.nombre}
               </span>
-              <p className="font-display text-lg break-words text-text tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-text tabular-nums">
                 {formatCentavos(resumen.ananjaCentavos)}
               </p>
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] tracking-[0.12em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 {vos ? "Ganaste" : "Ganó"}
               </span>
-              <p className="font-display text-lg break-words text-accent tabular-nums">
+              <p className="font-display text-lg whitespace-nowrap text-accent tabular-nums">
                 {formatCentavos(resumen.gananciaCentavos)}
               </p>
             </div>
@@ -112,13 +112,13 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
                 className="flex items-center justify-between gap-3 border-b border-border py-3"
               >
                 <div className="flex min-w-0 flex-col">
-                  <span className="text-sm text-text">{labelDeMes(fila.periodo)}</span>
-                  <span className="text-[11px] text-text-muted">
+                  <span className="text-[16px] text-text">{labelDeMes(fila.periodo)}</span>
+                  <span className="text-[13px] text-text-muted">
                     {vos ? "Vendiste" : "Vendió"} {formatCentavos(fila.vendidoCentavos)} ·{" "}
                     {NEGOCIO.nombre} {formatCentavos(fila.ananjaCentavos)}
                   </span>
                 </div>
-                <span className="shrink-0 text-sm font-medium tabular-nums text-text">
+                <span className="shrink-0 text-[16px] font-medium tabular-nums text-text">
                   {formatCentavos(fila.gananciaCentavos)}
                 </span>
               </div>

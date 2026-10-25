@@ -17,7 +17,7 @@ export default async function CargarCompraPage({
 
   return (
     <FormPage title="Cargar compra" backHref="/stock/insumos" backLabel="Volver a insumos">
-      <p className="text-[12px] leading-snug text-text-muted">
+      <p className="text-[14px] leading-snug text-text-muted">
         Una factura con varios renglones, o una compra suelta de un solo insumo.
       </p>
       <CompraFacturaForm insumoInicial={insumoParam} />

@@ -274,7 +274,7 @@ export function GraficoLineas({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[11px] text-text-muted">
+      <p className="text-[13px] text-text-muted">
         {leyenda}
         {haySerieAnterior && " La línea punteada es el año pasado."}
       </p>
@@ -296,8 +296,8 @@ export function GraficoLineas({
                   onClick={() => alternar(serie.etiqueta)}
                   disabled={deshabilitado}
                   aria-pressed={activo}
-                  className={`flex items-center gap-1.5 border border-border px-2.5 py-1.5 text-xs tracking-[0.08em] uppercase disabled:opacity-40 ${
-                    activo ? "bg-primary text-background" : "bg-surface-raised text-text"
+                  className={`flex items-center gap-1.5 border border-border px-2.5 py-1.5 text-[14px] disabled:opacity-40 ${
+                    activo ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
                   }`}
                 >
                   <span
@@ -313,7 +313,7 @@ export function GraficoLineas({
             })}
           </div>
           {enElTope && (
-            <p className="text-[11px] text-text-muted">Máximo 10 años a la vez.</p>
+            <p className="text-[13px] text-text-muted">Máximo 10 años a la vez.</p>
           )}
         </>
       )}
@@ -327,7 +327,7 @@ export function GraficoLineas({
             const esActual = serie.etiqueta === etiquetaAnioActual;
             const total = serie.valores.reduce((acc, v) => acc + v, 0);
             return (
-              <li key={serie.etiqueta} className="flex items-center gap-1.5 text-xs text-text">
+              <li key={serie.etiqueta} className="flex items-center gap-1.5 text-[14px] text-text">
                 <span
                   aria-hidden="true"
                   className="inline-block w-4"
@@ -350,7 +350,7 @@ export function GraficoLineas({
           activos). En modo compacto siempre hay al menos las series que
           llegaron. */}
       {seriesActivas.length === 0 ? (
-        <p className="py-6 text-sm text-text-muted">Elegí al menos un año.</p>
+        <p className="py-6 text-[16px] text-text-muted">Elegí al menos un año.</p>
       ) : (
         <div className="flex gap-1">
           {/* Columna fija del eje Y — ancho real en px, nunca escala con el
@@ -363,7 +363,7 @@ export function GraficoLineas({
             {ticks.map((tick) => (
               <span
                 key={tick}
-                className="absolute right-0 text-[10px] whitespace-nowrap text-text-muted tabular-nums"
+                className="absolute right-0 text-[13px] whitespace-nowrap text-text-muted tabular-nums"
                 style={{
                   top: `${pctY(tick, graphMax, alto)}%`,
                   transform: "translateY(-50%)",
@@ -441,7 +441,7 @@ export function GraficoLineas({
               return (
                 <span
                   key={nombre}
-                  className="absolute text-[11px] text-text-muted"
+                  className="absolute text-[13px] text-text-muted"
                   style={{
                     left: `${pctX(mesEtiqueta)}%`,
                     top: `${((alto - PAD_ABAJO + 8) / alto) * 100}%`,
@@ -461,7 +461,7 @@ export function GraficoLineas({
                 return (
                   <span
                     key={mesEtiqueta}
-                    className="absolute bg-background px-0.5 text-[10px] font-medium text-text tabular-nums"
+                    className="absolute bg-background px-0.5 text-[13px] font-medium text-text tabular-nums"
                     style={{
                       left: `${pctX(mesEtiqueta)}%`,
                       top: `${pctY(serieActual.valores[mesEtiqueta], graphMax, alto)}%`,
@@ -510,7 +510,7 @@ export function GraficoLineas({
             {mesTooltip !== null && (
               <div
                 role="status"
-                className="pointer-events-none absolute top-1 z-10 flex flex-col gap-0.5 border border-border bg-surface-raised px-2.5 py-1.5 text-xs whitespace-nowrap text-text shadow-sm"
+                className="pointer-events-none absolute top-1 z-10 flex flex-col gap-0.5 border border-border bg-surface-raised px-2.5 py-1.5 text-[14px] whitespace-nowrap text-text shadow-sm rounded-xl"
                 style={
                   mesTooltip === 0
                     ? { left: 0 }
@@ -544,10 +544,10 @@ export function GraficoLineas({
           mes a mes — spec 2026-09-11 punto 5). */}
       {seriesActivas.length > 0 && (
         <div className={compacto ? "sr-only" : "overflow-x-auto"}>
-          <table className={compacto ? undefined : "min-w-[480px] w-full text-sm"}>
+          <table className={compacto ? undefined : "min-w-[480px] w-full text-[16px]"}>
             <caption className="sr-only">Ventas por mes, un año por columna</caption>
             <thead>
-              <tr className="border-b border-border text-[10px] tracking-[0.16em] text-text-muted uppercase">
+              <tr className="border-b border-border text-[13px] text-text-muted">
                 <th scope="col" className="py-2 text-left font-normal">
                   Mes
                 </th>

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useEffect, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -121,7 +122,7 @@ export function CategoriaSelect({
     <div className={className}>
       <label
         htmlFor="categoria-select"
-        className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+        className="text-[13px] text-text-muted"
       >
         Categoría
       </label>
@@ -133,7 +134,7 @@ export function CategoriaSelect({
           disabled={loading}
           value={value ?? ""}
           onChange={(event) => handleSelect(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
         >
           <option value="" disabled>
             {loading ? "Cargando…" : "Seleccioná una categoría"}
@@ -153,7 +154,7 @@ export function CategoriaSelect({
             value={newName}
             onChange={(event) => setNewName(event.target.value)}
             placeholder="Nombre de la categoría"
-            className="min-h-12 flex-1 border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="min-h-12 flex-1 border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
           <BotonAccion
             cargando={saving}
@@ -161,7 +162,7 @@ export function CategoriaSelect({
             type="button"
             onClick={handleAdd}
             disabled={!newName.trim()}
-            className="min-h-12 bg-primary px-3 text-[13px] font-medium tracking-[0.1em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-60"
+            className={`${BOTON_PRIMARIO} px-3 disabled:opacity-60`}
           >
             Agregar
           </BotonAccion>
@@ -171,7 +172,7 @@ export function CategoriaSelect({
               setAdding(false);
               setNewName("");
             }}
-            className="min-h-12 border border-border px-3 text-[13px] font-medium text-text-muted uppercase"
+            className={`${BOTON_SECUNDARIO} px-3`}
           >
             Cancelar
           </button>
@@ -179,7 +180,7 @@ export function CategoriaSelect({
       )}
 
       {error && (
-        <p role="alert" className="mt-1 text-sm text-accent">
+        <p role="alert" className="mt-1 text-[16px] text-accent">
           {error}
         </p>
       )}

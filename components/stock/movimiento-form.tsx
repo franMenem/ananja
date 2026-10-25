@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -183,18 +184,18 @@ export function MovimientoForm({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Producto
           </span>
-          <div className="mt-1.5 grid grid-cols-2 gap-px bg-border">
+          <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
             {productos.map((producto) => (
               <button
                 key={producto.id}
                 type="button"
                 onClick={() => elegirProducto(producto.id)}
-                className={`min-h-[52px] px-3 text-[13px] font-medium transition-colors ${
+                className={`min-h-[52px] px-3 text-[16px] font-medium transition-colors ${
                   productoId === producto.id
-                    ? "bg-primary text-background"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-surface-raised text-text"
                 }`}
               >
@@ -205,7 +206,7 @@ export function MovimientoForm({
         </div>
 
         <div>
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Cantidad
           </span>
           <div className="mt-1.5">
@@ -231,7 +232,7 @@ export function MovimientoForm({
         <div>
           <label
             htmlFor="motivo"
-            className="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Motivo
           </label>
@@ -239,7 +240,7 @@ export function MovimientoForm({
             id="motivo"
             value={motivo}
             onChange={(event) => setMotivo(event.target.value as MotivoEgreso)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           >
             {MOTIVOS_EGRESO_MANUAL.map((m) => (
               <option key={m.value} value={m.value}>
@@ -250,13 +251,13 @@ export function MovimientoForm({
         </div>
 
         {!vendedorLoading && vendedor && (
-          <p className="text-xs text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Registrando como{" "}
             <span className="font-medium">{vendedor.nombre}</span>
           </p>
         )}
         {!vendedorLoading && !vendedor && (
-          <p role="alert" className="text-xs text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             Tu usuario no está vinculado a un vendedor. Pedile al dueño que
             te dé de alta desde el dashboard de Supabase.
           </p>
@@ -265,7 +266,7 @@ export function MovimientoForm({
         <div>
           <label
             htmlFor="nota"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Nota (opcional)
           </label>
@@ -275,13 +276,13 @@ export function MovimientoForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             placeholder="Ej. rotura"
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         {advertencia && (
-          <div className="flex flex-col gap-3 border-t-2 border-accent pt-3 text-sm">
-            <p className="text-[13px] text-accent">
+          <div className="flex flex-col gap-3 border-t-2 border-accent pt-3 text-[16px]">
+            <p className="text-[16px] text-accent">
               Este egreso deja el stock de {productoSeleccionado?.nombre} en{" "}
               {advertencia.stockResultante} (stock actual:{" "}
               {advertencia.stockActual}).
@@ -290,7 +291,7 @@ export function MovimientoForm({
               <button
                 type="button"
                 onClick={() => setAdvertencia(null)}
-                className="min-h-12 flex-1 border border-primary px-3 text-[13px] font-medium tracking-[0.1em] text-primary uppercase"
+                className="min-h-12 flex-1 border border-primary px-3 text-[16px] font-medium text-primary rounded-xl"
               >
                 Corregir cantidad
               </button>
@@ -298,7 +299,7 @@ export function MovimientoForm({
                 onClick={guardarMovimiento}
                 cargando={saving}
                 textoCargando="Guardando…"
-                className="min-h-12 flex-1 bg-accent px-3 text-[13px] font-medium tracking-[0.1em] text-background uppercase disabled:opacity-45"
+                className="min-h-12 flex-1 bg-accent px-3 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
               >
                 Guardar igual
               </BotonAccion>
@@ -307,7 +308,7 @@ export function MovimientoForm({
         )}
 
         {error && (
-          <p role="alert" className="text-[12px] text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -317,7 +318,7 @@ export function MovimientoForm({
           textoCargando="Guardando…"
           type="submit"
           disabled={!!advertencia}
-          className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} px-4`}
         >
           Guardar
         </BotonAccion>

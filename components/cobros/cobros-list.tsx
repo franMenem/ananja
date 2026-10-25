@@ -32,10 +32,10 @@ export function CobrosList({ cobros }: CobrosListProps) {
           className="flex items-center justify-between gap-3 border-b border-border py-2.5"
         >
           <div className="flex flex-col">
-            <span className="text-sm text-text">
+            <span className="text-[16px] text-text">
               {formatCentavos(cobro.montoCentavos)} · {MEDIO_PAGO_LABELS[cobro.medioPago]}
             </span>
-            <span className="text-xs text-text-muted">
+            <span className="text-[14px] text-text-muted">
               {formatFecha(cobro.fecha)}
               {cobro.nota ? ` · ${cobro.nota}` : ""}
             </span>

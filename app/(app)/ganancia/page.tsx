@@ -149,15 +149,15 @@ export default function GananciaPage() {
       />
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {loading ? (
-        <p className="py-6 text-sm text-text-muted">Cargando…</p>
+        <p className="py-6 text-[16px] text-text-muted">Cargando…</p>
       ) : !error && vacio ? (
-        <p className="py-6 text-sm text-text-muted">Todavía no hay ventas ni gastos.</p>
+        <p className="py-6 text-[16px] text-text-muted">Todavía no hay ventas ni gastos.</p>
       ) : !error ? (
         <>
           <VentasPorMes datosGraficos={datosGraficos} />

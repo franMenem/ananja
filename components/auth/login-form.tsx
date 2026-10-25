@@ -17,9 +17,9 @@ type LoginFormProps = {
   aviso: string | null;
 };
 
-const labelClass = "text-[10px] tracking-[0.18em] text-text-muted uppercase";
+const labelClass = "text-[13px] text-text-muted";
 const submitClass =
-  "mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45";
+  "mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45";
 
 /**
  * Ingreso con email + contraseña, y "¿Olvidaste tu contraseña?" en la
@@ -118,21 +118,21 @@ export function LoginForm({ aviso }: LoginFormProps) {
   if (modo === "recuperar") {
     return (
       <form onSubmit={handleRecuperar} className="flex flex-col gap-5">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Recuperar contraseña</span>
+        <span className="text-[13px] text-text-muted">Recuperar contraseña</span>
 
         {enviado ? (
-          <p role="status" className="border-l-2 border-mark pl-3 text-sm text-text">
+          <p role="status" className="border-l-2 border-mark pl-3 text-[16px] text-text">
             Si ese email tiene una cuenta, te llega un mail con un link para elegir una contraseña nueva.
             Revisá también la carpeta de spam.
           </p>
         ) : (
           <>
-            <p className="text-sm text-text-muted">
+            <p className="text-[16px] text-text-muted">
               Escribí tu email y te mandamos un link para elegir una contraseña nueva.
             </p>
             {campoEmail}
             {error && (
-              <p role="alert" className="text-xs text-accent">
+              <p role="alert" className="text-[14px] text-accent">
                 {error}
               </p>
             )}
@@ -145,7 +145,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
         <button
           type="button"
           onClick={() => cambiarModo("ingresar")}
-          className="flex min-h-11 items-center justify-center text-[12px] tracking-[0.12em] text-primary uppercase underline-offset-4 hover:underline"
+          className="flex min-h-11 items-center justify-center text-[14px] text-primary underline-offset-4 hover:underline"
         >
           Volver a ingresar
         </button>
@@ -155,10 +155,10 @@ export function LoginForm({ aviso }: LoginFormProps) {
 
   return (
     <form onSubmit={handleIngresar} className="flex flex-col gap-5">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Cuenta del equipo</span>
+      <span className="text-[13px] text-text-muted">Cuenta del equipo</span>
 
       {avisoTexto && (
-        <p role="alert" className="border-l-2 border-accent pl-3 text-sm text-accent">
+        <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">
           {avisoTexto}
         </p>
       )}
@@ -177,7 +177,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className={`min-h-11 border-0 border-b bg-transparent text-base tracking-[0.1em] text-text ${
+          className={`min-h-11 border-0 border-b bg-transparent text-base text-text ${
             password ? "border-primary" : "border-border"
           } focus:border-primary`}
           placeholder="••••••••"
@@ -185,7 +185,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
       </div>
 
       {error && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -197,7 +197,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
       <button
         type="button"
         onClick={() => cambiarModo("recuperar")}
-        className="flex min-h-11 items-center justify-center text-[12px] tracking-[0.12em] text-primary underline-offset-4 hover:underline"
+        className="flex min-h-11 items-center justify-center text-[14px] text-primary underline-offset-4 hover:underline"
       >
         ¿Olvidaste tu contraseña?
       </button>

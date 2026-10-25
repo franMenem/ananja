@@ -1,3 +1,4 @@
+import { Pastilla } from "@/components/ui/pastilla";
 import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
 import { EncargadoRevendedor } from "@/components/revendedores/encargado-revendedor";
 import { EspacioRevendedorButton } from "@/components/revendedores/espacio-revendedor-button";
@@ -65,15 +66,15 @@ export function CabeceraFicha({
   const puedeRevender = rol === "revendedor" || (rol === "admin" && revende);
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-6">
-      <div className="flex items-start justify-between gap-3">
-        <h1 className="font-display text-[32px] leading-[1.05] text-primary md:text-[38px]">{nombre}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <h1 className="font-display min-w-0 text-[28px] leading-[1.05] text-text md:text-[32px]">{nombre}</h1>
         {rol === "revendedor" || rol === "coordinador" ? (
           <AsignarRolButton
             vendedorId={vendedorId}
             nombre={nombre}
             rolDestino="admin"
             label="Pasar a admin"
-            className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-primary hover:text-primary"
+            className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-primary hover:text-primary"
           />
         ) : (
           rol === "admin" && (
@@ -83,14 +84,14 @@ export function CabeceraFicha({
                 nombre={nombre}
                 rolDestino="coordinador"
                 label="Pasar a coordinador"
-                className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-primary hover:text-primary"
+                className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-primary hover:text-primary"
               />
               {revende ? (
                 <EspacioRevendedorButton
                   vendedorId={vendedorId}
                   nombre={nombre}
                   habilitar={false}
-                  className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[11px] font-medium tracking-[0.1em] text-text-muted uppercase hover:border-accent hover:text-accent"
+                  className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-accent hover:text-accent"
                 />
               ) : (
                 // Espacio de revendedor apagado (siempre al pasar a
@@ -103,7 +104,7 @@ export function CabeceraFicha({
                   vendedorId={vendedorId}
                   nombre={nombre}
                   habilitar={true}
-                  className="flex min-h-9 shrink-0 items-center justify-center border border-primary px-3 text-[11px] font-medium tracking-[0.1em] text-primary uppercase"
+                  className="flex min-h-9 shrink-0 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
                 />
               )}
             </div>
@@ -114,16 +115,20 @@ export function CabeceraFicha({
       {rol !== "coordinador" && (
         <>
           <div>
-            <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Le debe a {NEGOCIO.nombre}
             </span>
-            <p className="font-display text-[40px] leading-[1.05] whitespace-nowrap text-accent">
+            <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] whitespace-nowrap text-accent">
               {formatCentavos(debeCentavos)}
             </p>
           </div>
 
-          <p className="text-[12px] text-text-muted">
-            {pendienteCentavos > 0 && <>Pendiente de confirmar {formatCentavos(pendienteCentavos)} · </>}
+          <p className="text-[14px] text-text-muted">
+            {pendienteCentavos > 0 && (
+              <>
+                <Pastilla variante="confirmar">Pendiente de confirmar {formatCentavos(pendienteCentavos)}</Pastilla>{" "}
+              </>
+            )}
             Ya pagó {formatCentavos(rendidoCentavos)} ·{" "}
             <EncargadoRevendedor
               vendedorId={vendedorId}

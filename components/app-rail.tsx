@@ -29,9 +29,9 @@ const SECTORES_CON_SECCIONES = RESTO.slice(0, -1);
 function itemClassName(active: boolean, colapsado: boolean): string {
   const layout = colapsado ? "justify-center px-0" : "gap-3 px-6";
   const color = active
-    ? "border-mark bg-primary-active font-medium text-background"
-    : "border-transparent text-on-primary-muted";
-  return `flex min-h-11 items-center border-l-2 py-3 text-xs tracking-[0.14em] uppercase ${layout} ${color}`;
+    ? "border-mark bg-[#fff1eb] font-medium text-primary"
+    : "border-transparent text-text-muted";
+  return `flex min-h-11 items-center border-l-2 py-3 text-[14px] ${layout} ${color}`;
 }
 
 /**
@@ -95,21 +95,21 @@ export function AppRail() {
   return (
     <nav
       aria-label="Navegación principal"
-      className={`hidden shrink-0 flex-col bg-primary py-5 transition-[width] duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start ${
+      className={`hidden shrink-0 flex-col border-r border-border bg-surface py-5 transition-[width] duration-200 motion-reduce:transition-none lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start ${
         colapsado ? "w-16" : "w-[238px]"
       }`}
     >
       <div
-        className={`flex items-center border-b border-primary-line pb-[22px] ${
+        className={`flex items-center border-b border-border pb-[22px] ${
           colapsado ? "justify-center px-0" : "justify-between px-6"
         }`}
       >
         {!colapsado && (
           <div>
-            <span className="font-display block text-[28px] tracking-[0.16em] text-background">
+            <span className="font-display block text-[28px] text-text">
               {NEGOCIO.wordmark}
             </span>
-            <span className="mt-1 block text-[10px] tracking-[0.10em] text-on-primary-muted uppercase">
+            <span className="mt-1 block text-[13px] text-text-muted">
               {NEGOCIO.subtitulo}
             </span>
           </div>
@@ -120,7 +120,7 @@ export function AppRail() {
           aria-label={colapsado ? "Expandir menú" : "Colapsar menú"}
           title={colapsado ? "Expandir menú" : "Colapsar menú"}
           aria-expanded={!colapsado}
-          className="flex h-11 w-11 shrink-0 items-center justify-center text-on-primary-muted"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-text-muted"
         >
           <IconRailToggle className="h-[18px] w-[18px]" />
         </button>
@@ -143,7 +143,7 @@ export function AppRail() {
         {SECTORES_CON_SECCIONES.map((sector) => (
           <li key={sector.id} className="mt-4 first:mt-2">
             {!colapsado && (
-              <span className="block px-6 pb-1 text-[10px] font-medium tracking-[0.18em] text-on-primary-muted/70 uppercase">
+              <span className="block px-6 pb-1 text-[13px] font-medium text-text-muted">
                 {sector.label}
               </span>
             )}
@@ -192,7 +192,7 @@ export function AppRail() {
               {colapsado && cantidadTareas > 0 && (
                 <span
                   aria-hidden="true"
-                  className="absolute -top-1.5 -right-2 bg-accent px-[4px] py-px text-[9px] leading-tight text-background"
+                  className="absolute -top-1.5 -right-2 rounded-full bg-accent px-[5px] py-px text-[13px] leading-tight text-white"
                 >
                   {cantidadTareas}
                 </span>
@@ -200,7 +200,7 @@ export function AppRail() {
             </span>
             {!colapsado && <span>{TAREAS.label}</span>}
             {!colapsado && cantidadTareas > 0 && (
-              <span className="ml-auto bg-accent px-[7px] py-px text-[11px] text-background">
+              <span className="ml-auto rounded-full bg-accent px-[7px] py-px text-[13px] text-white">
                 {cantidadTareas}
               </span>
             )}
@@ -208,14 +208,14 @@ export function AppRail() {
         </li>
       </ul>
 
-      <div className="border-t border-primary-line pt-2">
+      <div className="border-t border-border pt-2">
         <VerComoRevendedor variante="rail" colapsado={colapsado} />
         <button
           type="button"
           onClick={handleSignOut}
           aria-label={colapsado ? "Cerrar sesión" : undefined}
           title={colapsado ? "Cerrar sesión" : undefined}
-          className={`flex min-h-11 w-full items-center border-l-2 border-transparent py-3 text-left text-xs tracking-[0.14em] text-on-primary-muted uppercase ${
+          className={`flex min-h-11 w-full items-center border-l-2 border-transparent py-3 text-left text-[14px] text-text-muted ${
             colapsado ? "justify-center px-0" : "gap-3 px-6"
           }`}
         >

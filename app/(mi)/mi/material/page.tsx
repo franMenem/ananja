@@ -18,16 +18,16 @@ export default async function MiMaterialPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-      <h1 className="font-display text-[30px] leading-[1.05] text-primary">Material</h1>
+      <h1 className="font-display text-[28px] leading-[1.05] text-text">Material</h1>
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {!error && materiales.length === 0 && (
-        <p className="py-6 text-sm text-text-muted">
+        <p className="py-6 text-[16px] text-text-muted">
           Todavía no hay material. Pronto vas a encontrar acá información para vender.
         </p>
       )}
@@ -40,7 +40,7 @@ export default async function MiMaterialPage() {
               href={`/mi/material/${material.id}`}
               className="flex items-center justify-between gap-3 border-b border-border py-4 hover:bg-border/30"
             >
-              <span className="text-sm text-text">{material.titulo}</span>
+              <span className="text-[16px] text-text">{material.titulo}</span>
               <span className="shrink-0 text-text-muted">→</span>
             </Link>
           ))}

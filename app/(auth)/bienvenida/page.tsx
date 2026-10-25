@@ -42,8 +42,8 @@ export default async function BienvenidaPage() {
   return (
     <AuthShell tagline={`${nombre ? `Hola, ${nombre}.` : "Hola."} Te damos la bienvenida a ${NEGOCIO.nombre}.`}>
       <div className="mb-6 flex flex-col gap-2">
-        <h1 className="font-display text-[30px] leading-[1.1] text-primary">Elegí tu contraseña</h1>
-        <p className="text-sm text-text-muted">
+        <h1 className="font-display text-[28px] leading-[1.1] text-text">Elegí tu contraseña</h1>
+        <p className="text-[16px] text-text-muted">
           Con tu email{user.email ? ` (${user.email})` : ""} y esta contraseña vas a entrar a la app
           desde cualquier celular o computadora.
         </p>

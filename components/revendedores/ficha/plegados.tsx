@@ -24,7 +24,7 @@ export function PlegadosFicha({
   return (
     <div className="flex flex-col gap-3">
       <details className="group">
-        <summary className="flex items-center gap-1.5 select-none text-[10px] tracking-[0.22em] text-text-muted uppercase [&::-webkit-details-marker]:hidden">
+        <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
           <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
             ›
           </span>
@@ -37,7 +37,7 @@ export function PlegadosFicha({
 
       {ventasBorradas.length > 0 && (
         <details className="group">
-          <summary className="flex items-center gap-1.5 select-none text-[10px] tracking-[0.22em] text-text-muted uppercase [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
             <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
               ›
             </span>
@@ -47,13 +47,13 @@ export function PlegadosFicha({
             {ventasBorradas.map((v) => (
               <div
                 key={`${v.grupoId}-${v.borradaPor ?? ""}`}
-                className="flex items-start justify-between gap-3 border-b border-border py-3 text-sm"
+                className="flex items-start justify-between gap-3 border-b border-border py-3 text-[16px]"
               >
                 <div className="flex min-w-0 flex-col">
                   <span className="text-text-muted">
                     {formatFecha(v.fecha)} · {nombrePorProducto.get(v.productoId) ?? "?"} × {v.cantidad}
                   </span>
-                  <span className="text-[11px] text-text-muted">
+                  <span className="text-[13px] text-text-muted">
                     Borrada por{" "}
                     {v.borradaPor ? (nombreBorrador.get(v.borradaPor) ?? "alguien") : "alguien fuera de la app"}{" "}
                     el {formatDiaMesHora(v.borradaAt)}

@@ -26,7 +26,7 @@ export function SalirButton({ texto }: { texto: string }) {
       type="button"
       onClick={salir}
       disabled={saliendo}
-      className="flex min-h-11 items-center justify-center text-[12px] tracking-[0.12em] text-text-muted underline-offset-4 hover:text-primary hover:underline disabled:opacity-45"
+      className="flex min-h-11 items-center justify-center text-[14px] text-text-muted underline-offset-4 hover:text-primary hover:underline disabled:opacity-45"
     >
       {saliendo ? "Cerrando sesión…" : texto}
     </button>

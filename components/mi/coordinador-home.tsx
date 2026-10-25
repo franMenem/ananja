@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -56,32 +57,32 @@ export function CoordinadorHome({
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-6 pb-8">
       <div>
-        <h1 className="font-display text-[28px] leading-[1.1] text-primary md:text-[32px]">
+        <h1 className="font-display text-[28px] leading-[1.1] text-text md:text-[32px]">
           {nombre ? `Hola, ${nombre}` : "Tus revendedoras"}
         </h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <p className="mt-1 text-[16px] text-text-muted">
           Cuánto le entregaste a cada una y cuánto te debe.
         </p>
       </div>
 
       {plataEnManoCentavos > 0 && (
-        <div className="flex flex-col gap-2 border border-border bg-surface-raised p-4">
-          <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+        <div className="flex flex-col gap-2 border border-border bg-surface-raised p-4 rounded-2xl">
+          <span className="text-[13px] text-text-muted">
             Tenés que pasar a {NEGOCIO.nombre}
           </span>
-          <p className="font-display text-[28px] leading-none text-primary tabular-nums">
+          <p className="font-display text-[28px] leading-none text-text tabular-nums">
             {formatCentavos(plataEnManoCentavos)}
           </p>
-          <p className="text-[12px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Pasala a la cuenta de {NEGOCIO.nombre} y avisanos.
           </p>
           <InformarDepositoCoordinador montoCentavos={plataEnManoCentavos} vendedorId={vendedorId} />
         </div>
       )}
 
-      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised p-4">
-        <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">Vendí yo</span>
-        <p className="text-[12px] text-text-muted">
+      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised p-4 rounded-2xl">
+        <span className="text-[13px] text-text-muted">Vendí yo</span>
+        <p className="text-[14px] text-text-muted">
           Si agarraste botellas del depósito y las vendiste vos, anotalas acá. Se suman a lo que tenés que pasar a{" "}
           {NEGOCIO.nombre}.
         </p>
@@ -91,16 +92,16 @@ export function CoordinadorHome({
           productos={productos.map((p) => ({ id: p.id, nombre: p.nombre }))}
           modo="propia"
           etiqueta="Vendí yo"
-          className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+          className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
         />
       </div>
 
       {revendedoras.length === 0 ? (
-        <p className="py-6 text-sm text-text-muted">
+        <p className="py-6 text-[16px] text-text-muted">
           Todavía no tenés ninguna revendedora asignada.
         </p>
       ) : (
-        <div className="flex flex-col gap-px border border-border bg-border">
+        <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
           {revendedoras.map((r) => (
             <RevendedoraCard key={r.id} revendedora={r} productos={productos} />
           ))}
@@ -127,22 +128,22 @@ function RevendedoraCard({
           {formatCentavos(revendedora.debeCentavos)}
         </span>
       </div>
-      <div className="flex items-baseline justify-between gap-2 text-[12px]">
-        <span className="text-text-muted uppercase tracking-[0.08em]">En su poder</span>
+      <div className="flex items-baseline justify-between gap-2 text-[14px]">
+        <span className="text-text-muted ">En su poder</span>
         <span className="tabular-nums text-text">
           {revendedora.enPoder} {envase(revendedora.enPoder)}
         </span>
       </div>
       {revendedora.valorEnPoderCentavos > 0 && (
-        <div className="flex items-baseline justify-between gap-2 text-[12px]">
-          <span className="text-text-muted uppercase tracking-[0.08em]">Valor en poder</span>
+        <div className="flex items-baseline justify-between gap-2 text-[14px]">
+          <span className="text-text-muted ">Valor en poder</span>
           <span className="tabular-nums text-text">{formatCentavos(revendedora.valorEnPoderCentavos)}</span>
         </div>
       )}
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+        className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
       >
         Entregar
       </button>
@@ -275,12 +276,12 @@ function EntregarSheet({
 
   return (
     <BottomSheet open ariaLabel={`Entregar a ${revendedora.nombre}`}>
-      <h2 className="font-display text-[24px] text-primary">Entregar a {revendedora.nombre}</h2>
-      <p className="mt-1 text-sm text-text-muted">
+      <h2 className="font-display text-[24px] text-text">Entregar a {revendedora.nombre}</h2>
+      <p className="mt-1 text-[16px] text-text-muted">
         Le cobramos el costo {NEGOCIO.nombre} vigente de cada {envase(1)} — no hace falta que lo cargues vos.
       </p>
 
-      <p className="mt-3 text-[12px] text-text-muted">
+      <p className="mt-3 text-[14px] text-text-muted">
         {stockError ? stockError : textoDisponible ? `Disponible: ${textoDisponible}` : "Consultando disponible…"}
       </p>
 
@@ -289,7 +290,7 @@ function EntregarSheet({
           const disponible = disponiblePorProducto?.[producto.id] ?? 0;
           return (
             <div key={producto.id} className="flex items-center justify-between gap-3 border-b border-border py-3">
-              <span className="text-[14px] text-text">{producto.nombre}</span>
+              <span className="text-[16px] text-text">{producto.nombre}</span>
               <CantidadStepper
                 value={cantidades[producto.id] ?? 0}
                 onChange={(value) => setCantidades((prev) => ({ ...prev, [producto.id]: value }))}
@@ -304,7 +305,7 @@ function EntregarSheet({
       </div>
 
       <div className="mt-4">
-        <label htmlFor="fecha-entrega" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="fecha-entrega" className="text-[13px] text-text-muted">
           Fecha
         </label>
         <input
@@ -313,12 +314,12 @@ function EntregarSheet({
           required
           value={fecha}
           onChange={(event) => setFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="mt-4">
-        <label htmlFor="nota-entrega" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="nota-entrega" className="text-[13px] text-text-muted">
           Nota (opcional)
         </label>
         <textarea
@@ -326,12 +327,12 @@ function EntregarSheet({
           value={nota}
           onChange={(event) => setNota(event.target.value)}
           rows={2}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-accent">
+        <p role="alert" className="mt-3 text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -342,7 +343,7 @@ function EntregarSheet({
           textoCargando="Guardando…"
           disabled={totalUnidades === 0}
           onClick={() => void handleGuardar()}
-          className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
         >
           Confirmar entrega
         </BotonAccion>
@@ -350,7 +351,7 @@ function EntregarSheet({
           type="button"
           onClick={onClose}
           disabled={saving}
-          className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+          className={`${BOTON_SECUNDARIO} flex-1 px-4`}
         >
           Cancelar
         </button>

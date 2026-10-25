@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -104,7 +105,7 @@ export function ComprobanteDeleteButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="min-h-11 w-full border border-accent px-4 text-xs font-medium tracking-[0.1em] text-accent uppercase"
+        className="min-h-11 w-full border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
       >
         Eliminar
       </button>
@@ -114,18 +115,18 @@ export function ComprobanteDeleteButton({
         ariaLabel="Eliminar comprobante"
         variant="accent"
       >
-        <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+        <span className="text-[13px] font-medium text-accent">
           Eliminar comprobante
         </span>
 
-        <p className="font-display mt-3 text-2xl text-primary tabular-nums">
+        <p className="font-display mt-3 text-2xl text-text tabular-nums">
           {formatConsecuencia(items, cobradoAlMomentoCentavos, medioPago, cobros)}
         </p>
 
-        <p className="mt-2 text-xs text-text-muted">No se puede deshacer.</p>
+        <p className="mt-2 text-[14px] text-text-muted">No se puede deshacer.</p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -135,7 +136,7 @@ export function ComprobanteDeleteButton({
             type="button"
             onClick={() => setOpen(false)}
             disabled={deleting}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>
@@ -144,7 +145,7 @@ export function ComprobanteDeleteButton({
             textoCargando="Eliminando…"
             type="button"
             onClick={handleDelete}
-            className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

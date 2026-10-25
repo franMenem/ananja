@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useMemo, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -124,18 +125,18 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Cliente (opcional)
       </span>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex min-h-11 items-center justify-between border border-border bg-surface px-3.5 text-base text-text"
+        className="flex min-h-11 items-center justify-between border border-border bg-surface px-3.5 text-base text-text rounded-xl"
       >
         <span className={selected ? "text-text" : "text-text-muted"}>
           {selected ? selected.nombre : "Sin cliente"}
         </span>
-        <span className="text-xs font-medium tracking-[0.1em] text-primary uppercase">
+        <span className="text-[14px] font-medium text-primary">
           {selected ? "Cambiar" : "Elegir"}
         </span>
       </button>
@@ -147,15 +148,15 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
           aria-label="Elegir cliente"
           className="fixed inset-0 z-50 flex items-end justify-center bg-scrim px-0 sm:items-center sm:px-4"
         >
-          <div className="paper-texture flex max-h-[80dvh] w-full flex-col gap-3 border-t-2 border-mark px-5 py-[22px] sm:max-w-sm sm:border-t-2">
+          <div className="flex rounded-t-2xl bg-surface sm:rounded-2xl max-h-[80dvh] w-full flex-col gap-3 border-t-2 border-mark px-5 py-[22px] sm:max-w-sm sm:border-t-2">
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-[22px] text-primary">
+              <span className="font-display text-[22px] text-text">
                 Elegir cliente
               </span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-[11px] tracking-[0.14em] text-text-muted uppercase"
+                className="text-[13px] text-text-muted"
               >
                 Cerrar
               </button>
@@ -167,22 +168,22 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar cliente…"
               autoFocus
-              className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+              className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
             />
 
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
               <button
                 type="button"
                 onClick={() => handleSelect(null)}
-                className="flex min-h-11 items-center border-b border-border px-1 text-left text-sm text-text hover:bg-surface-raised"
+                className="flex min-h-11 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
               >
                 Sin cliente
               </button>
 
               {loading ? (
-                <p className="px-1 py-3 text-sm text-text-muted">Cargando…</p>
+                <p className="px-1 py-3 text-[16px] text-text-muted">Cargando…</p>
               ) : filtered.length === 0 ? (
-                <p className="px-1 py-3 text-sm text-text-muted">
+                <p className="px-1 py-3 text-[16px] text-text-muted">
                   No hay clientes que coincidan.
                 </p>
               ) : (
@@ -191,7 +192,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                     key={cliente.id}
                     type="button"
                     onClick={() => handleSelect(cliente)}
-                    className="flex min-h-11 items-center border-b border-border px-1 text-left text-sm text-text hover:bg-surface-raised"
+                    className="flex min-h-11 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
                   >
                     {cliente.nombre}
                   </button>
@@ -204,7 +205,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                 <button
                   type="button"
                   onClick={() => setCreating(true)}
-                  className="min-h-11 w-full border border-border px-3 text-xs font-medium tracking-[0.1em] text-primary uppercase"
+                  className="min-h-11 w-full border border-border px-3 text-[14px] font-medium text-primary"
                 >
                   + Nuevo cliente
                 </button>
@@ -216,10 +217,10 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                     onChange={(event) => setNuevoNombre(event.target.value)}
                     placeholder="Nombre o empresa"
                     autoFocus
-                    className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+                    className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
                   />
                   {creatingError && (
-                    <p role="alert" className="text-xs text-accent">
+                    <p role="alert" className="text-[14px] text-accent">
                       {creatingError}
                     </p>
                   )}
@@ -231,7 +232,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                         setNuevoNombre("");
                         setCreatingError(null);
                       }}
-                      className="min-h-11 flex-1 border border-border px-3 text-xs font-medium tracking-[0.1em] text-text uppercase"
+                      className="min-h-11 flex-1 border border-border px-3 text-[14px] font-medium text-text"
                     >
                       Cancelar
                     </button>
@@ -240,12 +241,12 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                       textoCargando="Creando…"
                       type="button"
                       onClick={() => void handleCrearCliente()}
-                      className="min-h-11 flex-1 bg-primary px-3 text-xs font-medium tracking-[0.1em] text-background uppercase disabled:opacity-45"
+                      className={`${BOTON_PRIMARIO} flex-1 px-3`}
                     >
                       Crear y usar
                     </BotonAccion>
                   </div>
-                  <p className="text-xs text-text-muted">
+                  <p className="text-[14px] text-text-muted">
                     El resto de los datos del cliente se puede completar
                     después desde su ficha.
                   </p>

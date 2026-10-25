@@ -44,7 +44,7 @@ export default async function PagoDeudaPage({
 
   return (
     <FormPage title="Registrar pago" backHref="/plata/deudas" backLabel="Volver a deudas">
-      <p className="text-sm text-text-muted">{saldo.descripcion}</p>
+      <p className="text-[16px] text-text-muted">{saldo.descripcion}</p>
 
       <PagoDeudaForm
         deudaId={id}

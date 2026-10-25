@@ -6,44 +6,47 @@
  * (fondo crema), no hay modo oscuro.
  */
 @theme {
-  --color-primary: #2c2f25;
-  --color-primary-hover: #4c5140;
+  --color-primary: #c2410c;
+  --color-primary-hover: #9a3412;
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #4a5240;
-  --color-accent: #7a2e2e;
+  --color-secondary: #067647;
+  --color-accent: #b42318;
 
-  --color-background: #f4efea;
+  --color-background: #f6f5f2;
   --color-surface: #ffffff;
-  --color-surface-raised: #ede5dd;
-  --color-border: #dfd0c2;
+  --color-surface-raised: #ffffff;
+  --color-border: #e7e5e0;
+  --color-line: #efede8;
 
-  --color-text: #2c2f25;
-  --color-text-muted: #5a5a5a;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5c5c5c;
 
-  /* Rediseño editorial (design/handoff/design_handoff_ananja_ui/README.md) */
-  --color-mark: #a9762f;
-  --color-on-primary-muted: #a8ab98;
-  --color-primary-line: #43473a;
-  --color-primary-active: #373b2e;
-  --color-primary-2: #b6b7a8;
-  --color-scrim: rgba(28, 30, 24, 0.62);
+  /* Estados (pastillas, avisos). */
+  --color-success-tint: #ecfdf3;
+  --color-info: #175cd3;
+  --color-info-tint: #eff8ff;
+  --color-warning: #93370d;
+  --color-warning-tint: #fffaeb;
 
-  /* Tinte de `--color-accent` para texto/filete del link "Ingresar" sobre la
-     barra bordó de stock bajo (design/handoff README § Chrome compartido / Barra de alerta
-     de stock bajo) — no hay contraste AA suficiente usando el accent sólido
-     sobre sí mismo, así que el prototipo pide estos dos tintes puntuales. */
-  --color-accent-tint: #e8cfc6;
-  --color-accent-tint-border: #b07a72;
+  --color-mark: #c2410c;
+  /* Texto sobre fondo naranja (primary); #fff1eb da 4.7:1 (el #ffe4d6 no llega a 4.5). Las bandas oscuras ya no existen;
+     estos tokens quedan solo para lo que todavía los use. */
+  --color-on-primary-muted: #fff1eb;
+  --color-primary-line: #9a3412;
+  --color-primary-active: #7c2d12;
+  --color-primary-2: #fff1eb;
+  --color-scrim: rgba(26, 26, 26, 0.5);
 
-  --font-display: var(--font-instrument-serif), "Instrument Serif", serif;
-  --font-heading: var(--font-dm-sans), "DM Sans", sans-serif;
-  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+  /* Rojo de deuda/error: fondo y borde suaves. */
+  --color-accent-tint: #fef3f2;
+  --color-accent-tint-border: #fecdca;
 
-  /* Padding horizontal fluido de `<main>` en escritorio (app/(app)/layout.tsx)
-     y de los bloques oliva que sangran hasta su borde (`lg:-mx-[var(--page-px)]`,
-     antes `md:-mx-10` fijo) — un solo valor para no repetir el clamp en cada
-     archivo. Ver app/(app)/layout.tsx para el porqué del clamp. */
+  --font-display: var(--font-inter), "Inter", sans-serif;
+  --font-heading: var(--font-inter), "Inter", sans-serif;
+  --font-body: var(--font-inter), "Inter", sans-serif;
+
+  /* Padding horizontal fluido de `<main>` en escritorio (app/(app)/layout.tsx). */
   --page-px: clamp(40px, 4vw, 96px);
 }
 
@@ -129,17 +132,15 @@ html[data-negocio="germa"] {
   --color-accent-tint-border: #56332a;
 }
 
-/*
- * Grano de papel sobre la crema (design/handoff README § Textura). Se aplica al body y,
- * vía la clase utilitaria, a superficies opacas que necesitan la misma
- * textura sin heredarla del fondo (p. ej. la hoja inferior de los modales).
- * No se aplica sobre superficies oliva.
- */
-body,
-.paper-texture {
+body {
   background-color: var(--color-background);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
-  background-blend-mode: multiply;
+  font-size: 16px;
+}
+
+.font-display {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /*
@@ -165,7 +166,8 @@ body,
   }
 
   a {
-    color: var(--color-accent);
+    color: var(--color-text);
+    text-decoration-color: var(--color-mark);
   }
 
   a:hover {

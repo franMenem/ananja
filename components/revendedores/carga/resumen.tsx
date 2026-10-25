@@ -13,7 +13,7 @@ export function Resumen({
   pendienteCentavos: number;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 border-t-2 border-primary pt-4 text-sm">
+    <div className="flex flex-col gap-1.5 border-t-2 border-primary pt-4 text-[16px]">
       <span className={ROTULO}>Resumen</span>
       <FilaResumen label="Entregadas" valor={`${resumen.botellasEntregadas} ${envase(resumen.botellasEntregadas)}`} />
       <FilaResumen label="Vendidas con precio" valor={resumen.vendidasConPrecio} />
@@ -36,13 +36,13 @@ export function Resumen({
         valor={formatCentavos(Math.abs(resumen.saldoFinalCentavos))}
       />
       {resumen.botellasDelDeposito > 0 && (
-        <p className="text-[11px] text-text-muted">
+        <p className="text-[13px] text-text-muted">
           {resumen.botellasDelDeposito} {envase(resumen.botellasDelDeposito)} salen del depósito con una
           entrega automática: su costo lo calcula el sistema al guardar y no está sumado acá.
         </p>
       )}
       {pendienteCentavos > 0 && (
-        <p className="text-[11px] text-text-muted">
+        <p className="text-[13px] text-text-muted">
           Además informó {formatCentavos(pendienteCentavos)} en pagos que todavía no se confirmaron
           (no están descontados acá).
         </p>

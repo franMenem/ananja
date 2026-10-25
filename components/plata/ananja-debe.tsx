@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import type { DeudaAnanja } from "@/lib/data/plata";
@@ -10,7 +11,7 @@ function BotonPagar({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="flex min-h-11 shrink-0 items-center justify-center bg-primary px-3.5 text-[11px] font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+      className={`${BOTON_PRIMARIO} flex shrink-0 px-3.5`}
     >
       Pagar
     </Link>
@@ -32,21 +33,21 @@ export function AnanjaDebe({ deudaAnanja }: { deudaAnanja: DeudaAnanja }) {
     <div className="flex flex-col pt-8">
       <Separador titulo="Ananja debe" />
       {sinNadaPorPagar ? (
-        <p className="py-2 text-sm text-text-muted">No hay nada pendiente de pago.</p>
+        <p className="py-2 text-[16px] text-text-muted">No hay nada pendiente de pago.</p>
       ) : (
         <div className="flex flex-col">
           {deudaAnanja.pedidosPorPagar.map((p) => (
             <div key={p.loteId} className="flex items-center justify-between gap-3 border-b border-border py-3">
               <div className="flex min-w-0 flex-col">
-                <span className="text-sm text-text">Pedido del {formatFecha(p.fecha)}</span>
+                <span className="text-[16px] text-text">Pedido del {formatFecha(p.fecha)}</span>
                 {p.conceptos.length > 0 && (
-                  <span className="text-xs text-text-muted">
+                  <span className="text-[14px] text-text-muted">
                     {p.conceptos.map((c) => `${c.etiqueta} ${formatCentavos(c.saldoCentavos)}`).join(" · ")}
                   </span>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <span className="text-sm font-medium tabular-nums text-accent">
+                <span className="text-[16px] font-medium tabular-nums text-accent">
                   {formatCentavos(p.saldoCentavos)}
                 </span>
                 <BotonPagar href={`/stock/lotes/${p.loteId}/pago`} />
@@ -55,9 +56,9 @@ export function AnanjaDebe({ deudaAnanja }: { deudaAnanja: DeudaAnanja }) {
           ))}
           {deudaAnanja.deudasNegocio.map((d) => (
             <div key={d.id} className="flex items-center justify-between gap-3 border-b border-border py-3">
-              <span className="min-w-0 break-words text-sm text-text">{d.descripcion}</span>
+              <span className="min-w-0 break-words text-[16px] text-text">{d.descripcion}</span>
               <div className="flex shrink-0 items-center gap-3">
-                <span className="text-sm font-medium tabular-nums text-accent">
+                <span className="text-[16px] font-medium tabular-nums text-accent">
                   {formatMonto(d.moneda, d.restanteCentavos)}
                 </span>
                 <BotonPagar href={`/plata/deudas/${d.id}/pago`} />
@@ -69,13 +70,13 @@ export function AnanjaDebe({ deudaAnanja }: { deudaAnanja: DeudaAnanja }) {
       <div className="mt-3 flex items-center justify-between">
         <Link
           href="/plata/deudas"
-          className="text-[11px] tracking-[0.14em] text-text-muted uppercase hover:text-primary"
+          className="text-[13px] text-text-muted hover:text-primary"
         >
           Ver todas las deudas
         </Link>
         <Link
           href="/plata/deudas/nueva"
-          className="flex min-h-11 items-center gap-2 bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex gap-2 px-4`}
         >
           + Nueva deuda
         </Link>

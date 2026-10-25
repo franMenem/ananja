@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { StockCard } from "@/components/stock/stock-card";
@@ -95,9 +96,9 @@ export default async function StockPage() {
   return (
     <div className="flex flex-col pb-8">
       {bajoUmbral && (
-        <div className="-mx-5 -mt-4 flex items-center gap-2.5 bg-accent px-5 py-[11px] text-background lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
-          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-background" />
-          <span className="text-[12px]">
+        <div className="-mx-5 -mt-4 flex items-center gap-2.5 border-b border-warning/30 bg-warning-tint px-5 py-[11px] text-warning lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
+          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-warning" />
+          <span className="text-[14px]">
             {formatPresentacion(bajoUmbral.presentacion_ml)} quedó en{" "}
             <span className="font-semibold">{bajoUmbral.stock}</span> unidades
             · mínimo {bajoUmbral.umbral_minimo}
@@ -106,7 +107,7 @@ export default async function StockPage() {
       )}
 
       <div className="flex items-center justify-between py-6">
-        <h1 className="font-display text-[38px] leading-[1.05] text-primary md:text-[38px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-text md:text-[32px]">
           Depósito
         </h1>
       </div>
@@ -114,19 +115,19 @@ export default async function StockPage() {
       <div className="flex flex-col gap-2 pb-6 md:flex-row">
         <Link
           href="/stock/lotes/nuevo"
-          className="flex min-h-[52px] flex-1 items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
         >
           + Pedido {proveedor.a}
         </Link>
         <Link
           href="/stock/nuevo?tipo=egreso"
-          className="flex min-h-[52px] flex-1 items-center justify-center border border-accent px-4 text-[13px] font-medium tracking-[0.14em] text-accent uppercase"
+          className="flex min-h-[52px] flex-1 items-center justify-center border border-accent px-4 text-[16px] font-medium text-accent rounded-xl"
         >
           − Egreso
         </Link>
       </div>
 
-      <div className="flex flex-col gap-px bg-border md:grid md:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] md:gap-0 md:border-t md:border-l md:border-border md:bg-transparent">
+      <div className="flex flex-col gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
         {stockRows.map((stock) => (
           <StockCard
             key={stock.producto_id}
@@ -141,18 +142,18 @@ export default async function StockPage() {
           "alcanza para 0 botellas", que se leería como que no queda nada. */}
       <div className="flex flex-col gap-2 pt-6">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             {proveedor.en}
           </span>
           <Link
             href="/stock/proveedor"
-            className="shrink-0 text-[11px] text-text-muted underline decoration-dotted underline-offset-4"
+            className="shrink-0 text-[13px] text-text-muted underline decoration-dotted underline-offset-4"
           >
             Cambiar nombre del proveedor
           </Link>
         </div>
         {aceiteLitros > 0 ? (
-          <p className="text-[13px] leading-snug text-text">
+          <p className="text-[16px] leading-snug text-text">
             {NEGOCIO.materiaPrima.nombre[0].toUpperCase() + NEGOCIO.materiaPrima.nombre.slice(1)}{" "}
             <span className="font-medium tabular-nums">{aceiteLitros} L</span>
             {alcanceAceite.length > 0 && (
@@ -178,14 +179,14 @@ export default async function StockPage() {
         ) : (
           <Link
             href="/stock/insumos/factura"
-            className="text-[13px] text-text-muted underline decoration-dotted underline-offset-4"
+            className="text-[16px] text-text-muted underline decoration-dotted underline-offset-4"
           >
             Cargá la compra de {NEGOCIO.materiaPrima.nombre} para ver cuánto queda
           </Link>
         )}
 
         {etiquetasRestantes > 0 ? (
-          <p className="text-[13px] leading-snug text-text">
+          <p className="text-[16px] leading-snug text-text">
             Etiquetas <span className="font-medium tabular-nums">{etiquetasRestantes}</span>
             {alcanceEtiqueta.length > 0 && (
               <>
@@ -202,7 +203,7 @@ export default async function StockPage() {
         ) : (
           <Link
             href="/stock/insumos/factura"
-            className="text-[13px] text-text-muted underline decoration-dotted underline-offset-4"
+            className="text-[16px] text-text-muted underline decoration-dotted underline-offset-4"
           >
             Cargá la compra de etiquetas para ver cuánto queda
           </Link>
@@ -211,7 +212,7 @@ export default async function StockPage() {
 
       <Link
         href="/stock/movimientos"
-        className="mt-6 self-start text-[13px] font-medium tracking-[0.06em] text-primary uppercase underline decoration-mark underline-offset-4"
+        className="mt-6 self-start text-[16px] font-medium text-primary underline decoration-mark underline-offset-4"
       >
         Ver movimientos
       </Link>

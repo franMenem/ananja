@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -113,7 +114,7 @@ export function EncargadoRevendedor({
 
   if (!editando) {
     return (
-      <span className="text-[12px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         {encargadoActualId ? `Coordinador: ${nombreActual}` : "Sin coordinador"}{" "}
         <button
           type="button"
@@ -128,7 +129,7 @@ export function EncargadoRevendedor({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor="encargado" className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+      <label htmlFor="encargado" className="text-[13px] text-text-muted">
         Coordinador
       </label>
       <select
@@ -136,7 +137,7 @@ export function EncargadoRevendedor({
         value={propuesto ?? actual}
         onChange={handleChange}
         disabled={saving}
-        className="min-h-11 w-full max-w-[260px] border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60"
+        className="min-h-11 w-full max-w-[260px] border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
       >
         <option value="">Sin coordinador</option>
         {opciones.map((a) => (
@@ -145,32 +146,32 @@ export function EncargadoRevendedor({
           </option>
         ))}
       </select>
-      {!encargadoActualId && <p className="text-xs text-accent">Sin coordinador asignado.</p>}
+      {!encargadoActualId && <p className="text-[14px] text-accent">Sin coordinador asignado.</p>}
       <button
         type="button"
         onClick={() => setEditando(false)}
         disabled={saving}
-        className="self-start text-[11px] tracking-[0.1em] text-text-muted uppercase hover:text-primary"
+        className="self-start text-[13px] text-text-muted hover:text-primary"
       >
         Cerrar
       </button>
 
       <BottomSheet open={propuesto !== null} ariaLabel={titulo}>
-        <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
+        <p className="mt-2 text-[16px] text-text-muted">
           {propuesto
             ? `De acá en adelante ${revendedorNombre} le rinde la plata a ${nombreNuevo}.`
             : `${revendedorNombre} va a quedar sin nadie a quien rendirle la plata.`}
         </p>
         {actual && (
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-[16px] text-text-muted">
             Los pagos que {revendedorNombre} ya le informó a {nombreActual} siguen siendo de {nombreActual}: los
             confirma {nombreActual}.
           </p>
         )}
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -180,7 +181,7 @@ export function EncargadoRevendedor({
             cargando={saving}
             textoCargando="Guardando…"
             onClick={() => void confirmar()}
-            className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
           >
             {actual ? "Sí, cambiar" : "Sí, confirmar"}
           </BotonAccion>
@@ -188,7 +189,7 @@ export function EncargadoRevendedor({
             type="button"
             onClick={cancelar}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Volver
           </button>

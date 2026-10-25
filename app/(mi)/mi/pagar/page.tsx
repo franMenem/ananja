@@ -31,7 +31,7 @@ export default async function PagarPage() {
   );
 
   if (!revendedor) {
-    return <p className="text-sm text-text-muted">No encontramos tu cuenta de revendedora.</p>;
+    return <p className="text-[16px] text-text-muted">No encontramos tu cuenta de revendedora.</p>;
   }
 
   return (

@@ -57,32 +57,32 @@ export function MovimientosFicha({
     <div className="flex flex-col gap-2">
       <Separador titulo="Movimientos" />
       {movimientos.length === 0 ? (
-        <p className="py-2 text-sm text-text-muted">Todavía no hay movimientos.</p>
+        <p className="py-2 text-[16px] text-text-muted">Todavía no hay movimientos.</p>
       ) : (
         visibles.map((m) =>
           m.tipo === "venta" ? (
             <div
               key={`venta-${m.id}`}
               id={m.grupoId === primerGrupoSinPrecio ? "sin-precio" : undefined}
-              className="flex scroll-mt-24 flex-col gap-2 border-b border-border py-3 text-sm"
+              className="flex scroll-mt-24 flex-col gap-2 border-b border-border py-3 text-[16px]"
             >
-              <div className="flex items-start justify-between gap-3">
-                <span className="text-text">
+              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                <span className="min-w-0 text-text">
                   {formatFecha(m.fecha)} · Venta {m.cantidad} × {nombrePorProducto.get(m.productoId) ?? "?"}
                 </span>
-                <div className="flex shrink-0 flex-col items-end gap-1">
+                <div className="flex max-w-full min-w-0 flex-col items-end gap-1">
                   {m.precioVentaCentavos !== null ? (
                     <span className="text-right tabular-nums text-text">
                       {formatCentavos(m.precioVentaCentavos)}
                       {m.medioPago ? ` · ${MEDIO_PAGO_LABELS[m.medioPago]}` : ""}
                     </span>
                   ) : (
-                    <span className="border border-accent px-1.5 py-px text-[9px] tracking-[0.1em] text-accent uppercase">
+                    <span className="border border-accent px-1.5 py-px text-[13px] text-accent">
                       Sin precio
                     </span>
                   )}
                   {m.cargadaPorAdmin && (
-                    <span className="text-[11px] text-text-muted">Cargada por un admin</span>
+                    <span className="text-[13px] text-text-muted">Cargada por un admin</span>
                   )}
                   <EliminarVentaButton ventaId={m.id} redirectHref={null} />
                 </div>
@@ -92,16 +92,16 @@ export function MovimientosFicha({
               )}
             </div>
           ) : (
-            <div key={`entrega-${m.id}`} className="border-b border-border py-3 text-sm">
+            <div key={`entrega-${m.id}`} className="border-b border-border py-3 text-[16px]">
               <span className="font-medium text-text">
                 {m.tipo === "entrega" ? "Entrega" : "Devolución"} · {formatFecha(m.fecha)}
               </span>
               {m.automatica && (
-                <p className="text-[11px] text-text-muted">
+                <p className="text-[13px] text-text-muted">
                   {etiquetaEntregaAutomatica(m.tipo, true)}
                 </p>
               )}
-              <p className="text-xs text-text-muted">
+              <p className="text-[14px] text-text-muted">
                 {m.items.map((it, i) => {
                   const producto = nombrePorProducto.get(it.productoId) ?? "?";
                   const costos =
@@ -135,7 +135,7 @@ export function MovimientosFicha({
         <button
           type="button"
           onClick={() => setExpandido(true)}
-          className="self-start py-2 text-[12px] font-medium tracking-[0.06em] text-primary uppercase underline decoration-mark underline-offset-4"
+          className="self-start py-2 text-[14px] font-medium text-primary underline decoration-mark underline-offset-4"
         >
           Ver todos los movimientos ({ocultos} más)
         </button>

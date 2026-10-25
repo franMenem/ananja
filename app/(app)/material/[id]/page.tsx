@@ -21,7 +21,7 @@ export default async function MaterialDetallePage({
     return (
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href="/material" label="material" />
-        <p className="text-sm text-text-muted">No encontramos este material.</p>
+        <p className="text-[16px] text-text-muted">No encontramos este material.</p>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -226,7 +227,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
-      <p className="text-[12px] leading-[1.5] text-text-muted">
+      <p className="text-[14px] leading-[1.5] text-text-muted">
         Para una factura con varios insumos. Cargá cada línea con el precio
         unitario tal cual figura en la factura: el IVA (Ananja no lo recupera,
         es costo) y el envío se suman al costo de cada insumo. El envío se
@@ -264,11 +265,11 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
       <MedioPagoChips value={medioPago} onChange={setMedioPago} />
 
       <div className="flex flex-col gap-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Líneas de la factura
         </span>
         {insumosError && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {insumosError}
           </p>
         )}
@@ -291,14 +292,14 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
         <button
           type="button"
           onClick={agregarLinea}
-          className="min-h-12 border border-dashed border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+          className="min-h-12 border border-dashed border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
         >
           + Agregar línea
         </button>
       </div>
 
       <div className="flex flex-col gap-3">
-        <label className="flex min-h-11 items-center gap-3 text-[14px] text-text">
+        <label className="flex min-h-11 items-center gap-3 text-[16px] text-text">
           <input
             type="checkbox"
             checked={preciosSinIva}
@@ -331,7 +332,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
           labelClassName={labelClass}
           cajaClassName="mt-1.5 flex items-center gap-2 border border-border bg-surface px-3 focus-within:border-primary"
         />
-        <p className="mt-1 text-[11px] leading-snug text-text-muted">
+        <p className="mt-1 text-[13px] leading-snug text-text-muted">
           Lo que pagaste por el envío de esta factura. Se reparte entre las
           líneas según la cantidad de unidades.
         </p>
@@ -347,9 +348,9 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
       />
 
       <section className="flex flex-col gap-2 border-t-2 border-primary pt-4" aria-live="polite">
-        <h2 className="font-display text-[24px] leading-[1.15] text-primary">Revisá la factura</h2>
+        <h2 className="font-display text-[24px] leading-[1.15] text-text">Revisá la factura</h2>
         {hayLineasIncompletas && (calculo || hayLineasConError) && (
-          <p className="text-[12px] leading-snug text-accent">
+          <p className="text-[14px] leading-snug text-accent">
             {numerosLineasFuera.length === 1
               ? `La línea ${numerosLineasFuera[0]} está incompleta o tiene un error: no está en la cuenta de abajo.`
               : `Las líneas ${numerosLineasFuera.slice(0, -1).join(", ")} y ${numerosLineasFuera.at(-1)} están incompletas o tienen errores: no están en la cuenta de abajo.`}
@@ -366,7 +367,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
             />
           </>
         ) : (
-          <p className="text-[12px] leading-[1.5] text-text-muted">
+          <p className="text-[14px] leading-[1.5] text-text-muted">
             {!ivaValido
               ? "Revisá el porcentaje de IVA para ver la cuenta."
               : !envioValido
@@ -377,19 +378,19 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
       </section>
 
       {!vendedorLoading && vendedor && (
-        <p className="text-xs text-text-muted">
+        <p className="text-[14px] text-text-muted">
           Registrando como <span className="font-medium">{vendedor.nombre}</span>
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de
           alta desde el dashboard de Supabase.
         </p>
       )}
 
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -399,7 +400,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
         cargando={saving}
         textoCargando="Guardando…"
         disabled={!calculo}
-        className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} px-4`}
       >
         {calculo ? `Confirmar · ${formatCentavos(calculo.totalPagadoCentavos)}` : "Confirmar"}
       </BotonAccion>
