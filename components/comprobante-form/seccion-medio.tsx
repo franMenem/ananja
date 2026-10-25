@@ -14,7 +14,7 @@ type SeccionMedioProps = {
 export function SeccionMedio({ medioPago, onMedioPagoChange }: SeccionMedioProps) {
   return (
     <div className="flex flex-col gap-2.5">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         3 · Medio de pago
       </span>
       <MedioPagoChips value={medioPago} onChange={onMedioPagoChange} ocultarRotulo />

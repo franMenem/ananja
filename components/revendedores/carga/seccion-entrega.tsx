@@ -77,7 +77,7 @@ export function SeccionEntrega({
         return (
           <div key={p.id} className="flex flex-col gap-3 border-b border-border pb-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="min-w-0 break-words text-[15px] text-text">{p.nombre}</span>
+              <span className="min-w-0 break-words text-[16px] text-text">{p.nombre}</span>
               <CantidadStepper
                 value={f.cantidad}
                 onChange={(value) => onActualizarFila(p.id, { cantidad: value })}
@@ -106,7 +106,7 @@ export function SeccionEntrega({
                     <option value="">Sin lote</option>
                   </select>
                 </div>
-                <div className="flex items-baseline justify-between gap-3 text-[13px]">
+                <div className="flex items-baseline justify-between gap-3 text-[16px]">
                   <span className="text-text-muted">Costo {NEGOCIO.nombre} (lote)</span>
                   <span className="shrink-0 tabular-nums text-text">
                     {costoLote !== null ? formatCentavos(costoLote) : "Sin costo cargado"}
@@ -138,26 +138,26 @@ export function SeccionEntrega({
                   />
                 </div>
                 {(!lote || lote.costoAnanjaCentavos === null) && (
-                  <p className="text-[11px] text-accent">
+                  <p className="text-[13px] text-accent">
                     {lote
                       ? "Este lote todavía no tiene costos cargados: completá a mano cuánto le cobrás."
                       : "Sin lote no hay costo para precargar: completá a mano cuánto le cobrás."}
                   </p>
                 )}
                 {lote && fecha && lote.fecha > fecha && (
-                  <p className="text-[11px] text-accent">
+                  <p className="text-[13px] text-accent">
                     Ojo: este lote es del {formatFecha(lote.fecha)}, posterior a la fecha de la
                     entrega.
                   </p>
                 )}
                 {lote && lote.quedan < f.cantidad && (
-                  <p className="text-[11px] text-accent">
+                  <p className="text-[13px] text-accent">
                     En el sistema quedan {Math.max(lote.quedan, 0)} de este lote. Si igual se
                     las llevó, al confirmar te preguntamos.
                   </p>
                 )}
                 {costo !== null && sugerido !== null && sugerido < costo && (
-                  <p className="text-[11px] text-accent">
+                  <p className="text-[13px] text-accent">
                     Ojo: el precio sugerido es menor a lo que le cobrás.
                   </p>
                 )}

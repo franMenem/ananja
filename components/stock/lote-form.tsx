@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -401,7 +402,7 @@ export function LoteForm({
         <div>
           <label
             htmlFor="fecha"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Fecha del lote
           </label>
@@ -411,12 +412,12 @@ export function LoteForm({
             required
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Cantidades por presentación
           </span>
           {productos.map((producto) => (
@@ -424,7 +425,7 @@ export function LoteForm({
               key={producto.id}
               className="flex min-w-0 items-center justify-between gap-3 border-b border-border py-3"
             >
-              <span className="min-w-0 truncate text-[14px] text-text">
+              <span className="min-w-0 truncate text-[16px] text-text">
                 {producto.nombre}
               </span>
               <div className="shrink-0">
@@ -439,12 +440,12 @@ export function LoteForm({
               </div>
             </div>
           ))}
-          <p className="pt-2 text-[11px] leading-[1.5] text-text-muted">
+          <p className="pt-2 text-[13px] leading-[1.5] text-text-muted">
             Se puede cargar el costo del pedido acá abajo, o completarlo
             después desde el detalle del lote.
           </p>
           {consumo.length > 0 && (
-            <p className="pt-1 text-[11px] leading-[1.5] text-text">
+            <p className="pt-1 text-[13px] leading-[1.5] text-text">
               Va a descontar:{" "}
               {consumo
                 .map((c) => {
@@ -473,13 +474,13 @@ export function LoteForm({
         )}
 
         {!vendedorLoading && vendedor && (
-          <p className="text-xs text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Registrando como{" "}
             <span className="font-medium">{vendedor.nombre}</span>
           </p>
         )}
         {!vendedorLoading && !vendedor && (
-          <p role="alert" className="text-xs text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             Tu usuario no está vinculado a un vendedor. Pedile al dueño que
             te dé de alta desde el dashboard de Supabase.
           </p>
@@ -488,7 +489,7 @@ export function LoteForm({
         <div>
           <label
             htmlFor="nota"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Nota (opcional)
           </label>
@@ -498,20 +499,20 @@ export function LoteForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             placeholder="Ej. producción semana 35"
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         {error && (
           <div className="flex flex-col gap-2">
-            <p role="alert" className="text-[12px] text-accent">
+            <p role="alert" className="text-[14px] text-accent">
               {error}
             </p>
             {showRetry && (
               <button
                 type="button"
                 onClick={() => void guardarLote(permitirNegativoRef.current)}
-                className="min-h-11 self-start border border-accent px-4 text-xs font-medium tracking-[0.1em] text-accent uppercase"
+                className="min-h-11 self-start border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
               >
                 Reintentar
               </button>
@@ -523,7 +524,7 @@ export function LoteForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} px-4`}
         >
           Guardar
         </BotonAccion>
@@ -544,7 +545,7 @@ export function LoteForm({
           const resultante = insumoAlert.disponible - consumoInsumo;
           return (
             <>
-              <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+              <span className="text-[13px] font-medium text-accent">
                 Insumo insuficiente
               </span>
               <p className="mt-3 font-display text-[20px] leading-[1.3] text-primary">
@@ -565,7 +566,7 @@ export function LoteForm({
                     setInsumoAlert(null);
                     setRevisando(false);
                   }}
-                  className="min-h-11 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase disabled:opacity-45"
+                  className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
                 >
                   Revisar cantidades
                 </button>
@@ -575,7 +576,7 @@ export function LoteForm({
                     setInsumoAlert(null);
                     void guardarLote(true);
                   }}
-                  className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase"
+                  className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background"
                 >
                   Guardar igual
                 </button>

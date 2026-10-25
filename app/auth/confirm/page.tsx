@@ -41,13 +41,13 @@ export default async function ConfirmarPage({ searchParams }: PageProps<"/auth/c
     return (
       <AuthShell tagline={NEGOCIO.tagline}>
         <div className="flex flex-col gap-4">
-          <h1 className="font-display text-[30px] leading-[1.1] text-primary">Este link no es válido</h1>
-          <p className="text-sm text-text-muted">
+          <h1 className="font-display text-[28px] leading-[1.1] text-primary">Este link no es válido</h1>
+          <p className="text-[16px] text-text-muted">
             Puede que esté incompleto. Abrilo de nuevo desde el mail, o pedí uno nuevo.
           </p>
           <Link
             href="/login"
-            className="flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover"
           >
             Ir a ingresar
           </Link>
@@ -67,8 +67,8 @@ export default async function ConfirmarPage({ searchParams }: PageProps<"/auth/c
         <input type="hidden" name="next" value={next} />
 
         <div className="flex flex-col gap-2">
-          <h1 className="font-display text-[30px] leading-[1.1] text-primary">{textos.titulo}</h1>
-          <p className="text-sm text-text-muted">{textos.texto}</p>
+          <h1 className="font-display text-[28px] leading-[1.1] text-primary">{textos.titulo}</h1>
+          <p className="text-[16px] text-text-muted">{textos.texto}</p>
         </div>
 
         <BotonEnviar texto={textos.boton} textoEnviando="Un momento…" />

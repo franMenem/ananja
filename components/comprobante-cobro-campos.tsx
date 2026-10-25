@@ -109,13 +109,13 @@ export function ComprobanteCobroCampos({
         onChange={onCobradoInputChange}
         required
         placeholder="0,00"
-        labelClassName="block text-[10px] tracking-[0.22em] text-text-muted uppercase"
+        labelClassName="block text-[13px] text-text-muted"
         cajaClassName="mt-2 flex items-baseline gap-2 border-b border-border pb-1.5"
-        simboloClassName="text-[15px] text-text-muted"
+        simboloClassName="text-[16px] text-text-muted"
         inputClassName="w-full min-w-0 text-[22px] leading-none text-text tabular-nums"
       />
       {esVentaACredito && quedaACobrarCentavos !== null && (
-        <p className="text-[11px] text-accent">
+        <p className="text-[13px] text-accent">
           Queda a cobrar {formatCentavos(quedaACobrarCentavos)}.
         </p>
       )}

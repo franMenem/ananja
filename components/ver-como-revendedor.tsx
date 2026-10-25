@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -78,7 +79,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
     </>
   );
   const clasesHeader =
-    "flex min-h-11 items-center gap-1.5 border border-primary-line px-2.5 text-[10px] tracking-[0.12em] text-background uppercase";
+    "flex min-h-11 items-center gap-1.5 rounded-xl border border-border px-2.5 text-[13px] text-text";
 
   const contenidoRail = (
     <>
@@ -86,7 +87,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
       {!colapsado && <span>Ver como revendedor</span>}
     </>
   );
-  const clasesRail = `flex min-h-11 w-full items-center border-l-2 border-transparent py-3 text-left text-xs tracking-[0.14em] text-on-primary-muted uppercase hover:text-background ${
+  const clasesRail = `flex min-h-11 w-full items-center border-l-2 border-transparent py-3 text-left text-[14px] text-text-muted hover:text-text ${
     colapsado ? "justify-center px-0" : "gap-3 px-6"
   }`;
 
@@ -123,12 +124,12 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
           <h2 className="font-display text-[24px] text-primary">
             Todavía no tenés tu espacio de revendedor. ¿Lo activamos?
           </h2>
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-[16px] text-text-muted">
             Vas a poder cargar tus propias ventas como revendedor, ver lo que le debés a{" "}
             {NEGOCIO.nombre} y tu ganancia. Para volver, tocá &quot;Ver como admin&quot;.
           </p>
           {error && (
-            <p role="alert" className="mt-3 text-sm text-accent">
+            <p role="alert" className="mt-3 text-[16px] text-accent">
               {error}
             </p>
           )}
@@ -138,7 +139,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
               textoCargando="Activando…"
               type="button"
               onClick={handleActivar}
-              className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+              className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
             >
               Sí, activarlo
             </BotonAccion>
@@ -146,7 +147,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
               type="button"
               onClick={() => !saving && setAbierto(false)}
               disabled={saving}
-              className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Ahora no
             </button>

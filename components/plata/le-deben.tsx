@@ -27,7 +27,7 @@ export function LeDeben({
     <div className="flex flex-col pt-8">
       <Separador titulo="Le deben a Ananja" total={formatCentavos(total)} />
       {deudores.length === 0 && clientes.cantidad === 0 ? (
-        <p className="py-2 text-sm text-text-muted">
+        <p className="py-2 text-[16px] text-text-muted">
           Nadie le debe plata a {NEGOCIO.nombre} en este momento.
         </p>
       ) : (

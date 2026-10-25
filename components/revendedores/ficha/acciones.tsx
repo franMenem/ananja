@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 /**
@@ -13,13 +14,13 @@ export function AccionesFicha({ vendedorId }: { vendedorId: string }) {
     <div className="flex flex-wrap gap-2">
       <Link
         href={`/revendedores/${vendedorId}/carga`}
-        className="flex min-h-11 flex-1 items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.12em] text-background uppercase hover:bg-primary-hover sm:flex-none"
+        className={`${BOTON_PRIMARIO} flex flex-1 px-4 sm:flex-none`}
       >
         Cargar movimiento
       </Link>
       <Link
         href={`/revendedores/${vendedorId}/devolucion`}
-        className="flex min-h-11 flex-1 items-center justify-center border border-primary px-4 text-[13px] font-medium tracking-[0.12em] text-primary uppercase sm:flex-none"
+        className="flex min-h-11 flex-1 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary sm:flex-none rounded-xl"
       >
         Devolución
       </Link>

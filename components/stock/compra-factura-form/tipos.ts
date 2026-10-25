@@ -37,4 +37,4 @@ export function mensajeErrorFactura(codigo: string | undefined): string {
 
 export const inputClass =
   "mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary";
-export const labelClass = "text-[10px] tracking-[0.18em] text-text-muted uppercase";
+export const labelClass = "text-[13px] text-text-muted";

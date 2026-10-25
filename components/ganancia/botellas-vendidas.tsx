@@ -50,13 +50,13 @@ export function BotellasVendidas({
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center gap-2.5">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Botellas vendidas</span>
+        <span className="text-[13px] text-text-muted">Botellas vendidas</span>
         <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
       </div>
       {resumen.total === 0 ? (
-        <p className="py-2 text-sm text-text-muted">Sin ventas en este período.</p>
+        <p className="py-2 text-[16px] text-text-muted">Sin ventas en este período.</p>
       ) : (
-        <p className="text-sm text-text tabular-nums">
+        <p className="text-[16px] text-text tabular-nums">
           {resumen.total} {envase(resumen.total)}
           {resumen.partes.map((p) => (
             <span key={p.presentacionMl}>

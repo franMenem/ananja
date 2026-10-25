@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { MarcarSaldadaButton } from "@/components/caja/marcar-saldada-button";
@@ -25,24 +26,24 @@ export default async function DeudasPage() {
         <h1 className="font-display text-[28px] text-primary">Deudas</h1>
         <Link
           href="/plata/deudas/nueva"
-          className="flex min-h-11 items-center gap-2 bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex gap-2 px-4`}
         >
           + Nueva deuda
         </Link>
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
 
       <div className="flex flex-col gap-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Pendientes
         </span>
         {pendientes.length === 0 ? (
-          <p className="py-2 text-sm text-text-muted">No hay deudas pendientes.</p>
+          <p className="py-2 text-[16px] text-text-muted">No hay deudas pendientes.</p>
         ) : (
           pendientes.map((deuda) => {
             const progresoPct =
@@ -54,17 +55,17 @@ export default async function DeudasPage() {
               <div key={deuda.id} className="flex flex-col gap-2.5 border-b border-border py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-col">
-                    <span className="text-sm text-text">{deuda.descripcion}</span>
-                    <span className="text-xs text-text-muted">
+                    <span className="text-[16px] text-text">{deuda.descripcion}</span>
+                    <span className="text-[14px] text-text-muted">
                       {formatFecha(deuda.fecha)}
                       {deuda.nota ? ` · ${deuda.nota}` : ""}
                     </span>
                   </div>
                   <div className="flex shrink-0 flex-col items-end">
-                    <span className="text-sm font-medium tabular-nums text-text">
+                    <span className="text-[16px] font-medium tabular-nums text-text">
                       Resta {formatMonto(deuda.moneda, deuda.restanteCentavos)}
                     </span>
-                    <span className="text-xs text-text-muted tabular-nums">
+                    <span className="text-[14px] text-text-muted tabular-nums">
                       de {formatMonto(deuda.moneda, deuda.montoCentavos)}
                     </span>
                   </div>
@@ -100,7 +101,7 @@ export default async function DeudasPage() {
                   />
                   <Link
                     href={`/plata/deudas/${deuda.id}/pago`}
-                    className="flex min-h-11 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+                    className={`${BOTON_PRIMARIO} flex px-4`}
                   >
                     Registrar pago
                   </Link>
@@ -112,11 +113,11 @@ export default async function DeudasPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Saldadas
         </span>
         {saldadas.length === 0 ? (
-          <p className="py-2 text-sm text-text-muted">Todavía no hay ninguna.</p>
+          <p className="py-2 text-[16px] text-text-muted">Todavía no hay ninguna.</p>
         ) : (
           saldadas.map((deuda) => (
             <div
@@ -125,14 +126,14 @@ export default async function DeudasPage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 flex-col">
-                  <span className="text-sm text-text line-through">
+                  <span className="text-[16px] text-text line-through">
                     {deuda.descripcion}
                   </span>
-                  <span className="text-xs text-text-muted">
+                  <span className="text-[14px] text-text-muted">
                     Saldada el {formatFecha(deuda.saldadaEn as string)}
                   </span>
                 </div>
-                <span className="text-sm tabular-nums text-text-muted">
+                <span className="text-[16px] tabular-nums text-text-muted">
                   {formatMonto(deuda.moneda, deuda.montoCentavos)}
                 </span>
               </div>

@@ -42,7 +42,7 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
   return (
     <>
       {error && (
-        <p role="alert" className="mb-4 text-sm text-accent">
+        <p role="alert" className="mb-4 text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -54,8 +54,8 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
             className="flex items-center justify-between gap-3 border-b border-border py-3.5"
           >
             <Link href={`/material/${material.id}`} className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm text-text">{material.titulo}</span>
-              <span className="text-[11px] text-text-muted">
+              <span className="truncate text-[16px] text-text">{material.titulo}</span>
+              <span className="text-[13px] text-text-muted">
                 {material.publicado ? "Publicado" : "Borrador"}
               </span>
             </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,7 +51,7 @@ type VentaCoordinadorProps = {
 };
 
 const CAMPO = "mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary";
-const ROTULO = "text-[10px] tracking-[0.18em] text-text-muted uppercase";
+const ROTULO = "text-[13px] text-text-muted";
 
 /**
  * Botón + hoja "La coordinadora vendió N botellas" (`registrar_venta_coordinador`,
@@ -85,7 +86,7 @@ export function VentaCoordinador({
         onClick={() => setAbierto(true)}
         className={
           className ??
-          "flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.14em] text-primary uppercase"
+          "flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary"
         }
       >
         {etiqueta}
@@ -259,11 +260,11 @@ function VentaCoordinadorSheet({
     return (
       <BottomSheet open ariaLabel="Venta guardada">
         <h2 className="font-display text-[24px] text-primary">Venta guardada</h2>
-        <p className="mt-2 text-sm text-text">{guardado}</p>
+        <p className="mt-2 text-[16px] text-text">{guardado}</p>
         <button
           type="button"
           onClick={onClose}
-          className="mt-5 min-h-11 w-full bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase"
+          className={`${BOTON_PRIMARIO} mt-5 w-full px-4`}
         >
           Listo
         </button>
@@ -274,17 +275,17 @@ function VentaCoordinadorSheet({
   return (
     <BottomSheet open ariaLabel={titulo}>
       <h2 className="font-display text-[24px] text-primary">{titulo}</h2>
-      <p className="mt-1 text-sm text-text-muted">
+      <p className="mt-1 text-[16px] text-text-muted">
         Las botellas salen del depósito y se suman a lo que {esAdmin ? `${coordinadorNombre} tiene` : "tenés"} que
         pasar a {NEGOCIO.nombre}. El precio al que las {esAdmin ? "vendió" : "vendiste"} no hace falta.
       </p>
 
       {errorLotes ? (
-        <p role="alert" className="mt-3 text-sm text-accent">
+        <p role="alert" className="mt-3 text-[16px] text-accent">
           {errorLotes}
         </p>
       ) : !listo ? (
-        <p className="mt-3 text-sm text-text-muted">Consultando disponible…</p>
+        <p className="mt-3 text-[16px] text-text-muted">Consultando disponible…</p>
       ) : (
         <>
           <div className="mt-4">
@@ -296,7 +297,7 @@ function VentaCoordinadorSheet({
                   type="button"
                   onClick={() => elegirProducto(p.id)}
                   aria-pressed={productoId === p.id}
-                  className={`min-h-11 px-4 text-sm font-medium ${
+                  className={`min-h-11 px-4 text-[16px] font-medium ${
                     productoId === p.id ? "bg-primary text-background" : "border border-border text-text"
                   }`}
                 >
@@ -307,7 +308,7 @@ function VentaCoordinadorSheet({
           </div>
 
           {lotes.length === 0 ? (
-            <p className="mt-4 text-sm text-text-muted">
+            <p className="mt-4 text-[16px] text-text-muted">
               No hay botellas de este producto en el depósito{esAdmin ? " (o sus lotes todavía no tienen costos cargados)" : ""}.
             </p>
           ) : (
@@ -317,7 +318,7 @@ function VentaCoordinadorSheet({
                   Lote
                 </label>
                 {lotes.length === 1 ? (
-                  <p className="mt-1.5 text-sm text-text">{rotuloLoteVenta(lotes[0])}</p>
+                  <p className="mt-1.5 text-[16px] text-text">{rotuloLoteVenta(lotes[0])}</p>
                 ) : (
                   <select
                     id="lote-venta-coordinador"
@@ -380,12 +381,12 @@ function VentaCoordinadorSheet({
                     renovarGrupo();
                   }}
                   rows={2}
-                  className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+                  className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
                 />
               </div>
 
               {valida && (
-                <p className="mt-4 border-y border-border py-3 text-sm text-text">
+                <p className="mt-4 border-y border-border py-3 text-[16px] text-text">
                   {esAdmin && costo !== null
                     ? avisoVentaCoordinadorAdmin({
                         cantidad: cantidadEfectiva,
@@ -401,7 +402,7 @@ function VentaCoordinadorSheet({
       )}
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-accent">
+        <p role="alert" className="mt-3 text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -412,7 +413,7 @@ function VentaCoordinadorSheet({
           textoCargando="Guardando…"
           disabled={!listo || !valida || fecha === ""}
           onClick={() => void guardar()}
-          className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
         >
           Confirmar
         </BotonAccion>
@@ -420,7 +421,7 @@ function VentaCoordinadorSheet({
           type="button"
           onClick={onClose}
           disabled={saving}
-          className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+          className={`${BOTON_SECUNDARIO} flex-1 px-4`}
         >
           Cancelar
         </button>

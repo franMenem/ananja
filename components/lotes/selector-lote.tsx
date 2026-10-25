@@ -132,7 +132,7 @@ export function SelectorLote({
 
   if (unico) {
     return (
-      <p className="text-[11px] text-text-muted">
+      <p className="text-[13px] text-text-muted">
         {modoPreferido
           ? `Vuelve al lote del ${formatFechaSinAnio(unico.fecha)}`
           : `Del lote del ${formatFechaSinAnio(unico.fecha)} (quedan ${unico.quedan})`}
@@ -163,12 +163,12 @@ export function SelectorLote({
 
   return (
     <div className="flex flex-col gap-2 border-t border-border pt-2.5">
-      <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         De qué lote
       </span>
       {ordenados.map((lote) => (
         <div key={lote.loteId} className="flex items-start justify-between gap-3">
-          <span className="min-w-0 flex-1 text-[12px] text-text">
+          <span className="min-w-0 flex-1 text-[14px] text-text">
             Lote del {formatFechaSinAnio(lote.fecha)}
             {!modoPreferido && <> · quedan {lote.quedan}</>}
             {!modoPreferido && lote.costoUnitarioCentavos != null && (
@@ -188,7 +188,7 @@ export function SelectorLote({
       ))}
       {incluirSinLote && (
         <div className="flex items-start justify-between gap-3">
-          <span className="min-w-0 flex-1 text-[12px] text-text-muted">
+          <span className="min-w-0 flex-1 text-[14px] text-text-muted">
             Sin lote (se descuenta del más viejo)
           </span>
           <div className="shrink-0">
@@ -203,7 +203,7 @@ export function SelectorLote({
         </div>
       )}
       {descuadrado && (
-        <p role="alert" className="text-[11px] text-accent">
+        <p role="alert" className="text-[13px] text-accent">
           Asignaste {total} de {cantidad} — ajustá las cantidades para que coincidan.
         </p>
       )}

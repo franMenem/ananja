@@ -22,7 +22,7 @@ function Fila({
 }) {
   return (
     <div className="flex flex-col gap-0.5 border-b border-border py-2.5">
-      <div className="flex items-baseline justify-between gap-2 text-[13px]">
+      <div className="flex items-baseline justify-between gap-2 text-[16px]">
         <span className="text-text">{etiqueta}</span>
         <span className="font-medium text-text tabular-nums">{valor}</span>
       </div>
@@ -53,7 +53,7 @@ export function BotellasPedido({ cobranza, personasEnManos, totalEnManos }: Bote
               {personasEnManos.map((persona) => (
                 <div
                   key={persona.vendedorId}
-                  className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-[11px]"
+                  className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-[13px]"
                 >
                   <Link
                     href={`/revendedores/${persona.vendedorId}`}
@@ -78,7 +78,7 @@ export function BotellasPedido({ cobranza, personasEnManos, totalEnManos }: Bote
           etiqueta="Tiene que entrar por lo vendido"
           valor={formatCentavos(cobranza.esperadoPorVendidasCentavos)}
           sub={
-            <span className="text-[11px] text-text-muted tabular-nums">
+            <span className="text-[13px] text-text-muted tabular-nums">
               si se vende todo {formatCentavos(cobranza.esperadoTotalCentavos)}
             </span>
           }

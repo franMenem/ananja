@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { formatCentavos } from "@/lib/money";
@@ -32,7 +33,7 @@ export function EnManosLista({
   return (
     <div className="flex flex-col pt-6 md:pt-0">
       {personas.length === 0 ? (
-        <p className="py-3 text-sm text-text-muted">Nadie tiene plata en mano.</p>
+        <p className="py-3 text-[16px] text-text-muted">Nadie tiene plata en mano.</p>
       ) : (
         personas.map((p) => {
           const dias = diasPorPersona.get(p.tenedor_id);
@@ -42,7 +43,7 @@ export function EnManosLista({
               <div className="flex items-baseline justify-between gap-3">
                 <Link
                   href={`/plata/en-manos/${p.tenedor_id}`}
-                  className="min-w-0 break-words text-[15px] text-text underline decoration-border underline-offset-4 hover:text-primary"
+                  className="min-w-0 break-words text-[16px] text-text underline decoration-border underline-offset-4 hover:text-primary"
                 >
                   {p.nombre}
                 </Link>
@@ -54,7 +55,7 @@ export function EnManosLista({
                   {formatCentavos(p.total_centavos)}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-[13px]">
                 <span className="text-text-muted">
                   {negativo
                     ? "Figura en negativo: revisá sus movimientos."
@@ -65,14 +66,14 @@ export function EnManosLista({
                 <div className="flex items-center gap-3">
                   <Link
                     href={`/plata/en-manos/${p.tenedor_id}`}
-                    className="border-b border-mark text-[11px] tracking-[0.06em] text-text uppercase"
+                    className="border-b border-mark text-[13px] text-text"
                   >
                     Ver movimientos
                   </Link>
                   {!negativo && (
                     <Link
                       href={`/plata/depositar?tenedor=${p.tenedor_id}&monto=${p.total_centavos}`}
-                      className="flex min-h-11 items-center justify-center bg-primary px-3.5 text-[11px] font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+                      className={`${BOTON_PRIMARIO} flex px-3.5`}
                     >
                       Pasar a la cuenta
                     </Link>
@@ -84,7 +85,7 @@ export function EnManosLista({
         })
       )}
       {efectivoSinDueno !== 0 && (
-        <p className="pt-3 text-[12px] leading-relaxed text-text-muted">
+        <p className="pt-3 text-[14px] leading-relaxed text-text-muted">
           Además hay {formatCentavos(efectivoSinDueno)} en efectivo que no figura en manos de
           ningún admin (saldo inicial de efectivo o ventas en efectivo de alguien que no es
           admin). Está incluido en el total.

@@ -39,20 +39,20 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
 
   return (
     <details className="group border-t border-border pt-3">
-      <summary className="text-[12px] font-medium tracking-[0.06em] text-primary uppercase">
+      <summary className="text-[14px] font-medium text-primary">
         Ver pérdidas por motivo y gastos anteriores
       </summary>
       <div className="mt-3 flex flex-col gap-5">
         {perdidasPorMotivo.length > 0 && (
           <div className="flex flex-col gap-2.5">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Pérdidas por motivo
             </span>
             <div className="flex flex-col">
               {perdidasPorMotivo.map((p) => (
                 <div
                   key={p.motivo}
-                  className="flex items-baseline justify-between gap-2 border-b border-border py-2.5 text-[13px]"
+                  className="flex items-baseline justify-between gap-2 border-b border-border py-2.5 text-[16px]"
                 >
                   <span className="text-text">
                     {MOTIVO_LABELS[p.motivo] ?? p.motivo} · {p.unidades} unidades
@@ -66,7 +66,7 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
 
         {gastosLegacy.length > 0 && (
           <div className="flex flex-col gap-2.5">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Gastos asignados antes de esta actualización
             </span>
             <div className="flex flex-col">
@@ -74,12 +74,12 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
                 <Link
                   key={gasto.id}
                   href={`/gastos/${gasto.id}`}
-                  className="flex items-baseline justify-between gap-2 border-b border-border py-3 text-[13px]"
+                  className="flex items-baseline justify-between gap-2 border-b border-border py-3 text-[16px]"
                 >
                   <span className="text-text">
                     {gasto.categorias_gasto?.nombre ?? "Sin categoría"}
                     {gasto.nota ? ` · ${gasto.nota}` : ""}
-                    <span className="ml-2 text-[11px] text-text-muted uppercase">
+                    <span className="ml-2 text-[13px] text-text-muted">
                       {gasto.producto_id && gasto.productos
                         ? formatPresentacion(gasto.productos.presentacion_ml)
                         : "Compartido"}

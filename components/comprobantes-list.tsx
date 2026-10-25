@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -72,17 +73,17 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
     return (
       <div className="flex flex-col items-center px-8 py-16 text-center">
         <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-        <p className="font-display mt-5 text-[28px] leading-[1.2] text-primary text-balance md:text-[30px]">
+        <p className="font-display mt-5 text-[28px] leading-[1.2] text-primary text-balance md:text-[32px]">
           Todavía no cargaste ningún comprobante.
         </p>
-        <p className="mt-3.5 max-w-md text-[13px] leading-[1.6] text-text-muted text-balance">
+        <p className="mt-3.5 max-w-md text-[16px] leading-[1.6] text-text-muted text-balance">
           Cuando registres el primero, acá vas a ver el monto, {NEGOCIO.envase.plural} y
           quién lo cargó. Sacale una foto al comprobante y el monto se lee
           solo.
         </p>
         <Link
           href="/comprobantes/nuevo"
-          className="mt-6 flex min-h-[52px] w-full max-w-xs items-center justify-center bg-primary px-6 text-[12px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}
         >
           + Cargar el primero
         </Link>
@@ -102,7 +103,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
               type="button"
               onClick={() => setFiltro(f.value)}
               aria-pressed={active}
-              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[11px] tracking-[0.1em] uppercase transition-colors ${
+              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[13px] transition-colors ${
                 active
                   ? "bg-primary text-background"
                   : "border border-border text-text-muted"
@@ -115,7 +116,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-6 text-center text-sm text-text-muted">
+        <p className="py-6 text-center text-[16px] text-text-muted">
           No hay comprobantes con ese medio de pago.
         </p>
       ) : (
@@ -125,7 +126,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
             {grupos.map(([grupo, items]) => (
               <div key={grupo}>
                 <div className="pt-3 pb-1">
-                  <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+                  <span className="text-[13px] text-text-muted">
                     {grupo}
                   </span>
                 </div>
@@ -142,23 +143,23 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
                           {formatCentavos(row.montoCentavos)}
                         </span>
                         {row.debeCentavos > 0 && (
-                          <span className="border border-accent px-1 text-[9px] tracking-[0.1em] text-accent uppercase">
+                          <span className="border border-accent px-1 text-[13px] text-accent">
                             Debe {formatCentavos(row.debeCentavos)}
                           </span>
                         )}
                         {!row.tieneImagen && (
-                          <span className="border border-accent px-1 text-[9px] tracking-[0.1em] text-accent uppercase">
+                          <span className="border border-accent px-1 text-[13px] text-accent">
                             Sin comprobante
                           </span>
                         )}
                       </div>
-                      <span className="truncate text-xs text-text-muted">
+                      <span className="truncate text-[14px] text-text-muted">
                         {row.cantidadesLabel}
                         {row.vendedorNombre ? ` · ${row.vendedorNombre}` : ""}
                         {row.fecha !== hoy ? ` · ${formatFechaCorta(row.fecha)}` : ""}
                       </span>
                     </div>
-                    <span className="shrink-0 self-end pb-0.5 text-[10px] tracking-[0.14em] text-primary uppercase">
+                    <span className="shrink-0 self-end pb-0.5 text-[13px] text-primary">
                       <span className="border-b border-mark pb-0.5">
                         {etiquetaMedioPago(row.medioPago)}
                       </span>
@@ -171,7 +172,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
             <div className="pt-5">
               <Link
                 href="/comprobantes/nuevo"
-                className="flex min-h-[52px] items-center justify-center bg-primary text-[12px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+                className={`${BOTON_PRIMARIO} flex`}
               >
                 + Cargar comprobante
               </Link>
@@ -181,7 +182,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
           {/* Tabla — escritorio */}
           <div className="hidden md:block">
           <div className="overflow-x-auto">
-            <div className="flex min-w-[700px] gap-3.5 border-b border-border pb-2.5 text-[10px] tracking-[0.16em] text-text-muted uppercase">
+            <div className="flex min-w-[700px] gap-3.5 border-b border-border pb-2.5 text-[13px] text-text-muted">
               <span className="w-14 shrink-0" />
               <span className="w-[82px] shrink-0">Fecha</span>
               <span className="w-[150px] shrink-0 text-right">Monto</span>
@@ -199,31 +200,31 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
                   <span className="w-14 shrink-0">
                     <Miniatura row={row} size="md" />
                   </span>
-                  <span className="w-[82px] shrink-0 text-xs text-text-muted tabular-nums">
+                  <span className="w-[82px] shrink-0 text-[14px] text-text-muted tabular-nums">
                     {formatFechaCorta(row.fecha)}
                   </span>
                   <span className="font-display w-[150px] shrink-0 text-right text-[27px] leading-none text-primary tabular-nums">
                     {formatCentavos(row.montoCentavos)}
                   </span>
-                  <span className="w-[140px] shrink-0 text-[10px] tracking-[0.16em] text-primary uppercase">
+                  <span className="w-[140px] shrink-0 text-[13px] text-primary">
                     <span className="border-b border-mark pb-0.5">
                       {etiquetaMedioPago(row.medioPago)}
                     </span>
                   </span>
-                  <span className="flex-1 text-[13px] text-text-muted">
+                  <span className="flex-1 text-[16px] text-text-muted">
                     {row.debeCentavos > 0 && (
-                      <span className="mr-2 border border-accent px-1.5 py-0.5 text-[9px] whitespace-nowrap tracking-[0.12em] text-accent uppercase">
+                      <span className="mr-2 border border-accent px-1.5 py-0.5 text-[13px] whitespace-nowrap text-accent">
                         Debe {formatCentavos(row.debeCentavos)}
                       </span>
                     )}
                     {!row.tieneImagen && (
-                      <span className="mr-2 border border-accent px-1.5 py-0.5 text-[9px] tracking-[0.12em] text-accent uppercase">
+                      <span className="mr-2 border border-accent px-1.5 py-0.5 text-[13px] text-accent">
                         Sin comprobante
                       </span>
                     )}
                     {row.cantidadesLabel}
                   </span>
-                  <span className="w-[100px] shrink-0 text-[13px] text-text">
+                  <span className="w-[100px] shrink-0 text-[16px] text-text">
                     {row.vendedorNombre ?? "—"}
                   </span>
                 </Link>

@@ -36,15 +36,15 @@ export function ListaTareas({ tareas, medioDeposito }: ListaTareasProps) {
         >
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="border border-border px-1.5 py-px text-[9px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="border border-border px-1.5 py-px text-[13px] text-text-muted">
                 {tarea.etiqueta}
               </span>
               {tarea.urgencia === "urgente" && (
-                <span className="text-[9px] font-medium tracking-[0.14em] text-accent uppercase">Urgente</span>
+                <span className="text-[13px] font-medium text-accent">Urgente</span>
               )}
             </span>
-            <span className="text-sm font-medium break-words text-text">{tarea.titulo}</span>
-            <span className="text-[13px] break-words text-text-muted">{tarea.detalle}</span>
+            <span className="text-[16px] font-medium break-words text-text">{tarea.titulo}</span>
+            <span className="text-[16px] break-words text-text-muted">{tarea.detalle}</span>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
@@ -73,7 +73,7 @@ export function ListaTareas({ tareas, medioDeposito }: ListaTareasProps) {
                 {tarea.accion.tenedorNombre !== null && (
                   <Link
                     href={tarea.href}
-                    className="flex min-h-11 items-center justify-center border border-primary px-4 text-xs font-medium tracking-[0.12em] text-primary uppercase transition-colors hover:bg-primary/[.06]"
+                    className="flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary transition-colors hover:bg-primary/[.06] rounded-xl"
                   >
                     Ver
                   </Link>
@@ -88,7 +88,7 @@ export function ListaTareas({ tareas, medioDeposito }: ListaTareasProps) {
             ) : (
               <Link
                 href={tarea.href}
-                className="flex min-h-11 items-center justify-center border border-primary px-4 text-xs font-medium tracking-[0.12em] text-primary uppercase transition-colors hover:bg-primary/[.06]"
+                className="flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary transition-colors hover:bg-primary/[.06] rounded-xl"
               >
                 Ver
               </Link>

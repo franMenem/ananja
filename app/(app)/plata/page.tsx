@@ -127,7 +127,7 @@ export default async function PlataPage() {
       <CuentaHeader cuentaTotal={cuentaTotal} saldoCuenta={saldoCuenta} totalEnManos={totalEnManos} />
 
       <div className="hidden items-center py-6 md:flex">
-        <h1 className="font-display text-[38px] leading-[1.05] text-primary">Plata</h1>
+        <h1 className="font-display text-[28px] leading-[1.05] text-primary">Plata</h1>
       </div>
 
       <EnManosLista personas={personas} diasPorPersona={diasPorPersona} efectivoSinDueno={efectivoSinDueno} />
@@ -146,7 +146,7 @@ export default async function PlataPage() {
 
         <div className="mt-6 flex flex-wrap items-center gap-4">
           <DestinoEfectivoButton destinoActual={destino} />
-          <AjustarSaldoButton className="flex min-h-11 items-center justify-center border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase" />
+          <AjustarSaldoButton className="flex min-h-11 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary rounded-xl" />
         </div>
       </div>
     </div>

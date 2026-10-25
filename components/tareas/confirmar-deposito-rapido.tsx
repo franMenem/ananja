@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -104,13 +105,13 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
 
   return (
     <AccionRapida triggerLabel="Confirmar" ariaLabel="Confirmar depósito" abierto={abierto} onAbrir={abrir}>
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Depósito de {props.tenedorNombre}
       </span>
-      <p className="font-display mt-1 text-[36px] leading-none text-primary tabular-nums">
+      <p className="font-display mt-1 text-[28px] leading-none text-primary tabular-nums">
         {formatCentavos(props.montoCentavos)}
       </p>
-      <div className="mt-4 flex flex-col gap-1.5 border-y border-border py-3 text-sm text-text">
+      <div className="mt-4 flex flex-col gap-1.5 border-y border-border py-3 text-[16px] text-text">
         <p>Medio: {MEDIO_PAGO_LABELS[props.medioPago]}</p>
         <p>A la cuenta de {NEGOCIO.nombre}</p>
         {props.comprobanteUrl ? (
@@ -118,7 +119,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
             href={props.comprobanteUrl}
             target="_blank"
             rel="noreferrer"
-            className="self-start border-b border-mark text-[12px] tracking-[0.12em] uppercase"
+            className="self-start border-b border-mark text-[14px] "
           >
             Ver comprobante
           </a>
@@ -126,19 +127,19 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
           props.tieneComprobante && <p className="text-text-muted">No se pudo abrir el comprobante.</p>
         )}
       </div>
-      <p className="mt-3 text-[13px] text-text-muted">
+      <p className="mt-3 text-[16px] text-text-muted">
         Confirmalo solo si la plata llegó a la cuenta de {NEGOCIO.nombre}.
       </p>
 
       {error && (
-        <p role="alert" className="mt-3 text-sm text-accent">
+        <p role="alert" className="mt-3 text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {rechazando ? (
         <div className="mt-4 flex flex-col gap-2">
-          <label htmlFor="motivo-rechazo-deposito" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="motivo-rechazo-deposito" className="text-[13px] text-text-muted">
             Motivo
           </label>
           <textarea
@@ -146,14 +147,14 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
             value={motivo}
             onChange={(event) => setMotivo(event.target.value)}
             rows={2}
-            className="min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
           <div className="mt-1 flex gap-2">
             <BotonAccion
               cargando={guardando}
               textoCargando="Guardando…"
               onClick={rechazar}
-              className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+              className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
             >
               Rechazar
             </BotonAccion>
@@ -164,7 +165,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
                 setError(null);
               }}
               disabled={guardando}
-              className="flex min-h-[52px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+              className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
             >
               Volver
             </button>
@@ -176,7 +177,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
             cargando={guardando}
             textoCargando="Guardando…"
             onClick={confirmar}
-            className="flex min-h-[52px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
           >
             Llegó
           </BotonAccion>
@@ -187,7 +188,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
               setRechazando(true);
             }}
             disabled={guardando}
-            className="flex min-h-[52px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
           >
             Rechazar
           </button>

@@ -19,10 +19,10 @@ export function IvaBlock({ value, onChange }: IvaBlockProps) {
 
   return (
     <div className="flex flex-col gap-3 border-t border-border pt-4">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         IVA
       </span>
-      <p className="text-[11px] leading-[1.5] text-text-muted">
+      <p className="text-[13px] leading-[1.5] text-text-muted">
         El tilde &quot;sin IVA&quot; de cada envase/etiqueta está junto a su
         campo, más arriba — le suma el 21% al costo de la botella (nunca a
         lo que le pagás {proveedor.a}, ver la cabecera de cada sección).
@@ -34,7 +34,7 @@ export function IvaBlock({ value, onChange }: IvaBlockProps) {
         onChange={(v) => onChange({ ...value, ivaPct: v })}
         hint="Normalmente 21."
       />
-      <p className="text-[11px] leading-[1.5] text-text-muted">
+      <p className="text-[13px] leading-[1.5] text-text-muted">
         Ananja es monotributo: ese IVA no se recupera, así que es parte del
         costo del envasado y las etiquetas (nunca del {NEGOCIO.materiaPrima.nombre}).
       </p>
@@ -52,7 +52,7 @@ type PreciosBlockProps = {
 export function PreciosBlock({ value, onChange }: PreciosBlockProps) {
   return (
     <div className="flex flex-col gap-3 border-t border-border pt-4">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Precios
       </span>
       <PctField

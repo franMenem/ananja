@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -187,7 +188,7 @@ export function VentaForm({
     return (
       <>
         <SetFormHeader title="Nueva venta" backHref="/mi/ventas" backLabel="Volver a ventas" />
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           Todavía no tenés {NEGOCIO.envase.plural} para vender.
         </p>
       </>
@@ -200,7 +201,7 @@ export function VentaForm({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Producto
           </span>
           <div className="mt-1.5 flex flex-wrap gap-2">
@@ -210,7 +211,7 @@ export function VentaForm({
                 type="button"
                 onClick={() => handleElegirProducto(p.producto.id)}
                 aria-pressed={productoId === p.producto.id}
-                className={`min-h-11 px-4 text-sm font-medium ${
+                className={`min-h-11 px-4 text-[16px] font-medium ${
                   productoId === p.producto.id
                     ? "bg-primary text-background"
                     : "border border-border text-text"
@@ -225,7 +226,7 @@ export function VentaForm({
         {seleccionado && (
           <>
             <div>
-              <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Cantidad (tenés {seleccionado.enPoder})
               </span>
               <div className="mt-1.5">
@@ -237,7 +238,7 @@ export function VentaForm({
                 />
               </div>
               {tomaDirecto && (
-                <p className="mt-1.5 text-[12px] text-text-muted">
+                <p className="mt-1.5 text-[14px] text-text-muted">
                   Lo que no tengas entregado se anota como agarrado del depósito.
                 </p>
               )}
@@ -252,19 +253,19 @@ export function VentaForm({
                 required
                 placeholder="$ 0,00"
                 simbolo={null}
-                labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+                labelClassName="text-[13px] text-text-muted"
                 cajaClassName="mt-1 flex border-b-2 border-primary"
-                inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[34px] text-primary tabular-nums focus:outline-none"
+                inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-primary tabular-nums focus:outline-none"
               />
               {sugerido !== null && (
-                <span className="mt-1 block text-[12px] text-text-muted">
+                <span className="mt-1 block text-[14px] text-text-muted">
                   Precio sugerido: {formatCentavos(sugerido)}
                 </span>
               )}
             </div>
 
             {atribucion && resumen && (
-              <div className="flex flex-col gap-1 border-y border-border py-3 text-sm">
+              <div className="flex flex-col gap-1 border-y border-border py-3 text-[16px]">
                 {resumen.delDeposito > 0 && (
                   <p className="text-text">
                     {resumen.delDeposito} {envase(resumen.delDeposito)} se anotan como agarradas del
@@ -287,7 +288,7 @@ export function VentaForm({
                         .
                       </p>
                     )}
-                    <p className="text-[11px] text-text-muted">
+                    <p className="text-[13px] text-text-muted">
                       Lo de las {resumen.delDeposito} del depósito lo calcula {NEGOCIO.nombre} al
                       guardar: todavía no podemos mostrarte ese costo ni cuánto ganás en total.
                     </p>
@@ -302,7 +303,7 @@ export function VentaForm({
                   </p>
                 ) : null}
                 {atribucion.tramos.length > 0 && (
-                  <p className="text-[11px] text-text-muted">
+                  <p className="text-[13px] text-text-muted">
                     {atribucion.tramos
                       .map(
                         (t) =>
@@ -344,7 +345,7 @@ export function VentaForm({
         <MedioPagoChips value={medioPago} onChange={setMedioPago} />
 
         <div>
-          <label htmlFor="fecha" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="fecha" className="text-[13px] text-text-muted">
             Fecha
           </label>
           <input
@@ -354,12 +355,12 @@ export function VentaForm({
             max={hoyISO()}
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         <div>
-          <label htmlFor="nota" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="nota" className="text-[13px] text-text-muted">
             Nota (opcional)
           </label>
           <textarea
@@ -367,12 +368,12 @@ export function VentaForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -381,7 +382,7 @@ export function VentaForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar venta
         </BotonAccion>
@@ -395,14 +396,14 @@ export function VentaForm({
         <h2 className="font-display text-[24px] text-primary">
           No tenés {concordar("tantos", "tantas")} {NEGOCIO.envase.plural}
         </h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-[16px] text-text-muted">
           No tenés {concordar("tantos", "tantas")} {NEGOCIO.envase.plural} de{" "}
           {alerta?.producto}. Tenés {alerta?.disponible}.
         </p>
         <button
           type="button"
           onClick={() => setAlerta(null)}
-          className="mt-5 min-h-11 w-full bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase"
+          className={`${BOTON_PRIMARIO} mt-5 w-full px-4`}
         >
           Entendido
         </button>

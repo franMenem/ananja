@@ -15,7 +15,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">De qué lote es</span>
+        <span className="text-[13px] text-text-muted">De qué lote es</span>
         <span
           className="h-px flex-1"
           style={{ background: "linear-gradient(to right, var(--color-border), transparent)" }}
@@ -26,7 +26,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
         {lineas.map((l) => (
           <div
             key={l.loteId ?? "sin-lote"}
-            className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[13px]"
+            className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]"
           >
             {l.loteId === null ? (
               <span className="min-w-0 break-words text-text-muted">Sin lote asignado</span>
@@ -42,7 +42,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
           </div>
         ))}
         {otrosMovimientosCentavos !== 0 && (
-          <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[13px]">
+          <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]">
             <span className="min-w-0 break-words text-text-muted">Otros movimientos</span>
             <span
               className={`shrink-0 tabular-nums ${otrosMovimientosCentavos < 0 ? "text-accent" : "text-text"}`}
@@ -54,7 +54,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
         )}
       </div>
 
-      <p className="text-[12px] leading-relaxed text-text-muted">
+      <p className="text-[14px] leading-relaxed text-text-muted">
         Lo que ya pasó a la cuenta se descuenta primero del lote más viejo.
       </p>
     </section>

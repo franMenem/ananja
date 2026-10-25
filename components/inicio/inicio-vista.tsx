@@ -21,12 +21,12 @@ function Bloque({
   return (
     <section className={`flex min-w-0 flex-col gap-3 ${className}`}>
       <div className="flex items-center gap-2.5">
-        <h2 className="text-[10px] tracking-[0.22em] text-text-muted uppercase">{titulo}</h2>
+        <h2 className="text-[13px] text-text-muted">{titulo}</h2>
         <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
         {enlace && (
           <Link
             href={enlace.href}
-            className="shrink-0 border-b border-mark text-[10px] tracking-[0.14em] text-text uppercase"
+            className="shrink-0 border-b border-mark text-[13px] text-text"
           >
             {enlace.texto}
           </Link>
@@ -38,7 +38,7 @@ function Bloque({
 }
 
 function Vacio({ children }: { children: ReactNode }) {
-  return <p className="py-2 text-sm text-text-muted">{children}</p>;
+  return <p className="py-2 text-[16px] text-text-muted">{children}</p>;
 }
 
 /**
@@ -63,8 +63,8 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
     <div className="@container flex w-full flex-col gap-8 pb-8">
       <header className="flex flex-col gap-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">{datos.fechaLarga}</span>
-          <h1 className="font-display text-[30px] leading-[1.05] break-words text-text @3xl:text-[38px]">
+          <span className="text-[13px] text-text-muted">{datos.fechaLarga}</span>
+          <h1 className="font-display text-[28px] leading-[1.05] break-words text-text @3xl:text-[32px]">
             {datos.saludo}
             {datos.nombre ? `, ${datos.nombre}` : ""}
           </h1>
@@ -72,13 +72,13 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
         <div className="flex gap-2.5">
           <Link
             href="/comprobantes/nuevo"
-            className="flex min-h-[48px] flex-[1.4] items-center justify-center bg-primary text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className="flex min-h-[48px] flex-[1.4] items-center justify-center bg-primary text-[14px] font-medium text-background transition-colors hover:bg-primary-hover"
           >
             + Comprobante
           </Link>
           <Link
             href="/gastos/nuevo"
-            className="flex min-h-[48px] flex-1 items-center justify-center border border-primary text-xs font-medium tracking-[0.12em] text-primary uppercase transition-colors hover:bg-primary/[.06]"
+            className="flex min-h-[48px] flex-1 items-center justify-center border border-primary text-[14px] font-medium text-primary transition-colors hover:bg-primary/[.06]"
           >
             + Gasto
           </Link>
@@ -99,7 +99,7 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
           }
         >
           {datos.errorTareas ? (
-            <p role="alert" className="py-2 text-sm text-accent">
+            <p role="alert" className="py-2 text-[16px] text-accent">
               No se pudieron cargar las tareas.
             </p>
           ) : datos.tareasTop.length === 0 ? (
@@ -129,13 +129,13 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
             <Vacio>Todavía no hay ventas para mostrar.</Vacio>
           ) : (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Ingreso de {NEGOCIO.nombre}
               </span>
               <span className="font-display text-[clamp(2rem,1.6rem+2cqw,3rem)] leading-none text-text tabular-nums">
                 {formatCentavos(resumen.actual.ingresoAnanjaCentavos)}
               </span>
-              <span className="text-xs text-text-muted tabular-nums">
+              <span className="text-[14px] text-text-muted tabular-nums">
                 {resumen.variacionIngresoPct !== null && (
                   <span className={resumen.variacionIngresoPct >= 0 ? "text-secondary" : "text-accent"}>
                     {resumen.variacionIngresoPct >= 0 ? "+" : ""}
@@ -153,7 +153,7 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
           <Bloque titulo="Depósito" enlace={{ href: "/stock", texto: "Ver depósito" }}>
             <div className="flex flex-col">
               {datos.stockBajo.map((s) => (
-                <div key={s.productoId} className="border-b border-border py-2.5 text-sm text-accent last:border-b-0">
+                <div key={s.productoId} className="border-b border-border py-2.5 text-[16px] text-accent last:border-b-0">
                   {s.presentacion} quedó en {s.stock} · mínimo {s.umbral ?? "—"}
                 </div>
               ))}

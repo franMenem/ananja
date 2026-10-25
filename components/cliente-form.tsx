@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -84,7 +85,7 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-nombre"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nombre o empresa
         </label>
@@ -95,14 +96,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           value={nombre}
           onChange={(event) => setNombre(event.target.value)}
           placeholder="Ej: Almacén San José"
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-telefono"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Teléfono (opcional)
         </label>
@@ -111,14 +112,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="tel"
           value={telefono}
           onChange={(event) => setTelefono(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-direccion"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Dirección (opcional)
         </label>
@@ -127,14 +128,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="text"
           value={direccion}
           onChange={(event) => setDireccion(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-email"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Email (opcional)
         </label>
@@ -143,14 +144,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-nota"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nota (opcional)
         </label>
@@ -159,12 +160,12 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           value={nota}
           onChange={(event) => setNota(event.target.value)}
           rows={3}
-          className="border border-border bg-surface px-3.5 py-2.5 text-base text-text focus:border-primary"
+          className="border border-border bg-surface px-3.5 py-2.5 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       {formError && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {formError}
         </p>
       )}
@@ -173,7 +174,7 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
         cargando={submitting}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={BOTON_PRIMARIO}
       >
         Guardar cliente
       </BotonAccion>

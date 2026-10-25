@@ -78,7 +78,7 @@ export function SeccionPago({
     >
       <div className="flex flex-col gap-2">
         <span className={ROTULO}>¿Cómo te la dio?</span>
-        <div className="flex flex-col gap-px bg-border">
+        <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
           {opcionesVia.map((opcion) => {
             const selected = via === opcion.value;
             return (
@@ -87,7 +87,7 @@ export function SeccionPago({
                 type="button"
                 onClick={() => onCambiarVia(opcion.value)}
                 aria-pressed={selected}
-                className={`min-h-12 px-3 text-left text-[13px] font-medium transition-colors ${
+                className={`min-h-12 px-3 text-left text-[16px] font-medium transition-colors ${
                   selected ? "bg-primary text-background" : "bg-surface-raised text-text"
                 }`}
               >
@@ -97,7 +97,7 @@ export function SeccionPago({
           })}
         </div>
         {via === "encargado" && !encargadoNombre && (
-          <p className="text-xs text-accent">
+          <p className="text-[14px] text-accent">
             {vendedorNombre} no tiene un encargado admin asignado — vas a quedar vos con la
             plata en mano hasta que la deposites.
           </p>
@@ -106,7 +106,7 @@ export function SeccionPago({
 
       {pagosPendientes.length > 0 && (
         <div role="note" className="flex flex-col gap-1.5 border-l-2 border-accent pl-3">
-          <p className="text-sm text-text">
+          <p className="text-[16px] text-text">
             Tiene {formatCentavos(pendienteCentavos)} informado sin confirmar: confirmalo o
             rechazalo en Tareas antes de registrar otro pago.
           </p>
@@ -114,13 +114,13 @@ export function SeccionPago({
             <Link
               key={p.id}
               href={`/tareas/pagos/${p.id}`}
-              className="text-[12px] text-primary underline-offset-2 hover:underline"
+              className="text-[14px] text-primary underline-offset-2 hover:underline"
             >
               {formatFecha(p.fecha)} · {formatCentavos(p.montoCentavos)} ·{" "}
               {MEDIO_PAGO_LABELS[p.medioPago]} — ver en Tareas
             </Link>
           ))}
-          <p className="text-[11px] text-text-muted">
+          <p className="text-[13px] text-text-muted">
             El monto de abajo ya lo descuenta, para que no quede pagado dos veces.
           </p>
         </div>
@@ -140,7 +140,7 @@ export function SeccionPago({
           inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums focus:outline-none"
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-[11px] text-text-muted">
+          <span className="text-[13px] text-text-muted">
             Después de las ventas va a deber {formatCentavos(deudaDespuesVentasCentavos)}
           </span>
           <div className="flex gap-4">
@@ -188,7 +188,7 @@ export function SeccionPago({
           value={nota}
           onChange={(event) => onCambiarNota(event.target.value)}
           rows={2}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 

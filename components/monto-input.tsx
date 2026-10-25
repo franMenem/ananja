@@ -316,7 +316,7 @@ export function MontoInput({
       htmlFor={inputId}
       className={
         labelClassName ??
-        `block break-words tracking-[0.18em] text-text-muted uppercase ${small ? "text-[9px]" : "text-[10px]"}`
+        `block break-words text-text-muted ${small ? "text-[13px]" : "text-[13px]"}`
       }
     >
       {label}
@@ -375,7 +375,7 @@ export function MontoInput({
       {linea && (
         <p
           id={resultadoId}
-          className={`mt-1 text-[12px] leading-snug break-words tabular-nums ${
+          className={`mt-1 text-[14px] leading-snug break-words tabular-nums ${
             linea.tono === "error" ? "text-accent" : "text-text-muted"
           }`}
         >
@@ -390,7 +390,7 @@ export function MontoInput({
           <div
             role="group"
             aria-label="Operaciones"
-            className="grid grid-cols-4 gap-px border border-border bg-border @[17rem]:grid-cols-7"
+            className="grid grid-cols-4 gap-px overflow-hidden rounded-xl border border-border bg-border @[17rem]:grid-cols-7"
           >
             {OPERACIONES.map((op) => (
               <button
@@ -422,12 +422,12 @@ export function MontoInput({
       )}
 
       {hint && (
-        <p id={hintId} className="mt-1 text-[11px] leading-snug text-text-muted">
+        <p id={hintId} className="mt-1 text-[13px] leading-snug text-text-muted">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="mt-1 text-[11px] leading-snug text-accent">
+        <p id={errorId} role="alert" className="mt-1 text-[13px] leading-snug text-accent">
           {error}
         </p>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -62,18 +63,18 @@ export function EliminarVentaButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[11px] tracking-[0.14em] text-accent uppercase"
+        className="text-[13px] text-accent"
       >
         Borrar venta
       </button>
 
       <BottomSheet open={open} ariaLabel="Borrar esta venta" variant="accent">
         <h2 className="font-display text-[24px] text-primary">¿Borrar esta venta?</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-[16px] text-text-muted">
           {ventaCoordinadora ? textoEliminarVentaCoordinadora(ventaCoordinadora.nombre) : "No se puede deshacer."}
         </p>
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -83,7 +84,7 @@ export function EliminarVentaButton({
             textoCargando="Borrando…"
             type="button"
             onClick={handleConfirmar}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
           >
             Sí, borrar
           </BotonAccion>
@@ -91,7 +92,7 @@ export function EliminarVentaButton({
             type="button"
             onClick={() => !saving && setOpen(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>

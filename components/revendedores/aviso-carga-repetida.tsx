@@ -74,9 +74,9 @@ export function AvisoCargaRepetida({
 
   return (
     <div role="alert" className="flex flex-col gap-3 border-t-2 border-accent pt-3">
-      <p className="text-sm text-accent">{aviso.resumen}</p>
+      <p className="text-[16px] text-accent">{aviso.resumen}</p>
       {aviso.detalle.length > 0 && (
-        <ul className="flex flex-col gap-1 text-[12px] text-text-muted">
+        <ul className="flex flex-col gap-1 text-[14px] text-text-muted">
           {aviso.detalle.map((linea, i) => (
             <li key={`${parecidas[i]?.id ?? i}`}>· {linea}</li>
           ))}
@@ -87,7 +87,7 @@ export function AvisoCargaRepetida({
           cargando={cargando}
           textoCargando="Guardando…"
           onClick={onGuardarIgual}
-          className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
         >
           Guardar igual
         </BotonAccion>
@@ -95,7 +95,7 @@ export function AvisoCargaRepetida({
           type="button"
           onClick={onRevisar}
           disabled={cargando}
-          className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+          className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[16px] font-medium text-text-muted disabled:opacity-45"
         >
           Revisar
         </button>

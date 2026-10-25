@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -76,15 +77,15 @@ export function PrecioRevendedorRow({
   if (!editando) {
     return (
       <div className="flex items-center justify-between gap-3 border-b border-border py-3">
-        <span className="text-sm text-text">{productoNombre}</span>
+        <span className="text-[16px] text-text">{productoNombre}</span>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium tabular-nums text-text">
+          <span className="text-[16px] font-medium tabular-nums text-text">
             {actual !== null ? formatCentavos(actual) : "Sin precio asignado"}
           </span>
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-primary"
+            className="text-[13px] text-text-muted hover:text-primary"
           >
             Editar
           </button>
@@ -95,7 +96,7 @@ export function PrecioRevendedorRow({
 
   return (
     <div className="flex flex-col gap-2 border-b border-border py-3">
-      <span className="text-sm text-text">{productoNombre}</span>
+      <span className="text-[16px] text-text">{productoNombre}</span>
       <div className="flex items-start gap-2">
         <MontoInput
           ariaLabel={`Precio revendedor de ${productoNombre}`}
@@ -111,14 +112,14 @@ export function PrecioRevendedorRow({
           <button
             type="button"
             onClick={() => setValor(formatMontoDisplay(precioMayoristaCentavos))}
-            className="min-h-11 shrink-0 text-[11px] tracking-[0.1em] text-text-muted uppercase hover:text-primary"
+            className="min-h-11 shrink-0 text-[13px] text-text-muted hover:text-primary"
           >
             Usar mayorista
           </button>
         )}
       </div>
       {error && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -128,7 +129,7 @@ export function PrecioRevendedorRow({
           textoCargando="Guardando…"
           type="button"
           onClick={handleGuardar}
-          className="min-h-11 flex-1 bg-primary px-3 text-xs font-medium tracking-[0.1em] text-background uppercase disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} flex-1 px-3`}
         >
           Ok
         </BotonAccion>
@@ -139,7 +140,7 @@ export function PrecioRevendedorRow({
             setError(null);
           }}
           disabled={saving}
-          className="min-h-11 flex-1 border border-border px-3 text-xs font-medium tracking-[0.1em] text-text-muted uppercase disabled:opacity-45"
+          className={`${BOTON_SECUNDARIO} flex-1 px-3`}
         >
           Cancelar
         </button>

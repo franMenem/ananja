@@ -51,9 +51,9 @@ export function SectorChips() {
             key={seccion.id}
             href={seccion.href}
             aria-current={active ? "page" : undefined}
-            className={`min-h-11 flex shrink-0 items-center whitespace-nowrap px-3 py-1.5 text-[11px] font-medium tracking-[0.1em] uppercase ${
+            className={`min-h-11 flex shrink-0 items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium ${
               active
-                ? "bg-primary text-background"
+                ? "bg-primary text-white"
                 : "border border-border text-text-muted"
             }`}
           >

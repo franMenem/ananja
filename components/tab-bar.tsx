@@ -25,7 +25,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="Navegación principal"
-      className="sticky bottom-0 z-10 border-t border-border bg-surface-raised pb-[calc(8px+env(safe-area-inset-bottom))] lg:hidden"
+      className="sticky bottom-0 z-10 border-t border-border bg-surface pb-[calc(8px+env(safe-area-inset-bottom))] lg:hidden"
     >
       <ul className="flex items-stretch justify-between">
         {SECTORES.map((sector) => {
@@ -35,7 +35,7 @@ export function TabBar() {
               <Link
                 href={destinoDeSector(sector)}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-11 flex-col items-center justify-center gap-[5px] px-1 py-2 pt-[11px] pb-2 text-[11px] tracking-[0.08em] uppercase ${
+                className={`relative flex min-h-11 flex-col items-center justify-center gap-[5px] px-1 py-2 pt-[11px] pb-2 text-[13px] ${
                   active
                     ? "-mt-px border-t-2 border-mark font-medium text-primary"
                     : "text-text-muted"
@@ -51,7 +51,7 @@ export function TabBar() {
                   {sector.label}
                 </span>
                 {sector.id === "tareas" && cantidadTareas > 0 && (
-                  <span className="absolute top-1 right-[18%] bg-accent px-[5px] py-px text-[10px] text-background">
+                  <span className="absolute top-1 right-[18%] rounded-full bg-accent px-[5px] py-px text-[13px] text-white">
                     {cantidadTareas}
                   </span>
                 )}

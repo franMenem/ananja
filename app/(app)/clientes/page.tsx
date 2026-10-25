@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { ClientesList } from "@/components/clientes-list";
@@ -37,7 +38,7 @@ export default async function ClientesPage() {
         <h1 className="font-display text-[28px] text-primary">Clientes</h1>
         <Link
           href="/comprobantes"
-          className="text-[11px] tracking-[0.14em] text-text-muted uppercase hover:text-primary-hover"
+          className="text-[13px] text-text-muted hover:text-primary-hover"
         >
           ← Comprobantes
         </Link>
@@ -47,7 +48,7 @@ export default async function ClientesPage() {
 
       <Link
         href="/clientes/nuevo"
-        className="flex min-h-[52px] items-center justify-center bg-primary text-[12px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+        className={`${BOTON_PRIMARIO} flex`}
       >
         + Nuevo cliente
       </Link>

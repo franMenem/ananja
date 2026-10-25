@@ -83,20 +83,20 @@ export function EliminarMovimientoStockAccion({
       <button
         type="button"
         onClick={abrir}
-        className="text-[11px] tracking-[0.12em] text-text-muted uppercase hover:text-accent"
+        className="text-[13px] text-text-muted hover:text-accent"
       >
         Eliminar
       </button>
 
       <BottomSheet open={abierto} ariaLabel="Eliminar movimiento de stock" variant="accent">
-        <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+        <span className="text-[13px] font-medium text-accent">
           Eliminar movimiento
         </span>
-        <p className="mt-3 text-[15px] text-text">
+        <p className="mt-3 text-[16px] text-text">
           {mensajeEliminarMovimientoStock(cantidad, producto, fechaLote)}
         </p>
         {error && (
-          <p role="alert" className="mt-2 text-xs text-accent">
+          <p role="alert" className="mt-2 text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -105,7 +105,7 @@ export function EliminarMovimientoStockAccion({
             type="button"
             onClick={cerrar}
             disabled={saving}
-            className="min-h-11 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
           >
             Cancelar
           </button>
@@ -114,7 +114,7 @@ export function EliminarMovimientoStockAccion({
             textoCargando="Eliminando…"
             type="button"
             onClick={() => void handleEliminar()}
-            className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>

@@ -24,7 +24,7 @@ function DetalleMovimiento({
   const etiqueta = etiquetaMotivo(motivo);
   if (!etiqueta && !loteId) return null;
   return (
-    <span className="min-w-0 break-words text-[11px] text-text-muted">
+    <span className="min-w-0 break-words text-[13px] text-text-muted">
       {etiqueta}
       {etiqueta && loteId && " · "}
       {loteId && (
@@ -50,13 +50,13 @@ export default async function StockMovimientosPage() {
   return (
     <FormPage title="Historial de movimientos" backHref="/stock" backLabel="Volver a stock" maxWidth="none" pb>
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           No se pudo cargar el historial.
         </p>
       )}
 
       {!error && (movimientos ?? []).length === 0 && (
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           Todavía no hay movimientos de stock registrados.
         </p>
       )}
@@ -64,7 +64,7 @@ export default async function StockMovimientosPage() {
       {/* Tabla — escritorio */}
       <div className="hidden md:block">
       <div className="overflow-x-auto">
-        <div className="min-w-[680px] grid grid-cols-[16px_82px_1fr_110px_160px_64px] gap-4 border-b border-border pb-2 text-[10px] tracking-[0.16em] text-text-muted uppercase">
+        <div className="min-w-[680px] grid grid-cols-[16px_82px_1fr_110px_160px_64px] gap-4 border-b border-border pb-2 text-[13px] text-text-muted">
           <span />
           <span>Fecha</span>
           <span>Concepto</span>
@@ -77,7 +77,7 @@ export default async function StockMovimientosPage() {
           return (
             <div
               key={movimiento.id}
-              className="min-w-[680px] grid grid-cols-[16px_82px_1fr_110px_160px_64px] items-center gap-4 border-b border-border py-[11px] text-sm"
+              className="min-w-[680px] grid grid-cols-[16px_82px_1fr_110px_160px_64px] items-center gap-4 border-b border-border py-[11px] text-[16px]"
             >
               <span
                 aria-hidden="true"
@@ -151,7 +151,7 @@ export default async function StockMovimientosPage() {
                 {esIngreso ? "+" : "−"}
               </span>
 
-              <div className="flex flex-1 flex-col gap-0.5 text-[13px]">
+              <div className="flex flex-1 flex-col gap-0.5 text-[16px]">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-text">
                     {esIngreso ? "Ingreso" : "Egreso"} ·{" "}
@@ -162,7 +162,7 @@ export default async function StockMovimientosPage() {
                     {movimiento.cantidad} un.
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-2 text-[11px]">
+                <div className="flex items-center justify-between gap-2 text-[13px]">
                   {movimiento.comprobante_id ? (
                     <Link
                       href={`/comprobantes/${movimiento.comprobante_id}`}
@@ -207,7 +207,7 @@ export default async function StockMovimientosPage() {
 
       {borrados.length > 0 && (
         <details className="group mt-6">
-          <summary className="flex items-center gap-1.5 select-none text-[10px] tracking-[0.22em] text-text-muted uppercase [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
             <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
               ›
             </span>
@@ -215,13 +215,13 @@ export default async function StockMovimientosPage() {
           </summary>
           <div className="mt-2 flex flex-col">
             {borrados.map((b) => (
-              <div key={b.id} className="flex flex-col gap-0.5 border-b border-border py-3 text-sm">
+              <div key={b.id} className="flex flex-col gap-0.5 border-b border-border py-3 text-[16px]">
                 <span className="min-w-0 break-words text-text-muted">
                   {b.tipo === "ingreso" ? "Ingreso" : "Egreso"} de {b.cantidad} × {b.producto ?? "producto"}
                   {b.nota ? ` · ${b.nota}` : ""}
                 </span>
                 <DetalleMovimiento motivo={b.motivo} loteId={b.lote_id} fechaLote={b.fecha_lote} />
-                <span className="text-[11px] text-text-muted">
+                <span className="text-[13px] text-text-muted">
                   Cargado el {formatFechaHora(b.created_at)}. Eliminado por {b.borrado_por ?? "alguien"} el{" "}
                   {formatDiaMesHora(b.borrado_at)}
                 </span>

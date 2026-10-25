@@ -65,13 +65,13 @@ export function FichaCoordinador({
     <div className="flex flex-col gap-8">
       {plataEnManoCentavos > 0 && (
         <div className="flex flex-col gap-1 border-b border-border pb-6">
-          <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Tiene que pasar a {NEGOCIO.nombre}
           </span>
           <p className="font-display text-[40px] leading-[1.05] whitespace-nowrap text-primary">
             {formatCentavos(plataEnManoCentavos)}
           </p>
-          <p className="text-[12px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Todavía no la pasó a la cuenta de {NEGOCIO.nombre}.
           </p>
         </div>
@@ -85,7 +85,7 @@ export function FichaCoordinador({
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Ventas propias</span>
+          <span className="text-[13px] text-text-muted">Ventas propias</span>
           <VentaCoordinador
             coordinadorId={coordinadorId}
             coordinadorNombre={coordinadorNombre}
@@ -95,7 +95,7 @@ export function FichaCoordinador({
             etiqueta="Vendió ella"
           />
         </div>
-        <p className="text-[12px] text-text-muted">
+        <p className="text-[14px] text-text-muted">
           Botellas que agarró del depósito y vendió ella misma. Se suman a lo que tiene que pasar a{" "}
           {NEGOCIO.nombre}.
         </p>
@@ -103,14 +103,14 @@ export function FichaCoordinador({
       </section>
 
       <section className="flex flex-col gap-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Revendedoras a cargo ({revendedoras.length})
         </span>
 
         {revendedoras.length === 0 ? (
-          <p className="py-6 text-sm text-text-muted">Todavía no tiene ninguna revendedora asignada.</p>
+          <p className="py-6 text-[16px] text-text-muted">Todavía no tiene ninguna revendedora asignada.</p>
         ) : (
-          <div className="flex flex-col gap-px border border-border bg-border">
+          <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
             {revendedoras.map((r) => (
               <Link
                 key={r.id}
@@ -118,7 +118,7 @@ export function FichaCoordinador({
                 className="flex items-baseline justify-between gap-3 bg-surface-raised p-3.5 hover:bg-border/30"
               >
                 <span className="min-w-0 break-words font-medium text-text">{r.nombre}</span>
-                <span className="flex shrink-0 items-baseline gap-3 text-[12px]">
+                <span className="flex shrink-0 items-baseline gap-3 text-[14px]">
                   <span className="text-text-muted">
                     {r.enPoder} {envase(r.enPoder)}
                     {r.valorEnPoderCentavos > 0 && ` · ${formatCentavos(r.valorEnPoderCentavos)} en poder`}
@@ -146,25 +146,25 @@ function VentasPropias({
   coordinadorNombre: string;
 }) {
   if (ventas === null) {
-    return <p className="py-2 text-sm text-text-muted">No se pudieron cargar las ventas.</p>;
+    return <p className="py-2 text-[16px] text-text-muted">No se pudieron cargar las ventas.</p>;
   }
   if (ventas.length === 0) {
-    return <p className="py-2 text-sm text-text-muted">Todavía no cargó ventas propias.</p>;
+    return <p className="py-2 text-[16px] text-text-muted">Todavía no cargó ventas propias.</p>;
   }
   return (
     <div className="flex flex-col">
       {ventas.map((v) => (
-        <div key={v.grupoId} className="flex flex-col gap-1.5 border-b border-border py-3 text-sm">
+        <div key={v.grupoId} className="flex flex-col gap-1.5 border-b border-border py-3 text-[16px]">
           <div className="flex items-start justify-between gap-3">
             <span className="min-w-0 break-words text-text">
-              <span className="text-[12px] tabular-nums text-text-muted">{formatFecha(v.fecha)}</span>
+              <span className="text-[14px] tabular-nums text-text-muted">{formatFecha(v.fecha)}</span>
               {" · "}
               {descripcionVentaPropia(v)}
             </span>
             <span className="shrink-0 text-right tabular-nums text-text">{formatCentavos(v.montoCentavos)}</span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[11px] text-text-muted">Suma a lo que tiene que pasar</span>
+            <span className="text-[13px] text-text-muted">Suma a lo que tiene que pasar</span>
             <EliminarVentaButton
               ventaId={v.ventaId}
               redirectHref={null}

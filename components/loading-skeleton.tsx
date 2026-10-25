@@ -14,7 +14,7 @@ export function ListaSkeleton({ filas = 4 }: { filas?: number }) {
   return (
     <div aria-hidden="true">
       <div className="flex items-center gap-2.5 pb-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Cargando
         </span>
         <span

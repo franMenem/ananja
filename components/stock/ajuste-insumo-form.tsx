@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -113,7 +114,7 @@ export function AjusteInsumoForm() {
       <div>
         <label
           htmlFor="insumo"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Insumo
         </label>
@@ -123,7 +124,7 @@ export function AjusteInsumoForm() {
           disabled={insumosLoading}
           value={insumoId}
           onChange={(event) => setInsumoId(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
         >
           <option value="" disabled>
             {insumosLoading ? "Cargando…" : "Seleccioná un insumo"}
@@ -137,10 +138,10 @@ export function AjusteInsumoForm() {
       </div>
 
       <div>
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Tipo de ajuste
         </span>
-        <div className="mt-1.5 flex gap-px bg-border">
+        <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
           {(
             [
               { value: "suma", label: "Sumar" },
@@ -154,7 +155,7 @@ export function AjusteInsumoForm() {
                 type="button"
                 onClick={() => setSigno(opcion.value)}
                 aria-pressed={selected}
-                className={`min-h-11 flex-1 px-3 text-sm font-semibold transition-colors ${
+                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
                   selected ? "bg-primary text-background" : "bg-surface-raised text-text"
                 }`}
               >
@@ -181,19 +182,19 @@ export function AjusteInsumoForm() {
           onChange={setCantidad}
           required
           placeholder="0"
-          labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
           inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
         />
       </div>
 
       {!vendedorLoading && vendedor && (
-        <p className="text-xs text-text-muted">
+        <p className="text-[14px] text-text-muted">
           Registrando como <span className="font-medium">{vendedor.nombre}</span>
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de
           alta desde el dashboard de Supabase.
         </p>
@@ -202,7 +203,7 @@ export function AjusteInsumoForm() {
       <div>
         <label
           htmlFor="nota"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nota (obligatoria)
         </label>
@@ -213,12 +214,12 @@ export function AjusteInsumoForm() {
           onChange={(event) => setNota(event.target.value)}
           rows={2}
           placeholder={`Ej. conteo ${proveedor.loDe}, rotura de 3 envases`}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -227,7 +228,7 @@ export function AjusteInsumoForm() {
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} px-4`}
       >
         Guardar ajuste
       </BotonAccion>

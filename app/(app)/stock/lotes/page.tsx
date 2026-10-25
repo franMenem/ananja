@@ -1,3 +1,5 @@
+import { Pastilla, type VariantePastilla } from "@/components/ui/pastilla";
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { FormPage } from "@/components/app/form-page";
@@ -18,13 +20,12 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-/** Chip de estado del pedido: "Falta pagar"/"Sin costos" en bordó (texto,
- * mismo criterio que el resto de los avisos de la app), "Pagado" con
- * fondo verde claro — el único estado "todo bien" de la tarjeta. */
-const CHIP_CLASES: Record<"sin-costos" | "pagado" | "falta", string> = {
-  "sin-costos": "text-accent",
-  falta: "text-accent",
-  pagado: "bg-[#e3e7d8] px-2 py-1 text-secondary",
+/** Pastilla de estado del pedido: "Falta pagar" en rojo (debe), "Sin costos"
+ * en ámbar (aviso) y "Pagado" en verde — el único estado "todo bien". */
+const CHIP_VARIANTE: Record<"sin-costos" | "pagado" | "falta", VariantePastilla> = {
+  "sin-costos": "aviso",
+  falta: "debe",
+  pagado: "ok",
 };
 
 /** Info extra por lote+producto que no entra en la tarjeta simplificada
@@ -142,25 +143,25 @@ export default async function StockLotesPage() {
     <FormPage title="Pedidos" backHref="/stock" backLabel="Volver a stock" maxWidth="none" pb>
       <Link
         href="/stock/lotes/nuevo"
-        className="flex min-h-[52px] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+        className={`${BOTON_PRIMARIO} flex px-4`}
       >
         + Pedido {proveedor.a}
       </Link>
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           No se pudo cargar el historial de pedidos.
         </p>
       )}
 
       {!error && pedidos.length === 0 && (
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           Todavía no hay pedidos registrados. &ldquo;+ Pedido {proveedor.a}&rdquo;
           crea el primero.
         </p>
       )}
 
-      <div className="flex flex-col gap-px bg-border">
+      <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
         {pedidos.map((pedido) => {
           const saldo = saldoPorLote.get(pedido.loteId) ?? 0;
           const badgeSaldo = etiquetaSaldoPendiente(saldo);
@@ -175,19 +176,19 @@ export default async function StockLotesPage() {
               className="flex flex-col gap-1.5 bg-surface-raised p-4"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0 text-[14px] text-text">
+                <span className="min-w-0 text-[16px] text-text">
                   {formatFechaCorta(pedido.fecha)} ·{" "}
                   {pedido.items
                     .map((item) => `${item.cantidad} × ${formatPresentacion(item.presentacionMl)}`)
                     .join(" + ")}
                 </span>
-                <span className={`shrink-0 text-[11px] font-medium tracking-[0.06em] uppercase ${CHIP_CLASES[pedido.estado.tipo]}`}>
+                <Pastilla variante={CHIP_VARIANTE[pedido.estado.tipo]} className="shrink-0">
                   {pedido.estado.label}
-                </span>
+                </Pastilla>
               </div>
 
               {pedido.estado.tipo === "sin-costos" ? (
-                <span className="text-[13px] font-medium text-accent">Sin costos</span>
+                <Pastilla variante="aviso" className="w-fit">Sin costos</Pastilla>
               ) : (
                 <div className="flex flex-col gap-1">
                   {pedido.items.map((item, i) => {
@@ -195,7 +196,7 @@ export default async function StockLotesPage() {
                     return (
                       <div
                         key={item.productoId}
-                        className="flex items-baseline justify-between gap-2 text-[13px] tabular-nums text-text-muted"
+                        className="flex items-baseline justify-between gap-2 text-[16px] tabular-nums text-text-muted"
                       >
                         <span>
                           {pedido.items.length > 1 ? formatPresentacion(item.presentacionMl) : "Costo Ananja"}
@@ -204,26 +205,26 @@ export default async function StockLotesPage() {
                           <span>
                             {item.costoAnanjaCentavos != null ? formatCentavos(item.costoAnanjaCentavos) : "—"}
                             {info.actualizado && (
-                              <span className="ml-1.5 text-[11px] text-mark">actualizado</span>
+                              <span className="ml-1.5 text-[13px] text-mark">actualizado</span>
                             )}
                           </span>
                           {!info.actualizado && info.comparacion && (
                             <span
-                              className={`text-[11px] ${info.comparacion.subio ? "text-accent" : "text-secondary"}`}
+                              className={`text-[13px] ${info.comparacion.subio ? "text-accent" : "text-secondary"}`}
                             >
                               {info.comparacion.subio ? "+" : ""}
                               {info.comparacion.pctCambio}% vs anterior
                             </span>
                           )}
                           {info.actualizado && info.costoAnanjaOriginalCentavos != null && (
-                            <span className="text-[11px] text-text-muted">
+                            <span className="text-[13px] text-text-muted">
                               original {formatCentavos(info.costoAnanjaOriginalCentavos)}
                             </span>
                           )}
                           {item.costoAnanjaCentavos != null &&
                             item.costoAnanjaCalculadoCentavos != null &&
                             item.costoAnanjaCentavos !== item.costoAnanjaCalculadoCentavos && (
-                              <span className="text-[11px] text-text-muted">
+                              <span className="text-[13px] text-text-muted">
                                 calculado {formatCentavos(item.costoAnanjaCalculadoCentavos)}
                               </span>
                             )}
@@ -235,16 +236,16 @@ export default async function StockLotesPage() {
               )}
 
               {totalSinVender > 0 && (
-                <span className="text-[11px] text-text-muted">
+                <span className="text-[13px] text-text-muted">
                   Sin vender {totalSinVender}
                   {totalEnRevendedoras > 0 ? ` · ${totalEnRevendedoras} en revendedoras` : ""}
                 </span>
               )}
 
               {badgeSaldo && (
-                <span className="w-fit text-[11px] font-medium tracking-[0.06em] text-accent uppercase">
+                <Pastilla variante="debe" className="w-fit">
                   {badgeSaldo}
-                </span>
+                </Pastilla>
               )}
             </Link>
           );

@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -57,7 +58,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
           setError(null);
           setConfirmando(true);
         }}
-        className={`min-h-11 w-full border px-4 text-xs font-medium tracking-[0.1em] uppercase ${
+        className={`min-h-11 w-full border px-4 text-[14px] font-medium ${
           activo ? "border-accent text-accent" : "border-border text-text"
         }`}
       >
@@ -66,14 +67,14 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
 
       <BottomSheet open={confirmando} ariaLabel={titulo} variant={activo ? "accent" : "mark"}>
         <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-[16px] text-text-muted">
           {activo
             ? "Deja de aparecer para elegirlo en ventas nuevas. Sus ventas quedan guardadas y lo podés reactivar cuando quieras."
             : "Vuelve a aparecer para elegirlo en ventas nuevas."}
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -83,7 +84,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
             cargando={saving}
             textoCargando="Guardando…"
             onClick={() => void handleToggle()}
-            className={`min-h-11 flex-[1.6] px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45 ${
+            className={`min-h-11 flex-[1.6] px-4 text-[16px] font-medium text-background disabled:opacity-45 ${
               activo ? "bg-accent" : "bg-primary hover:bg-primary-hover"
             }`}
           >
@@ -93,7 +94,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
             type="button"
             onClick={() => !saving && setConfirmando(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Volver
           </button>

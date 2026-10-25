@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import type { StockAlert } from "@/components/revendedores/entrega/tipos";
@@ -19,7 +20,7 @@ export function AlertaStockEntrega({
   return (
     <BottomSheet open={alerta !== null} ariaLabel="No hay stock suficiente" variant="accent">
       <h2 className="font-display text-[24px] text-primary">No hay stock suficiente</h2>
-      <p className="mt-2 text-sm text-text-muted">
+      <p className="mt-2 text-[16px] text-text-muted">
         {alerta?.producto}: quedan {alerta?.disponible} disponibles.
       </p>
       <div className="mt-5 flex gap-2">
@@ -27,7 +28,7 @@ export function AlertaStockEntrega({
           onClick={onGuardarIgual}
           cargando={saving}
           textoCargando="Guardando…"
-          className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
         >
           Guardar igual
         </BotonAccion>
@@ -35,7 +36,7 @@ export function AlertaStockEntrega({
           type="button"
           onClick={onCerrar}
           disabled={saving}
-          className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+          className={`${BOTON_SECUNDARIO} flex-1 px-4`}
         >
           Revisar cantidades
         </button>

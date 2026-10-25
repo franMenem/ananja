@@ -34,7 +34,7 @@ export default async function DevolucionRevendedorPage({
     return (
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href="/revendedores" label="revendedores" />
-        <p className="text-sm text-text-muted">No encontramos este revendedor.</p>
+        <p className="text-[16px] text-text-muted">No encontramos este revendedor.</p>
       </div>
     );
   }

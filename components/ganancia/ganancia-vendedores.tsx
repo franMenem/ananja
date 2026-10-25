@@ -24,15 +24,15 @@ function TablaGananciaVendedores({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">{titulo}</span>
+      <span className="text-[13px] text-text-muted">{titulo}</span>
       {unidadesSinPrecio > 0 && (
-        <span className="text-[11px] text-accent">
+        <span className="text-[13px] text-accent">
           {unidadesSinPrecio} {unidadesSinPrecio === 1 ? "botella" : "botellas"} de revendedoras sin
           precio de venta, no contada{unidadesSinPrecio === 1 ? "" : "s"}
         </span>
       )}
       {filas.length === 0 ? (
-        <p className="py-2 text-[13px] text-text-muted">
+        <p className="py-2 text-[16px] text-text-muted">
           Todavía no hay ventas con precio cargado este período.
         </p>
       ) : (
@@ -45,13 +45,13 @@ function TablaGananciaVendedores({
                 className="flex items-start justify-between gap-3 border-b border-border py-2.5"
               >
                 <div className="flex flex-col">
-                  <span className="text-sm text-text">
+                  <span className="text-[16px] text-text">
                     {nombreDe(fila.vendedorId)}
                     {fila.algunCostoEstimado && (
-                      <span className="ml-1.5 text-[10px] text-text-muted">*</span>
+                      <span className="ml-1.5 text-[13px] text-text-muted">*</span>
                     )}
                   </span>
-                  {nota && <span className="text-[11px] text-text-muted">{nota}</span>}
+                  {nota && <span className="text-[13px] text-text-muted">{nota}</span>}
                 </div>
                 <span
                   className={`shrink-0 font-medium tabular-nums ${colorGanancia(fila.margenVendedorCentavos)}`}
@@ -93,7 +93,7 @@ export function GananciaVendedores({
 }) {
   return (
     <details className="flex flex-col gap-4">
-      <summary className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <summary className="text-[13px] text-text-muted">
         Ver ganancia de vendedores
       </summary>
       <div className="flex flex-col gap-5 pt-2">

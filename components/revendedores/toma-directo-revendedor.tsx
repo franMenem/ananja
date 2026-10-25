@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -67,11 +68,11 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Agarra directo del depósito
         </span>
         <span
-          className={`border px-1.5 py-px text-[9px] tracking-[0.1em] uppercase ${
+          className={`border px-1.5 py-px text-[13px] ${
             tomaDirecto ? "border-primary text-primary" : "border-border text-text-muted"
           }`}
         >
@@ -80,26 +81,26 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="min-h-9 text-[11px] font-medium tracking-[0.1em] text-primary uppercase underline-offset-2 hover:underline"
+          className="min-h-9 text-[13px] font-medium text-primary underline-offset-2 hover:underline"
         >
           {tomaDirecto ? "Apagar" : "Prender"}
         </button>
       </div>
-      <p className="text-[12px] text-text-muted">
+      <p className="text-[14px] text-text-muted">
         Puede cargar ventas aunque no tenga botellas entregadas: lo que le falte se saca solo del depósito y
         queda anotado como entrega automática.
       </p>
 
       <BottomSheet open={open} ariaLabel={titulo} variant="mark">
         <h2 className="font-display text-[24px] leading-[1.25] text-primary">{titulo}</h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-[16px] text-text-muted">
           {habilitar
             ? `${nombre} va a poder cargar ventas aunque no tenga botellas entregadas. Lo que le falte se saca del depósito (del lote más viejo con stock) y queda anotado como entrega automática.`
             : `Desde ahora ${nombre} solo va a poder vender las botellas que tenga entregadas. Lo que ya se anotó no cambia.`}
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 text-sm text-accent">
+          <p role="alert" className="mt-3 text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -109,7 +110,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
             cargando={saving}
             textoCargando="Guardando…"
             onClick={() => void confirmar()}
-            className="min-h-11 flex-[1.6] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
           >
             {habilitar ? "Sí, prender" : "Sí, apagar"}
           </BotonAccion>
@@ -117,7 +118,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
             type="button"
             onClick={() => !saving && setOpen(false)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>

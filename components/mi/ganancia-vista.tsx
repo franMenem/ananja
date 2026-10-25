@@ -1,3 +1,5 @@
+import { Pastilla } from "@/components/ui/pastilla";
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { HistorialPagos } from "@/components/mi/historial-pagos";
@@ -30,31 +32,31 @@ export function MiGananciaVista({
   return (
     <div className="@container w-full">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 pb-8 @3xl:grid @3xl:max-w-[1240px] @3xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
-        <h1 className="font-display text-[30px] leading-[1.05] text-primary @3xl:col-span-2 @3xl:text-[38px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-primary @3xl:col-span-2 @3xl:text-[32px]">
           Ganancia
         </h1>
 
         <GananciaRevendedor persona="vos" ventas={ventas} />
 
         <section className="flex flex-col gap-3">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Tus pagos</span>
+          <span className="text-[13px] text-text-muted">Tus pagos</span>
           <div className="flex flex-wrap items-end justify-between gap-3 border-y border-border py-4">
             <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Le debés a {NEGOCIO.nombre}
               </span>
               <span className="font-display text-lg break-words text-accent tabular-nums">
                 {formatCentavos(debeCentavos)}
               </span>
               {pendienteCentavos > 0 && (
-                <span className="text-[12px] text-text-muted">
+                <Pastilla variante="confirmar" className="w-fit">
                   Pendiente de confirmar {formatCentavos(pendienteCentavos)}
-                </span>
+                </Pastilla>
               )}
             </div>
             <Link
               href="/mi/pagar"
-              className="flex min-h-11 items-center justify-center bg-primary px-4 text-[12px] font-medium tracking-[0.12em] text-background uppercase hover:bg-primary-hover"
+              className={`${BOTON_PRIMARIO} flex px-4`}
             >
               Pagar
             </Link>

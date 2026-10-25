@@ -19,10 +19,10 @@ function FilaTotal({
   destacado?: boolean;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 text-[13px]">
+    <div className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 text-[16px]">
       <span className="min-w-0 break-words text-text">
         {label}
-        {nota && <span className="text-[11px] text-text-muted"> · {nota}</span>}
+        {nota && <span className="text-[13px] text-text-muted"> · {nota}</span>}
       </span>
       <span
         className={`shrink-0 tabular-nums ${destacado ? "font-medium text-primary" : "text-text"}`}
@@ -61,14 +61,14 @@ export function RevisionFactura({
         return (
           <div key={i} className="flex flex-col gap-1.5 border-b border-border py-3">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0 break-words text-[14px] text-text">
+              <span className="min-w-0 break-words text-[16px] text-text">
                 {nombres[i] ?? "Insumo"}
               </span>
-              <span className="shrink-0 text-[14px] font-medium text-primary tabular-nums">
+              <span className="shrink-0 text-[16px] font-medium text-primary tabular-nums">
                 {formatCentavos(linea.totalCentavos)}
               </span>
             </div>
-            <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 text-[12px] text-text-muted tabular-nums">
+            <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 text-[14px] text-text-muted tabular-nums">
               <dt className="min-w-0 break-words">
                 {formatNumeroInsumo(linea.cantidad)} × {formatCentavos(linea.precioUnitarioCentavos)}
               </dt>
@@ -111,7 +111,7 @@ export function RevisionFactura({
         />
         {calculo.envioCentavos > 0 && <FilaTotal label="Envío" monto={calculo.envioCentavos} />}
         <div className="flex items-baseline justify-between gap-3 pt-3">
-          <span className="text-[11px] tracking-[0.14em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Total pagado
           </span>
           <span className="font-display text-[26px] leading-none text-primary tabular-nums">

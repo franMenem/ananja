@@ -15,7 +15,7 @@ export function SeccionCliente({ clienteId, onClienteChange, esVentaACredito }: 
     <>
       <ClienteSelect value={clienteId} onChange={(id) => onClienteChange(id)} />
       {esVentaACredito && !clienteId && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Para dejar saldo a cobrar elegí un cliente.
         </p>
       )}

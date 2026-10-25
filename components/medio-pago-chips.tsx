@@ -46,12 +46,12 @@ export function MedioPagoChips({
   return (
     <div className={className}>
       {!ocultarRotulo && (
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Medio de pago
         </span>
       )}
       <div
-        className={`grid gap-px bg-border ${ocultarRotulo ? "" : "mt-1.5"}`}
+        className={`grid gap-px overflow-hidden rounded-xl border border-border bg-border ${ocultarRotulo ? "" : "mt-1.5"}`}
         style={{
           gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
         }}
@@ -64,7 +64,7 @@ export function MedioPagoChips({
               type="button"
               onClick={() => onChange(option.value)}
               aria-pressed={selected}
-              className={`min-h-[52px] px-2 text-[13px] font-medium transition-colors ${
+              className={`min-h-[52px] px-2 text-[16px] font-medium transition-colors ${
                 selected
                   ? "bg-primary text-background"
                   : "bg-surface-raised text-text"

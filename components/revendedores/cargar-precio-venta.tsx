@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -81,14 +82,14 @@ export function CargarPrecioVenta({
         onChange={setPrecio}
         placeholder="$ 0,00"
         simbolo={null}
-        labelClassName="block text-[10px] tracking-[0.14em] text-text-muted uppercase"
+        labelClassName="block text-[13px] text-text-muted"
         cajaClassName="mt-2 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
         inputClassName="min-h-11 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
       />
       {pideMedio && (
         <div className="flex flex-col gap-1">
           <MedioPagoChips value={medioPago} onChange={setMedioPago} />
-          <span className="text-[11px] text-text-muted">
+          <span className="text-[13px] text-text-muted">
             {persona === "vos" ? "¿Cómo te pagaron?" : "¿Cómo le pagaron?"} Opcional.
           </span>
         </div>
@@ -97,12 +98,12 @@ export function CargarPrecioVenta({
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="flex min-h-11 items-center justify-center self-start bg-primary px-4 text-[12px] font-medium tracking-[0.12em] text-background uppercase disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} flex self-start px-4`}
       >
         Cargar precio
       </BotonAccion>
       {error && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}

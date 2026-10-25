@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { MaterialLista } from "@/components/material/material-lista";
@@ -22,25 +23,25 @@ export default async function MaterialPage() {
   return (
     <div className="flex flex-col pb-8">
       <div className="flex items-center justify-between py-6">
-        <h1 className="font-display text-[30px] leading-[1.05] text-primary md:text-[38px]">
+        <h1 className="font-display text-[28px] leading-[1.05] text-primary md:text-[32px]">
           Material
         </h1>
         <Link
           href="/material/nuevo"
-          className="flex min-h-11 items-center gap-2 bg-primary px-5 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex gap-2 px-5`}
         >
           + Nuevo material
         </Link>
       </div>
 
       {error && (
-        <p role="alert" className="mb-4 text-sm text-accent">
+        <p role="alert" className="mb-4 text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {!error && materiales.length === 0 && (
-        <p className="py-6 text-sm text-text-muted">Todavía no cargaste ningún material.</p>
+        <p className="py-6 text-[16px] text-text-muted">Todavía no cargaste ningún material.</p>
       )}
 
       {!error && materiales.length > 0 && <MaterialLista materiales={materiales} />}

@@ -34,7 +34,7 @@ export function textoEstados(e: Estados): string {
   return partes.join(" · ");
 }
 
-const ROTULO = "text-[10px] tracking-[0.22em] text-text-muted uppercase";
+const ROTULO = "text-[13px] text-text-muted";
 
 function textoSinBotella(centavos: number): string {
   return `${centavos < 0 ? "−" : "+"} ${formatCentavos(Math.abs(centavos))} sin ${envase(1)} ${concordar("asignado", "asignada")}`;
@@ -52,12 +52,12 @@ function LineaEstado({
   sinBotellaCentavos?: number;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[13px]">
+    <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]">
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="break-words text-text">{titulo}</span>
-        {productos.length > 0 && <span className="break-words text-[12px] text-text-muted">{textoProductos(productos)}</span>}
+        {productos.length > 0 && <span className="break-words text-[14px] text-text-muted">{textoProductos(productos)}</span>}
         {sinBotellaCentavos !== 0 && (
-          <span className="break-words text-[12px] text-text-muted">{textoSinBotella(sinBotellaCentavos)}</span>
+          <span className="break-words text-[14px] text-text-muted">{textoSinBotella(sinBotellaCentavos)}</span>
         )}
       </div>
       {cantidad > 0 && <span className="shrink-0 tabular-nums text-text">{cantidadTexto(cantidad)}</span>}
@@ -68,13 +68,13 @@ function LineaEstado({
 function FilaDesglose({ encabezado, grupo }: { encabezado: ReactNode; grupo: GrupoBotellas }) {
   const estados = textoEstados(grupo.estados);
   return (
-    <li className="flex flex-col gap-0.5 border-b border-border py-2 text-[13px]">
+    <li className="flex flex-col gap-0.5 border-b border-border py-2 text-[16px]">
       <div className="flex items-baseline justify-between gap-3">
         <span className="min-w-0 break-words">{encabezado}</span>
         <span className="shrink-0 tabular-nums text-text">{cantidadTexto(grupo.total)}</span>
       </div>
-      <span className="break-words text-[12px] text-text-muted">{textoProductos(grupo.productos)}</span>
-      {estados && <span className="break-words text-[11px] text-text-muted">{estados}</span>}
+      <span className="break-words text-[14px] text-text-muted">{textoProductos(grupo.productos)}</span>
+      {estados && <span className="break-words text-[13px] text-text-muted">{estados}</span>}
     </li>
   );
 }
@@ -185,19 +185,19 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
       <section className="flex flex-col gap-1.5">
         <span className={ROTULO}>{titulo}</span>
         {resumen === null ? (
-          <p className="text-[13px] text-text-muted">No se pudo calcular.</p>
+          <p className="text-[16px] text-text-muted">No se pudo calcular.</p>
         ) : resumen.total === 0 ? (
-          <p className="text-[13px] text-text-muted">No le debe ninguna {envase(1)}.</p>
+          <p className="text-[16px] text-text-muted">No le debe ninguna {envase(1)}.</p>
         ) : (
           <>
-            <p className="text-[15px] text-text">
+            <p className="text-[16px] text-text">
               Le debe a {NEGOCIO.nombre}{" "}
               <span className="font-display text-[26px] leading-[1.05] tabular-nums text-primary">
                 {cantidadTexto(resumen.total)}
               </span>
             </p>
-            <p className="text-[12px] text-text-muted">{textoProductos(resumen.productos)}</p>
-            <p className="text-[12px] text-text-muted">{textoEstados(resumen.estados)}</p>
+            <p className="text-[14px] text-text-muted">{textoProductos(resumen.productos)}</p>
+            <p className="text-[14px] text-text-muted">{textoEstados(resumen.estados)}</p>
             <Desglose resumen={resumen} mostrarPorPersona={false} titulo="Ver por lote" />
           </>
         )}
@@ -210,7 +210,7 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
     <section className="flex flex-col gap-3 border-b border-border pb-6">
       <span className={ROTULO}>{titulo}</span>
       {resumen === null ? (
-        <p className="text-sm text-text-muted">No se pudo calcular.</p>
+        <p className="text-[16px] text-text-muted">No se pudo calcular.</p>
       ) : (
         <>
           {resumen.total > 0 ? (
@@ -218,11 +218,11 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
               <p className="font-display text-[40px] leading-[1.05] tabular-nums text-primary">
                 {cantidadTexto(resumen.total)}
               </p>
-              <p className="text-[13px] text-text">{textoProductos(resumen.productos)}</p>
-              {nota && <p className="text-[12px] text-text-muted">{nota}</p>}
+              <p className="text-[16px] text-text">{textoProductos(resumen.productos)}</p>
+              {nota && <p className="text-[14px] text-text-muted">{nota}</p>}
             </div>
           ) : (
-            <p className="text-[13px] text-text-muted">No se le debe ninguna {envase(1)}.</p>
+            <p className="text-[16px] text-text-muted">No se le debe ninguna {envase(1)}.</p>
           )}
 
           {(resumen.total > 0 || sinBotellaTotal) && (

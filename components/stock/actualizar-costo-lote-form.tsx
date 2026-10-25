@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -124,12 +125,12 @@ export function ActualizarCostoLoteForm({
 
       <div className="flex flex-col gap-1.5 border-l-2 border-accent bg-surface-raised p-4">
         {enDeposito > 0 ? (
-          <p className="text-[13px] leading-[1.5] text-text">
+          <p className="text-[16px] leading-[1.5] text-text">
             Cambia el costo de las <strong className="font-medium">{enDeposito}</strong> {plural} que
             quedan en el depósito. Lo ya entregado o vendido no cambia, y lo pagado {proveedor.a} tampoco.
           </p>
         ) : (
-          <p className="text-[13px] leading-[1.5] text-text">
+          <p className="text-[16px] leading-[1.5] text-text">
             Este lote no tiene {NEGOCIO.envase.plural} en el depósito — actualizar el costo no cambia
             nada de lo ya entregado o vendido, que es todo lo que tiene este lote hoy.
           </p>
@@ -137,7 +138,7 @@ export function ActualizarCostoLoteForm({
       </div>
 
       {precargadoDesdeFecha && (
-        <p className="text-[11px] leading-snug text-text-muted">
+        <p className="text-[13px] leading-snug text-text-muted">
           Precargado con la actualización del {formatFechaHora(precargadoDesdeFecha)}.
         </p>
       )}
@@ -154,7 +155,7 @@ export function ActualizarCostoLoteForm({
         />
 
         {error && (
-          <p role="alert" className="text-[12px] text-accent">
+          <p role="alert" className="text-[14px] text-accent">
             {error}
           </p>
         )}
@@ -162,7 +163,7 @@ export function ActualizarCostoLoteForm({
         <button
           type="submit"
           disabled={saving}
-          className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} px-4`}
         >
           {saving ? "Guardando…" : "Actualizar costo vigente"}
         </button>

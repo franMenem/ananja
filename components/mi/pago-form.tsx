@@ -125,7 +125,7 @@ export function PagoForm({
       <SetFormHeader title={`Pagar a ${destino}`} backHref="/mi" backLabel="Volver al inicio" />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-1 text-[16px]">
           <span className="text-text">
             Le debés a {NEGOCIO.nombre}{" "}
             <span className="font-medium tabular-nums text-accent">{formatCentavos(debeCentavos)}</span>
@@ -139,7 +139,7 @@ export function PagoForm({
               que todavía no te confirmaron.
             </span>
           )}
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[16px] text-text-muted">
             {encargado
               ? `Cuando ${encargado.nombre} confirme que la recibió, se descuenta de lo que le debés.`
               : `Transferí a la cuenta de ${NEGOCIO.nombre} y subí el comprobante. Cuando lo confirmen, se descuenta de lo que le debés.`}
@@ -154,7 +154,7 @@ export function PagoForm({
           required
           placeholder="$ 0,00"
           simbolo={null}
-          labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1 flex border-b-2 border-primary"
           inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums focus:outline-none"
         />
@@ -162,7 +162,7 @@ export function PagoForm({
         <MedioPagoChips value={medioPago} onChange={setMedioPago} opciones={opciones} />
 
         <div>
-          <label htmlFor="fecha" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="fecha" className="text-[13px] text-text-muted">
             Fecha
           </label>
           <input
@@ -171,17 +171,17 @@ export function PagoForm({
             required
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Comprobante{medioPago === "efectivo" ? " (opcional)" : ""}
           </span>
           <label
             htmlFor="comprobante-pago"
-            className="flex min-h-12 items-center justify-center border border-dashed border-border px-3 text-center text-sm text-text hover:border-primary"
+            className="flex min-h-12 items-center justify-center border border-dashed border-border px-3 text-center text-[16px] text-text hover:border-primary"
           >
             {archivo ? archivo.name : "Sacar foto o elegir archivo"}
           </label>
@@ -196,7 +196,7 @@ export function PagoForm({
             <button
               type="button"
               onClick={() => setArchivo(null)}
-              className="self-start text-[11px] tracking-[0.12em] text-text-muted uppercase"
+              className="self-start text-[13px] text-text-muted"
             >
               Quitar archivo
             </button>
@@ -204,7 +204,7 @@ export function PagoForm({
         </div>
 
         <div>
-          <label htmlFor="nota" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <label htmlFor="nota" className="text-[13px] text-text-muted">
             Nota (opcional)
           </label>
           <textarea
@@ -212,12 +212,12 @@ export function PagoForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -226,7 +226,7 @@ export function PagoForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Avisar que pagué
         </BotonAccion>

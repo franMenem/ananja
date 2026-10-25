@@ -44,12 +44,12 @@ export function SeccionEnvases({
 }: SeccionEnvasesProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         4 · {capitalizar(NEGOCIO.envase.plural)}{" "}
         {concordar("vendidos", "vendidas")}
       </span>
       {productosLoading ? (
-        <p className="py-3 text-sm text-text-muted">Cargando productos…</p>
+        <p className="py-3 text-[16px] text-text-muted">Cargando productos…</p>
       ) : (
         <div className="flex flex-col">
           {productos.map((producto) => {
@@ -89,9 +89,9 @@ export function SeccionEnvases({
                     value={precios[producto.id] ?? ""}
                     onChange={(valor) => onPrecioChange(producto.id, valor)}
                     placeholder="0,00"
-                    labelClassName="text-[11px] text-text-muted"
+                    labelClassName="text-[13px] text-text-muted"
                     cajaClassName="flex shrink-0 items-baseline gap-1 border-b border-border pb-0.5"
-                    simboloClassName="text-xs text-text-muted"
+                    simboloClassName="text-[14px] text-text-muted"
                     inputClassName="w-24 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
                   />
                 )}
@@ -106,7 +106,7 @@ export function SeccionEnvases({
           const difiere =
             montoParaComparar !== null && montoParaComparar !== totalPreciosCentavos;
           return (
-            <p className="pt-1 text-[11px] text-text-muted">
+            <p className="pt-1 text-[13px] text-text-muted">
               Los precios por botella suman {formatCentavos(totalPreciosCentavos)}
               {difiere && montoParaComparar !== null
                 ? `, la venta dice ${formatCentavos(montoParaComparar)}.`

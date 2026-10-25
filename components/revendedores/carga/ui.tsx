@@ -3,14 +3,14 @@ import type { ReactNode } from "react";
 import type { ProblemaCarga } from "@/lib/dominio/carga-revendedor";
 
 /** Estilos compartidos por los campos de las tres secciones de `CargaForm`. */
-export const ROTULO = "text-[10px] tracking-[0.18em] text-text-muted uppercase";
+export const ROTULO = "text-[13px] text-text-muted";
 export const CAMPO =
   "mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary";
 export const CAJA_MONTO =
   "mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary";
 export const INPUT_MONTO =
   "min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none";
-export const LINK_CHICO = "min-h-9 text-[11px] font-medium tracking-[0.12em] uppercase";
+export const LINK_CHICO = "min-h-9 text-[13px] font-medium ";
 
 /** Una de las tres partes plegables de `CargaForm` (Entrega, Ventas, Pago):
  * cabecera con número/título/descripción y un botón Sumar/Sacar, contenido
@@ -45,11 +45,11 @@ export function Seccion({
           <span className="font-display text-[20px] text-primary">
             {numero} · {titulo}
           </span>
-          <span className="text-[12px] leading-snug text-text-muted">{descripcion}</span>
+          <span className="text-[14px] leading-snug text-text-muted">{descripcion}</span>
         </span>
         {!bloqueada && (
           <span
-            className={`shrink-0 border px-3 py-2 text-[12px] font-medium tracking-[0.12em] uppercase ${
+            className={`shrink-0 border px-3 py-2 text-[14px] font-medium ${
               activa ? "border-border text-text-muted" : "border-primary text-primary"
             }`}
           >
@@ -67,7 +67,7 @@ export function Seccion({
 export function ListaProblemas({ problemas }: { problemas: ProblemaCarga[] }) {
   if (problemas.length === 0) return null;
   return (
-    <ul role="alert" className="flex flex-col gap-1 text-sm text-accent">
+    <ul role="alert" className="flex flex-col gap-1 text-[16px] text-accent">
       {problemas.map((p, i) => (
         <li key={i}>{p.mensaje}</li>
       ))}

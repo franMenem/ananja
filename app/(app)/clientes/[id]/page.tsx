@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -72,17 +73,17 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-4">
           <div className="flex items-baseline justify-between gap-2">
-            <h1 className="font-display text-[32px] leading-[1.1] text-primary">
+            <h1 className="font-display text-[28px] leading-[1.1] text-primary">
               {cliente.nombre}
             </h1>
             {!cliente.activo && (
-              <span className="shrink-0 text-[10px] tracking-[0.14em] text-accent uppercase">
+              <span className="shrink-0 text-[13px] text-accent">
                 Dado de baja
               </span>
             )}
           </div>
 
-          <div className="flex flex-col gap-1 text-[13px] text-text">
+          <div className="flex flex-col gap-1 text-[16px] text-text">
             {cliente.telefono && <p>Teléfono: {cliente.telefono}</p>}
             {cliente.direccion && <p>Dirección: {cliente.direccion}</p>}
             {cliente.email && <p>Email: {cliente.email}</p>}
@@ -100,7 +101,7 @@ export default async function ClienteDetailPage({
           <div className="flex gap-2.5 pt-1">
             <Link
               href={`/clientes/${id}/editar`}
-              className="flex min-h-11 flex-1 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.1em] text-background uppercase transition-colors hover:bg-primary-hover"
+              className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
             >
               Editar
             </Link>
@@ -112,14 +113,14 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Ventas
             </span>
             <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
           <div className="grid grid-cols-3 gap-3 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Vendido
               </span>
               <span className="text-base font-medium whitespace-nowrap tabular-nums text-text">
@@ -127,7 +128,7 @@ export default async function ClienteDetailPage({
               </span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Cobrado
               </span>
               <span className="text-base font-medium whitespace-nowrap tabular-nums text-text">
@@ -135,7 +136,7 @@ export default async function ClienteDetailPage({
               </span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Debe
               </span>
               <span
@@ -149,7 +150,7 @@ export default async function ClienteDetailPage({
           {rows.length === 0 ? (
             <div className="flex flex-col items-center px-6 py-10 text-center">
               <IconReceipt className="h-7 w-7 text-text-muted" />
-              <p className="mt-3 text-[13px] text-text-muted">
+              <p className="mt-3 text-[16px] text-text-muted">
                 Este cliente todavía no tiene comprobantes registrados.
               </p>
             </div>
@@ -167,18 +168,18 @@ export default async function ClienteDetailPage({
                           {formatCentavos(comprobante.monto_centavos)}
                         </span>
                         {(deudaPorVenta.get(comprobante.id) ?? 0) > 0 && (
-                          <span className="border border-accent px-1 text-[9px] tracking-[0.1em] text-accent uppercase">
+                          <span className="border border-accent px-1 text-[13px] text-accent">
                             Debe {formatCentavos(deudaPorVenta.get(comprobante.id)!)}
                           </span>
                         )}
                       </div>
-                      <p className="truncate text-xs text-text-muted">
+                      <p className="truncate text-[14px] text-text-muted">
                         {formatCantidadesPorPresentacion(comprobante.comprobante_items)} ·{" "}
                         {comprobante.vendedores?.nombre ?? "—"} ·{" "}
                         {formatFecha(comprobante.fecha)}
                       </p>
                     </div>
-                    <span className="shrink-0 self-start pb-0.5 text-[10px] tracking-[0.14em] text-primary uppercase">
+                    <span className="shrink-0 self-start pb-0.5 text-[13px] text-primary">
                       <span className="border-b border-mark pb-0.5">
                         {etiquetaMedioPago(comprobante.medio_pago)}
                       </span>
@@ -192,14 +193,14 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Cobros
             </span>
             <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
 
           {(cobros ?? []).length === 0 ? (
-            <p className="py-2 text-sm text-text-muted">
+            <p className="py-2 text-[16px] text-text-muted">
               Todavía no hay cobros registrados.
             </p>
           ) : (
@@ -210,11 +211,11 @@ export default async function ClienteDetailPage({
                     href={`/comprobantes/${cobro.comprobante_id}`}
                     className="flex items-center justify-between gap-3"
                   >
-                    <span className="text-sm text-text">
+                    <span className="text-[16px] text-text">
                       {formatCentavos(cobro.monto_centavos)} ·{" "}
                       {etiquetaMedioPago(cobro.medio_pago)}
                     </span>
-                    <span className="text-xs text-text-muted">
+                    <span className="text-[14px] text-text-muted">
                       {formatFecha(cobro.fecha)}
                     </span>
                   </Link>
@@ -226,7 +227,7 @@ export default async function ClienteDetailPage({
           {ventasPendientes.length === 1 ? (
             <Link
               href={`/comprobantes/${ventasPendientes[0].id}/cobro`}
-              className="flex min-h-11 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.1em] text-background uppercase transition-colors hover:bg-primary-hover"
+              className={`${BOTON_PRIMARIO} flex px-4`}
             >
               Registrar cobro
             </Link>

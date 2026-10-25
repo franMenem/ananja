@@ -56,17 +56,17 @@ export function FormularioEntrega({
       }}
       className="flex flex-col gap-5"
     >
-      <p className="text-xs text-text-muted">
+      <p className="text-[14px] text-text-muted">
         Para <span className="font-medium text-text">{vendedorNombre}</span>
       </p>
 
       {!soloDevolucion && (
-        <div className="flex gap-px bg-border">
+        <div className="flex gap-px overflow-hidden rounded-xl border border-border bg-border">
           <button
             type="button"
             onClick={() => onCambiarTipo("entrega")}
             aria-pressed={tipo === "entrega"}
-            className={`min-h-11 flex-1 px-3 text-sm font-medium ${
+            className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
               tipo === "entrega" ? "bg-primary text-background" : "bg-surface-raised text-text"
             }`}
           >
@@ -76,7 +76,7 @@ export function FormularioEntrega({
             type="button"
             onClick={() => onCambiarTipo("devolucion")}
             aria-pressed={tipo === "devolucion"}
-            className={`min-h-11 flex-1 px-3 text-sm font-medium ${
+            className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
               tipo === "devolucion" ? "bg-primary text-background" : "bg-surface-raised text-text"
             }`}
           >
@@ -86,14 +86,14 @@ export function FormularioEntrega({
       )}
 
       {tipo === "devolucion" && (
-        <p className="text-xs text-accent">
+        <p className="text-[14px] text-accent">
           Elegí siempre el lote del que salieron esas {envase(2)}. Por defecto aparece el de la
           última entrega a {vendedorNombre}.
         </p>
       )}
 
       <div className="flex flex-col gap-1">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Cantidades por producto
         </span>
         {productos.map((producto) => {
@@ -101,7 +101,7 @@ export function FormularioEntrega({
           return (
             <div key={producto.id} className="flex flex-col gap-2 border-b border-border py-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[14px] text-text">{producto.nombre}</span>
+                <span className="text-[16px] text-text">{producto.nombre}</span>
                 <CantidadStepper
                   value={cantidad}
                   onChange={(value) => onCambiarCantidad(producto.id, value)}
@@ -131,7 +131,7 @@ export function FormularioEntrega({
       </div>
 
       <div>
-        <label htmlFor="fecha" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="fecha" className="text-[13px] text-text-muted">
           Fecha
         </label>
         <input
@@ -140,12 +140,12 @@ export function FormularioEntrega({
           required
           value={fecha}
           onChange={(event) => onCambiarFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div>
-        <label htmlFor="nota" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="nota" className="text-[13px] text-text-muted">
           Nota (opcional)
         </label>
         <textarea
@@ -153,12 +153,12 @@ export function FormularioEntrega({
           value={nota}
           onChange={(event) => onCambiarNota(event.target.value)}
           rows={2}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       {error && !revisando && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -167,7 +167,7 @@ export function FormularioEntrega({
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {tipo === "entrega" ? "Revisar entrega" : "Guardar"}
       </BotonAccion>

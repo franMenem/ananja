@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -94,7 +95,7 @@ export function NuevoInsumoForm() {
       <div>
         <label
           htmlFor="nombre"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nombre
         </label>
@@ -105,22 +106,22 @@ export function NuevoInsumoForm() {
           value={nombre}
           onChange={(event) => setNombre(event.target.value)}
           placeholder="Ej. Tapa metálica"
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div>
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Tipo
         </span>
-        <div className="mt-1.5 grid grid-cols-3 gap-px bg-border">
+        <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
           {TIPOS.map((opcion) => (
             <button
               key={opcion}
               type="button"
               onClick={() => setTipo(opcion)}
               aria-pressed={tipo === opcion}
-              className={`min-h-[46px] px-2 text-[12px] font-medium transition-colors ${
+              className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
                 tipo === opcion ? "bg-primary text-background" : "bg-surface-raised text-text"
               }`}
             >
@@ -131,17 +132,17 @@ export function NuevoInsumoForm() {
       </div>
 
       <div>
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Unidad
         </span>
-        <div className="mt-1.5 grid grid-cols-3 gap-px bg-border">
+        <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
           {UNIDADES.map((opcion) => (
             <button
               key={opcion}
               type="button"
               onClick={() => setUnidad(opcion)}
               aria-pressed={unidad === opcion}
-              className={`min-h-[46px] px-2 text-[12px] font-medium transition-colors ${
+              className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
                 unidad === opcion ? "bg-primary text-background" : "bg-surface-raised text-text"
               }`}
             >
@@ -158,14 +159,14 @@ export function NuevoInsumoForm() {
           label="Umbral mínimo (opcional)"
           value={umbral}
           onChange={setUmbral}
-          labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
           inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
         />
       </div>
 
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -174,7 +175,7 @@ export function NuevoInsumoForm() {
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} px-4`}
       >
         Guardar insumo
       </BotonAccion>

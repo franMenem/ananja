@@ -25,7 +25,7 @@ export function ComprobantesTabs({ activa }: { activa: TabComprobantes }) {
             key={tab.id}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            className={`flex min-h-11 min-w-0 flex-1 items-center justify-center px-3 py-1.5 text-center text-[11px] leading-tight font-medium tracking-[0.1em] uppercase sm:flex-none sm:px-5 ${
+            className={`flex min-h-11 min-w-0 flex-1 items-center justify-center px-3 py-1.5 text-center text-[13px] leading-tight font-medium sm:flex-none sm:px-5 ${
               active ? "bg-primary text-background" : "border border-border text-text-muted"
             }`}
           >

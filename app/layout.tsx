@@ -1,20 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { NEGOCIO } from "@/lib/negocio";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es-AR"
       data-negocio={NEGOCIO.id}
-      className={`${dmSans.variable} ${instrumentSerif.variable} h-dvh antialiased`}
+      className={`${inter.variable} h-dvh antialiased`}
     >
       <body className="min-h-dvh flex flex-col bg-background text-text">
         {children}

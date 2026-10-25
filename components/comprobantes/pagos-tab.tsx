@@ -34,17 +34,17 @@ export async function PagosTab() {
   return (
     <div className="flex flex-col gap-5 pb-8">
       <div className="flex flex-col gap-0.5">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           {filas.length} {filas.length === 1 ? "pago" : "pagos"}
           {pendientes > 0 ? ` · ${pendientes} por confirmar` : ""}
         </span>
-        <h1 className="font-display hidden text-[38px] leading-[1.05] text-primary md:block">
+        <h1 className="font-display hidden text-[32px] leading-[1.05] text-primary md:block">
           Pagos de revendedores
         </h1>
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       ) : (

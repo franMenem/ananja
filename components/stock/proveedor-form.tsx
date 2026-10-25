@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -71,7 +72,7 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
       <div>
         <label
           htmlFor="proveedor-nombre"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nombre del proveedor
         </label>
@@ -85,30 +86,30 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
             setNombre(event.target.value);
             setExito(null);
           }}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
-        <p className="mt-1.5 text-[11px] leading-[1.5] text-text-muted">
+        <p className="mt-1.5 text-[13px] leading-[1.5] text-text-muted">
           Si lo dejás vacío, la app dice «el proveedor».
         </p>
       </div>
 
       <div className="flex flex-col gap-1 border-l-2 border-border bg-surface-raised p-4">
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Así se va a ver
         </span>
-        <p className="text-[13px] leading-[1.5] text-text">
+        <p className="text-[16px] leading-[1.5] text-text">
           &ldquo;+ Pedido {vistaPrevia.a}&rdquo; · &ldquo;{vistaPrevia.sujeto} te cobra los
           envases sin IVA&rdquo;
         </p>
       </div>
 
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
       {exito && (
-        <p role="status" className="text-[12px] text-secondary">
+        <p role="status" className="text-[14px] text-secondary">
           {exito}
         </p>
       )}
@@ -118,7 +119,7 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
         textoCargando="Guardando…"
         type="submit"
         disabled={sinCambios}
-        className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} px-4`}
       >
         Guardar
       </BotonAccion>

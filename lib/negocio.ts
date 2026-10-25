@@ -92,8 +92,8 @@ const ANANJA: NegocioConfig = {
   materiaPrima: { nombre: "aceite", unidad: "litro" },
   iconos: "/icons",
   colores: {
-    primary: "#2c2f25",
-    background: "#f4efea",
+    primary: "#c2410c",
+    background: "#f6f5f2",
   },
 };
 

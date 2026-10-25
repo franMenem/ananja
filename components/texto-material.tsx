@@ -24,7 +24,7 @@ export function TextoMaterial({ cuerpo }: { cuerpo: string }) {
         }
         if (bloque.tipo === "lista") {
           return (
-            <ul key={index} className="list-disc pl-5 text-sm text-text">
+            <ul key={index} className="list-disc pl-5 text-[16px] text-text">
               {bloque.items.map((item, itemIndex) => (
                 <li key={itemIndex}>{item}</li>
               ))}
@@ -32,7 +32,7 @@ export function TextoMaterial({ cuerpo }: { cuerpo: string }) {
           );
         }
         return (
-          <p key={index} className="text-sm text-text">
+          <p key={index} className="text-[16px] text-text">
             {bloque.texto}
           </p>
         );

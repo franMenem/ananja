@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useMemo, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -54,14 +55,14 @@ function Fila({
 }) {
   return (
     <div className="border-b border-border py-2.5">
-      <div className="flex items-baseline justify-between gap-3 text-[13px]">
+      <div className="flex items-baseline justify-between gap-3 text-[16px]">
         <span className="min-w-0 break-words text-text">
           {label}
-          {nota && <span className="text-[11px] text-text-muted"> · {nota}</span>}
+          {nota && <span className="text-[13px] text-text-muted"> · {nota}</span>}
         </span>
         <span className="shrink-0 text-text tabular-nums">{formatCentavos(monto)}</span>
       </div>
-      {detalle && <p className="mt-1 text-[11px] leading-snug text-text-muted">{detalle}</p>}
+      {detalle && <p className="mt-1 text-[13px] leading-snug text-text-muted">{detalle}</p>}
     </div>
   );
 }
@@ -106,7 +107,7 @@ function MontoReal({
       <button
         type="button"
         onClick={onAbrir}
-        className="min-h-11 self-start text-[12px] font-medium text-accent underline underline-offset-2"
+        className="min-h-11 self-start text-[14px] font-medium text-accent underline underline-offset-2"
       >
         {proveedor.sujeto} me cobró otro número
       </button>
@@ -118,13 +119,13 @@ function MontoReal({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           ¿Cuánto te cobraron en realidad?
         </span>
         <button
           type="button"
           onClick={onCerrar}
-          className="text-[11px] text-text-muted underline underline-offset-2"
+          className="text-[13px] text-text-muted underline underline-offset-2"
         >
           Usar el calculado
         </button>
@@ -136,7 +137,7 @@ function MontoReal({
         onChange={onChange}
         inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
       />
-      <p className="mt-1 text-[11px] leading-snug text-text-muted tabular-nums">
+      <p className="mt-1 text-[13px] leading-snug text-text-muted tabular-nums">
         Este número reemplaza el calculado ({formatCentavos(calculadoCentavos)}){" "}
         {afectaCosto
           ? `tanto en lo que le pagás ${proveedor.a} como en el costo de la botella.`
@@ -252,7 +253,7 @@ export function RevisionPedido({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="font-display text-[24px] leading-[1.15] text-primary">Revisá el pedido</h2>
-        <p className="pt-1.5 text-[12px] leading-[1.5] text-text-muted">
+        <p className="pt-1.5 text-[14px] leading-[1.5] text-text-muted">
           Lo que cuesta cada cosa y cuánto le pagás {proveedor.a}. Si te
           cobraron un monto redondeado, cargalo en &quot;Monto real&quot;: se ajusta lo
           que le pagás (y el transporte, si va por %) sin cambiar el costo de
@@ -263,14 +264,14 @@ export function RevisionPedido({
 
       {hayYaComprado && (
         <div className="flex flex-col">
-          <span className="pb-1 text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="pb-1 text-[13px] text-text-muted">
             Ya comprado — suma al costo, no se paga ahora
           </span>
           {/* Fran (dueño): en un mismo pedido todas las etiquetas van
               iguales — un solo aviso acá arriba en vez de repetir "+ IVA
               21%" como si cada renglón pudiera decidirlo por su cuenta. */}
           {calculo.etiquetas.length > 0 && !entrada.incluyeIva && (
-            <p className="pb-2 text-[11px] leading-snug text-text-muted">
+            <p className="pb-2 text-[13px] leading-snug text-text-muted">
               Pagaste las etiquetas sin IVA: el costo de cada una de abajo ya
               suma el 21%.
             </p>
@@ -300,11 +301,11 @@ export function RevisionPedido({
 
       {hayAPagar && (
         <div className="flex flex-col">
-          <span className="pb-1 text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="pb-1 text-[13px] text-text-muted">
             A pagar {proveedor.a}
           </span>
           {calculo.envases.length > 0 && sinIva && (
-            <p className="pb-2 text-[11px] leading-snug text-text-muted">
+            <p className="pb-2 text-[13px] leading-snug text-text-muted">
               {proveedor.sujeto} te cobra los envases sin IVA: el costo de cada uno de
               abajo ya suma el 21% — lo que le pagás no cambia.
             </p>
@@ -318,17 +319,17 @@ export function RevisionPedido({
             return (
               <div key={clave} className="flex flex-col gap-2 border-b border-border py-3">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="text-[14px] text-text">
+                  <span className="text-[16px] text-text">
                     Envasado {formatPresentacion(envase.presentacionMl)}
                   </span>
-                  <span className="text-[11px] text-text-muted tabular-nums">
+                  <span className="text-[13px] text-text-muted tabular-nums">
                     Costo {formatCentavos(envase.totalCentavos)} · A pagar{" "}
                     <strong className="font-medium text-primary">
                       {formatCentavos(envase.aPagarCentavos)}
                     </strong>
                   </span>
                 </div>
-                <p className="text-[11px] leading-snug text-text-muted tabular-nums">
+                <p className="text-[13px] leading-snug text-text-muted tabular-nums">
                   Pago:{" "}
                   {notaEnvasePedido(
                     envase,
@@ -338,7 +339,7 @@ export function RevisionPedido({
                     entrada.envaseCobradoSinIva,
                   )}
                 </p>
-                <p className="text-[11px] leading-snug text-text-muted tabular-nums">
+                <p className="text-[13px] leading-snug text-text-muted tabular-nums">
                   Costo: {notaCostoEnvasePedido(envase, precioCostoCargado, entrada.ivaPct, sinIva)}
                 </p>
                 <MontoReal
@@ -357,15 +358,15 @@ export function RevisionPedido({
           {calculo.transporte?.modo === "porcentaje" && (
             <div className="flex flex-col gap-2 border-b border-border py-3">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <span className="text-[14px] text-text">Transporte {calculo.transporte.pct}%</span>
-                <span className="text-[11px] text-text-muted tabular-nums">
+                <span className="text-[16px] text-text">Transporte {calculo.transporte.pct}%</span>
+                <span className="text-[13px] text-text-muted tabular-nums">
                   A pagar{" "}
                   <strong className="font-medium text-primary">
                     {formatCentavos(calculo.transporte.aPagarCentavos)}
                   </strong>
                 </span>
               </div>
-              <p className="text-[11px] leading-snug text-text-muted tabular-nums">
+              <p className="text-[13px] leading-snug text-text-muted tabular-nums">
                 {notaTransportePctPedido(calculo.transporte)}
               </p>
               <MontoReal
@@ -394,7 +395,7 @@ export function RevisionPedido({
           )}
 
           <div className="flex items-baseline justify-between gap-3 pt-3">
-            <span className="text-[11px] tracking-[0.14em] text-text-muted uppercase">
+            <span className="text-[13px] text-text-muted">
               Total a pagar
             </span>
             <span className="font-display text-[26px] leading-none text-primary tabular-nums">
@@ -406,14 +407,14 @@ export function RevisionPedido({
 
       {calculo.presentaciones.some((p) => p.totalCentavos > 0) && (
         <div className="flex flex-col gap-1.5 border-l-2 border-mark bg-surface-raised p-4">
-          <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Costo por {NEGOCIO.envase.singular}
           </span>
           {calculo.presentaciones.map((p) => {
             const hayRedondeo = p.precios.costoAnanjaCentavos !== p.precios.costoAnanjaCalculadoCentavos;
             return (
               <div key={p.productoId} className="flex flex-col gap-0.5">
-                <p className="text-[13px] leading-snug tabular-nums text-text">
+                <p className="text-[16px] leading-snug tabular-nums text-text">
                   {variasPresentaciones ? `${formatPresentacion(p.presentacionMl)}: ` : ""}
                   Costo de producción{" "}
                   <strong className="font-medium text-primary">
@@ -425,7 +426,7 @@ export function RevisionPedido({
                   </strong>
                 </p>
                 {hayRedondeo && (
-                  <p className="pl-1 text-[11px] leading-snug tabular-nums text-text-muted">
+                  <p className="pl-1 text-[13px] leading-snug tabular-nums text-text-muted">
                     Calculado {formatCentavos(p.precios.costoAnanjaCalculadoCentavos)} — redondeado en
                     &quot;Costos del pedido&quot;.
                   </p>
@@ -437,7 +438,7 @@ export function RevisionPedido({
       )}
 
       {(errorLocal ?? error) && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {errorLocal ?? error}
         </p>
       )}
@@ -447,7 +448,7 @@ export function RevisionPedido({
           type="button"
           onClick={onVolver}
           disabled={saving}
-          className="min-h-14 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase disabled:opacity-45"
+          className="min-h-14 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
         >
           Volver a editar
         </button>
@@ -456,7 +457,7 @@ export function RevisionPedido({
           textoCargando="Guardando…"
           type="button"
           onClick={confirmar}
-          className="min-h-14 flex-[1.4] bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className={`${BOTON_PRIMARIO} flex-[1.4] px-4`}
         >
           Confirmar
         </BotonAccion>

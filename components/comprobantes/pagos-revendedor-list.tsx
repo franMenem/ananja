@@ -1,5 +1,6 @@
 "use client";
 
+import { Pastilla } from "@/components/ui/pastilla";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -54,10 +55,10 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
     return (
       <div className="flex flex-col items-center px-8 py-16 text-center">
         <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-        <p className="font-display mt-5 text-[28px] leading-[1.2] text-primary text-balance md:text-[30px]">
+        <p className="font-display mt-5 text-[28px] leading-[1.2] text-primary text-balance md:text-[32px]">
           Todavía no hay pagos de revendedores.
         </p>
-        <p className="mt-3.5 max-w-md text-[13px] leading-[1.6] text-text-muted text-balance">
+        <p className="mt-3.5 max-w-md text-[16px] leading-[1.6] text-text-muted text-balance">
           Cuando una revendedora informe un pago desde su celular, lo vas a ver acá con su
           comprobante, a quién se lo pagó y si ya lo confirmaron.
         </p>
@@ -76,7 +77,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
               type="button"
               onClick={() => setFiltro(f.value)}
               aria-pressed={active}
-              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[11px] tracking-[0.1em] uppercase transition-colors ${
+              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[13px] transition-colors ${
                 active ? "bg-primary text-background" : "border border-border text-text-muted"
               }`}
             >
@@ -87,7 +88,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
       </div>
 
       {filtradas.length === 0 ? (
-        <p className="py-6 text-center text-sm text-text-muted">
+        <p className="py-6 text-center text-[16px] text-text-muted">
           {filtro === "todos" ? "No hay pagos." : MENSAJE_FILTRO_VACIO[filtro]}
         </p>
       ) : (
@@ -95,7 +96,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
           {grupos.map(([grupo, items]) => (
             <div key={grupo}>
               <div className="pt-3 pb-1">
-                <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+                <span className="text-[13px] text-text-muted">
                   {grupo}
                 </span>
               </div>
@@ -126,21 +127,23 @@ function FilaPago({ row }: { row: PagoRevendedorItem }) {
         <span className="font-display text-[26px] leading-none break-all text-primary tabular-nums">
           {formatCentavos(row.montoCentavos)}
         </span>
-        <span className="text-[13px] break-words text-text">
+        <span className="text-[16px] break-words text-text">
           {row.quienPago} <span aria-hidden="true">→</span>
           <span className="sr-only"> a </span> {row.destino}
         </span>
-        <span className="text-xs break-words text-text-muted">
+        <span className="text-[14px] break-words text-text-muted">
           {etiquetaMedioPago(row.medioPago)} · {formatDiaMesAbrev(row.fecha)} ·{" "}
-          <span className={row.estado === "confirmado" ? undefined : "font-medium text-accent"}>
+          <Pastilla
+            variante={row.estado === "confirmado" ? "ok" : row.estado === "pendiente" ? "confirmar" : "debe"}
+          >
             {textoEstadoPago(row)}
-          </span>
+          </Pastilla>
         </span>
         {row.estado === "rechazado" && row.motivoRechazo && (
-          <span className="text-xs break-words text-accent">Motivo: {row.motivoRechazo}</span>
+          <span className="text-[14px] break-words text-accent">Motivo: {row.motivoRechazo}</span>
         )}
         {row.nota && (
-          <span className="line-clamp-2 text-xs break-words text-text-muted italic">
+          <span className="line-clamp-2 text-[14px] break-words text-text-muted italic">
             “{row.nota}”
           </span>
         )}

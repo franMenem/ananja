@@ -32,7 +32,7 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Buscar cliente…"
-        className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary"
+        className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
       />
 
       {filtered.length === 0 ? (
@@ -42,13 +42,13 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
             <p className="font-display mt-5 text-[26px] leading-[1.2] text-primary text-balance">
               Todavía no cargaste ningún cliente.
             </p>
-            <p className="mt-3.5 text-[13px] leading-[1.6] text-text-muted text-balance">
+            <p className="mt-3.5 text-[16px] leading-[1.6] text-text-muted text-balance">
               Dale de alta a un cliente para llevar su historial de compras
               automáticamente.
             </p>
           </div>
         ) : (
-          <p className="py-6 text-center text-sm text-text-muted">
+          <p className="py-6 text-center text-[16px] text-text-muted">
             No hay clientes que coincidan.
           </p>
         )
@@ -64,7 +64,7 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
                   <span className="font-display text-[19px] text-primary">
                     {cliente.nombre}
                   </span>
-                  <span className="truncate text-xs text-text-muted">
+                  <span className="truncate text-[14px] text-text-muted">
                     {cliente.telefono || "—"}
                   </span>
                 </div>
@@ -73,11 +73,11 @@ export function ClientesList({ clientes }: { clientes: ClienteConStats[] }) {
                     {formatCentavos(cliente.totalCentavos)}
                   </span>
                   {cliente.deudaCentavos > 0 ? (
-                    <span className="text-[11px] font-medium text-accent">
+                    <span className="text-[13px] font-medium text-accent">
                       Debe {formatCentavos(cliente.deudaCentavos)}
                     </span>
                   ) : (
-                    <span className="text-[11px] text-text-muted">
+                    <span className="text-[13px] text-text-muted">
                       {cliente.ultimaCompra
                         ? `Última compra ${formatFecha(cliente.ultimaCompra)}`
                         : "Sin compras"}

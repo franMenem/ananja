@@ -1,3 +1,4 @@
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { formatFecha } from "@/lib/fechas";
@@ -24,15 +25,15 @@ export function AvisoPagoRechazado({ montoCentavos, fecha, motivo }: AvisoPagoRe
         className="mx-auto mb-6 flex w-full max-w-[720px] flex-col gap-2 border-l-2 border-accent bg-surface-raised px-4 py-3 sm:flex-row sm:items-center sm:justify-between @3xl:max-w-[1240px]"
       >
         <div className="flex min-w-0 flex-col">
-          <span className="text-[9px] font-medium tracking-[0.14em] text-accent uppercase">Pago rechazado</span>
-          <span className="text-sm break-words text-text">
+          <span className="text-[13px] font-medium text-accent">Pago rechazado</span>
+          <span className="text-[16px] break-words text-text">
             No te confirmaron el pago de {formatCentavos(montoCentavos)} del {formatFecha(fecha)}.
           </span>
-          {motivo && <span className="text-[13px] break-words text-text-muted">Motivo: {motivo}</span>}
+          {motivo && <span className="text-[16px] break-words text-text-muted">Motivo: {motivo}</span>}
         </div>
         <Link
           href="/mi/pagar"
-          className="flex min-h-11 shrink-0 items-center justify-center bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex shrink-0 px-4`}
         >
           Volver a pagar
         </Link>

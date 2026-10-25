@@ -105,19 +105,19 @@ export function SeccionVentas({
           className={CAMPO}
         />
         {conEntrega && fechaSinDefault === null && (
-          <p className="mt-1 text-[11px] text-text-muted">La misma fecha de la entrega.</p>
+          <p className="mt-1 text-[13px] text-text-muted">La misma fecha de la entrega.</p>
         )}
       </div>
 
       {tomaDirecto && (
-        <p className="text-[12px] text-text-muted">
+        <p className="text-[14px] text-text-muted">
           {vendedorNombre} agarra directo del depósito: lo que venda de más de lo que tiene se saca
           solo del depósito y queda anotado como entrega automática.
         </p>
       )}
 
       {productosVenta.length === 0 ? (
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           {vendedorNombre} no tiene {envase(2)} para vender.
           {!conEntrega && " Si se llevó algunas, sumá la entrega arriba."}
         </p>
@@ -135,8 +135,8 @@ export function SeccionVentas({
           return (
             <div key={p.id} className="flex flex-col gap-3 border-b border-border pb-4">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <span className="min-w-0 break-words text-[15px] text-text">{p.nombre}</span>
-                <span className="text-[11px] text-text-muted">
+                <span className="min-w-0 break-words text-[16px] text-text">{p.nombre}</span>
+                <span className="text-[13px] text-text-muted">
                   Va a tener {disp}
                   {deEstaEntrega > 0 ? ` (${deEstaEntrega} de esta entrega)` : ""}
                 </span>
@@ -144,7 +144,7 @@ export function SeccionVentas({
               {lineasProducto.map((l, i) => (
                 <div key={l.id} className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-[12px] text-text-muted">
+                    <span className="text-[14px] text-text-muted">
                       {i === 0 ? "Vendidas" : "Otras vendidas"}
                     </span>
                     <CantidadStepper
@@ -204,7 +204,7 @@ export function SeccionVentas({
                         cajaClassName={`${CAJA_MONTO} ${l.sinPrecio ? "opacity-45" : ""}`}
                         inputClassName={INPUT_MONTO}
                       />
-                      <label className="flex min-h-11 items-center gap-2 text-sm text-text">
+                      <label className="flex min-h-11 items-center gap-2 text-[16px] text-text">
                         <input
                           type="checkbox"
                           checked={l.sinPrecio}
@@ -243,7 +243,7 @@ export function SeccionVentas({
       )}
 
       {delDeposito.length > 0 && (
-        <div className="flex flex-col gap-1 border-y border-border py-3 text-sm">
+        <div className="flex flex-col gap-1 border-y border-border py-3 text-[16px]">
           {delDeposito.map((d) => (
             <p key={d.productoId} className="text-text">
               {d.cantidad} {envase(d.cantidad)} de{" "}
@@ -257,7 +257,7 @@ export function SeccionVentas({
       <div className="flex flex-col gap-2">
         <MedioPagoChips value={medioPago} onChange={onCambiarMedioPago} />
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[11px] text-text-muted">Medio de pago opcional</span>
+          <span className="text-[13px] text-text-muted">Medio de pago opcional</span>
           {medioPago !== null && (
             <button
               type="button"

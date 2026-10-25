@@ -48,7 +48,7 @@ export function RevisionEntrega({
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-xs text-text-muted">
+      <p className="text-[14px] text-text-muted">
         Para <span className="font-medium text-text">{vendedorNombre}</span> · {formatFecha(fecha)}.
         Revisá cuánto le cobrás por cada {envase(1)} que venda y a cuánto le sugerimos venderla.
       </p>
@@ -61,18 +61,18 @@ export function RevisionEntrega({
           return (
             <div key={fila.clave} className="flex flex-col gap-3 border-b border-border py-4">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0 break-words text-[15px] font-medium text-text">
+                <span className="min-w-0 break-words text-[16px] font-medium text-text">
                   {nombrePorProducto.get(fila.productoId) ?? "?"}
                 </span>
                 <span className="shrink-0 tabular-nums text-text">
                   {fila.cantidad} {envase(fila.cantidad)}
                 </span>
               </div>
-              <span className="text-[11px] text-text-muted">
+              <span className="text-[13px] text-text-muted">
                 {lote ? `Lote del ${formatFecha(lote.fecha)}` : "Sin lote elegido"}
               </span>
 
-              <div className="flex items-baseline justify-between gap-3 text-[13px]">
+              <div className="flex items-baseline justify-between gap-3 text-[16px]">
                 <span className="text-text-muted">Costo {NEGOCIO.nombre} (lote)</span>
                 <span className="shrink-0 tabular-nums text-text">
                   {fila.costoLote !== null ? formatCentavos(fila.costoLote) : "Sin costo cargado"}
@@ -88,7 +88,7 @@ export function RevisionEntrega({
                   required
                   placeholder="$ 0,00"
                   simbolo={null}
-                  labelClassName="block text-[10px] tracking-[0.18em] text-text-muted uppercase"
+                  labelClassName="block text-[13px] text-text-muted"
                   cajaClassName="mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
                   inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
                 />
@@ -99,21 +99,21 @@ export function RevisionEntrega({
                   onChange={(value) => onActualizarFila(fila.clave, "sugerido", value)}
                   placeholder="$ 0,00"
                   simbolo={null}
-                  labelClassName="block text-[10px] tracking-[0.18em] text-text-muted uppercase"
+                  labelClassName="block text-[13px] text-text-muted"
                   cajaClassName="mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
                   inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
                 />
               </div>
 
               {fila.sinCostosDelLote && (
-                <p className="text-[11px] text-accent">
+                <p className="text-[13px] text-accent">
                   {lote
                     ? "Este lote todavía no tiene costos cargados: completá a mano cuánto le cobrás."
                     : "Sin lote no hay costo para precargar: completá a mano cuánto le cobrás."}
                 </p>
               )}
               {costo !== null && sugerido !== null && sugerido < costo && (
-                <p className="text-[11px] text-accent">
+                <p className="text-[13px] text-accent">
                   Ojo: el precio sugerido es menor a lo que le cobrás.
                 </p>
               )}
@@ -122,13 +122,13 @@ export function RevisionEntrega({
         })}
       </div>
 
-      <p className="text-sm text-text">
+      <p className="text-[16px] text-text">
         Si vende todo, le va a deber{" "}
         <span className="font-medium tabular-nums">{formatCentavos(totalCentavos)}</span>.
       </p>
 
       {error && (
-        <p role="alert" className="text-sm text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
@@ -147,7 +147,7 @@ export function RevisionEntrega({
             textoCargando="Guardando…"
             type="button"
             onClick={onConfirmar}
-            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
           >
             Confirmar entrega
           </BotonAccion>
@@ -155,7 +155,7 @@ export function RevisionEntrega({
             type="button"
             onClick={onVolverAEditar}
             disabled={saving || avisoBuscando}
-            className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[16px] font-medium text-text-muted disabled:opacity-45"
           >
             Volver a editar
           </button>

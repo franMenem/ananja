@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -106,7 +107,7 @@ export function CobroForm({ comprobanteId, deudaCentavos, volverA }: CobroFormPr
       />
 
       {formError && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {formError}
         </p>
       )}
@@ -115,7 +116,7 @@ export function CobroForm({ comprobanteId, deudaCentavos, volverA }: CobroFormPr
         cargando={submitting}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={BOTON_PRIMARIO}
       >
         Registrar cobro
       </BotonAccion>

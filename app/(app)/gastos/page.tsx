@@ -1,5 +1,8 @@
 "use client";
 
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Tarjeta } from "@/components/ui/tarjeta";
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -89,36 +92,27 @@ export default function GastosPage() {
 
   return (
     <div className="flex flex-col pb-8">
-      {/* Bloque oliva: sangra hasta los bordes del viewport, continuando la
-          cabecera fija (design/handoff README § Chrome compartido / bloque oliva de total). */}
-      <div className="-mx-5 -mt-4 flex flex-col gap-1 bg-primary px-5 pt-[14px] pb-5 lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:flex-row lg:items-end lg:justify-between lg:px-[var(--page-px)] lg:pt-[26px] lg:pb-[22px]">
-        <div>
-          <span className="text-[10px] tracking-[0.22em] text-on-primary-muted uppercase">
-            Gastado en {NOMBRES_MES_MAYUS[Number(mesHeader.slice(5, 7)) - 1].toLowerCase()}
-          </span>
-          <p className="font-display text-[32px] leading-[1] text-background tabular-nums md:text-[40px]">
-            {formatCentavos(totalMesCentavos)}
-          </p>
-        </div>
+      <Tarjeta className="mb-4 flex flex-col gap-1 lg:flex-row lg:items-end lg:justify-between">
+        <NumeroGrande
+          etiqueta={`Gastado en ${NOMBRES_MES_MAYUS[Number(mesHeader.slice(5, 7)) - 1].toLowerCase()}`}
+        >
+          {formatCentavos(totalMesCentavos)}
+        </NumeroGrande>
         <div className="flex items-center gap-6">
           {categoriaMasPesada && (
             <div className="hidden md:block">
-              <span className="text-[10px] tracking-[0.14em] text-on-primary-muted uppercase">
-                Categoría más pesada
-              </span>
-              <p className="font-display text-lg text-background">
-                {categoriaMasPesada}
-              </p>
+              <span className="text-[15px] text-text-muted">Categoría más pesada</span>
+              <p className="font-display text-lg text-text">{categoriaMasPesada}</p>
             </div>
           )}
-          <span className="text-[11px] text-on-primary-muted md:self-end">
+          <span className="text-[14px] text-text-muted md:self-end">
             {gastos.length} registro{gastos.length === 1 ? "" : "s"}
           </span>
         </div>
-      </div>
+      </Tarjeta>
 
       <div className="hidden items-center justify-between gap-3 py-6 md:flex">
-        <h1 className="font-display text-[38px] leading-[1.05] text-primary">
+        <h1 className="font-display text-[28px] leading-[1.05] text-primary">
           Gastos
         </h1>
         <div className="flex items-center gap-4">
@@ -127,10 +121,10 @@ export default function GastosPage() {
               que siempre exhibe "MM/AAAA ▾" y el input queda invisible
               encima, capturando el click para abrir el selector nativo. */}
           <div className="relative inline-flex min-h-[38px] cursor-pointer items-center gap-2 border border-border px-3">
-            <span className="font-heading text-sm text-text tabular-nums">
+            <span className="font-heading text-[16px] text-text tabular-nums">
               {mesHeader.slice(5, 7)}/{mesHeader.slice(0, 4)}
             </span>
-            <span aria-hidden="true" className="text-[10px] text-text-muted">
+            <span aria-hidden="true" className="text-[13px] text-text-muted">
               ▾
             </span>
             <input
@@ -143,7 +137,7 @@ export default function GastosPage() {
           </div>
           <Link
             href="/gastos/nuevo"
-            className="flex min-h-[46px] items-center justify-center bg-primary px-5 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className="flex min-h-[46px] items-center justify-center bg-primary px-5 text-[16px] font-medium text-background transition-colors hover:bg-primary-hover rounded-xl"
           >
             + Registrar gasto
           </Link>
@@ -155,7 +149,7 @@ export default function GastosPage() {
         <button
           type="button"
           onClick={() => setCategoriaFiltro("")}
-          className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[12px] font-medium tracking-[0.06em] uppercase ${
+          className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[14px] font-medium ${
             categoriaFiltro === ""
               ? "bg-primary text-background"
               : "border border-border text-text"
@@ -168,7 +162,7 @@ export default function GastosPage() {
             key={categoria.id}
             type="button"
             onClick={() => setCategoriaFiltro(categoria.id)}
-            className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[12px] font-medium tracking-[0.06em] uppercase ${
+            className={`min-h-[38px] shrink-0 whitespace-nowrap px-4 text-[14px] font-medium ${
               categoriaFiltro === categoria.id
                 ? "bg-primary text-background"
                 : "border border-border text-text"
@@ -180,13 +174,13 @@ export default function GastosPage() {
       </div>
 
       {error && (
-        <p role="alert" className="mb-3 text-sm text-accent">
+        <p role="alert" className="mb-3 text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {loading ? (
-        <p className="py-6 text-sm text-text-muted">Cargando…</p>
+        <p className="py-6 text-[16px] text-text-muted">Cargando…</p>
       ) : gastos.length === 0 ? (
         <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
           <span aria-hidden="true" className="h-0.5 w-10 bg-mark" />
@@ -196,14 +190,14 @@ export default function GastosPage() {
               : "Todavía no registraste ningún gasto."}
           </p>
           {!hayFiltro && (
-            <p className="max-w-sm text-[13px] leading-[1.6] text-text-muted">
+            <p className="max-w-sm text-[16px] leading-[1.6] text-text-muted">
               Cuando registres el primero, acá vas a ver el monto, la
               categoría y quién lo cargó.
             </p>
           )}
           <Link
             href="/gastos/nuevo"
-            className="mt-2 flex min-h-[52px] items-center justify-center bg-primary px-6 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+            className={`${BOTON_PRIMARIO} mt-2 flex px-6`}
           >
             + Registrar {hayFiltro ? "un gasto" : "el primero"}
           </Link>
@@ -213,7 +207,7 @@ export default function GastosPage() {
           {/* Tabla — escritorio */}
           <div className="hidden md:block">
           <div className="overflow-x-auto">
-            <div className="min-w-[590px] grid grid-cols-[82px_minmax(120px,1fr)_108px_100px_minmax(0,120px)_90px] gap-4 border-b border-border pb-2 text-[10px] tracking-[0.16em] text-text-muted uppercase">
+            <div className="min-w-[590px] grid grid-cols-[82px_minmax(120px,1fr)_108px_100px_minmax(0,120px)_90px] gap-4 border-b border-border pb-2 text-[13px] text-text-muted">
               <span>Fecha</span>
               <span>Concepto</span>
               <span className="text-right">Monto</span>
@@ -227,7 +221,7 @@ export default function GastosPage() {
               <Link
                 key={gasto.id}
                 href={`/gastos/${gasto.id}`}
-                className="min-w-[590px] grid grid-cols-[82px_minmax(120px,1fr)_108px_100px_minmax(0,120px)_90px] items-center gap-4 border-b border-border py-[11px] text-sm hover:bg-border/30"
+                className="min-w-[590px] grid grid-cols-[82px_minmax(120px,1fr)_108px_100px_minmax(0,120px)_90px] items-center gap-4 border-b border-border py-[11px] text-[16px] hover:bg-border/30"
               >
                 <span className="whitespace-nowrap text-text-muted">
                   {formatFecha(gasto.fecha)}
@@ -235,7 +229,7 @@ export default function GastosPage() {
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate text-text">{titulo}</span>
                   {categoria && (
-                    <span className="truncate text-[11px] text-text-muted">{categoria}</span>
+                    <span className="truncate text-[13px] text-text-muted">{categoria}</span>
                   )}
                 </span>
                 <span className="whitespace-nowrap text-right font-medium text-accent tabular-nums">
@@ -249,7 +243,7 @@ export default function GastosPage() {
                 </span>
                 <span className="whitespace-nowrap">
                   {!gasto.imagen_path && (
-                    <span className="border border-accent px-1.5 py-0.5 text-[9px] tracking-[0.12em] text-accent uppercase">
+                    <span className="border border-accent px-1.5 py-0.5 text-[13px] text-accent">
                       Sin factura
                     </span>
                   )}
@@ -264,7 +258,7 @@ export default function GastosPage() {
           <div className="flex flex-col md:hidden">
             {grupos.map(([mes, items]) => (
               <div key={mes} className="flex flex-col">
-                <span className="pt-2 pb-1 text-[10px] tracking-[0.22em] text-text-muted uppercase">
+                <span className="pt-2 pb-1 text-[13px] text-text-muted">
                   {mes}
                 </span>
                 {items.map((gasto) => {
@@ -287,12 +281,12 @@ export default function GastosPage() {
                           {titulo}
                         </span>
                         {!gasto.imagen_path && (
-                          <span className="shrink-0 border border-accent px-1 text-[9px] tracking-[0.1em] text-accent uppercase">
+                          <span className="shrink-0 border border-accent px-1 text-[13px] text-accent">
                             Sin factura
                           </span>
                         )}
                       </span>
-                      <span className="block text-[11px] text-text-muted">
+                      <span className="block text-[13px] text-text-muted">
                         {categoria ? `${categoria} · ` : ""}
                         {etiquetaMedioPago(gasto.medio_pago)} ·{" "}
                         {gasto.vendedores?.nombre ?? "—"} ·{" "}
@@ -310,7 +304,7 @@ export default function GastosPage() {
 
             <Link
               href="/gastos/nuevo"
-              className="mt-6 flex min-h-[52px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover"
+              className={`${BOTON_PRIMARIO} mt-6 flex`}
             >
               + Registrar gasto
             </Link>

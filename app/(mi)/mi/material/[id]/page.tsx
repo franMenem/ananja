@@ -23,7 +23,7 @@ export default async function MiMaterialDetallePage({
     return (
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
         <VolverLink href="/mi/material" label="material" hover={false} />
-        <p className="text-sm text-text-muted">No encontramos este material.</p>
+        <p className="text-[16px] text-text-muted">No encontramos este material.</p>
       </div>
     );
   }

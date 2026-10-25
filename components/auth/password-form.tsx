@@ -73,18 +73,18 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
   const inputType = visible ? "text" : "password";
   const inputClass = (valor: string) =>
     `min-h-11 w-full border-0 border-b bg-transparent pr-2 text-base text-text ${
-      visible ? "" : "tracking-[0.1em]"
+      visible ? "" : ""
     } ${valor ? "border-primary" : "border-border"} focus:border-primary`;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">{etiqueta}</span>
+        <span className="text-[13px] text-text-muted">{etiqueta}</span>
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-pressed={visible}
-          className="flex min-h-11 items-center text-[11px] tracking-[0.14em] text-primary uppercase underline-offset-4 hover:underline"
+          className="flex min-h-11 items-center text-[13px] text-primary underline-offset-4 hover:underline"
         >
           {visible ? "Ocultar" : "Mostrar"}
         </button>
@@ -94,7 +94,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="password-actual"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Contraseña actual
           </label>
@@ -109,14 +109,14 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
             className={inputClass(passwordActual)}
             placeholder="••••••••"
           />
-          <p className="text-xs text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Si la olvidaste, cerrá sesión y usá “¿Olvidaste tu contraseña?”.
           </p>
         </div>
       )}
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="password" className="text-[13px] text-text-muted">
           Contraseña
         </label>
         <input
@@ -131,11 +131,11 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
           className={inputClass(password)}
           placeholder="••••••••"
         />
-        <p className="text-xs text-text-muted">Mínimo {PASSWORD_MIN_LENGTH} caracteres.</p>
+        <p className="text-[14px] text-text-muted">Mínimo {PASSWORD_MIN_LENGTH} caracteres.</p>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="confirmacion" className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+        <label htmlFor="confirmacion" className="text-[13px] text-text-muted">
           Repetí la contraseña
         </label>
         <input
@@ -153,7 +153,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
       </div>
 
       {error && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -161,7 +161,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
         {loading ? "Guardando…" : textoBoton}
       </button>

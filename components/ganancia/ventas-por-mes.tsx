@@ -36,7 +36,7 @@ export function VentasPorMes({ datosGraficos }: { datosGraficos: DatosGraficos }
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center gap-2.5">
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Ventas por mes</span>
+        <span className="text-[13px] text-text-muted">Ventas por mes</span>
         <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
       </div>
       <GraficoLineas series={series} />

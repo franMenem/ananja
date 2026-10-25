@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -203,14 +204,14 @@ export function CostosLoteForm({
           />
 
           {error && (
-            <p role="alert" className="text-[12px] text-accent">
+            <p role="alert" className="text-[14px] text-accent">
               {error}
             </p>
           )}
 
           <button
             type="submit"
-            className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} px-4`}
           >
             Guardar costos
           </button>

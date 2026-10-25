@@ -61,7 +61,7 @@ export default async function DepositarPage({
   if (personas.length === 0) {
     return (
       <div className="mx-auto w-full max-w-[720px]">
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           No hay personas activas para registrar un depósito.
         </p>
       </div>

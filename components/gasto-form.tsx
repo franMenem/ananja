@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -215,10 +216,10 @@ export function GastoForm({ volverA }: GastoFormProps) {
         onChange={setMonto}
         required
         placeholder="0,00"
-        labelClassName="text-[10px] tracking-[0.22em] text-text-muted uppercase"
+        labelClassName="text-[13px] text-text-muted"
         cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
         simboloClassName="font-display text-[22px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[42px] text-primary tabular-nums"
+        inputClassName="font-display w-full min-w-0 bg-transparent text-[40px] text-primary tabular-nums"
       />
 
       <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
@@ -226,13 +227,13 @@ export function GastoForm({ volverA }: GastoFormProps) {
       <MedioPagoChips value={medioPago} onChange={setMedioPago} />
 
       {!vendedorLoading && vendedor && (
-        <p className="text-xs text-text-muted">
+        <p className="text-[14px] text-text-muted">
           Registrando como{" "}
           <span className="font-medium">{vendedor.nombre}</span>
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Tu usuario no está vinculado a un vendedor. Pedile al dueño que
           te dé de alta desde el dashboard de Supabase.
         </p>
@@ -241,7 +242,7 @@ export function GastoForm({ volverA }: GastoFormProps) {
       <div>
         <label
           htmlFor="fecha"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Fecha
         </label>
@@ -251,14 +252,14 @@ export function GastoForm({ volverA }: GastoFormProps) {
           required
           value={fecha}
           onChange={(event) => setFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div>
         <label
           htmlFor="nota"
-          className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="text-[13px] text-text-muted"
         >
           Nota (opcional)
         </label>
@@ -267,33 +268,33 @@ export function GastoForm({ volverA }: GastoFormProps) {
           value={nota}
           onChange={(event) => setNota(event.target.value)}
           rows={3}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
         />
       </div>
 
       <div>
-        <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+        <span className="text-[13px] text-text-muted">
           Foto (opcional)
         </span>
-        <div className="mt-1.5 flex min-h-[150px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center">
+        <div className="mt-1.5 flex min-h-[150px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center rounded-xl">
           <IconExpense className="h-[30px] w-[30px] text-text-muted" />
-          <span className="text-[12px] tracking-[0.1em] text-text-muted uppercase">
+          <span className="text-[14px] text-text-muted">
             {foto ? foto.name : "Ningún comprobante elegido"}
           </span>
         </div>
 
-        <div className="mt-1.5 grid grid-cols-2 gap-px bg-border">
+        <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
           >
             Sacar foto
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[11px] font-medium tracking-[0.12em] text-primary uppercase"
+            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
           >
             Subir archivo
           </button>
@@ -320,14 +321,14 @@ export function GastoForm({ volverA }: GastoFormProps) {
           className="sr-only"
         />
         {fotoError && (
-          <p role="alert" className="mt-1 text-sm text-accent">
+          <p role="alert" className="mt-1 text-[16px] text-accent">
             {fotoError}
           </p>
         )}
       </div>
 
       {error && (
-        <p role="alert" className="text-[12px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           {error}
         </p>
       )}
@@ -336,7 +337,7 @@ export function GastoForm({ volverA }: GastoFormProps) {
         cargando={saving}
         textoCargando="Guardando…"
         type="submit"
-        className="min-h-14 bg-primary px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} px-4`}
       >
         {error ? "Reintentar" : "Guardar gasto"}
       </BotonAccion>

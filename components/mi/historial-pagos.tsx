@@ -1,14 +1,15 @@
 import Link from "next/link";
 
+import { Pastilla, type VariantePastilla } from "@/components/ui/pastilla";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { ESTADO_PAGO_LABELS, type MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 
-const COLOR_ESTADO: Record<MovimientoPago["estado"], string> = {
-  pendiente: "text-mark",
-  confirmado: "text-secondary",
-  rechazado: "text-accent",
+const VARIANTE_ESTADO: Record<MovimientoPago["estado"], VariantePastilla> = {
+  pendiente: "confirmar",
+  confirmado: "ok",
+  rechazado: "debe",
 };
 
 type HistorialPagosProps = {
@@ -30,7 +31,7 @@ export function HistorialPagos({ movimientos, limite, vacio, hrefPago }: Histori
   const filas = limite ? movimientos.slice(0, limite) : movimientos;
 
   if (filas.length === 0) {
-    return <p className="py-2 text-sm text-text-muted">{vacio}</p>;
+    return <p className="py-2 text-[16px] text-text-muted">{vacio}</p>;
   }
 
   return (
@@ -39,18 +40,18 @@ export function HistorialPagos({ movimientos, limite, vacio, hrefPago }: Histori
         const contenido = (
           <>
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-sm text-text">
+              <span className="text-[16px] text-text">
                 {formatFecha(m.fecha)} · {MEDIO_PAGO_LABELS[m.medioPago]}
               </span>
-              <span className="shrink-0 text-sm font-medium tabular-nums text-text">
+              <span className="shrink-0 text-[16px] font-medium tabular-nums text-text">
                 {formatCentavos(m.montoCentavos)}
               </span>
             </div>
-            <span className={`text-[11px] tracking-[0.08em] uppercase ${COLOR_ESTADO[m.estado]}`}>
+            <Pastilla variante={m.origen === "rendicion" ? "neutra" : VARIANTE_ESTADO[m.estado]} className="w-fit">
               {m.origen === "rendicion" ? "Registrado por un admin" : ESTADO_PAGO_LABELS[m.estado]}
-            </span>
+            </Pastilla>
             {m.estado === "rechazado" && m.motivoRechazo && (
-              <span className="text-[12px] text-text-muted">Motivo: {m.motivoRechazo}</span>
+              <span className="text-[14px] text-text-muted">Motivo: {m.motivoRechazo}</span>
             )}
           </>
         );

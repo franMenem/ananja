@@ -26,12 +26,12 @@ export function SeccionQuien({
 }: SeccionQuienProps) {
   return (
     <div className="flex flex-col gap-2.5">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         5 · Quién y cuándo
       </span>
 
       <div className="flex gap-2.5">
-        <div className="flex min-h-12 min-w-0 flex-1 items-center border border-border bg-surface px-3.5 text-sm text-text">
+        <div className="flex min-h-12 min-w-0 flex-1 items-center border border-border bg-surface px-3.5 text-[16px] text-text rounded-xl">
           {vendedorLoading ? "Cargando…" : (vendedorNombre ?? "Sin vendedor")}
         </div>
         <input
@@ -41,11 +41,11 @@ export function SeccionQuien({
           aria-label="Fecha"
           value={fecha}
           onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary"
+          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
         />
       </div>
       {!vendedorLoading && !vendedorExiste && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Tu usuario no está vinculado a un vendedor. Pedile al dueño que te
           dé de alta desde el dashboard de Supabase.
         </p>
@@ -57,7 +57,7 @@ export function SeccionQuien({
         onChange={(event) => onNotaChange(event.target.value)}
         rows={2}
         placeholder="Nota (opcional)"
-        className="min-h-[60px] border border-border bg-surface px-3.5 py-2 text-base text-text placeholder:text-text-muted focus:border-primary"
+        className="min-h-[60px] border border-border bg-surface px-3.5 py-2 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
       />
     </div>
   );

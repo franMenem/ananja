@@ -23,7 +23,7 @@ export function VolverLink({ href, label, hover = true }: VolverLinkProps) {
   return (
     <Link
       href={href}
-      className={`w-fit text-[11px] tracking-[0.14em] text-text-muted uppercase${hover ? " hover:text-primary-hover" : ""}`}
+      className={`w-fit text-[13px] text-text-muted ${hover ? " hover:text-primary-hover" : ""}`}
     >
       ← Volver a {label}
     </Link>

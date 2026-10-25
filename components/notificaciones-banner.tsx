@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -117,7 +118,7 @@ export function NotificacionesBanner({ compact = false }: { compact?: boolean })
         onClick={handleActivar}
         cargando={estado === "activando"}
         textoCargando="Activando…"
-        className="flex min-h-11 shrink-0 items-center border border-primary px-[18px] text-xs font-medium tracking-[0.12em] text-primary uppercase transition-colors hover:bg-primary/[.06] disabled:opacity-45"
+        className="flex min-h-11 shrink-0 items-center border border-primary px-[18px] text-[14px] font-medium text-primary transition-colors hover:bg-primary/[.06] disabled:opacity-45 rounded-xl"
       >
         Activar avisos
       </BotonAccion>
@@ -126,8 +127,8 @@ export function NotificacionesBanner({ compact = false }: { compact?: boolean })
 
   if (estado === "no_instalada") {
     return (
-      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised px-4 py-3.5">
-        <span className="text-[10px] font-medium tracking-[0.2em] text-accent uppercase">
+      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised px-4 py-3.5 rounded-xl">
+        <span className="text-[13px] font-medium text-accent">
           Instalá la app
         </span>
         <InstruccionesInstalarIOS proposito="recibir los avisos en el celular" />
@@ -137,7 +138,7 @@ export function NotificacionesBanner({ compact = false }: { compact?: boolean })
 
   if (estado === "denegado") {
     return (
-      <div className="border border-border bg-surface-raised px-4 py-3.5 text-[13px] leading-[1.55] text-text-muted">
+      <div className="border border-border bg-surface-raised px-4 py-3.5 text-[16px] leading-[1.55] text-text-muted rounded-xl">
         Los avisos están bloqueados para la app. Para activarlos, habilitá las
         notificaciones desde los ajustes del sistema.
       </div>
@@ -146,14 +147,14 @@ export function NotificacionesBanner({ compact = false }: { compact?: boolean })
 
   if (estado === "error") {
     return (
-      <div className="flex items-center justify-between gap-3 border border-border bg-surface-raised px-4 py-3.5">
-        <p role="alert" className="text-[13px] text-accent">
+      <div className="flex items-center justify-between gap-3 border border-border bg-surface-raised px-4 py-3.5 rounded-xl">
+        <p role="alert" className="text-[16px] text-accent">
           No se pudo activar los avisos. Probá de nuevo.
         </p>
         <button
           type="button"
           onClick={handleActivar}
-          className="flex min-h-11 shrink-0 items-center border border-border px-3 text-xs font-medium tracking-[0.12em] text-text uppercase"
+          className="flex min-h-11 shrink-0 items-center border border-border px-3 text-[14px] font-medium text-text"
         >
           Reintentar
         </button>
@@ -162,15 +163,15 @@ export function NotificacionesBanner({ compact = false }: { compact?: boolean })
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border border-border bg-surface-raised px-4 py-3.5">
-      <p className="text-[13px] leading-[1.55] text-text-muted">
+    <div className="flex items-center justify-between gap-3 border border-border bg-surface-raised px-4 py-3.5 rounded-xl">
+      <p className="text-[16px] leading-[1.55] text-text-muted">
         Activá los avisos para no perderte novedades.
       </p>
       <BotonAccion
         onClick={handleActivar}
         cargando={estado === "activando"}
         textoCargando="Activando…"
-        className="flex min-h-11 shrink-0 items-center bg-primary px-4 text-xs font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+        className={`${BOTON_PRIMARIO} flex shrink-0 px-4`}
       >
         Activar avisos
       </BotonAccion>

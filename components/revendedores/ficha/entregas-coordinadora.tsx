@@ -25,7 +25,7 @@ export type EntregasCoordinadoraProps = {
 export function EntregasCoordinadora({ entregas }: EntregasCoordinadoraProps) {
   return (
     <section className="flex flex-col gap-3">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">Entregas a sus revendedoras</span>
+      <span className="text-[13px] text-text-muted">Entregas a sus revendedoras</span>
       <Cuerpo entregas={entregas} />
     </section>
   );
@@ -33,10 +33,10 @@ export function EntregasCoordinadora({ entregas }: EntregasCoordinadoraProps) {
 
 function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
   if (entregas === null) {
-    return <p className="py-2 text-sm text-text-muted">No se pudieron cargar las entregas.</p>;
+    return <p className="py-2 text-[16px] text-text-muted">No se pudieron cargar las entregas.</p>;
   }
   if (entregas.filas.length === 0) {
-    return <p className="py-2 text-sm text-text-muted">Todavía no hay entregas a sus revendedoras.</p>;
+    return <p className="py-2 text-[16px] text-text-muted">Todavía no hay entregas a sus revendedoras.</p>;
   }
 
   const recientes = entregas.filas.slice(0, ENTREGAS_COORDINADORA_VISIBLES);
@@ -45,19 +45,19 @@ function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-0.5">
-        <p className="text-sm text-text">
+        <p className="text-[16px] text-text">
           Entregadas en total:{" "}
           <span className="font-medium tabular-nums">
             {entregas.totalBotellas} {envase(entregas.totalBotellas)}
           </span>
         </p>
         {entregas.hayAutomaticas && (
-          <p className="text-[12px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             No cuenta lo que las revendedoras agarraron solas del depósito (entregas automáticas).
           </p>
         )}
         {entregas.totalPorProducto.length > 1 && (
-          <p className="text-[12px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             {entregas.totalPorProducto.map((t) => `${t.cantidad} × ${t.productoNombre}`).join(" · ")}
           </p>
         )}
@@ -71,7 +71,7 @@ function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
 
       {anteriores.length > 0 && (
         <details className="group">
-          <summary className="flex items-center gap-1.5 select-none text-[10px] tracking-[0.22em] text-text-muted uppercase [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
             <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
               ›
             </span>
@@ -99,15 +99,15 @@ function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
   );
 
   return (
-    <div className="flex flex-col gap-1 border-b border-border py-3 text-sm">
+    <div className="flex flex-col gap-1 border-b border-border py-3 text-[16px]">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="shrink-0 text-[12px] tabular-nums text-text-muted">{formatFecha(fila.fecha)}</span>
+        <span className="shrink-0 text-[14px] tabular-nums text-text-muted">{formatFecha(fila.fecha)}</span>
         <span className="min-w-0 break-words text-text">
           {fila.tipo === "devolucion" ? <>Devolvió {link}</> : <>A {link}</>}
         </span>
       </div>
       {fila.items.length > 0 && (
-        <ul className="flex flex-col gap-0.5 text-[13px] text-text">
+        <ul className="flex flex-col gap-0.5 text-[16px] text-text">
           {fila.items.map((it, i) => (
             <li key={i} className="min-w-0 break-words">
               <span className="tabular-nums">{it.cantidad}</span> × {it.productoNombre}
@@ -118,9 +118,9 @@ function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
         </ul>
       )}
       {fila.automatica && (
-        <p className="text-[11px] text-text-muted">{etiquetaEntregaAutomatica(fila.tipo, true)}</p>
+        <p className="text-[13px] text-text-muted">{etiquetaEntregaAutomatica(fila.tipo, true)}</p>
       )}
-      {fila.cargadaPor !== null && <p className="text-[11px] text-text-muted">la cargó {fila.cargadaPor}</p>}
+      {fila.cargadaPor !== null && <p className="text-[13px] text-text-muted">la cargó {fila.cargadaPor}</p>}
     </div>
   );
 }

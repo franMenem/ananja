@@ -18,14 +18,14 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Transporte
       </span>
-      <div className="grid grid-cols-2 gap-px bg-border">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
         <button
           type="button"
           onClick={() => setTransporteModo("porcentaje")}
-          className={`min-h-11 px-3 text-[12px] font-medium transition-colors ${
+          className={`min-h-11 px-3 text-[14px] font-medium transition-colors ${
             value.transporteModo === "porcentaje"
               ? "bg-primary text-background"
               : "bg-surface-raised text-text"
@@ -36,7 +36,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
         <button
           type="button"
           onClick={() => setTransporteModo("fijo")}
-          className={`min-h-11 px-3 text-[12px] font-medium transition-colors ${
+          className={`min-h-11 px-3 text-[14px] font-medium transition-colors ${
             value.transporteModo === "fijo"
               ? "bg-primary text-background"
               : "bg-surface-raised text-text"
@@ -88,7 +88,7 @@ export function OtrosBlock({ value, onChange }: OtrosBlockProps) {
       <div className="flex-1">
         <label
           htmlFor="otros-descripcion"
-          className="block text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          className="block text-[13px] text-text-muted"
         >
           Descripción
         </label>
@@ -98,9 +98,9 @@ export function OtrosBlock({ value, onChange }: OtrosBlockProps) {
           value={value.otrosDescripcion}
           onChange={(event) => onChange({ ...value, otrosDescripcion: event.target.value })}
           placeholder="Ej. cajas"
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
         />
-        <p className="mt-1 text-[11px] leading-snug text-text-muted">
+        <p className="mt-1 text-[13px] leading-snug text-text-muted">
           Para acordarte qué fue ese gasto.
         </p>
       </div>

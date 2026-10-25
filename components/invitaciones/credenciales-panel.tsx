@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 
 import type { Credenciales } from "@/lib/dominio/invitaciones";
@@ -29,16 +30,16 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
 
   const whatsapp = `https://wa.me/?text=${encodeURIComponent(credenciales.mensaje)}`;
   const botonSecundario =
-    "flex min-h-11 items-center justify-center border border-primary px-4 text-[12px] font-medium tracking-[0.12em] text-primary uppercase";
+    "flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary";
 
   return (
     <section
       aria-live="polite"
-      className="flex flex-col gap-4 border border-border border-t-2 border-t-mark bg-surface p-5"
+      className="flex flex-col gap-4 border border-border border-t-2 border-t-mark bg-surface p-5 rounded-2xl"
     >
       <div className="flex flex-col gap-1">
         <h2 className="font-display text-[26px] leading-[1.1] text-primary">{titulo}</h2>
-        <p className="text-sm text-text-muted">
+        <p className="text-[16px] text-text-muted">
           Mandale estos datos por WhatsApp. <strong className="font-medium text-accent">La contraseña no se
           vuelve a mostrar</strong>: si la perdés, podés generar otra desde esta misma pantalla.
         </p>
@@ -46,20 +47,20 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
 
       <dl className="flex flex-col gap-3 border-y border-border py-3">
         <div className="flex flex-col gap-0.5">
-          <dt className="text-[10px] tracking-[0.18em] text-text-muted uppercase">Email</dt>
+          <dt className="text-[13px] text-text-muted">Email</dt>
           <dd className="break-all text-base text-text">{credenciales.email}</dd>
         </div>
         <div className="flex flex-col gap-0.5">
-          <dt className="text-[10px] tracking-[0.18em] text-text-muted uppercase">Contraseña temporal</dt>
-          <dd className="font-mono text-[22px] tracking-[0.06em] text-primary select-all">
+          <dt className="text-[13px] text-text-muted">Contraseña temporal</dt>
+          <dd className="font-mono text-[22px] text-primary select-all">
             {credenciales.password}
           </dd>
         </div>
       </dl>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">Mensaje para mandar</span>
-        <p className="border-l-2 border-mark bg-background px-3 py-2.5 text-sm leading-relaxed text-text select-all">
+        <span className="text-[13px] text-text-muted">Mensaje para mandar</span>
+        <p className="border-l-2 border-mark bg-background px-3 py-2.5 text-[16px] leading-relaxed text-text select-all">
           {credenciales.mensaje}
         </p>
       </div>
@@ -68,7 +69,7 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
         <button
           type="button"
           onClick={() => copiar(credenciales.mensaje, "mensaje")}
-          className="flex min-h-11 flex-1 items-center justify-center bg-primary px-4 text-[12px] font-medium tracking-[0.12em] text-background uppercase transition-colors hover:bg-primary-hover"
+          className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
         >
           {copiado === "mensaje" ? "Mensaje copiado" : "Copiar mensaje"}
         </button>
@@ -81,7 +82,7 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
       </div>
 
       {copiado === "error" && (
-        <p role="alert" className="text-xs text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           No se pudo copiar. Mantené apretado el texto para copiarlo a mano.
         </p>
       )}
@@ -89,7 +90,7 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
       <button
         type="button"
         onClick={onListo}
-        className="flex min-h-11 items-center justify-center text-[12px] tracking-[0.12em] text-text-muted uppercase underline-offset-4 hover:text-primary hover:underline"
+        className="flex min-h-11 items-center justify-center text-[14px] text-text-muted underline-offset-4 hover:text-primary hover:underline"
       >
         Listo, ya se los mandé
       </button>

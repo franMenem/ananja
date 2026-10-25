@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -60,14 +61,14 @@ export function MovimientosPaginados({
     <div className="flex flex-col">
       <ListaMovimientos items={items} vacio={vacio} />
 
-      {error && <p className="pt-3 text-[12px] text-accent">No se pudo cargar más. Probá de nuevo.</p>}
+      {error && <p className="pt-3 text-[14px] text-accent">No se pudo cargar más. Probá de nuevo.</p>}
 
       {!agotado && (
         <BotonAccion
           cargando={cargando}
           textoCargando="Cargando…"
           onClick={verMas}
-          className="mt-3 flex min-h-11 items-center justify-center self-start border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase hover:border-primary hover:text-primary disabled:opacity-45"
+          className={`${BOTON_SECUNDARIO} mt-3 flex self-start px-4 hover:border-primary hover:text-primary`}
         >
           Ver más
         </BotonAccion>

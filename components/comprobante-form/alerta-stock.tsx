@@ -22,16 +22,16 @@ export function AlertaStock({
     <BottomSheet open={stockAlert !== null} ariaLabel="Stock insuficiente" variant="accent">
       {stockAlert && (
         <>
-          <span className="text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+          <span className="text-[13px] font-medium text-accent">
             Stock insuficiente
           </span>
 
           <div className="mt-3 flex items-start gap-5">
             <div className="shrink-0">
-              <span className="font-display block text-[72px] leading-[0.85] text-accent tabular-nums">
+              <span className="font-display block text-[40px] leading-[0.85] text-accent tabular-nums">
                 {Math.max(stockAlert.disponible, 0)}
               </span>
-              <span className="text-[10px] tracking-[0.14em] text-text-muted uppercase">
+              <span className="text-[13px] text-text-muted">
                 Disponibles
               </span>
             </div>
@@ -47,14 +47,14 @@ export function AlertaStock({
             <button
               type="button"
               onClick={onRevisar}
-              className="min-h-11 flex-1 border border-primary px-4 text-[13px] font-medium tracking-[0.14em] text-primary uppercase"
+              className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
             >
               Revisar cantidades
             </button>
             <button
               type="button"
               onClick={onGuardarIgual}
-              className="min-h-11 flex-1 bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase"
+              className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-background"
             >
               Guardar igual
             </button>

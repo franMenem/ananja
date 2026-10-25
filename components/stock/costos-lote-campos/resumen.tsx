@@ -35,7 +35,7 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
 
   return (
     <div className="flex flex-col gap-4 border-l-2 border-mark bg-surface-raised p-4">
-      <span className="text-[10px] tracking-[0.22em] text-text-muted uppercase">
+      <span className="text-[13px] text-text-muted">
         Costo por {NEGOCIO.envase.singular}
       </span>
       {preview.map((p) => (
@@ -43,7 +43,7 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
           key={p.productoId}
           className="flex flex-col gap-2 border-b border-border pb-4 last:border-b-0 last:pb-0"
         >
-          <p className="text-[13px] leading-snug tabular-nums text-text">
+          <p className="text-[16px] leading-snug tabular-nums text-text">
             {formatPresentacion(p.presentacionMl)}: Costo de producción{" "}
             <strong className="font-medium text-primary">
               {formatCentavos(p.costoUnitarioCentavos)}
@@ -62,7 +62,7 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
             onChange={(v) => setCostoAnanjaRedondeado(p.productoId, v)}
             hint="Lo que les cobrás a las revendedoras. Vacío = el calculado."
           />
-          <p className="text-[13px] leading-snug tabular-nums text-text">
+          <p className="text-[16px] leading-snug tabular-nums text-text">
             Mayorista sugerido{" "}
             <strong className="font-medium text-primary">
               {formatCentavos(p.precios.mayoristaSugeridoCentavos)}

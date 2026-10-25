@@ -1,5 +1,6 @@
 "use client";
 
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -154,7 +155,7 @@ export function DepositarForm({
         <div>
           <label
             htmlFor="deposito-persona"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Quién tenía la plata
           </label>
@@ -162,7 +163,7 @@ export function DepositarForm({
             id="deposito-persona"
             value={tenedorId ?? ""}
             onChange={(event) => handlePersonaChange(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           >
             {personas.map((p) => (
               <option key={p.id} value={p.id}>
@@ -181,13 +182,13 @@ export function DepositarForm({
           required
           placeholder="$ 0,00"
           simbolo={null}
-          labelClassName="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1 flex border-b-2 border-primary"
           inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-primary tabular-nums"
         />
 
         <div>
-          <span className="text-[10px] tracking-[0.18em] text-text-muted uppercase">
+          <span className="text-[13px] text-text-muted">
             Cuenta destino
           </span>
           <MedioPagoChips
@@ -202,7 +203,7 @@ export function DepositarForm({
         <div>
           <label
             htmlFor="deposito-fecha"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Fecha
           </label>
@@ -212,14 +213,14 @@ export function DepositarForm({
             required
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         <div>
           <label
             htmlFor="deposito-nota"
-            className="text-[10px] tracking-[0.18em] text-text-muted uppercase"
+            className="text-[13px] text-text-muted"
           >
             Nota (opcional)
           </label>
@@ -228,12 +229,12 @@ export function DepositarForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary"
+            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-accent">
+          <p role="alert" className="text-[16px] text-accent">
             {error}
           </p>
         )}
@@ -242,7 +243,7 @@ export function DepositarForm({
           cargando={saving}
           textoCargando="Guardando…"
           type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[13px] font-medium tracking-[0.16em] text-background uppercase transition-colors hover:bg-primary-hover disabled:opacity-45"
+          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Guardar depósito
         </BotonAccion>
@@ -258,14 +259,14 @@ export function DepositarForm({
           {saldoInsuficiente ? formatCentavos(saldoInsuficiente.disponibleCentavos) : "$ 0,00"}
           {" "}en mano
         </h2>
-        <p className="mt-2 text-sm text-text-muted">Si guardás igual, queda negativo.</p>
+        <p className="mt-2 text-[16px] text-text-muted">Si guardás igual, queda negativo.</p>
         <div className="mt-5 flex gap-2">
           <BotonAccion
             cargando={saving}
             textoCargando="Guardando…"
             type="button"
             onClick={handleGuardarIgual}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[13px] font-medium tracking-[0.14em] text-background uppercase disabled:opacity-45"
+            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-background disabled:opacity-45"
           >
             Guardar igual
           </BotonAccion>
@@ -273,7 +274,7 @@ export function DepositarForm({
             type="button"
             onClick={() => !saving && setSaldoInsuficiente(null)}
             disabled={saving}
-            className="min-h-11 flex-1 border border-border px-4 text-[13px] font-medium tracking-[0.14em] text-text-muted uppercase disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>
