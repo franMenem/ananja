@@ -72,7 +72,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="flex flex-wrap items-center gap-2 font-medium text-text">
           <span className="min-w-0 break-words">{invitacion.nombre}</span>
-          <span className="shrink-0 border border-border px-1.5 py-px text-[13px] text-text-muted">
+          <span className="shrink-0 border border-border px-1.5 py-px text-[14px] text-text-muted">
             {rol}
           </span>
         </span>
@@ -100,7 +100,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
             cargando={reenviando}
             textoCargando="Enviando…"
             onClick={reenviar}
-            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary disabled:opacity-45 rounded-xl"
+            className="flex min-h-11 items-center justify-center border border-primary px-3 text-[14px] font-semibold text-primary disabled:opacity-45 rounded-xl"
           >
             Reenviar
           </BotonAccion>

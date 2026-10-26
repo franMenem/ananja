@@ -1,5 +1,9 @@
-import { BotonAccion } from "@/components/boton-accion";
 import { CantidadStepper } from "@/components/cantidad-stepper";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Aviso } from "@/components/ui/aviso";
+import { AreaTexto, Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
+import { Segmentos } from "@/components/ui/segmentos";
 import { SelectorLote, type FilaLote } from "@/components/lotes/selector-lote";
 import { lotesDeProducto, type LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { envase } from "@/lib/negocio";
@@ -27,6 +31,7 @@ export function FormularioEntrega({
   error,
   saving,
   onSubmit,
+  cancelarHref,
 }: {
   revisando: boolean;
   vendedorNombre: string;
@@ -46,6 +51,8 @@ export function FormularioEntrega({
   error: string | null;
   saving: boolean;
   onSubmit: () => void;
+  /** A dónde vuelve "Cancelar". */
+  cancelarHref: string;
 }) {
   return (
     <form
@@ -56,121 +63,93 @@ export function FormularioEntrega({
       }}
       className="flex flex-col gap-5"
     >
-      <p className="text-[14px] text-text-muted">
-        Para <span className="font-medium text-text">{vendedorNombre}</span>
-      </p>
-
       {!soloDevolucion && (
-        <div className="flex gap-px overflow-hidden rounded-xl border border-border bg-border">
-          <button
-            type="button"
-            onClick={() => onCambiarTipo("entrega")}
-            aria-pressed={tipo === "entrega"}
-            className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
-              tipo === "entrega" ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
-            }`}
-          >
-            Entrega
-          </button>
-          <button
-            type="button"
-            onClick={() => onCambiarTipo("devolucion")}
-            aria-pressed={tipo === "devolucion"}
-            className={`min-h-11 flex-1 px-3 text-[16px] font-medium ${
-              tipo === "devolucion" ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
-            }`}
-          >
-            Devolución
-          </button>
-        </div>
-      )}
-
-      {tipo === "devolucion" && (
-        <p className="text-[14px] text-accent">
-          Elegí siempre el pedido del que salieron esas {envase(2)}. Por defecto aparece el de la
-          última entrega a {vendedorNombre}.
-        </p>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <span className="text-[14px] text-text-muted">
-          Cantidades por producto
-        </span>
-        {productos.map((producto) => {
-          const cantidad = cantidades[producto.id] ?? 0;
-          return (
-            <div key={producto.id} className="flex flex-col gap-2 border-b border-border py-3">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[16px] text-text">{producto.nombre}</span>
-                <CantidadStepper
-                  value={cantidad}
-                  onChange={(value) => onCambiarCantidad(producto.id, value)}
-                  ariaLabelSufijo={` de ${producto.nombre}`}
-                  disableAtMin={false}
-                />
-              </div>
-              {cantidad > 0 && (
-                <SelectorLote
-                  // `tipo` cambia el modo de reparto por default (spend
-                  // FIFO vs. lote preferido) — un `key` distinto por tipo
-                  // fuerza a remontar el selector en vez de arrastrar un
-                  // split pensado para el otro modo.
-                  key={tipo}
-                  cantidad={cantidad}
-                  lotes={lotesDeProducto(lotesConStock, producto.id)}
-                  onChange={(filas) => onLotesChange(producto.id, filas)}
-                  loteIdPreferido={
-                    tipo === "devolucion" ? (ultimoLotePorProducto[producto.id] ?? null) : undefined
-                  }
-                  ariaLabelSufijo={` de ${producto.nombre}`}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div>
-        <label htmlFor="fecha" className="block text-[15px] font-semibold text-text">
-          Fecha
-        </label>
-        <input
-          id="fecha"
-          type="date"
-          required
-          value={fecha}
-          onChange={(event) => onCambiarFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
+        <Segmentos
+          opciones={[
+            { value: "entrega", label: "Entrega" },
+            { value: "devolucion", label: "Devolución" },
+          ]}
+          valor={tipo}
+          onChange={onCambiarTipo}
         />
-      </div>
-
-      <div>
-        <label htmlFor="nota" className="block text-[15px] font-semibold text-text">
-          Nota (opcional)
-        </label>
-        <textarea
-          id="nota"
-          value={nota}
-          onChange={(event) => onCambiarNota(event.target.value)}
-          rows={2}
-          className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
-
-      {error && !revisando && (
-        <p role="alert" className="text-[16px] text-accent">
-          {error}
-        </p>
       )}
 
-      <BotonAccion
-        cargando={saving}
-        textoCargando="Guardando…"
-        type="submit"
-        className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
+      <SeccionForm
+        titulo={tipo === "devolucion" ? `¿Qué botellas devolvió ${vendedorNombre}?` : `¿Qué botellas le entregás a ${vendedorNombre}?`}
+        descripcion="Cantidades por tamaño."
       >
-        {tipo === "entrega" ? "Revisar entrega" : "Guardar"}
-      </BotonAccion>
+        {tipo === "devolucion" && (
+          <Aviso>
+            <p>
+              Elegí siempre el pedido del que salieron esas {envase(2)}. Por defecto aparece el de la
+              última entrega a {vendedorNombre}.
+            </p>
+          </Aviso>
+        )}
+
+        <div className="flex flex-col">
+          {productos.map((producto) => {
+            const cantidad = cantidades[producto.id] ?? 0;
+            return (
+              <div
+                key={producto.id}
+                className="flex flex-col gap-2 border-b border-border py-3 first:pt-0 last:border-b-0 last:pb-0"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 text-[16px] text-text">{producto.nombre}</span>
+                  <CantidadStepper
+                    value={cantidad}
+                    onChange={(value) => onCambiarCantidad(producto.id, value)}
+                    ariaLabelSufijo={` de ${producto.nombre}`}
+                    disableAtMin={false}
+                  />
+                </div>
+                {cantidad > 0 && (
+                  <SelectorLote
+                    // `tipo` cambia el modo de reparto por default (spend
+                    // FIFO vs. lote preferido) — un `key` distinto por tipo
+                    // fuerza a remontar el selector en vez de arrastrar un
+                    // split pensado para el otro modo.
+                    key={tipo}
+                    cantidad={cantidad}
+                    lotes={lotesDeProducto(lotesConStock, producto.id)}
+                    onChange={(filas) => onLotesChange(producto.id, filas)}
+                    loteIdPreferido={
+                      tipo === "devolucion" ? (ultimoLotePorProducto[producto.id] ?? null) : undefined
+                    }
+                    ariaLabelSufijo={` de ${producto.nombre}`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </SeccionForm>
+
+      <SeccionForm titulo="¿Cuándo fue?">
+        <Campo id="fecha" etiqueta="Fecha">
+          <Entrada
+            type="date"
+            required
+            value={fecha}
+            onChange={(event) => onCambiarFecha(event.target.value)}
+            className="tabular-nums"
+          />
+        </Campo>
+
+        <Campo id="nota" etiqueta="Nota" opcional>
+          <AreaTexto value={nota} onChange={(event) => onCambiarNota(event.target.value)} rows={2} />
+        </Campo>
+      </SeccionForm>
+
+      {error && !revisando && <MensajeError>{error}</MensajeError>}
+
+      <AccionesForm
+        etiqueta={tipo === "entrega" ? "Revisar entrega" : "Guardar devolución"}
+        cargando={saving}
+        cancelarHref={cancelarHref}
+        fija
+      />
     </form>
   );
 }

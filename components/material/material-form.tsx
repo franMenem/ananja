@@ -6,6 +6,9 @@ import { useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { AreaTexto, Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { SetFormHeader } from "@/components/page-header-context";
 import { TextoMaterial } from "@/components/texto-material";
@@ -38,7 +41,7 @@ type MaterialFormProps = {
 export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFormProps) {
   const router = useRouter();
   const esEdicion = material !== null;
-  const tituloPantalla = esEdicion ? material.titulo : "Nuevo material";
+  const tituloPantalla = esEdicion ? material.titulo : "Agregar material";
 
   const [titulo, setTitulo] = useState(material?.titulo ?? "");
   const [cuerpo, setCuerpo] = useState(material?.cuerpo ?? "");
@@ -117,43 +120,32 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
       />
       <FormHeaderDesktop />
 
+      <p className="-mt-2 text-[15px] text-text-muted">
+        {esEdicion ? "¿Qué querés cambiar de este material?" : "¿Qué querés que lean las revendedoras?"}
+      </p>
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <label htmlFor="titulo" className="block text-[15px] font-semibold text-text">
-            Título
-          </label>
-          <input
-            id="titulo"
-            type="text"
-            required
-            value={titulo}
-            onChange={(event) => setTitulo(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-        </div>
+        <SeccionForm titulo="El mensaje">
+          <Campo id="titulo" etiqueta="Título">
+            <Entrada type="text" required value={titulo} onChange={(event) => setTitulo(event.target.value)} />
+          </Campo>
 
-        <div>
-          <label htmlFor="cuerpo" className="block text-[15px] font-semibold text-text">
-            Cuerpo
-          </label>
-          <textarea
+          <Campo
             id="cuerpo"
-            value={cuerpo}
-            onChange={(event) => setCuerpo(event.target.value)}
-            rows={12}
-            className="mt-1.5 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl min-h-24"
-          />
-          <p className="mt-1 text-[14px] text-text-muted">
-            Línea en blanco separa párrafos · <code>#&nbsp;</code> subtítulo ·{" "}
-            <code>-&nbsp;</code> lista
-          </p>
-        </div>
+            etiqueta="Cuerpo"
+            ayuda={
+              <>
+                Línea en blanco separa párrafos · <code>#&nbsp;</code> subtítulo ·{" "}
+                <code>-&nbsp;</code> lista
+              </>
+            }
+          >
+            <AreaTexto value={cuerpo} onChange={(event) => setCuerpo(event.target.value)} rows={12} />
+          </Campo>
+        </SeccionForm>
 
-        <div>
-          <span className="text-[14px] text-text-muted">
-            Vista previa
-          </span>
-          <div className="mt-1.5 border border-border bg-surface px-4 py-3 rounded-xl">
+        <SeccionForm titulo="Así se va a ver">
+          <div className="rounded-xl border border-border bg-background px-4 py-3">
             {cuerpo.trim() === "" ? (
               <p className="text-[16px] text-text-muted">
                 La vista previa aparece acá a medida que escribís.
@@ -162,40 +154,34 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
               <TextoMaterial cuerpo={cuerpo} />
             )}
           </div>
-        </div>
+        </SeccionForm>
 
-        <label className="flex min-h-11 items-center gap-2 text-[16px] text-text">
-          <input
-            type="checkbox"
-            checked={publicado}
-            onChange={(event) => setPublicado(event.target.checked)}
-            className="h-5 w-5 accent-[var(--color-primary)]"
-          />
-          Publicado
-        </label>
-
-        {error && (
-          <p role="alert" className="text-[16px] text-accent">
-            {error}
+        <SeccionForm titulo="¿Lo ven las revendedoras?">
+          <label className="flex min-h-11 items-center gap-3 text-[16px] text-text">
+            <input
+              type="checkbox"
+              checked={publicado}
+              onChange={(event) => setPublicado(event.target.checked)}
+              className="h-5 w-5 shrink-0 accent-[var(--color-primary)]"
+            />
+            Publicado
+          </label>
+          <p className="-mt-2 text-[14px] leading-snug text-text-muted">
+            Sin publicar queda guardado, pero ninguna revendedora lo ve.
           </p>
-        )}
+        </SeccionForm>
 
-        <BotonAccion
-          cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
-        >
-          Guardar
-        </BotonAccion>
+        {error && <MensajeError>{error}</MensajeError>}
+
+        <AccionesForm etiqueta="Guardar material" cargando={saving} cancelarHref="/material" fija />
 
         {esEdicion && (
           <button
             type="button"
             onClick={() => setConfirmarEliminar(true)}
-            className="text-[14px] text-accent"
+            className="min-h-12 self-center px-4 text-[15px] font-semibold text-accent"
           >
-            Eliminar
+            Eliminar este material
           </button>
         )}
       </form>

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Aviso } from "@/components/ui/aviso";
 import { FormPage } from "@/components/app/form-page";
 import { AltaForm } from "@/components/invitaciones/alta-form";
 import { InvitacionesPendientes } from "@/components/invitaciones/invitaciones-pendientes";
@@ -45,24 +46,25 @@ export default async function InvitarPage() {
   return (
     <FormPage
       title="Sumar persona"
+      pregunta="¿A quién sumamos al equipo?"
       backHref="/revendedores"
       backLabel="Volver a revendedores"
       gap={8}
       pb
     >
       {servicio === "sin_clave" && (
-        <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">
-          Falta configurar la clave SUPABASE_SERVICE_ROLE_KEY en Vercel: sin ella la app no puede crear
-          cuentas.
-        </p>
+        <Aviso role="alert">
+          <p>
+            Falta configurar la clave SUPABASE_SERVICE_ROLE_KEY en Vercel: sin ella la app no puede crear
+            cuentas.
+          </p>
+        </Aviso>
       )}
-
-      <p className="text-[15px] text-text-muted">¿A quién sumamos al equipo?</p>
 
       <AltaForm coordinadores={coordinadores ?? []} />
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-[20px] leading-tight font-semibold text-text">Pendientes de entrar</h2>
+        <h2 className="text-[17px] font-semibold leading-snug text-text">Pendientes de entrar</h2>
         {servicio === "error" ? (
           <p className="text-[16px] text-accent">No se pudieron cargar las invitaciones. Recargá la página.</p>
         ) : (

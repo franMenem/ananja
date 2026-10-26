@@ -77,7 +77,13 @@ export function EntregaForm({
   return (
     <>
       <SetFormHeader
-        title={revisando ? "Revisá la entrega" : f.tipo === "entrega" ? "Entregar" : "Devolución"}
+        title={
+          revisando
+            ? "Revisá la entrega"
+            : f.tipo === "entrega"
+              ? `Entregar botellas a ${vendedorNombre}`
+              : `Registrar devolución de ${vendedorNombre}`
+        }
         backHref={`/revendedores/${vendedorId}`}
         backLabel="Volver al revendedor"
       />
@@ -101,6 +107,7 @@ export function EntregaForm({
         error={f.error}
         saving={f.saving}
         onSubmit={f.handleContinuar}
+        cancelarHref={`/revendedores/${vendedorId}`}
       />
 
       {f.revision && (

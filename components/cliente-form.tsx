@@ -1,10 +1,11 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { AreaTexto, Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClienteFormInitial = {
@@ -82,102 +83,60 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="cliente-nombre"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Nombre o empresa
-        </label>
-        <input
-          id="cliente-nombre"
-          type="text"
-          required
-          value={nombre}
-          onChange={(event) => setNombre(event.target.value)}
-          placeholder="Ej: Almacén San José"
-          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
+      <SeccionForm titulo="¿Quién es?">
+        <Campo id="cliente-nombre" etiqueta="Nombre o empresa">
+          <Entrada
+            type="text"
+            required
+            value={nombre}
+            onChange={(event) => setNombre(event.target.value)}
+            placeholder="Ej: Almacén San José"
+          />
+        </Campo>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="cliente-telefono"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Teléfono (opcional)
-        </label>
-        <input
-          id="cliente-telefono"
-          type="tel"
-          value={telefono}
-          onChange={(event) => setTelefono(event.target.value)}
-          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
+        <Campo id="cliente-telefono" etiqueta="Teléfono" opcional>
+          <Entrada
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={telefono}
+            onChange={(event) => setTelefono(event.target.value)}
+          />
+        </Campo>
+      </SeccionForm>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="cliente-direccion"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Dirección (opcional)
-        </label>
-        <input
-          id="cliente-direccion"
-          type="text"
-          value={direccion}
-          onChange={(event) => setDireccion(event.target.value)}
-          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
+      <MasDatos abierto={direccion.trim() !== "" || email.trim() !== "" || nota.trim() !== ""}>
+        <Campo id="cliente-direccion" etiqueta="Dirección" opcional>
+          <Entrada
+            type="text"
+            autoComplete="street-address"
+            value={direccion}
+            onChange={(event) => setDireccion(event.target.value)}
+          />
+        </Campo>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="cliente-email"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Email (opcional)
-        </label>
-        <input
-          id="cliente-email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
+        <Campo id="cliente-email" etiqueta="Email" opcional>
+          <Entrada
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </Campo>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="cliente-nota"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Nota (opcional)
-        </label>
-        <textarea
-          id="cliente-nota"
-          value={nota}
-          onChange={(event) => setNota(event.target.value)}
-          rows={3}
-          className="border border-[#d0cec8] bg-surface px-3.5 py-2.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl min-h-12"
-        />
-      </div>
+        <Campo id="cliente-nota" etiqueta="Nota" opcional>
+          <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={3} />
+        </Campo>
+      </MasDatos>
 
-      {formError && (
-        <p role="alert" className="text-[14px] text-accent">
-          {formError}
-        </p>
-      )}
+      {formError && <MensajeError>{formError}</MensajeError>}
 
-      <BotonAccion
+      <AccionesForm
+        etiqueta="Guardar cliente"
         cargando={submitting}
-        textoCargando="Guardando…"
-        type="submit"
-        className={BOTON_PRIMARIO}
-      >
-        Guardar cliente
-      </BotonAccion>
+        cancelarHref={mode === "editar" && clienteId ? `/clientes/${clienteId}` : "/clientes"}
+      />
     </form>
   );
 }

@@ -7,6 +7,8 @@ import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { IconReceipt } from "@/components/icons";
 import { Spinner } from "@/components/spinner";
+import { MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { listarFacturasDeGastos } from "@/lib/data/gastos";
 import { mensajeErrorFacturaGasto, type FacturaGasto } from "@/lib/dominio/gastos";
 import { formatFecha } from "@/lib/fechas";
@@ -131,16 +133,8 @@ export function FacturaGastoSeccion({
   const isPdf = imagenPath !== null && isPdfPath(imagenPath);
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <span className="text-[13px] text-text-muted">
-        Factura
-      </span>
-
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
+    <SeccionForm titulo="Factura" descripcion={isAdmin ? "Una misma factura puede cubrir varios gastos." : undefined}>
+      {error && <MensajeError>{error}</MensajeError>}
 
       {vista === "subir" && (
         pendingPath ? (
@@ -192,7 +186,7 @@ export function FacturaGastoSeccion({
               className="flex min-h-32 flex-col items-center justify-center gap-2.5 border border-border bg-surface-raised p-6 text-center rounded-2xl"
             >
               <IconReceipt className="h-9 w-9 text-text-muted" />
-              <span className="text-[14px] font-medium text-primary">
+              <span className="text-[15px] font-semibold text-primary">
                 Ver PDF de la factura
               </span>
             </a>
@@ -201,7 +195,7 @@ export function FacturaGastoSeccion({
             <img
               src={signedUrl}
               alt="Factura"
-              className="max-h-[50vh] w-full border border-border object-contain"
+              className="max-h-[50vh] w-full rounded-xl border border-border object-contain"
             />
           ) : (
             <div className="flex min-h-32 items-center justify-center border border-border bg-surface-raised p-6 text-[16px] text-text-muted rounded-2xl">
@@ -210,20 +204,20 @@ export function FacturaGastoSeccion({
           )}
 
           {isAdmin && (
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               {!imagenPath ? (
                 <>
                   <button
                     type="button"
                     onClick={() => setVista("subir")}
-                    className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
+                    className="min-h-12 flex-1 rounded-xl border border-primary px-4 text-[16px] font-semibold text-primary"
                   >
                     Subir factura
                   </button>
                   <button
                     type="button"
                     onClick={() => setVista("elegir")}
-                    className="min-h-11 flex-1 border border-border px-4 text-[16px] font-medium text-text"
+                    className="min-h-12 flex-1 rounded-xl border border-[#d0cec8] px-4 text-[16px] font-semibold text-text"
                   >
                     Usar una que ya subí
                   </button>
@@ -233,14 +227,14 @@ export function FacturaGastoSeccion({
                   <button
                     type="button"
                     onClick={() => setVista("subir")}
-                    className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
+                    className="min-h-12 flex-1 rounded-xl border border-primary px-4 text-[16px] font-semibold text-primary"
                   >
                     Cambiar
                   </button>
                   <button
                     type="button"
                     onClick={() => setConfirmandoQuitar(true)}
-                    className="min-h-11 flex-1 border border-accent px-4 text-[16px] font-medium text-accent rounded-xl"
+                    className="min-h-12 flex-1 rounded-xl border border-accent px-4 text-[16px] font-semibold text-accent"
                   >
                     Quitar
                   </button>
@@ -252,7 +246,7 @@ export function FacturaGastoSeccion({
       )}
 
       <BottomSheet open={confirmandoQuitar} ariaLabel="Quitar factura" variant="accent">
-        <span className="text-[13px] text-accent">
+        <span className="text-[14px] font-semibold text-accent">
           Quitar factura
         </span>
         <p className="font-display mt-2 text-[22px] leading-[1.3] text-text">
@@ -289,7 +283,7 @@ export function FacturaGastoSeccion({
           </BotonAccion>
         </div>
       </BottomSheet>
-    </div>
+    </SeccionForm>
   );
 }
 
@@ -359,7 +353,7 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
           type="button"
           onClick={() => cameraInputRef.current?.click()}
           disabled={disabled}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary disabled:opacity-45"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary disabled:opacity-45"
         >
           Sacar foto
         </button>
@@ -367,7 +361,7 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary disabled:opacity-45"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary disabled:opacity-45"
         >
           Subir archivo
         </button>
@@ -391,9 +385,9 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
         onChange={handleFileChange}
       />
 
-      {fileName && <p className="text-[13px] text-text-muted">{fileName}</p>}
-      {uploading && <p className="text-[13px] text-text-muted">Subiendo factura…</p>}
-      {!uploading && guardando && <p className="text-[13px] text-text-muted">Guardando…</p>}
+      {fileName && <p className="text-[14px] text-text-muted">{fileName}</p>}
+      {uploading && <p className="text-[14px] text-text-muted">Subiendo factura…</p>}
+      {!uploading && guardando && <p className="text-[14px] text-text-muted">Guardando…</p>}
 
       {uploadError && (
         <div className="flex items-center justify-between gap-2">
@@ -403,7 +397,7 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
           <button
             type="button"
             onClick={handleRetry}
-            className="min-h-11 shrink-0 border border-border px-3 text-[14px] font-medium text-text"
+            className="min-h-12 shrink-0 rounded-xl border border-[#d0cec8] px-3 text-[15px] font-semibold text-text"
           >
             Reintentar
           </button>
@@ -518,7 +512,7 @@ function ElegirFacturaGasto({ onElegida, onCancelar, guardando }: ElegirFacturaG
                 <span className="truncate text-[16px] text-text">
                   {factura.categoriaNombre ?? "Sin categoría"}
                 </span>
-                <span className="truncate text-[13px] text-text-muted">
+                <span className="truncate text-[14px] text-text-muted">
                   {formatFecha(factura.fecha)} · usada en {factura.cantidadGastos} gasto
                   {factura.cantidadGastos === 1 ? "" : "s"}
                   {factura.nota ? ` · ${factura.nota}` : ""}

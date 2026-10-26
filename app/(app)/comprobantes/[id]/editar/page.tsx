@@ -19,7 +19,9 @@ export default async function EditarComprobantePage({
 
   return (
     <FormPage
-      title="Editar comprobante"
+      title="Editar venta"
+      pregunta="¿Qué hay que corregir de esta venta?"
+      pb
       backHref={`/comprobantes/${comprobante.id}`}
       backLabel="Volver al comprobante"
     >

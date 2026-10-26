@@ -43,12 +43,12 @@ export default async function DevolucionRevendedorPage({
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 pb-8">
         {/* Sin título fijo acá: EntregaForm ya registra el suyo (dinámico,
             "Devolución"/"Revisá la entrega") con su propio SetFormHeader —
             mismo criterio que /revendedores/[id]/carga. */}
         <FormHeaderDesktop />
-        <p className="text-[15px] text-text-muted">¿Qué botellas devolvió {revendedor.nombre}?</p>
+        <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas devolvió {revendedor.nombre} y de qué pedido?</p>
         <EntregaForm
           vendedorId={id}
           vendedorNombre={revendedor.nombre}

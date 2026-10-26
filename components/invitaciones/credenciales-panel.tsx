@@ -30,15 +30,15 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
 
   const whatsapp = `https://wa.me/?text=${encodeURIComponent(credenciales.mensaje)}`;
   const botonSecundario =
-    "flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary";
+    "flex min-h-12 items-center justify-center rounded-xl border border-primary px-4 text-[15px] font-semibold text-primary";
 
   return (
     <section
       aria-live="polite"
-      className="flex flex-col gap-4 border border-border border-t-2 border-t-mark bg-surface p-5 rounded-2xl"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 lg:p-5"
     >
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-[26px] leading-[1.1] text-text">{titulo}</h2>
+        <h2 className="text-[17px] font-semibold leading-snug text-text">{titulo}</h2>
         <p className="text-[16px] text-text-muted">
           Mandale estos datos por WhatsApp. <strong className="font-medium text-accent">La contraseña no se
           vuelve a mostrar</strong>: si la perdés, podés generar otra desde esta misma pantalla.
@@ -47,11 +47,11 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
 
       <dl className="flex flex-col gap-3 border-y border-border py-3">
         <div className="flex flex-col gap-0.5">
-          <dt className="text-[13px] text-text-muted">Email</dt>
+          <dt className="text-[14px] text-text-muted">Email</dt>
           <dd className="break-all text-base text-text">{credenciales.email}</dd>
         </div>
         <div className="flex flex-col gap-0.5">
-          <dt className="text-[13px] text-text-muted">Contraseña temporal</dt>
+          <dt className="text-[14px] text-text-muted">Contraseña temporal</dt>
           <dd className="font-mono text-[22px] text-primary select-all">
             {credenciales.password}
           </dd>
@@ -59,8 +59,8 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
       </dl>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-[13px] text-text-muted">Mensaje para mandar</span>
-        <p className="border-l-2 border-mark bg-background px-3 py-2.5 text-[16px] leading-relaxed text-text select-all">
+        <span className="text-[14px] text-text-muted">Mensaje para mandar</span>
+        <p className="rounded-xl bg-background px-3 py-3 text-[16px] leading-relaxed text-text select-all">
           {credenciales.mensaje}
         </p>
       </div>
@@ -90,7 +90,7 @@ export function CredencialesPanel({ titulo, credenciales, onListo }: Credenciale
       <button
         type="button"
         onClick={onListo}
-        className="flex min-h-11 items-center justify-center text-[14px] text-text-muted underline-offset-4 hover:text-primary hover:underline"
+        className="flex min-h-12 items-center justify-center text-[15px] font-semibold text-text-muted underline-offset-4 hover:text-primary hover:underline"
       >
         Listo, ya se los mandé
       </button>

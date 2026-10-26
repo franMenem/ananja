@@ -20,7 +20,12 @@ export default async function CobroComprobantePage({
   }
 
   return (
-    <FormPage title="Registrar cobro" backHref={`/comprobantes/${id}`} backLabel="Volver al comprobante">
+    <FormPage
+      title="Registrar cobro"
+      pregunta="¿Cuánto te pagaron y cómo?"
+      backHref={`/comprobantes/${id}`}
+      backLabel="Volver al comprobante"
+    >
       <CobroForm
         comprobanteId={id}
         deudaCentavos={saldo.deuda_centavos}

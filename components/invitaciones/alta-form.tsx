@@ -8,6 +8,10 @@ import {
   reenviarInvitacion,
 } from "@/app/(app)/revendedores/invitar/actions";
 import { CredencialesPanel } from "@/components/invitaciones/credenciales-panel";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Aviso } from "@/components/ui/aviso";
+import { CLASE_ETIQUETA, Campo, Entrada, MensajeError, Selector } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import {
   ETIQUETA_ROL,
   NOMBRE_MAX,
@@ -18,10 +22,6 @@ import {
 } from "@/lib/dominio/invitaciones";
 
 type Admin = { id: string; nombre: string };
-
-const labelClass = "text-[14px] text-text-muted";
-const inputClass =
-  "min-h-11 w-full border-0 border-b border-border bg-transparent text-base text-text focus:border-primary";
 
 const MODOS: { id: ModoAlta; titulo: string; descripcion: string }[] = [
   {
@@ -70,9 +70,9 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
     return (
       <div className="flex flex-col gap-4">
         {estado?.estado === "aviso" && (
-          <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">
-            {estado.mensaje}
-          </p>
+          <Aviso role="alert">
+            <p>{estado.mensaje}</p>
+          </Aviso>
         )}
         <CredencialesPanel
           titulo={panel.titulo}
@@ -100,45 +100,37 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
   const valoresIniciales = estado && estado.estado !== "ok" ? estado.valores : undefined;
 
   return (
-    <form action={accion} className="flex flex-col gap-6">
+    <form action={accion} className="flex flex-col gap-5">
       <input type="hidden" name="modo" value={modo} />
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className={`${labelClass} mb-2`}>Cómo le damos acceso</legend>
-        {MODOS.map((m) => (
-          <label
-            key={m.id}
-            className={`flex gap-3 border p-3.5 ${
-              modo === m.id ? "border-primary bg-surface" : "border-border"
-            }`}
-          >
-            <input
-              type="radio"
+      <SeccionForm titulo="Cómo le damos acceso">
+        <fieldset className="flex flex-col gap-2">
+          <legend className="sr-only">Cómo le damos acceso</legend>
+          {MODOS.map((m) => (
+            <OpcionRadio
+              key={m.id}
               name="modo_opcion"
               value={m.id}
-              checked={modo === m.id}
-              onChange={() => setModo(m.id)}
-              className="mt-1 size-4 shrink-0 accent-primary"
+              elegida={modo === m.id}
+              onElegir={() => setModo(m.id)}
+              titulo={m.titulo}
+              descripcion={m.descripcion}
             />
-            <span className="flex min-w-0 flex-col gap-1">
-              <span className="text-[16px] font-medium text-text">{m.titulo}</span>
-              <span className="text-[16px] leading-snug text-text-muted">{m.descripcion}</span>
-            </span>
-          </label>
-        ))}
-      </fieldset>
+          ))}
+        </fieldset>
+      </SeccionForm>
 
       <CamposPersona key={estado?.envio ?? 0} coordinadores={coordinadores} valores={valoresIniciales} />
 
       {mostrarMensaje && estado.estado !== "ok" && (
-        <div role="alert" className="flex flex-col gap-2 border-l-2 border-accent pl-3">
-          <p className="text-[16px] text-accent">{estado.mensaje}</p>
+        <div role="alert" className="flex flex-col gap-3">
+          <MensajeError>{estado.mensaje}</MensajeError>
 
           {estado.sugerirTemporal && modo === "invitar" && (
             <button
               type="button"
               onClick={() => setModo("temporal")}
-              className="flex min-h-11 items-center self-start border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
+              className="flex min-h-12 items-center self-start rounded-xl border border-primary px-4 text-[15px] font-semibold text-primary"
             >
               Usar contraseña temporal
             </button>
@@ -149,7 +141,7 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
               type="button"
               onClick={reintentar}
               disabled={reintentando}
-              className="flex min-h-11 items-center self-start border border-primary px-4 text-[14px] font-medium text-primary disabled:opacity-45 rounded-xl"
+              className="flex min-h-12 items-center self-start rounded-xl border border-primary px-4 text-[15px] font-semibold text-primary disabled:opacity-45"
             >
               {reintentando
                 ? "Un momento…"
@@ -166,19 +158,57 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
       )}
 
       {mostrarMensaje && estado.estado === "ok" && (
-        <p role="status" className="border-l-2 border-mark pl-3 text-[16px] text-text">
+        <p role="status" className="rounded-xl bg-success-tint px-3 py-3 text-[16px] font-semibold text-secondary">
           {estado.mensaje}
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={enviando}
-        className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
-      >
-        {enviando ? "Guardando…" : modo === "invitar" ? "Mandar invitación" : "Crear cuenta"}
-      </button>
+      <AccionesForm
+        etiqueta={modo === "invitar" ? "Mandar invitación" : "Crear cuenta"}
+        cargando={enviando}
+        textoCargando="Guardando…"
+        cancelarHref="/revendedores"
+        fija
+      />
     </form>
+  );
+}
+
+/** Una opción de un grupo de radios, como tarjeta de 48px o más. */
+function OpcionRadio({
+  name,
+  value,
+  elegida,
+  onElegir,
+  titulo,
+  descripcion,
+}: {
+  name: string;
+  value: string;
+  elegida: boolean;
+  onElegir: () => void;
+  titulo: string;
+  descripcion: string;
+}) {
+  return (
+    <label
+      className={`flex min-h-12 cursor-pointer gap-3 rounded-xl border p-3.5 ${
+        elegida ? "border-primary bg-primary-2" : "border-[#d0cec8] bg-surface"
+      }`}
+    >
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={elegida}
+        onChange={onElegir}
+        className="mt-0.5 size-5 shrink-0 accent-primary"
+      />
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="text-[16px] font-semibold text-text">{titulo}</span>
+        <span className="text-[14px] leading-snug text-text-muted">{descripcion}</span>
+      </span>
+    </label>
   );
 }
 
@@ -188,91 +218,65 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
   const [rol, setRol] = useState<RolInvitacion>(valores?.rol ?? "revendedor");
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="nombre" className={labelClass}>
-          Nombre
-        </label>
-        <input
-          id="nombre"
+    <SeccionForm titulo="¿Quién es?">
+      <Campo id="nombre" etiqueta="Nombre" ayuda="Es el nombre que va a ver todo el equipo.">
+        <Entrada
           name="nombre"
           type="text"
           autoComplete="off"
           required
           maxLength={NOMBRE_MAX}
           defaultValue={valores?.nombre ?? ""}
-          className={inputClass}
           placeholder="Nombre y apellido"
         />
-        <p className="text-[14px] text-text-muted">Es el nombre que va a ver todo el equipo.</p>
-      </div>
+      </Campo>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className={labelClass}>
-          Email
-        </label>
-        <input
-          id="email"
+      <Campo id="email" etiqueta="Email" ayuda="Con este email va a entrar a la app.">
+        <Entrada
           name="email"
           type="email"
           inputMode="email"
           autoComplete="off"
           required
           defaultValue={valores?.email ?? ""}
-          className={inputClass}
           placeholder="nombre@mail.com"
         />
-        <p className="text-[14px] text-text-muted">Con este email va a entrar a la app.</p>
-      </div>
+      </Campo>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className={`${labelClass} mb-2`}>Rol</legend>
+        <legend className={`${CLASE_ETIQUETA} mb-1`}>Rol</legend>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {(["revendedor", "admin", "coordinador"] as const).map((r) => (
-            <label
+            <OpcionRadio
               key={r}
-              className={`flex gap-3 border p-3.5 ${
-                rol === r ? "border-primary bg-surface" : "border-border"
-              }`}
-            >
-              <input
-                type="radio"
-                name="rol"
-                value={r}
-                checked={rol === r}
-                onChange={() => setRol(r)}
-                className="mt-1 size-4 shrink-0 accent-primary"
-              />
-              <span className="flex min-w-0 flex-col gap-1">
-                <span className="text-[16px] font-medium text-text">{ETIQUETA_ROL[r]}</span>
-                <span className="text-[16px] leading-snug text-text-muted">{DESCRIPCION_ROL[r]}</span>
-              </span>
-            </label>
+              name="rol"
+              value={r}
+              elegida={rol === r}
+              onElegir={() => setRol(r)}
+              titulo={ETIQUETA_ROL[r]}
+              descripcion={DESCRIPCION_ROL[r]}
+            />
           ))}
         </div>
       </fieldset>
 
       {rol === "revendedor" && (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="encargadoId" className={labelClass}>
-            Coordinador (opcional)
-          </label>
-          <select
-            id="encargadoId"
-            name="encargadoId"
-            defaultValue={valores?.encargadoId ?? ""}
-            className="min-h-12 w-full max-w-[320px] border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          >
-            <option value="">Sin coordinador por ahora</option>
+        <Campo
+          id="encargadoId"
+          etiqueta="Encargado"
+          opcional
+          ayuda="A quién le rinde la plata. Lo podés cambiar después."
+        >
+          <Selector name="encargadoId" defaultValue={valores?.encargadoId ?? ""}>
+            <option value="">Sin encargado por ahora</option>
             {coordinadores.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.nombre}
               </option>
             ))}
-          </select>
-          <p className="text-[14px] text-text-muted">A quién le rinde la plata. Lo podés cambiar después.</p>
-        </div>
+          </Selector>
+        </Campo>
       )}
-    </div>
+    </SeccionForm>
   );
 }

@@ -20,6 +20,7 @@ export default async function EditarClientePage({
   return (
     <FormPage
       title="Editar cliente"
+      pregunta="¿Qué cambió de este cliente?"
       backHref={`/clientes/${cliente.id}`}
       backLabel="Volver al cliente"
     >

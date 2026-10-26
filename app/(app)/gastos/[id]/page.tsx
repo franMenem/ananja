@@ -19,7 +19,19 @@ import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
 import { createClient } from "@/lib/supabase/client";
 import { formatCentavos, parseMontoInput } from "@/lib/money";
 import { useVendedorActual } from "@/lib/vendedor-actual";
-import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE, CLASE_SIMBOLO_MONTO_GRANDE } from "@/components/ui/campo";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
+import { Tarjeta } from "@/components/ui/tarjeta";
 
 type GastoDetallePageProps = {
   params: Promise<{ id: string }>;
@@ -212,138 +224,103 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
   return (
     <FormPage
       title={editing ? "Editar gasto" : "Detalle del gasto"}
+      pregunta={editing ? "¿Qué hay que corregir de este gasto?" : undefined}
       backHref={volver.href}
       backLabel={volver.label}
       maxWidth={760}
       pb
     >
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && !confirmingDelete && <MensajeError>{error}</MensajeError>}
 
       {editing ? (
         <form onSubmit={handleGuardar} className="flex flex-col gap-5">
-          <MontoInput
-            id="monto"
-            label="Monto"
-            value={monto}
-            onChange={setMonto}
-            required
-            cajaClassName={CLASE_CAJA_MONTO}
-            simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
-            inputClassName={CLASE_INPUT_MONTO_GRANDE}
-          />
-
-          <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
-
-          <MedioPagoChips value={medioPago} onChange={setMedioPago} />
-
-          <div>
-            <label
-              htmlFor="fecha"
-              className="block text-[15px] font-semibold text-text"
-            >
-              Fecha
-            </label>
-            <input
-              id="fecha"
-              type="date"
+          <SeccionForm titulo="¿Cuánto fue?">
+            <MontoInput
+              id="monto"
+              label="Monto"
+              value={monto}
+              onChange={setMonto}
               required
-              value={fecha}
-              onChange={(event) => setFecha(event.target.value)}
-              className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
+              cajaClassName={CLASE_CAJA_MONTO}
+              simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+              inputClassName={CLASE_INPUT_MONTO_GRANDE}
             />
-          </div>
 
-          <div>
-            <label
-              htmlFor="nota"
-              className="block text-[15px] font-semibold text-text"
-            >
-              Nota (opcional)
-            </label>
-            <textarea
-              id="nota"
-              value={nota}
-              onChange={(event) => setNota(event.target.value)}
-              rows={3}
-              className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-            />
-          </div>
+            <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
+          </SeccionForm>
 
-          <div className="flex gap-2">
-            <BotonAccion
-              cargando={saving}
-              textoCargando="Guardando…"
-              type="submit"
-              className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
-            >
-              Guardar cambios
-            </BotonAccion>
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(false);
-                setError(null);
-              }}
-              disabled={saving}
-              className={`${BOTON_SECUNDARIO} flex-1 px-4`}
-            >
-              Cancelar
-            </button>
-          </div>
+          <SeccionForm titulo="¿De qué cuenta salió la plata?">
+            <MedioPagoChips value={medioPago} onChange={setMedioPago} ocultarRotulo />
+          </SeccionForm>
+
+          <MasDatos abierto>
+            <Campo id="fecha" etiqueta="Fecha">
+              <Entrada
+                type="date"
+                required
+                value={fecha}
+                onChange={(event) => setFecha(event.target.value)}
+                className="tabular-nums"
+              />
+            </Campo>
+
+            <Campo id="nota" etiqueta="Nota" opcional>
+              <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={3} />
+            </Campo>
+          </MasDatos>
+
+          <AccionesForm
+            etiqueta="Guardar cambios"
+            cargando={saving}
+            type="submit"
+            fija
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(false);
+              setError(null);
+            }}
+            disabled={saving}
+            className={`${BOTON_SECUNDARIO} -mt-2 flex w-full px-4 lg:w-auto lg:min-w-64 lg:self-start`}
+          >
+            Cancelar
+          </button>
         </form>
       ) : (
         <div className="flex flex-col gap-5">
-          <div>
-            <span className="block font-display text-[24px] leading-[1.15] break-words text-text">
-              {titulo}
-            </span>
-            <span className="font-display mt-1 block text-[clamp(28px,9vw,40px)] leading-[1] text-accent tabular-nums">
+          <Tarjeta className="flex flex-col gap-4">
+            <NumeroGrande etiqueta={titulo} tono="debe">
               {formatCentavos(gasto.monto_centavos)}
-            </span>
-          </div>
+            </NumeroGrande>
 
-          <dl className="flex flex-col">
-            <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[14px] text-text-muted">
-                Categoría
-              </dt>
-              <dd className="text-right text-text">
-                {gasto.categorias_gasto?.nombre ?? "Sin categoría"}
-              </dd>
-            </div>
-            <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[14px] text-text-muted">
-                Medio de pago
-              </dt>
-              <dd className="text-text">{etiquetaMedioPago(gasto.medio_pago)}</dd>
-            </div>
-            <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[14px] text-text-muted">
-                Vendedor
-              </dt>
-              <dd className="text-text">
-                {gasto.vendedores?.nombre ?? "—"}
-              </dd>
-            </div>
-            <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[14px] text-text-muted">
-                Fecha
-              </dt>
-              <dd className="text-text">{formatFecha(gasto.fecha)}</dd>
-            </div>
-            {gasto.nota && (
-              <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-                <dt className="text-[14px] text-text-muted">
-                  Nota
-                </dt>
-                <dd className="text-right text-text">{gasto.nota}</dd>
+            <dl className="flex flex-col">
+              <div className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                <dt className="text-[15px] text-text-muted">Categoría</dt>
+                <dd className="text-right text-[16px] text-text">
+                  {gasto.categorias_gasto?.nombre ?? "Sin categoría"}
+                </dd>
               </div>
-            )}
-          </dl>
+              <div className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                <dt className="text-[15px] text-text-muted">Cuenta</dt>
+                <dd className="text-right text-[16px] text-text">{etiquetaMedioPago(gasto.medio_pago)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                <dt className="text-[15px] text-text-muted">Lo cargó</dt>
+                <dd className="text-right text-[16px] text-text">{gasto.vendedores?.nombre ?? "—"}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                <dt className="text-[15px] text-text-muted">Fecha</dt>
+                <dd className="text-right text-[16px] text-text">{formatFecha(gasto.fecha)}</dd>
+              </div>
+              {gasto.nota && (
+                <div className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                  <dt className="text-[15px] text-text-muted">Nota</dt>
+                  <dd className="min-w-0 break-words text-right text-[16px] text-text">{gasto.nota}</dd>
+                </div>
+              )}
+            </dl>
+          </Tarjeta>
 
           <FacturaGastoSeccion
             gastoId={gasto.id}
@@ -354,20 +331,20 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             }
           />
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="min-h-12 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
+              className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
             >
-              Editar
+              Editar gasto
             </button>
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="min-h-12 flex-1 border border-accent px-4 text-[16px] font-medium text-accent rounded-xl"
+              className="min-h-12 flex-1 rounded-xl border border-accent px-4 text-[16px] font-semibold text-accent"
             >
-              Eliminar
+              Eliminar gasto
             </button>
           </div>
         </div>
@@ -378,7 +355,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
         ariaLabel="Eliminar gasto"
         variant="accent"
       >
-        <span className="text-[14px] text-accent">
+        <span className="text-[15px] font-semibold text-accent">
           Eliminar gasto
         </span>
         <p className="font-display mt-2 text-[24px] leading-[1.3] text-text">
@@ -390,11 +367,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
           No se puede deshacer.
         </p>
 
-        {error && (
-          <p role="alert" className="mt-3 text-[14px] text-accent">
-            {error}
-          </p>
-        )}
+        {error && <div className="mt-3"><MensajeError>{error}</MensajeError></div>}
 
         <div className="mt-5 flex gap-2">
           <button
@@ -410,7 +383,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             textoCargando="Eliminando…"
             type="button"
             onClick={handleEliminar}
-            className="min-h-12 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
+            className="min-h-12 flex-1 rounded-xl bg-accent px-4 text-[16px] font-semibold text-primary-foreground disabled:opacity-45"
           >
             Eliminar
           </BotonAccion>
