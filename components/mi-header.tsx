@@ -7,6 +7,7 @@ import { useFormHeader } from "@/components/page-header-context";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { olvidarReenlacePush } from "@/lib/push-client";
 
 /**
  * Cabecera móvil (`< lg`) del shell de revendedor (`components/mi/mi-shell.tsx`)
@@ -32,6 +33,7 @@ export function MiHeader() {
 
   async function handleSignOut() {
     const supabase = createClient();
+    olvidarReenlacePush();
     await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();

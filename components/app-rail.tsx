@@ -17,6 +17,7 @@ import {
   suscribirseSidebarColapsado,
 } from "@/lib/sidebar-colapsado";
 import { createClient } from "@/lib/supabase/client";
+import { olvidarReenlacePush } from "@/lib/push-client";
 
 /** `getServerSnapshot` de `useSyncExternalStore` — no hay `localStorage` en
  * el servidor, así que el SSR siempre asume expandido. */
@@ -85,6 +86,7 @@ export function AppRail() {
 
   async function handleSignOut() {
     const supabase = createClient();
+    olvidarReenlacePush();
     await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();

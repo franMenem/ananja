@@ -14,6 +14,7 @@ import {
 } from "@/lib/sidebar-colapsado";
 import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { olvidarReenlacePush } from "@/lib/push-client";
 
 /** SSR: no hay `localStorage`, se asume expandido (ver `components/app-rail.tsx`). */
 function leerSidebarColapsadoServer(): boolean {
@@ -58,6 +59,7 @@ export function MiRail() {
 
   async function handleSignOut() {
     const supabase = createClient();
+    olvidarReenlacePush();
     await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();

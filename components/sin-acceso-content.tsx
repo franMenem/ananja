@@ -7,6 +7,7 @@ import { AuthShell } from "@/components/auth-shell";
 import { BotonAccion } from "@/components/boton-accion";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
+import { olvidarReenlacePush } from "@/lib/push-client";
 
 type SinAccesoContentProps = {
   /** `true` si el usuario tiene fila con `rol = 'pendiente'` (alta
@@ -28,6 +29,7 @@ export function SinAccesoContent({ pendiente }: SinAccesoContentProps) {
   async function handleCerrarSesion() {
     setLoading(true);
     const supabase = createClient();
+    olvidarReenlacePush();
     await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();

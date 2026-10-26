@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { resetVendedorActualCache } from "@/lib/vendedor-actual";
+import { olvidarReenlacePush } from "@/lib/push-client";
 
 /** Salida de `/bienvenida` para quien abrió un link que no era para él
  * (o quiere entrar con otra cuenta): cierra la sesión y vuelve a `/login`. */
@@ -15,6 +16,7 @@ export function SalirButton({ texto }: { texto: string }) {
   async function salir() {
     setSaliendo(true);
     const supabase = createClient();
+    olvidarReenlacePush();
     await supabase.auth.signOut();
     resetVendedorActualCache();
     router.replace("/login");

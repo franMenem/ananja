@@ -28,6 +28,33 @@ export async function notificarPush(
   }
 }
 
+const CLAVE_REENLACE = "ananja:push-reenlace";
+/** Un reenlace exitoso de la misma suscripción vale por un día. */
+const MS_ENTRE_REENLACES = 24 * 60 * 60 * 1000;
+
+function leerMarcaReenlace(): { endpoint: string; en: number } | null {
+  try {
+    const crudo = window.localStorage.getItem(CLAVE_REENLACE);
+    if (!crudo) return null;
+    const marca = JSON.parse(crudo) as { endpoint?: unknown; en?: unknown };
+    return typeof marca.endpoint === "string" && typeof marca.en === "number"
+      ? { endpoint: marca.endpoint, en: marca.en }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Al cerrar sesión: el próximo que entre en este dispositivo vuelve a atar
+ * la suscripción a su persona sin esperar al día siguiente. */
+export function olvidarReenlacePush(): void {
+  try {
+    window.localStorage.removeItem(CLAVE_REENLACE);
+  } catch {
+    // Sin localStorage: no hay marca que olvidar.
+  }
+}
+
 /**
  * Reenlace silencioso (hallazgo F7, migración 0076): las suscripciones que
  * ya existían quedaron sin dueño y no reciben avisos hasta que el navegador
@@ -54,11 +81,27 @@ export async function reenlazarSuscripcionPush(): Promise<void> {
     const subscription = await registration?.pushManager.getSubscription();
     if (!subscription) return;
 
-    await fetch("/api/push/subscribe", {
+    // Una vez por día por suscripción (antes: en cada carga completa).
+    const marca = leerMarcaReenlace();
+    if (marca && marca.endpoint === subscription.endpoint && Date.now() - marca.en < MS_ENTRE_REENLACES) {
+      return;
+    }
+
+    const respuesta = await fetch("/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...subscription.toJSON(), reenlazar: true }),
     });
+    if (respuesta.ok) {
+      try {
+        window.localStorage.setItem(
+          CLAVE_REENLACE,
+          JSON.stringify({ endpoint: subscription.endpoint, en: Date.now() }),
+        );
+      } catch {
+        // Sin localStorage: se reenlaza en cada carga, como antes.
+      }
+    }
   } catch {
     // Best-effort: sin red o sin soporte, no pasa nada.
   }
