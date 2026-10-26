@@ -20,6 +20,7 @@ export function TituloFormularioEscritorio({ pregunta }: { pregunta?: string }) 
       {formHeader && (
         <div className="hidden flex-col gap-1 lg:flex">
           <Link
+            prefetch={false}
             href={formHeader.backHref}
             className="inline-flex min-h-11 w-fit items-center text-[15px] text-text-muted hover:text-primary-hover"
           >

@@ -27,7 +27,7 @@ export default async function MaterialPage() {
         titulo="Material"
         pregunta="¿Qué les mostramos a las revendedoras?"
         acciones={
-          <Link href="/material/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <Link prefetch={false} href="/material/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo material
           </Link>
         }

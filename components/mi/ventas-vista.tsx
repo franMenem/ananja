@@ -35,7 +35,7 @@ export function MisVentasVista({ meses }: { meses: MesVentasMi[] }) {
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
       <EncabezadoPantalla titulo="Mis ventas" pregunta="¿Qué vendiste?" />
 
-      <Link href="/mi/ventas/nueva" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+      <Link prefetch={false} href="/mi/ventas/nueva" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
         Registré una venta
       </Link>
 
@@ -56,7 +56,7 @@ export function MisVentasVista({ meses }: { meses: MesVentasMi[] }) {
               </div>
               <div className="flex flex-col divide-y divide-line">
                 {ventas.map((v) => (
-                  <Link key={v.id} href={`/mi/ventas/${v.id}`} className="block hover:bg-background">
+                  <Link prefetch={false} key={v.id} href={`/mi/ventas/${v.id}`} className="block hover:bg-background">
                     <Fila
                       titulo={
                         <span className="break-words">

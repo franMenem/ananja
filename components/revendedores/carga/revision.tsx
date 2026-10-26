@@ -169,6 +169,7 @@ export function Revision({
           <MensajeError>{error}</MensajeError>
           {yaGuardada && (
             <Link
+              prefetch={false}
               href={`/revendedores/${vendedorId}`}
               className={`self-start text-primary ${LINK_CHICO}`}
             >

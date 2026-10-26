@@ -98,7 +98,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
           Cuando registres la primera, acá vas a ver el monto, {NEGOCIO.envase.plural} y quién la
           cargó. Sacale una foto al comprobante y el monto se lee solo.
         </p>
-        <Link href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}>
+        <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}>
           + Cargar la primera
         </Link>
       </Tarjeta>
@@ -133,7 +133,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
                 <h2 className="px-1 text-[15px] font-semibold text-text-muted">{grupo}</h2>
                 <ListaTarjeta className="px-4">
                   {items.map((row) => (
-                    <Link key={row.id} href={`/comprobantes/${row.id}`} className="flex items-center gap-3 py-2">
+                    <Link prefetch={false} key={row.id} href={`/comprobantes/${row.id}`} className="flex items-center gap-3 py-2">
                       <Miniatura row={row} size="sm" />
                       <Fila
                         className="min-w-0 flex-1"
@@ -166,7 +166,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
               </section>
             ))}
 
-            <Link href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex`}>
+            <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex`}>
               + Cargar comprobante
             </Link>
           </div>
@@ -185,6 +185,7 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
               <div className="flex min-w-[760px] flex-col divide-y divide-line">
                 {filtered.map((row) => (
                   <Link
+                    prefetch={false}
                     key={row.id}
                     href={`/comprobantes/${row.id}`}
                     className="flex min-h-14 items-center gap-3.5 py-2 hover:bg-background"

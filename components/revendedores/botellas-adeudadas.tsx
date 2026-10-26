@@ -109,6 +109,7 @@ function ListaPorPersona({ personas }: { personas: GrupoPorPersona[] }) {
             key={p.personaId}
             encabezado={
               <Link
+                prefetch={false}
                 // `?rol=coordinador`: pista para que la ficha pida solo su tanda (ver `/revendedores/[id]`).
                 href={p.esCoordinadora ? `/revendedores/${p.personaId}?rol=coordinador` : `/revendedores/${p.personaId}`}
                 className="text-text underline decoration-border underline-offset-4 hover:text-primary"

@@ -26,18 +26,19 @@ export function AccionesFicha({ vendedorId }: { vendedorId: string }) {
   const href = hrefsAcciones(vendedorId);
   return (
     <div className="flex flex-col gap-2">
-      <Link href={href.entregar} className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+      <Link prefetch={false} href={href.entregar} className={`${BOTON_PRIMARIO} flex w-full px-4`}>
         Entregar botellas
       </Link>
       <div className="grid grid-cols-2 gap-2 max-[339px]:grid-cols-1">
-        <Link href={href.pago} className={SECUNDARIO}>
+        <Link prefetch={false} href={href.pago} className={SECUNDARIO}>
           Registrar pago
         </Link>
-        <Link href={href.venta} className={SECUNDARIO}>
+        <Link prefetch={false} href={href.venta} className={SECUNDARIO}>
           Registrar venta
         </Link>
       </div>
       <Link
+        prefetch={false}
         href={href.devolucion}
         className="flex min-h-11 items-center justify-center text-[15px] font-semibold text-text-muted underline decoration-[#d0cec8] underline-offset-4 hover:text-text"
       >

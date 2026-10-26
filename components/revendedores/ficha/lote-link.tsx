@@ -12,6 +12,7 @@ export function LoteLink({ loteId, fecha }: { loteId: string | null; fecha: stri
   if (loteId === null) return <span className="text-text-muted">sin pedido</span>;
   return (
     <Link
+      prefetch={false}
       href={`/stock/lotes/${loteId}`}
       className="inline-flex min-h-11 items-center text-text underline decoration-border underline-offset-4 hover:text-primary"
     >

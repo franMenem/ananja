@@ -54,7 +54,7 @@ export function GananciaRevendedor({ ventas, persona }: GananciaRevendedorProps)
           cuentan en la ganancia hasta que{" "}
           {vos ? "cargues a cuánto las vendiste" : "se cargue a cuánto las vendió"}.{" "}
           {vos ? (
-            <Link href="/mi/ventas" className="border-b border-mark text-text">
+            <Link prefetch={false} href="/mi/ventas" className="border-b border-mark text-text">
               Ver ventas
             </Link>
           ) : (

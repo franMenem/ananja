@@ -53,6 +53,7 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
         {materiales.map((material, index) => (
           <div key={material.id} className="flex items-center gap-2 pr-3">
             <Link
+              prefetch={false}
               href={`/material/${material.id}`}
               className="flex min-h-14 min-w-0 flex-1 items-center justify-between gap-3 py-2 pl-4 hover:bg-background"
             >

@@ -42,6 +42,7 @@ export function SectorChips() {
         const active = seccion.id === activa.id;
         return (
           <Link
+            prefetch={false}
             key={seccion.id}
             href={seccion.href}
             aria-current={active ? "page" : undefined}

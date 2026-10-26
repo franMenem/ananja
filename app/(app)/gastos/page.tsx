@@ -122,7 +122,7 @@ export default function GastosPage() {
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               />
             </div>
-            <Link href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex px-5`}>
+            <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex px-5`}>
               + Registrar gasto
             </Link>
           </div>
@@ -180,7 +180,7 @@ export default function GastosPage() {
               Cuando registres el primero, acá vas a ver el monto, la categoría y quién lo cargó.
             </p>
           )}
-          <Link href="/gastos/nuevo" className={`${BOTON_PRIMARIO} mt-2 flex px-6`}>
+          <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} mt-2 flex px-6`}>
             + Registrar {hayFiltro ? "un gasto" : "el primero"}
           </Link>
         </Tarjeta>
@@ -201,6 +201,7 @@ export default function GastosPage() {
                 const { titulo, categoria } = tituloDe(gasto);
                 return (
                   <Link
+                    prefetch={false}
                     key={gasto.id}
                     href={`/gastos/${gasto.id}`}
                     className="grid min-h-14 min-w-[640px] grid-cols-[82px_minmax(120px,1fr)_120px_100px_minmax(0,120px)_110px] items-center gap-4 border-b border-line py-2 text-[16px] hover:bg-background"
@@ -241,7 +242,7 @@ export default function GastosPage() {
                   {items.map((gasto) => {
                     const { titulo, categoria } = tituloDe(gasto);
                     return (
-                      <Link key={gasto.id} href={`/gastos/${gasto.id}`} className="block">
+                      <Link prefetch={false} key={gasto.id} href={`/gastos/${gasto.id}`} className="block">
                         <Fila
                           titulo={<span className="break-words">{titulo}</span>}
                           detalle={
@@ -264,7 +265,7 @@ export default function GastosPage() {
               </section>
             ))}
 
-            <Link href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex`}>
+            <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex`}>
               + Registrar gasto
             </Link>
           </div>

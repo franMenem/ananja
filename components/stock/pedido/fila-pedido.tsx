@@ -44,6 +44,7 @@ export function FilaPedido({
   const quedan = textoQuedanSinVender(sinVender);
   return (
     <Link
+      prefetch={false}
       href={`/stock/lotes/${loteId}`}
       className="flex min-h-[72px] flex-wrap items-center justify-between gap-x-3 gap-y-2 bg-surface px-4 py-3 hover:bg-background"
     >

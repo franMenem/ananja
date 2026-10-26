@@ -91,6 +91,7 @@ export function TarjetaResultado({
         </p>
       )}
       <Link
+        prefetch={false}
         href="/ganancia"
         className="inline-flex min-h-11 items-center self-start text-[15px] font-medium text-primary hover:underline"
       >

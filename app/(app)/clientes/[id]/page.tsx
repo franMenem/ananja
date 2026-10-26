@@ -115,7 +115,7 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-2">
           {ventasPendientes.length === 1 ? (
-            <Link href={`/comprobantes/${ventasPendientes[0].id}/cobro`} className={`${BOTON_PRIMARIO} flex px-4`}>
+            <Link prefetch={false} href={`/comprobantes/${ventasPendientes[0].id}/cobro`} className={`${BOTON_PRIMARIO} flex px-4`}>
               Registrar cobro
             </Link>
           ) : ventasPendientes.length > 1 ? (
@@ -128,7 +128,7 @@ export default async function ClienteDetailPage({
             />
           ) : null}
           <div className="grid grid-cols-2 gap-2">
-            <Link href={`/clientes/${id}/editar`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <Link prefetch={false} href={`/clientes/${id}/editar`} className={`${BOTON_SECUNDARIO} flex px-4`}>
               Editar
             </Link>
             <ClienteBajaButton clienteId={id} nombre={cliente.nombre} activo={cliente.activo} />

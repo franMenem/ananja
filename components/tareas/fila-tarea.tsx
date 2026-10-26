@@ -57,7 +57,7 @@ export function FilaTarea({ tarea, medioDeposito }: { tarea: Tarea; medioDeposit
         ) : accion?.tipo === "depositar" ? (
           <>
             {accion.tenedorNombre !== null && (
-              <Link href={tarea.href} className={BOTON_ACCION_TAREA}>
+              <Link prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
                 Ver
               </Link>
             )}
@@ -69,7 +69,7 @@ export function FilaTarea({ tarea, medioDeposito }: { tarea: Tarea; medioDeposit
             />
           </>
         ) : (
-          <Link href={tarea.href} className={BOTON_ACCION_TAREA}>
+          <Link prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
             Ver
           </Link>
         )}

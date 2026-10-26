@@ -69,7 +69,7 @@ export function MiGananciaVista({ ventas, debeCentavos, pendienteCentavos, movim
                 </Pastilla>
                 <p className="text-[14px] text-text-muted">
                   No cuentan en la ganancia hasta que cargues a cuánto las vendiste.{" "}
-                  <Link href="/mi/ventas" className="inline-flex min-h-11 items-center font-semibold text-primary">
+                  <Link prefetch={false} href="/mi/ventas" className="inline-flex min-h-11 items-center font-semibold text-primary">
                     Ver ventas
                   </Link>
                 </p>
@@ -126,7 +126,7 @@ export function MiGananciaVista({ ventas, debeCentavos, pendienteCentavos, movim
                 </Pastilla>
               )}
             </div>
-            <Link href="/mi/pagar" className={`${BOTON_SECUNDARIO} flex w-full px-4`}>
+            <Link prefetch={false} href="/mi/pagar" className={`${BOTON_SECUNDARIO} flex w-full px-4`}>
               Pagar
             </Link>
           </Tarjeta>

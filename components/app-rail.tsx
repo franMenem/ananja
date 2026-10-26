@@ -10,7 +10,7 @@ import { IconLogout, IconMas, IconRailToggle } from "@/components/icons";
 import { useTareasPendientes } from "@/components/tareas-badge";
 import { VerComoRevendedor } from "@/components/ver-como-revendedor";
 import { NEGOCIO } from "@/lib/negocio";
-import { SECTORES, resolverNavegacion } from "@/lib/navegacion";
+import { SECTORES, destinoDeSector, resolverNavegacion } from "@/lib/navegacion";
 import {
   guardarSidebarColapsado,
   leerSidebarColapsado,
@@ -155,6 +155,7 @@ export function AppRail() {
                   <li key={seccion.id}>
                     <Link
                       href={seccion.href}
+                      prefetch={seccion.href === destinoDeSector(sector) ? undefined : false}
                       aria-current={active ? "page" : undefined}
                       aria-label={
                         colapsado

@@ -29,7 +29,7 @@ export default async function DeudasPage() {
         titulo="Deudas"
         pregunta="¿Qué debe Ananja y cuánto falta pagar?"
         acciones={
-          <Link href="/plata/deudas/nueva" className={`${BOTON_PRIMARIO} flex gap-2 px-4`}>
+          <Link prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_PRIMARIO} flex gap-2 px-4`}>
             + Nueva deuda
           </Link>
         }
@@ -102,7 +102,7 @@ export default async function DeudasPage() {
                       moneda={deuda.moneda}
                       montoCentavos={deuda.restanteCentavos}
                     />
-                    <Link href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
+                    <Link prefetch={false} href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
                       Registrar pago
                     </Link>
                   </div>

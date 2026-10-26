@@ -52,6 +52,7 @@ export function BotellasPedido({ cobranza, personasEnManos, totalEnManos }: Bote
                     className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-[14px]"
                   >
                     <Link
+                      prefetch={false}
                       href={`/revendedores/${persona.vendedorId}`}
                       className="inline-flex min-h-11 min-w-0 items-center break-words text-primary underline decoration-mark underline-offset-4"
                     >

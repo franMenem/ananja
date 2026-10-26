@@ -72,6 +72,7 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
             <div className="flex flex-col">
               {gastosLegacy.map((gasto) => (
                 <Link
+                  prefetch={false}
                   key={gasto.id}
                   href={`/gastos/${gasto.id}`}
                   className="flex items-baseline justify-between gap-2 border-b border-border py-3 text-[16px]"

@@ -26,6 +26,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
               <span className="min-w-0 break-words text-text-muted">Sin pedido asignado</span>
             ) : (
               <Link
+                prefetch={false}
                 href={`/stock/lotes/${l.loteId}`}
                 className="min-w-0 break-words text-text underline decoration-border underline-offset-4 hover:text-primary"
               >

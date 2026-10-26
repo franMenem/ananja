@@ -49,6 +49,7 @@ function IconoCheck() {
 function TarjetaLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
+      prefetch={false}
       href={href}
       className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:bg-background lg:p-5"
     >
@@ -129,6 +130,7 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
             <>
               <ListaTareas tareas={datos.tareasTop} medioDeposito={datos.medioDeposito} />
               <Link
+                prefetch={false}
                 href="/tareas"
                 className="flex min-h-11 items-center justify-between gap-2 border-t border-line pt-3 text-[16px] font-semibold text-text"
               >

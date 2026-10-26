@@ -41,6 +41,7 @@ export default async function MiMaterialPage() {
         <ListaTarjeta>
           {materiales.map((material) => (
             <Link
+              prefetch={false}
               key={material.id}
               href={`/mi/material/${material.id}`}
               className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 hover:bg-background"

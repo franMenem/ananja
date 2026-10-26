@@ -29,6 +29,7 @@ function DetalleMovimiento({
       {etiqueta && loteId && " · "}
       {loteId && (
         <Link
+          prefetch={false}
           href={`/stock/lotes/${loteId}`}
           className="inline-flex min-h-11 items-center underline decoration-border underline-offset-4 hover:text-primary"
         >
@@ -100,6 +101,7 @@ export default async function StockMovimientosPage() {
                   {esIngreso ? "Ingreso" : "Egreso manual"} ·{" "}
                   {movimiento.comprobante_id ? (
                     <Link
+                      prefetch={false}
                       href={`/comprobantes/${movimiento.comprobante_id}`}
                       className="text-primary underline decoration-mark underline-offset-4"
                     >
@@ -175,6 +177,7 @@ export default async function StockMovimientosPage() {
                 <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[13px]">
                   {movimiento.comprobante_id ? (
                     <Link
+                      prefetch={false}
                       href={`/comprobantes/${movimiento.comprobante_id}`}
                       className="text-text-muted underline decoration-mark underline-offset-4"
                     >

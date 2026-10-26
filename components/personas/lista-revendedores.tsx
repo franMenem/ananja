@@ -108,6 +108,7 @@ export function ListaRevendedores({ filas }: { filas: FilaRevendedor[] }) {
                 const estado = estadoPersona(f.debeCentavos, f.porConfirmarCentavos);
                 return (
                   <Link
+                    prefetch={false}
                     key={f.id}
                     href={hrefFicha(f)}
                     className="grid min-h-14 grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] items-center gap-4 px-5 py-2 text-[16px] transition-colors hover:bg-background"

@@ -34,6 +34,7 @@ export function AvisoPagoRechazado({ montoCentavos, fecha, motivo }: AvisoPagoRe
           {motivo && <span className="text-[14px] break-words text-text-muted">Motivo: {motivo}</span>}
         </div>
         <Link
+          prefetch={false}
           href="/mi/pagar"
           className={`${BOTON_PRIMARIO} flex w-full shrink-0 px-4 sm:w-auto`}
         >

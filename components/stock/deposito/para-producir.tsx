@@ -26,7 +26,7 @@ export function LineaInsumo({
 }) {
   if (cantidadTexto === null) {
     return (
-      <Link href="/stock/insumos/factura" className="text-[16px] text-text-muted underline decoration-[#d0cec8] underline-offset-4">
+      <Link prefetch={false} href="/stock/insumos/factura" className="text-[16px] text-text-muted underline decoration-[#d0cec8] underline-offset-4">
         {sinCargar}
       </Link>
     );
@@ -83,6 +83,7 @@ export function ParaProducir({
         />
       </div>
       <Link
+        prefetch={false}
         href="/stock/insumos"
         className="inline-flex min-h-11 w-fit items-center text-[16px] font-semibold text-primary underline decoration-mark underline-offset-4"
       >

@@ -108,7 +108,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
 
 function FilaPago({ row }: { row: PagoRevendedorItem }) {
   return (
-    <Link href={`/tareas/pagos/${row.id}`} className="flex items-center gap-3 py-2 hover:bg-background">
+    <Link prefetch={false} href={`/tareas/pagos/${row.id}`} className="flex items-center gap-3 py-2 hover:bg-background">
       <span className="hidden min-[380px]:block">
         <MiniaturaComprobante
           tieneImagen={row.imagenPath !== null}

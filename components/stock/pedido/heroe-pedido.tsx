@@ -29,7 +29,7 @@ export function HeroePedido({
           Sin costos
         </Pastilla>
         <p className="text-[16px] text-text">Todavía no sabemos cuánto costó ni cuánto hay que pagar.</p>
-        <Link href={`/stock/lotes/${pedidoId}/costos`} className={`${BOTON_PRIMARIO} flex px-4`}>
+        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/costos`} className={`${BOTON_PRIMARIO} flex px-4`}>
           Completar costos
         </Link>
       </Tarjeta>
@@ -43,7 +43,7 @@ export function HeroePedido({
         {formatCentavos(Math.max(pendienteCentavos, 0))}
       </NumeroGrande>
       {debe ? (
-        <Link href={`/stock/lotes/${pedidoId}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
+        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
           Registrar pago
         </Link>
       ) : (

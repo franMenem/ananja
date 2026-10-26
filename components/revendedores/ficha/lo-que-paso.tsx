@@ -82,7 +82,7 @@ function LineaPago({ pago }: { pago: MovimientoPago }) {
     />
   );
   return hrefDetalle ? (
-    <Link href={hrefDetalle} className="-mx-2 block rounded-lg px-2 hover:bg-background">
+    <Link prefetch={false} href={hrefDetalle} className="-mx-2 block rounded-lg px-2 hover:bg-background">
       {linea}
     </Link>
   ) : (

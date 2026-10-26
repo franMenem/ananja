@@ -79,7 +79,7 @@ export default async function StockLotesPage() {
         titulo="Pedidos"
         pregunta={`¿Qué le pedimos ${proveedor.a} y cuánto falta pagar?`}
         acciones={
-          <Link href="/stock/lotes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <Link prefetch={false} href="/stock/lotes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo pedido
           </Link>
         }

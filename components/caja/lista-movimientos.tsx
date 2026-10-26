@@ -49,6 +49,7 @@ export function ListaMovimientos({
               titulo={
                 fila.href ? (
                   <Link
+                    prefetch={false}
                     href={fila.href}
                     className="inline-flex min-h-11 items-center break-words underline decoration-border underline-offset-4 hover:text-primary"
                   >

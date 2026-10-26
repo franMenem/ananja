@@ -28,6 +28,7 @@ export function FormHeaderDesktop() {
   return (
     <div className="hidden items-center gap-3 lg:flex">
       <Link
+        prefetch={false}
         href={formHeader.backHref}
         aria-label={formHeader.backLabel}
         className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-primary"

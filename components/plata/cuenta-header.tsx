@@ -28,6 +28,7 @@ export function CuentaHeader({
       </NumeroGrande>
       <div className="flex flex-wrap items-center gap-x-5 text-[16px] text-text-muted tabular-nums">
         <Link
+          prefetch={false}
           href="/plata/cuenta/mercado_pago"
           className="inline-flex min-h-11 items-center underline decoration-border underline-offset-4 hover:text-text"
         >
@@ -35,6 +36,7 @@ export function CuentaHeader({
         </Link>
         <span aria-hidden="true">·</span>
         <Link
+          prefetch={false}
           href="/plata/cuenta/banco"
           className="inline-flex min-h-11 items-center underline decoration-border underline-offset-4 hover:text-text"
         >

@@ -93,6 +93,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
 
   const disparador = vendedor.revende ? (
     <Link
+      prefetch={false}
       href="/mi"
       aria-label={variante === "rail" && colapsado ? "Ver como revendedor" : undefined}
       title={variante === "rail" && colapsado ? "Ver como revendedor" : undefined}

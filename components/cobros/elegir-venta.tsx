@@ -45,6 +45,7 @@ export function ClienteElegirVenta({ ventas }: ClienteElegirVentaProps) {
           </p>
           {ventas.map((venta) => (
             <Link
+              prefetch={false}
               key={venta.id}
               href={`/comprobantes/${venta.id}/cobro`}
               className="flex min-h-12 items-center justify-between gap-3 border-b border-line px-4 py-2.5 text-[16px] text-text last:border-b-0 hover:bg-background"

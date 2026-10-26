@@ -130,6 +130,7 @@ export default async function ComprobanteDetailPage({
             <p className="text-text-muted">
               Cliente:{" "}
               <Link
+                prefetch={false}
                 href={`/clientes/${comprobante.clientes.id}`}
                 className="font-medium text-primary"
               >
@@ -170,6 +171,7 @@ export default async function ComprobanteDetailPage({
 
           {deudaCentavos > 0 && (
             <Link
+              prefetch={false}
               href={`/comprobantes/${id}/cobro`}
               className="flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
             >
@@ -180,6 +182,7 @@ export default async function ComprobanteDetailPage({
 
         <div className="flex gap-2.5">
           <Link
+            prefetch={false}
             href={`/comprobantes/${id}/editar`}
             className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
           >

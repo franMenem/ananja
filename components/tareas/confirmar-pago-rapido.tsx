@@ -115,6 +115,7 @@ export function ConfirmarPagoRapido(props: ConfirmarPagoRapidoProps) {
         </button>
       </div>
       <Link
+        prefetch={false}
         href={`/tareas/pagos/${props.pagoId}`}
         className="mt-4 inline-block border-b border-mark text-[13px] text-text"
       >

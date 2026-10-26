@@ -61,7 +61,7 @@ export function AccionesForm({
       </div>
       {nota && <p className="text-center text-[14px] text-text-muted lg:text-left">{nota}</p>}
       {cancelarHref && (
-        <Link href={cancelarHref} className={`${BOTON_SECUNDARIO} flex w-full px-4 lg:w-auto lg:min-w-64 lg:self-start`}>
+        <Link prefetch={false} href={cancelarHref} className={`${BOTON_SECUNDARIO} flex w-full px-4 lg:w-auto lg:min-w-64 lg:self-start`}>
           {etiquetaCancelar}
         </Link>
       )}

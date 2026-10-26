@@ -203,6 +203,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
           No encontramos este gasto.
         </p>
         <Link
+          prefetch={false}
           href={volver.href}
           className="text-[16px] font-medium text-accent"
         >

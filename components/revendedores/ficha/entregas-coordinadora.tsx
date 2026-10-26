@@ -97,6 +97,7 @@ function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
 function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
   const link = (
     <Link
+      prefetch={false}
       href={`/revendedores/${fila.revendedoraId}`}
       className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-border underline-offset-4 hover:text-primary"
     >

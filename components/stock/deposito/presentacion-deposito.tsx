@@ -49,6 +49,7 @@ export function PresentacionDeposito({
               .map((segmento, i) =>
                 segmento.loteId ? (
                   <Link
+                    prefetch={false}
                     key={i}
                     href={`/stock/lotes/${segmento.loteId}`}
                     className="text-text underline decoration-[#d0cec8] underline-offset-4"

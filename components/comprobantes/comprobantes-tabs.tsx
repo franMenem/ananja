@@ -21,6 +21,7 @@ export function ComprobantesTabs({ activa }: { activa: TabComprobantes }) {
         const active = tab.id === activa;
         return (
           <Link
+            prefetch={false}
             key={tab.id}
             href={tab.href}
             aria-current={active ? "page" : undefined}

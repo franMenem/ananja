@@ -132,7 +132,7 @@ export function MiInicioVista({
               {deuda.tipo === "parcial" && (
                 <p className="text-[14px] text-text-muted">Te queda pagar {formatCentavos(deuda.quedaCentavos)}</p>
               )}
-              <Link href="/mi/pagar" className={`${todoPagado ? BOTON_SECUNDARIO : BOTON_PRIMARIO} flex w-full px-4`}>
+              <Link prefetch={false} href="/mi/pagar" className={`${todoPagado ? BOTON_SECUNDARIO : BOTON_PRIMARIO} flex w-full px-4`}>
                 Pagarle a {destinoPago}
               </Link>
               <p className="text-[14px] text-text-muted">
@@ -143,7 +143,7 @@ export function MiInicioVista({
             </Tarjeta>
           )}
 
-          <Link href="/mi/ventas/nueva" className={`${BOTON_SECUNDARIO} flex w-full gap-2 px-4`}>
+          <Link prefetch={false} href="/mi/ventas/nueva" className={`${BOTON_SECUNDARIO} flex w-full gap-2 px-4`}>
             <IconMas className="h-5 w-5" />
             Registré una venta
           </Link>
@@ -202,6 +202,7 @@ export function MiInicioVista({
 
         <div className="flex flex-col gap-5">
           <Link
+            prefetch={false}
             href="/mi/ganancia"
             className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:bg-background lg:p-5"
           >
@@ -223,6 +224,7 @@ export function MiInicioVista({
               <h2 className="font-display text-[20px] leading-tight font-bold text-text">Tus pagos</h2>
               {movimientos.length > 3 && (
                 <Link
+                  prefetch={false}
                   href="/mi/ganancia"
                   className="inline-flex min-h-11 items-center text-[15px] font-semibold text-primary"
                 >

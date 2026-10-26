@@ -221,6 +221,7 @@ export function DepositarRapido({
       )}
 
       <Link
+        prefetch={false}
         href={`/plata/depositar?tenedor=${tenedorId}&monto=${montoCentavos}`}
         className="mt-4 inline-block border-b border-mark text-[14px] text-text"
       >

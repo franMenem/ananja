@@ -27,10 +27,10 @@ export default async function ComprobantesPage({ searchParams }: PageProps<"/com
         pregunta="¿Qué vendió Ananja directo y quién informó pagos?"
         acciones={
           <div className="hidden items-center gap-2.5 md:flex">
-            <Link href="/clientes" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <Link prefetch={false} href="/clientes" className={`${BOTON_SECUNDARIO} flex px-4`}>
               Clientes
             </Link>
-            <Link href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex gap-2 px-5`}>
+            <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex gap-2 px-5`}>
               + Cargar
             </Link>
           </div>

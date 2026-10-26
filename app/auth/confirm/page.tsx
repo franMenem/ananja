@@ -46,6 +46,7 @@ export default async function ConfirmarPage({ searchParams }: PageProps<"/auth/c
             Puede que esté incompleto. Abrilo de nuevo desde el mail, o pedí uno nuevo.
           </p>
           <Link
+            prefetch={false}
             href="/login"
             className="flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
           >

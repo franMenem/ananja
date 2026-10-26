@@ -38,6 +38,7 @@ export function AppHeader() {
       <header className="sticky top-0 z-10 border-b border-border bg-surface pt-[env(safe-area-inset-top)] lg:hidden">
         <div className="flex items-start gap-3 px-5 pt-[14px] pb-3">
           <Link
+            prefetch={false}
             href={formHeader.backHref}
             aria-label={formHeader.backLabel}
             className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-text"

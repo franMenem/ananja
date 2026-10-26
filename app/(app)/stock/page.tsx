@@ -110,10 +110,10 @@ export default async function StockPage() {
           />
 
           <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
-            <Link href="/stock/nuevo?tipo=egreso" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <Link prefetch={false} href="/stock/nuevo?tipo=egreso" className={`${BOTON_SECUNDARIO} flex px-4`}>
               − Egreso
             </Link>
-            <Link href="/stock/movimientos" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <Link prefetch={false} href="/stock/movimientos" className={`${BOTON_SECUNDARIO} flex px-4`}>
               Ver movimientos
             </Link>
           </div>
@@ -121,6 +121,7 @@ export default async function StockPage() {
       </div>
 
       <Link
+        prefetch={false}
         href="/stock/proveedor"
         className="inline-flex min-h-11 w-fit items-center text-[14px] text-text-muted underline decoration-[#d0cec8] underline-offset-4"
       >

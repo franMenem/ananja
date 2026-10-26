@@ -166,7 +166,7 @@ export default async function RevendedoresPage() {
         titulo="Revendedores"
         pregunta="¿Quién tiene botellas y quién debe plata?"
         acciones={
-          <Link href="/revendedores/invitar" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <Link prefetch={false} href="/revendedores/invitar" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Sumar persona
           </Link>
         }

@@ -174,7 +174,7 @@ function Contenido({
             {opciones.map((o) => (
               <li key={o.id}>
                 {"href" in o ? (
-                  <Link href={o.href} onClick={onClose} className={TARJETA}>
+                  <Link prefetch={false} href={o.href} onClick={onClose} className={TARJETA}>
                     <Circulo Icono={o.Icono} />
                     <span className="text-[17px] leading-tight font-semibold text-text">{o.titulo}</span>
                     <span className="text-[14px] leading-snug text-text-muted">{o.ayuda}</span>
@@ -222,6 +222,7 @@ function Contenido({
 
           {ELEGIR[paso.seccion].extra && (
             <Link
+              prefetch={false}
               href={ELEGIR[paso.seccion].extra!.href}
               onClick={onClose}
               className="mt-4 flex min-h-14 flex-col justify-center rounded-2xl border border-border bg-surface px-4 py-2 hover:bg-background"
@@ -252,6 +253,7 @@ function Contenido({
               {filtradas.map((r) => (
                 <li key={r.id} className="border-b border-border last:border-b-0">
                   <Link
+                    prefetch={false}
                     href={`/revendedores/${r.id}/carga?seccion=${paso.seccion}`}
                     onClick={onClose}
                     className="flex min-h-12 items-center justify-between gap-3 py-2 text-[17px] text-text"

@@ -110,6 +110,7 @@ export function PagoPedido({
           <div className="flex flex-col divide-y divide-line">
             {pagos.map((pago) => (
               <Link
+                prefetch={false}
                 key={pago.id}
                 href={`/gastos/${pago.id}`}
                 className="flex min-h-14 items-center justify-between gap-3 py-2 text-[16px]"
@@ -151,6 +152,7 @@ export function PagoPedido({
               </span>
               {restaAceite > 0 && deudaAceite.deuda_id && (
                 <Link
+                  prefetch={false}
                   href={`/plata/deudas/${deudaAceite.deuda_id}/pago`}
                   className="inline-flex min-h-11 items-center text-[15px] font-semibold text-primary underline decoration-mark underline-offset-4"
                 >

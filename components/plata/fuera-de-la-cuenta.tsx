@@ -57,7 +57,7 @@ function Vacio({ children }: { children: ReactNode }) {
 /** Fila tocable (toda la fila lleva a la ficha). */
 function FilaLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={`block rounded-lg hover:bg-background ${className}`}>
+    <Link prefetch={false} href={href} className={`block rounded-lg hover:bg-background ${className}`}>
       {children}
     </Link>
   );
@@ -130,6 +130,7 @@ export function FueraDeLaCuenta({
                 </FilaLink>
                 {!negativo && (
                   <Link
+                    prefetch={false}
                     href={`/plata/depositar?tenedor=${p.tenedor_id}&monto=${p.total_centavos}`}
                     className={`${BOTON_ACCION_TAREA} sm:ml-auto`}
                   >
@@ -208,7 +209,7 @@ export function FueraDeLaCuenta({
                   valor={<Deuda centavos={p.saldoCentavos} texto={formatCentavos(p.saldoCentavos)} />}
                   className="px-1 sm:flex-1"
                 />
-                <Link href={`/stock/lotes/${p.loteId}/pago`} className={BOTON_ACCION_TAREA}>
+                <Link prefetch={false} href={`/stock/lotes/${p.loteId}/pago`} className={BOTON_ACCION_TAREA}>
                   Pagar
                 </Link>
               </div>
@@ -220,7 +221,7 @@ export function FueraDeLaCuenta({
                   valor={<Deuda centavos={d.restanteCentavos} texto={formatMonto(d.moneda, d.restanteCentavos)} />}
                   className="px-1 sm:flex-1"
                 />
-                <Link href={`/plata/deudas/${d.id}/pago`} className={BOTON_ACCION_TAREA}>
+                <Link prefetch={false} href={`/plata/deudas/${d.id}/pago`} className={BOTON_ACCION_TAREA}>
                   Pagar
                 </Link>
               </div>
@@ -229,12 +230,13 @@ export function FueraDeLaCuenta({
         )}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
           <Link
+            prefetch={false}
             href="/plata/deudas"
             className="inline-flex min-h-11 items-center text-[15px] text-text-muted hover:text-primary"
           >
             Ver todas las deudas
           </Link>
-          <Link href="/plata/deudas/nueva" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <Link prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nueva deuda
           </Link>
         </div>

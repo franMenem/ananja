@@ -151,6 +151,7 @@ export default async function TareasPage() {
           <NotificacionesBanner />
 
           <Link
+            prefetch={false}
             href="/cambiar-password"
             className="mb-4 inline-flex min-h-11 items-center self-start text-[14px] text-text-muted underline-offset-2 hover:text-text hover:underline"
           >

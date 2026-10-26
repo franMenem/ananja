@@ -24,6 +24,7 @@ type VolverLinkProps = {
 export function VolverLink({ href, label, hover = true, corto = false }: VolverLinkProps) {
   return (
     <Link
+      prefetch={false}
       href={href}
       className={`inline-flex min-h-11 w-fit items-center text-[15px] text-text-muted ${hover ? " hover:text-primary-hover" : ""}`}
     >

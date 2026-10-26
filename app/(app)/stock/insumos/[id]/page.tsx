@@ -71,13 +71,14 @@ export default async function InsumoDetailPage({
               let origen: React.ReactNode;
               if (m.gasto_id) {
                 origen = (
-                  <Link href={`/gastos/${m.gasto_id}`} className="inline-flex min-h-11 items-center text-primary underline decoration-mark underline-offset-4">
+                  <Link prefetch={false} href={`/gastos/${m.gasto_id}`} className="inline-flex min-h-11 items-center text-primary underline decoration-mark underline-offset-4">
                     Compra
                   </Link>
                 );
               } else if (m.lote_id) {
                 origen = (
                   <Link
+                    prefetch={false}
                     href={`/stock/lotes/${m.lote_id}`}
                     className="inline-flex min-h-11 items-center text-primary underline decoration-mark underline-offset-4"
                   >

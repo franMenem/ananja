@@ -46,10 +46,10 @@ export default async function InsumosPage() {
       <EncabezadoPantalla titulo="Insumos" pregunta="¿Qué tengo para producir?" />
 
       <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 md:max-w-[480px]">
-        <Link href="/stock/insumos/factura" className={`${BOTON_SECUNDARIO} flex px-4`}>
+        <Link prefetch={false} href="/stock/insumos/factura" className={`${BOTON_SECUNDARIO} flex px-4`}>
           Cargar compra
         </Link>
-        <Link href="/stock/insumos/ajuste" className={`${BOTON_SECUNDARIO} flex px-4`}>
+        <Link prefetch={false} href="/stock/insumos/ajuste" className={`${BOTON_SECUNDARIO} flex px-4`}>
           Ajuste
         </Link>
       </div>
@@ -86,6 +86,7 @@ export default async function InsumosPage() {
       ))}
 
       <Link
+        prefetch={false}
         href="/stock/insumos/nuevo"
         className="inline-flex min-h-11 w-fit items-center text-[15px] font-semibold text-text-muted underline decoration-[#d0cec8] underline-offset-4"
       >

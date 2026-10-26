@@ -121,6 +121,7 @@ export function SeccionPago({
           </p>
           {pagosPendientes.map((p) => (
             <Link
+              prefetch={false}
               key={p.id}
               href={`/tareas/pagos/${p.id}`}
               className="inline-flex min-h-11 items-center text-[14px] text-primary underline-offset-2 hover:underline"

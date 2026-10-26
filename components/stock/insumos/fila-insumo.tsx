@@ -44,7 +44,7 @@ export function FilaInsumo({
   const sinStock = stock <= 0;
   const detalle = `${textoCantidadInsumo(stock, unidad)}${alcance && alcance.length > 0 && !sinStock ? ` · ${textoAlcance(alcance)}` : ""}`;
   return (
-    <Link href={`/stock/insumos/${id}`} className="block rounded-lg hover:bg-background">
+    <Link prefetch={false} href={`/stock/insumos/${id}`} className="block rounded-lg hover:bg-background">
       <Fila
         titulo={nombre}
         detalle={detalle}

@@ -39,7 +39,7 @@ export default async function ClientesPage() {
         titulo="Clientes"
         pregunta="¿Quién nos compra y quién debe?"
         acciones={
-          <Link href="/clientes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <Link prefetch={false} href="/clientes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo cliente
           </Link>
         }

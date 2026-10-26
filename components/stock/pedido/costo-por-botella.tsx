@@ -185,10 +185,11 @@ export function CostoPorBotella({
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        <Link href={`/stock/lotes/${pedidoId}/actualizar-costos`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/actualizar-costos`} className={`${BOTON_SECUNDARIO} flex px-4`}>
           Actualizar costos
         </Link>
         <Link
+          prefetch={false}
           href={`/stock/lotes/${pedidoId}/costos`}
           className="inline-flex min-h-11 items-center text-[16px] font-semibold text-primary underline decoration-mark underline-offset-4"
         >

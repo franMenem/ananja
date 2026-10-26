@@ -105,7 +105,7 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
                 : "No tiene plata en mano."}
         </p>
         {total > 0 && (
-          <Link href={`/plata/depositar?tenedor=${id}&monto=${total}`} className={`${BOTON_PRIMARIO} flex px-4`}>
+          <Link prefetch={false} href={`/plata/depositar?tenedor=${id}&monto=${total}`} className={`${BOTON_PRIMARIO} flex px-4`}>
             Pasar a la cuenta
           </Link>
         )}
