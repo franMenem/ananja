@@ -17,6 +17,7 @@ export function MiniaturaComprobante({
   size: "sm" | "md";
 }) {
   const dims = size === "sm" ? "h-[52px] w-[52px]" : "h-14 w-14";
+  const px = size === "sm" ? 52 : 56;
   const iconDims = size === "sm" ? "h-[19px] w-[19px]" : "h-5 w-5";
   return (
     <div
@@ -24,7 +25,15 @@ export function MiniaturaComprobante({
     >
       {tieneImagen && !isPdf && signedUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={signedUrl} alt="" className="h-full w-full object-cover" />
+        <img
+          src={signedUrl}
+          alt=""
+          width={px}
+          height={px}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+        />
       ) : (
         <IconReceipt className={iconDims} />
       )}
