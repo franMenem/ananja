@@ -11,6 +11,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+const cargarDatosHoja = vi.fn();
+vi.mock("@/components/cargar/actions", () => ({ cargarDatosHoja: (...a: unknown[]) => cargarDatosHoja(...a) }));
+
+import { CargarProvider, useCargar } from "@/components/cargar/cargar-provider";
 import { QuePasoSheet } from "@/components/cargar/que-paso-sheet";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -126,5 +130,77 @@ describe("QuePasoSheet", () => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     });
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("QuePasoSheet — la lista se pide al abrir", () => {
+  it("mientras carga muestra 3 filas de espera en el paso 2 (y las opciones extra siguen)", () => {
+    montar({ revendedoras: [], estado: "cargando" });
+    act(() => texto("Vendí")!.click());
+    const espera = document.querySelector('[aria-busy="true"]');
+    expect(espera?.querySelectorAll("li")).toHaveLength(3);
+    expect(texto("Ananja, a un cliente")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("No hay revendedoras activas.");
+  });
+
+  it("si falla muestra el mensaje y un botón para reintentar", () => {
+    const onReintentar = vi.fn();
+    montar({ revendedoras: [], estado: "error", onReintentar });
+    act(() => texto("Entregué botellas")!.click());
+    expect(document.querySelector('[role="alert"]')?.textContent).toContain("No pudimos cargar la lista de revendedoras.");
+    act(() => texto("Reintentar")!.click());
+    expect(onReintentar).toHaveBeenCalledTimes(1);
+  });
+});
+
+function Abridor() {
+  const { abrir } = useCargar();
+  return createElement("button", { type: "button", "data-abrir": "", onClick: () => abrir() }, "abrir");
+}
+
+const esperar = () => act(async () => { await Promise.resolve(); });
+
+describe("CargarProvider — pide los datos la primera vez que se abre y los guarda", () => {
+  function montarProvider() {
+    contenedor = document.createElement("div");
+    document.body.appendChild(contenedor);
+    root = createRoot(contenedor);
+    act(() => root!.render(createElement(CargarProvider, null, createElement(Abridor))));
+  }
+  const abrirHoja = () => act(() => document.querySelector<HTMLButtonElement>("[data-abrir]")!.click());
+
+  it("no pide nada hasta que se abre, y no repite el pedido al reabrir", async () => {
+    cargarDatosHoja.mockReset();
+    cargarDatosHoja.mockResolvedValue({ ok: true, revendedoras: REVENDEDORAS, proveedorNombre: "Olivares Test" });
+    montarProvider();
+    expect(cargarDatosHoja).not.toHaveBeenCalled();
+
+    abrirHoja();
+    await esperar();
+    expect(cargarDatosHoja).toHaveBeenCalledTimes(1);
+    act(() => texto("Vendí")!.click());
+    expect(texto("Ana Pérez")).toBeTruthy();
+
+    act(() => document.querySelector<HTMLButtonElement>('[aria-label="Cerrar"]')!.click());
+    abrirHoja();
+    await esperar();
+    expect(cargarDatosHoja).toHaveBeenCalledTimes(1);
+    expect(texto("Llegó un pedido")?.textContent).toContain("de Olivares Test");
+  });
+
+  it("si falla ofrece reintentar y al reintentar carga la lista", async () => {
+    cargarDatosHoja.mockReset();
+    cargarDatosHoja.mockResolvedValueOnce({ ok: false });
+    montarProvider();
+    abrirHoja();
+    await esperar();
+    act(() => texto("Entregué botellas")!.click());
+    expect(document.querySelector('[role="alert"]')).toBeTruthy();
+
+    cargarDatosHoja.mockResolvedValueOnce({ ok: true, revendedoras: REVENDEDORAS, proveedorNombre: null });
+    act(() => texto("Reintentar")!.click());
+    await esperar();
+    expect(cargarDatosHoja).toHaveBeenCalledTimes(2);
+    expect(texto("Bea Gómez")?.getAttribute("href")).toBe("/revendedores/r2/carga?seccion=entrega");
   });
 });

@@ -9,25 +9,15 @@ import { ServiceWorkerRegister } from "@/components/sw-register";
 import { TabBar } from "@/components/tab-bar";
 import { TareasBadgeProvider } from "@/components/tareas-badge";
 import { UpdateBanner } from "@/components/update-banner";
-import { listarRevendedorasActivas } from "@/lib/data/revendedores";
-import { leerProveedorNombre } from "@/lib/proveedor-servidor";
-import { createClient } from "@/lib/supabase/server";
 
-export default async function AppLayout({ children }: LayoutProps<"/">) {
-  // Para la hoja "¿Qué pasó?" del botón "+": revendedoras activas (las que
-  // un admin ya ve en /revendedores) y nombre del proveedor (lectura
-  // memoizada por request, tolerante a fallas).
-  const supabase = await createClient();
-  const [revendedoras, proveedorNombre] = await Promise.all([
-    listarRevendedorasActivas(supabase),
-    leerProveedorNombre(),
-  ]);
-
+export default function AppLayout({ children }: LayoutProps<"/">) {
+  // Sin lecturas acá: la hoja "¿Qué pasó?" del botón "+" pide sus datos
+  // (revendedoras y proveedor) cuando se abre — `components/cargar/actions.ts`.
   return (
     <PageHeaderProvider>
       {/* Una sola fuente del número de tareas para el rail y la tab bar. */}
       <TareasBadgeProvider>
-      <CargarProvider revendedoras={revendedoras} proveedorNombre={proveedorNombre}>
+      <CargarProvider>
       <div className="flex min-h-full min-w-0 flex-1 flex-col bg-background lg:flex-row">
         <ServiceWorkerRegister />
         <PushReenlazar />

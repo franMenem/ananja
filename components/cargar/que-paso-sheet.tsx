@@ -17,6 +17,9 @@ import { formasProveedor } from "@/lib/dominio/proveedor";
 
 export type RevendedoraOpcion = { id: string; nombre: string };
 
+/** Estado de la lista de revendedoras de la hoja: se pide al abrirla. */
+export type EstadoDatosHoja = "cargando" | "listo" | "error";
+
 type Seccion = "entrega" | "ventas" | "pago";
 
 type Paso =
@@ -84,17 +87,27 @@ export function QuePasoSheet({
   onClose,
   revendedoras,
   proveedorNombre,
+  estado = "listo",
+  onReintentar = () => {},
 }: {
   open: boolean;
   onClose: () => void;
   revendedoras: RevendedoraOpcion[];
   proveedorNombre: string | null;
+  estado?: EstadoDatosHoja;
+  onReintentar?: () => void;
 }) {
   return (
     <BottomSheet open={open} ariaLabel="¿Qué pasó?" anchoMaximo="sm:max-w-lg">
       {/* Se monta solo con la hoja abierta: cada vez arranca en el paso 1
           y con el buscador vacío, sin resetear estado a mano. */}
-      <Contenido onClose={onClose} revendedoras={revendedoras} proveedorNombre={proveedorNombre} />
+      <Contenido
+        onClose={onClose}
+        revendedoras={revendedoras}
+        proveedorNombre={proveedorNombre}
+        estado={estado}
+        onReintentar={onReintentar}
+      />
     </BottomSheet>
   );
 }
@@ -103,10 +116,14 @@ function Contenido({
   onClose,
   revendedoras,
   proveedorNombre,
+  estado,
+  onReintentar,
 }: {
   onClose: () => void;
   revendedoras: RevendedoraOpcion[];
   proveedorNombre: string | null;
+  estado: EstadoDatosHoja;
+  onReintentar: () => void;
 }) {
   const [paso, setPaso] = useState<Paso>({ tipo: "inicio" });
   const [busqueda, setBusqueda] = useState("");
@@ -244,7 +261,26 @@ function Contenido({
             />
           </label>
 
-          {filtradas.length === 0 ? (
+          {estado === "cargando" ? (
+            <ul aria-busy="true" aria-label="Cargando revendedoras" className="mt-3 flex flex-col">
+              {[0, 1, 2].map((i) => (
+                <li key={i} className="flex min-h-12 items-center border-b border-border py-2 last:border-b-0">
+                  <span className="h-4 w-40 max-w-[60%] animate-pulse rounded bg-border" />
+                </li>
+              ))}
+            </ul>
+          ) : estado === "error" ? (
+            <div role="alert" className="mt-4 flex flex-col items-start gap-2">
+              <p className="text-[15px] text-text-muted">No pudimos cargar la lista de revendedoras.</p>
+              <button
+                type="button"
+                onClick={onReintentar}
+                className="flex min-h-11 items-center rounded-xl border border-border px-4 text-[16px] font-medium text-primary"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : filtradas.length === 0 ? (
             <p className="mt-4 text-[15px] text-text-muted">
               {revendedoras.length === 0 ? "No hay revendedoras activas." : "No encontramos a nadie con ese nombre."}
             </p>
