@@ -1,13 +1,17 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { HistorialPagos } from "@/components/mi/historial-pagos";
-import { GananciaRevendedor } from "@/components/revendedores/ganancia-revendedor";
-import { formatFecha } from "@/lib/fechas";
-import type { VentaGanancia } from "@/lib/dominio/ganancia-revendedor";
+import { IconMas } from "@/components/icons";
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { Fila } from "@/components/ui/fila";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
+import { hoyISO, formatFecha } from "@/lib/fechas";
+import { calcularGananciaRevendedor, gananciaDelMes, type VentaGanancia } from "@/lib/dominio/ganancia-revendedor";
+import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
-import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 
 /** Una entrega de la que todavía le quedan botellas de un producto. */
 export type TramoStockMi = {
@@ -32,34 +36,46 @@ type MiInicioVistaProps = {
   debeCentavos: number;
   pendienteCentavos: number;
   encargadoNombre: string | null;
-  /** Costo REAL de Ananja de todo lo que tiene sin vender
-   * (`v_valor_stock_revendedor.valor_en_poder_centavos`, 0059) — lo que le
-   * cobraron A ELLA, no necesariamente lo mismo que
-   * `valor_en_poder_ananja_centavos` de la ficha de admin. */
+  /** Lo que le cobraron A ELLA por todo lo que tiene sin vender
+   * (`v_valor_stock_revendedor.valor_en_poder_centavos`, 0059). */
   valorEnPoderCentavos: number;
-  /** A quién le debe ese valor en poder: el nombre de su coordinador si
-   * cobra con margen propio, o `null` para "Ananja" (encargado admin, o
-   * sin encargado — arma `MiInicioVista` con la misma regla que ya usa
-   * `app/(mi)/mi/page.tsx` para decidirlo). */
+  /** A quién le debe ese valor: el nombre de su coordinador si cobra con
+   * margen propio, o `null` para "Ananja". */
   valorEnPoderDestino: string | null;
   stock: StockProductoMi[];
   movimientos: MovimientoPago[];
   ventas: VentaGanancia[];
+  /** Mes de "Este mes ganaste" ("yyyy-mm"); por defecto, el de hoy. */
+  periodoActual?: string;
 };
+
+function Chevron() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="h-5 w-5 shrink-0 text-text-muted"
+    >
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
 
 /**
  * Contenido de `/mi` (los datos los arma `app/(mi)/mi/page.tsx`). Server
  * Component sin funciones en las props.
  *
- * Mobile: una sola columna, en este orden — saludo, deuda + "Pagar",
- * stock, "Registrar venta", pagos, ganancia. Cuando el contenedor llega a
- * 48rem (escritorio con el rail, ver `components/mi/mi-shell.tsx`), pasa a
- * dos columnas: a la izquierda lo que hay que hacer (deuda, pagar,
- * registrar venta, últimos pagos) y a la derecha el stock por entrega y la
- * ganancia. Se mide el contenedor y no la pantalla porque el ancho libre
- * depende de si el rail está expandido o colapsado. Las columnas usan
- * `display: contents` en mobile, así cada bloque vuelve a ser hijo directo
- * de la columna única y `order-*` conserva el orden de siempre.
+ * El orden del DOM es el orden de lectura: saludo, columna de lo que hay que
+ * hacer (deuda, pagar, registrar venta, botellas) y columna de resultados
+ * (ganancia del mes, pagos). En mobile las dos columnas se apilan; cuando el
+ * contenedor llega a 48rem (escritorio con el rail, ver
+ * `components/mi/mi-shell.tsx`) quedan lado a lado. Se mide el contenedor y
+ * no la pantalla porque el ancho libre depende del rail.
  */
 export function MiInicioVista({
   nombre,
@@ -71,128 +87,137 @@ export function MiInicioVista({
   stock,
   movimientos,
   ventas,
+  periodoActual,
 }: MiInicioVistaProps) {
   const destinoPago = encargadoNombre ?? NEGOCIO.nombre;
+  const totalBotellas = stock.reduce((acc, p) => acc + p.enPoder, 0);
+  const gananciaMes = gananciaDelMes(
+    calcularGananciaRevendedor(ventas).porMes,
+    periodoActual ?? hoyISO().slice(0, 7),
+  );
+  const conEntregas = stock.filter((p) => p.tramos.length > 0);
 
   return (
     <div className="@container w-full">
-      <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 pb-8 @3xl:grid @3xl:max-w-[1240px] @3xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] @3xl:items-start @3xl:gap-x-12 @6xl:gap-x-16">
-        <h1 className="font-display text-[28px] leading-[1.05] text-text @3xl:col-span-2 @3xl:text-[32px]">
+      <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5 pb-8 @3xl:grid @3xl:max-w-[1100px] @3xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] @3xl:items-start @3xl:gap-x-8">
+        <h1 className="font-display text-[28px] leading-[1.1] font-bold break-words text-text @3xl:col-span-2">
           Hola{nombre ? `, ${nombre}` : ""}
         </h1>
 
-        <div className="contents @3xl:flex @3xl:flex-col @3xl:gap-8">
+        <div className="flex flex-col gap-5">
           {nombre !== null && (
-            <section className="order-1 flex flex-col gap-3 border-y border-border py-4 @3xl:py-5">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] text-text-muted">
-                  Le debés a {NEGOCIO.nombre}
-                </span>
-                <span className="font-display text-[28px] leading-none break-words text-accent tabular-nums @3xl:text-[40px]">
-                  {formatCentavos(debeCentavos)}
-                </span>
-                {pendienteCentavos > 0 && (
-                  <span className="text-[16px] text-text-muted">
-                    Pendiente de confirmar{" "}
-                    <span className="font-medium tabular-nums text-text">
-                      {formatCentavos(pendienteCentavos)}
-                    </span>
-                  </span>
-                )}
-              </div>
-              <span className="text-[16px] text-text-muted">
+            <Tarjeta como="section" className="flex flex-col gap-4">
+              <NumeroGrande etiqueta={`Le debés a ${NEGOCIO.nombre}`} tono={debeCentavos > 0 ? "debe" : undefined}>
+                {formatCentavos(debeCentavos)}
+              </NumeroGrande>
+              {debeCentavos <= 0 && pendienteCentavos <= 0 && (
+                <Pastilla variante="ok" className="w-fit">
+                  Al día
+                </Pastilla>
+              )}
+              {pendienteCentavos > 0 && (
+                <Pastilla variante="confirmar" className="w-fit max-w-full whitespace-normal! leading-snug!">
+                  {formatCentavos(pendienteCentavos)} esperando que {destinoPago} lo confirme
+                </Pastilla>
+              )}
+              <Link href="/mi/pagar" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+                Pagarle a {destinoPago}
+              </Link>
+              <p className="text-[14px] text-text-muted">
                 {encargadoNombre
                   ? `Tu encargado es ${encargadoNombre}: le pagás a ${encargadoNombre} y ${encargadoNombre} lo pasa a la cuenta de ${NEGOCIO.nombre}.`
                   : `No tenés encargado: pagás directo a la cuenta de ${NEGOCIO.nombre}.`}
-              </span>
-              <Link
-                href="/mi/pagar"
-                className={`${BOTON_PRIMARIO} flex px-4`}
-              >
-                Pagar a {destinoPago}
-              </Link>
-            </section>
+              </p>
+            </Tarjeta>
           )}
 
-          <Link
-            href="/mi/ventas/nueva"
-            className="order-3 flex min-h-[56px] items-center justify-center border border-primary text-[16px] font-medium text-primary hover:bg-surface-raised"
-          >
-            Registrar venta
+          <Link href="/mi/ventas/nueva" className={`${BOTON_SECUNDARIO} flex w-full gap-2 px-4`}>
+            <IconMas className="h-5 w-5" />
+            Registré una venta
           </Link>
 
-          <section className="order-4 flex flex-col gap-2">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-text-muted">
-                Tus pagos
+          <Tarjeta como="section" className="flex flex-col gap-1">
+            <h2 className="font-display text-[20px] leading-tight font-bold text-text">
+              {totalBotellas === 0
+                ? `No tenés ${envase(2)}`
+                : `Tenés ${totalBotellas} ${envase(totalBotellas)}`}
+            </h2>
+            {stock.length === 0 ? (
+              <p className="py-2 text-[16px] text-text-muted">Todavía no hay productos cargados.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-line">
+                {stock.map((p) => (
+                  <Fila key={p.id} titulo={p.nombre} valor={p.enPoder} />
+                ))}
+              </div>
+            )}
+            {valorEnPoderCentavos > 0 && (
+              <p className="text-[14px] text-text-muted">
+                Cuando lo vendas le vas a deber a {valorEnPoderDestino ?? NEGOCIO.nombre}{" "}
+                <span className="font-semibold whitespace-nowrap tabular-nums text-text">{formatCentavos(valorEnPoderCentavos)}</span>
+              </p>
+            )}
+            {conEntregas.length > 0 && (
+              <details className="group mt-2 border-t border-line pt-1">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-primary [&::-webkit-details-marker]:hidden">
+                  Ver de qué entrega es cada una
+                  <span aria-hidden="true" className="text-text-muted transition-transform group-open:rotate-90">
+                    ›
+                  </span>
+                </summary>
+                <div className="flex flex-col gap-3 pt-1 pb-1">
+                  {conEntregas.map((p) => (
+                    <div key={p.id} className="flex flex-col gap-1">
+                      <span className="text-[16px] font-semibold text-text">{p.nombre}</span>
+                      {p.tramos.map((t) => (
+                        <span key={t.entregaItemId} className="text-[14px] text-text-muted">
+                          {t.quedan} de la entrega del {formatFecha(t.fecha)} ·{" "}
+                          {t.costoCentavos !== null
+                            ? `le debés ${formatCentavos(t.costoCentavos)} c/u`
+                            : `${NEGOCIO.nombre} todavía no te asignó precio`}
+                          {t.sugeridoCentavos !== null && ` · sugerido ${formatCentavos(t.sugeridoCentavos)}`}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </Tarjeta>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <Link
+            href="/mi/ganancia"
+            className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:bg-background lg:p-5"
+          >
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="text-[15px] text-text-muted">Este mes ganaste</span>
+              <span
+                className={`font-display text-[28px] leading-none break-words tabular-nums ${
+                  gananciaMes > 0 ? "text-secondary" : "text-text"
+                }`}
+              >
+                {formatCentavos(gananciaMes)}
               </span>
+            </div>
+            <Chevron />
+          </Link>
+
+          <Tarjeta como="section" className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-[20px] leading-tight font-bold text-text">Tus pagos</h2>
               {movimientos.length > 3 && (
                 <Link
                   href="/mi/ganancia"
-                  className="border-b border-mark text-[13px] text-text"
+                  className="inline-flex min-h-11 items-center text-[15px] font-semibold text-primary"
                 >
                   Ver todos
                 </Link>
               )}
             </div>
-            <HistorialPagos
-              movimientos={movimientos}
-              limite={3}
-              vacio="Todavía no registraste pagos."
-            />
-          </section>
-        </div>
-
-        <div className="contents @3xl:flex @3xl:flex-col @3xl:gap-10">
-          <section className="order-2 flex flex-col gap-2">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <span className="shrink-0 text-[13px] text-text-muted">Tu stock</span>
-              {valorEnPoderCentavos > 0 && (
-                <span className="min-w-0 break-words text-right text-[14px] text-text-muted">
-                  Le debés a {valorEnPoderDestino ?? NEGOCIO.nombre}{" "}
-                  <span className="font-medium tabular-nums text-text">{formatCentavos(valorEnPoderCentavos)}</span>
-                </span>
-              )}
-            </div>
-            {stock.length === 0 ? (
-              <p className="py-6 text-[16px] text-text-muted">Todavía no hay productos cargados.</p>
-            ) : (
-              <div className="flex flex-col @3xl:border-t @3xl:border-border">
-                {stock.map((p) => (
-                  <div key={p.id} className="flex flex-col gap-1 border-b border-border py-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="min-w-0 break-words font-display text-[19px] text-text">
-                        {p.nombre}
-                      </span>
-                      <span className="shrink-0 text-lg font-medium tabular-nums text-text">
-                        {p.enPoder}
-                      </span>
-                    </div>
-                    {p.tramos.length === 0 ? (
-                      <span className="text-[13px] text-text-muted">
-                        No tenés {envase(2)} de este producto.
-                      </span>
-                    ) : (
-                      p.tramos.map((t) => (
-                        <span key={t.entregaItemId} className="text-[13px] text-text-muted">
-                          {t.quedan} de la entrega del {formatFecha(t.fecha)} ·{" "}
-                          {t.costoCentavos !== null
-                            ? `le debés ${formatCentavos(t.costoCentavos)} c/u`
-                            : `${NEGOCIO.nombre} todavía no te asignó precio`}
-                          {t.sugeridoCentavos !== null &&
-                            ` · sugerido ${formatCentavos(t.sugeridoCentavos)}`}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <div className="order-5">
-            <GananciaRevendedor persona="vos" ventas={ventas} />
-          </div>
+            <HistorialPagos movimientos={movimientos} limite={3} vacio="Todavía no registraste pagos." />
+          </Tarjeta>
         </div>
       </div>
     </div>

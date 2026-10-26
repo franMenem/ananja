@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { tabActivaMi } from "@/lib/navegacion-mi";
 
 describe("tabActivaMi", () => {
-  it("\"/mi\" exacto es Mi stock", () => {
+  it("\"/mi\" exacto es Inicio", () => {
     expect(tabActivaMi("/mi")).toBe("/mi");
   });
 

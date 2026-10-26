@@ -78,6 +78,15 @@ export function calcularGananciaRevendedor(ventas: VentaGanancia[]): ResumenGana
   return { ...total, porMes, unidadesSinPrecio };
 }
 
+/**
+ * Ganancia de un mes ("yyyy-mm") dentro de `porMes`: 0 si ese mes no tuvo
+ * ventas con precio. Es la misma fila que se ve en la lista por mes de
+ * `/mi/ganancia`, así "Este mes ganaste" de `/mi` nunca puede diferir.
+ */
+export function gananciaDelMes(porMes: FilaGananciaMes[], periodo: string): number {
+  return porMes.find((f) => f.periodo === periodo)?.gananciaCentavos ?? 0;
+}
+
 export interface SerieGananciaAnio {
   anio: number;
   /** 12 valores, enero (0) a diciembre (11), en centavos. */

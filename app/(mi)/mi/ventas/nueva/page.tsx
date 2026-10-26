@@ -1,4 +1,5 @@
 import { TituloFormularioEscritorio } from "@/components/mi/titulo-formulario";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { VentaForm } from "@/components/mi/venta-form";
 import { leerTomaDirecto, listarProductosPublicosResumen } from "@/lib/data/mi";
 import { stockPorEntrega } from "@/lib/dominio/revendedor-stock";
@@ -81,8 +82,10 @@ export default async function NuevaVentaPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5">
-      <TituloFormularioEscritorio />
-      <VentaForm productos={disponibles} tomaDirecto={tomaDirecto} />
+      <TituloFormularioEscritorio pregunta="¿Qué vendiste?" />
+      <Tarjeta>
+        <VentaForm productos={disponibles} tomaDirecto={tomaDirecto} />
+      </Tarjeta>
     </div>
   );
 }

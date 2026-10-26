@@ -122,7 +122,7 @@ export function PagoForm({
 
   return (
     <>
-      <SetFormHeader title={`Pagar a ${destino}`} backHref="/mi" backLabel="Volver al inicio" />
+      <SetFormHeader title={`Pagarle a ${destino}`} backHref="/mi" backLabel="Volver al inicio" />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1 text-[16px]">

@@ -1,5 +1,8 @@
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { VolverLink } from "@/components/volver-link";
 import {
   listarVentasDelGrupo,
@@ -51,7 +54,7 @@ export default async function VentaDetallePage({
   if (!venta) {
     return (
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-        <VolverLink href="/mi/ventas" label="ventas" hover={false} />
+        <VolverLink href="/mi/ventas" label="ventas" hover={false} corto />
         <p className="text-[16px] text-text-muted">No encontramos esta venta.</p>
       </div>
     );
@@ -63,34 +66,43 @@ export default async function VentaDetallePage({
   const precio = venta.precio_venta_centavos;
   const total = precio !== null ? cantidad * precio : null;
 
+  const fila = (etiqueta: string, valor: React.ReactNode, clase = "text-text") => (
+    <div className="flex min-h-12 items-center justify-between gap-3 py-2">
+      <span className="text-[16px] text-text-muted">{etiqueta}</span>
+      <span className={`text-right text-[16px] font-semibold tabular-nums ${clase}`}>{valor}</span>
+    </div>
+  );
+
   return (
-    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-      <VolverLink href="/mi/ventas" label="ventas" hover={false} />
+    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
+      <VolverLink href="/mi/ventas" label="ventas" hover={false} corto />
 
-      <h1 className="font-display text-[28px] text-text">
-        {producto ?? "?"} × {cantidad}
-      </h1>
+      <EncabezadoPantalla titulo={`${cantidad} × ${producto ?? "?"}`} pregunta="¿Cómo fue esta venta?" />
 
-      <div className="flex flex-col gap-2 text-[16px] text-text">
-        <p>Fecha: {formatFecha(venta.fecha)}</p>
-        <p>Medio de pago: {venta.medio_pago ? MEDIO_PAGO_LABELS[venta.medio_pago] : "Sin cargar"}</p>
+      <Tarjeta className="flex flex-col divide-y divide-line">
+        {fila("Fecha", formatFecha(venta.fecha))}
+        {fila("Medio de pago", venta.medio_pago ? MEDIO_PAGO_LABELS[venta.medio_pago] : "Sin cargar")}
         {precio !== null && total !== null ? (
           <>
-            <p>La vendiste a: {formatCentavos(precio)} c/u</p>
-            <p>Total: {formatCentavos(total)}</p>
+            {fila("La vendiste a", `${formatCentavos(precio)} c/u`)}
+            {fila("Total", formatCentavos(total))}
           </>
         ) : (
-          <p className="text-accent">Todavía no se cargó a cuánto la vendiste.</p>
+          <div className="py-3">
+            <Pastilla variante="aviso" className="whitespace-normal! leading-snug!">
+              Todavía no se cargó a cuánto la vendiste
+            </Pastilla>
+          </div>
         )}
-        <p>
-          Le debés a {NEGOCIO.nombre}: {formatCentavos(paraAnanja)}
-        </p>
-        {total !== null && <p>Ganaste: {formatCentavos(total - paraAnanja)}</p>}
-        {venta.registrada_por && (
-          <p className="text-text-muted">Esta venta la cargó un admin por vos.</p>
-        )}
-        {venta.nota && <p>Nota: {venta.nota}</p>}
-      </div>
+        {fila(`Le debés a ${NEGOCIO.nombre}`, formatCentavos(paraAnanja), paraAnanja > 0 ? "text-accent" : "text-text")}
+        {total !== null &&
+          fila("Ganaste", formatCentavos(total - paraAnanja), total - paraAnanja > 0 ? "text-secondary" : "text-text")}
+        {venta.nota && fila("Nota", venta.nota)}
+      </Tarjeta>
+
+      {venta.registrada_por && (
+        <p className="text-[14px] text-text-muted">Esta venta la cargó un admin por vos.</p>
+      )}
 
       {precio === null && (
         <CargarPrecioVenta
@@ -101,12 +113,10 @@ export default async function VentaDetallePage({
       )}
 
       {filas.some((f) => f.entrega_items?.entregas_revendedor) && (
-        <div className="flex flex-col gap-1">
-          <span className="text-[13px] text-text-muted">
-            De dónde salió
-          </span>
+        <Tarjeta como="section" className="flex flex-col gap-2">
+          <h2 className="font-display text-[20px] leading-tight font-bold text-text">De dónde salió</h2>
           {filas.map((f) => (
-            <span key={f.id} className="text-[16px] text-text-muted">
+            <span key={f.id} className="text-[15px] text-text-muted">
               {f.cantidad}
               {f.entrega_items?.entregas_revendedor
                 ? f.entrega_items.entregas_revendedor.automatica
@@ -116,7 +126,7 @@ export default async function VentaDetallePage({
               · le debés {formatCentavos(f.precio_costo_centavos)} c/u
             </span>
           ))}
-        </div>
+        </Tarjeta>
       )}
 
       {puedeBorrarVentaRevendedor({

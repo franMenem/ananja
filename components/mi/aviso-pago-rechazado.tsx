@@ -1,6 +1,8 @@
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
+import { Pastilla } from "@/components/ui/pastilla";
+
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 
@@ -22,18 +24,18 @@ export function AvisoPagoRechazado({ montoCentavos, fecha, motivo }: AvisoPagoRe
     <div className="@container w-full">
       <div
         role="status"
-        className="mx-auto mb-6 flex w-full max-w-[720px] flex-col gap-2 border-l-2 border-accent bg-surface-raised px-4 py-3 sm:flex-row sm:items-center sm:justify-between @3xl:max-w-[1240px]"
+        className="mx-auto mb-5 flex w-full max-w-[720px] flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between @3xl:max-w-[1100px]"
       >
         <div className="flex min-w-0 flex-col">
-          <span className="text-[13px] font-medium text-accent">Pago rechazado</span>
+          <Pastilla variante="debe" className="mb-1 w-fit">Pago rechazado</Pastilla>
           <span className="text-[16px] break-words text-text">
             No te confirmaron el pago de {formatCentavos(montoCentavos)} del {formatFecha(fecha)}.
           </span>
-          {motivo && <span className="text-[16px] break-words text-text-muted">Motivo: {motivo}</span>}
+          {motivo && <span className="text-[14px] break-words text-text-muted">Motivo: {motivo}</span>}
         </div>
         <Link
           href="/mi/pagar"
-          className={`${BOTON_PRIMARIO} flex shrink-0 px-4`}
+          className={`${BOTON_PRIMARIO} flex w-full shrink-0 px-4 sm:w-auto`}
         >
           Volver a pagar
         </Link>

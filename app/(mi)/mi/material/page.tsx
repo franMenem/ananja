@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { ListaTarjeta } from "@/components/ui/fila";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { listarMaterialesPublicados } from "@/lib/data/material";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,8 +20,8 @@ export default async function MiMaterialPage() {
   const { data: materiales, error } = await listarMaterialesPublicados(supabase);
 
   return (
-    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-      <h1 className="font-display text-[28px] leading-[1.05] text-text">Material</h1>
+    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
+      <EncabezadoPantalla titulo="Material" pregunta="¿Qué podés mostrar a tus clientes?" />
 
       {error && (
         <p role="alert" className="text-[16px] text-accent">
@@ -27,24 +30,28 @@ export default async function MiMaterialPage() {
       )}
 
       {!error && materiales.length === 0 && (
-        <p className="py-6 text-[16px] text-text-muted">
-          Todavía no hay material. Pronto vas a encontrar acá información para vender.
-        </p>
+        <Tarjeta>
+          <p className="text-[16px] text-text-muted">
+            Todavía no hay material. Pronto vas a encontrar acá información para vender.
+          </p>
+        </Tarjeta>
       )}
 
       {!error && materiales.length > 0 && (
-        <div className="flex flex-col">
+        <ListaTarjeta>
           {materiales.map((material) => (
             <Link
               key={material.id}
               href={`/mi/material/${material.id}`}
-              className="flex items-center justify-between gap-3 border-b border-border py-4 hover:bg-border/30"
+              className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 hover:bg-background"
             >
-              <span className="text-[16px] text-text">{material.titulo}</span>
-              <span className="shrink-0 text-text-muted">→</span>
+              <span className="min-w-0 break-words text-[16px] font-semibold text-text">{material.titulo}</span>
+              <span aria-hidden="true" className="shrink-0 text-[20px] text-text-muted">
+                ›
+              </span>
             </Link>
           ))}
-        </div>
+        </ListaTarjeta>
       )}
     </div>
   );

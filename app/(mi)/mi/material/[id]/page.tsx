@@ -1,4 +1,6 @@
 import { TextoMaterial } from "@/components/texto-material";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { VolverLink } from "@/components/volver-link";
 import { obtenerMaterial } from "@/lib/data/material";
 import { createClient } from "@/lib/supabase/server";
@@ -21,20 +23,22 @@ export default async function MiMaterialDetallePage({
 
   if (!material) {
     return (
-      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-        <VolverLink href="/mi/material" label="material" hover={false} />
+      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
+        <VolverLink href="/mi/material" label="material" hover={false} corto />
         <p className="text-[16px] text-text-muted">No encontramos este material.</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-8">
-      <VolverLink href="/mi/material" label="material" hover={false} />
+    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
+      <VolverLink href="/mi/material" label="material" hover={false} corto />
 
-      <h1 className="font-display text-[28px] text-text">{material.titulo}</h1>
+      <EncabezadoPantalla titulo={material.titulo} pregunta="Para mostrar a tus clientes" />
 
-      <TextoMaterial cuerpo={material.cuerpo} />
+      <Tarjeta>
+        <TextoMaterial cuerpo={material.cuerpo} />
+      </Tarjeta>
     </div>
   );
 }

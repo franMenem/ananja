@@ -61,7 +61,7 @@ export function MiHeader() {
       <div className="flex items-center justify-between px-5 pt-[14px] pb-3 md:px-10 md:pt-[22px]">
         <Link
           href="/mi"
-          className="font-display text-[20px] text-text"
+          className="font-display inline-flex min-h-11 items-center text-[20px] text-text"
         >
           {NEGOCIO.wordmark}
         </Link>
@@ -69,7 +69,7 @@ export function MiHeader() {
           {vendedor?.rol === "admin" && (
             <Link
               href="/"
-              className="text-[13px] text-text-muted"
+              className="inline-flex min-h-11 items-center text-[14px] text-text-muted"
             >
               Ver como admin
             </Link>
@@ -77,7 +77,7 @@ export function MiHeader() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="text-[13px] text-text-muted"
+            className="min-h-11 text-[14px] text-text-muted"
           >
             Cerrar sesión
           </button>

@@ -1,4 +1,4 @@
-import { IconCashBox, IconGanancia, IconMaterial, IconStock } from "@/components/icons";
+import { IconCashBox, IconGanancia, IconHome, IconMaterial } from "@/components/icons";
 import type { IconComponent } from "@/lib/navegacion";
 
 export type TabMi = { href: string; label: string; Icon: IconComponent };
@@ -10,8 +10,8 @@ export type TabMi = { href: string; label: string; Icon: IconComponent };
  * el shell de admin.
  */
 export const TABS_MI: readonly TabMi[] = [
-  { href: "/mi", label: "Mi stock", Icon: IconStock },
-  { href: "/mi/ventas", label: "Ventas", Icon: IconCashBox },
+  { href: "/mi", label: "Inicio", Icon: IconHome },
+  { href: "/mi/ventas", label: "Mis ventas", Icon: IconCashBox },
   { href: "/mi/ganancia", label: "Ganancia", Icon: IconGanancia },
   { href: "/mi/material", label: "Material", Icon: IconMaterial },
 ];

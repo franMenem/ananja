@@ -1,6 +1,11 @@
 "use client";
 
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Fila } from "@/components/ui/fila";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -55,33 +60,29 @@ export function CoordinadorHome({
   plataEnManoCentavos,
 }: CoordinadorHomeProps) {
   return (
-    <div className="mx-auto flex w-full max-w-[560px] flex-col gap-6 pb-8">
-      <div>
-        <h1 className="font-display text-[28px] leading-[1.1] text-text md:text-[32px]">
-          {nombre ? `Hola, ${nombre}` : "Tus revendedoras"}
-        </h1>
-        <p className="mt-1 text-[16px] text-text-muted">
-          Cuánto le entregaste a cada una y cuánto te debe.
-        </p>
-      </div>
+    <div className="mx-auto flex w-full max-w-[560px] flex-col gap-5 pb-8">
+      <EncabezadoPantalla
+        titulo={nombre ? `Hola, ${nombre}` : "Tus revendedoras"}
+        pregunta="Cuánto le entregaste a cada una y cuánto te debe."
+      />
 
       {plataEnManoCentavos > 0 && (
-        <div className="flex flex-col gap-2 border border-border bg-surface-raised p-4 rounded-2xl">
-          <span className="text-[13px] text-text-muted">
-            Tenés que pasar a {NEGOCIO.nombre}
-          </span>
-          <p className="font-display text-[28px] leading-none text-text tabular-nums">
+        <Tarjeta como="section" className="flex flex-col gap-3">
+          <NumeroGrande etiqueta={`Tenés que pasarle a ${NEGOCIO.nombre}`}>
             {formatCentavos(plataEnManoCentavos)}
-          </p>
+          </NumeroGrande>
+          <Pastilla variante="aviso" className="w-fit">
+            Todavía no la pasaste
+          </Pastilla>
           <p className="text-[14px] text-text-muted">
             Pasala a la cuenta de {NEGOCIO.nombre} y avisanos.
           </p>
           <InformarDepositoCoordinador montoCentavos={plataEnManoCentavos} vendedorId={vendedorId} />
-        </div>
+        </Tarjeta>
       )}
 
-      <div className="flex flex-col gap-1.5 border border-border bg-surface-raised p-4 rounded-2xl">
-        <span className="text-[13px] text-text-muted">Vendí yo</span>
+      <Tarjeta como="section" className="flex flex-col gap-2">
+        <h2 className="font-display text-[20px] leading-tight font-bold text-text">Vendí yo</h2>
         <p className="text-[14px] text-text-muted">
           Si agarraste botellas del depósito y las vendiste vos, anotalas acá. Se suman a lo que tenés que pasar a{" "}
           {NEGOCIO.nombre}.
@@ -92,20 +93,23 @@ export function CoordinadorHome({
           productos={productos.map((p) => ({ id: p.id, nombre: p.nombre }))}
           modo="propia"
           etiqueta="Vendí yo"
-          className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
+          className={`${BOTON_SECUNDARIO} flex w-full px-4`}
         />
-      </div>
+      </Tarjeta>
 
       {revendedoras.length === 0 ? (
-        <p className="py-6 text-[16px] text-text-muted">
-          Todavía no tenés ninguna revendedora asignada.
-        </p>
+        <Tarjeta>
+          <p className="text-[16px] text-text-muted">Todavía no tenés ninguna revendedora asignada.</p>
+        </Tarjeta>
       ) : (
-        <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
-          {revendedoras.map((r) => (
-            <RevendedoraCard key={r.id} revendedora={r} productos={productos} />
-          ))}
-        </div>
+        <Tarjeta como="section" className="flex flex-col gap-1">
+          <h2 className="font-display text-[20px] leading-tight font-bold text-text">Tus revendedoras</h2>
+          <div className="flex flex-col divide-y divide-line">
+            {revendedoras.map((r) => (
+              <RevendedoraCard key={r.id} revendedora={r} productos={productos} />
+            ))}
+          </div>
+        </Tarjeta>
       )}
     </div>
   );
@@ -119,32 +123,29 @@ function RevendedoraCard({
   productos: Producto[];
 }) {
   const [abierto, setAbierto] = useState(false);
+  const debe = revendedora.debeCentavos > 0;
 
   return (
-    <div className="flex flex-col gap-3 bg-surface-raised p-4">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="min-w-0 break-words text-[16px] font-medium text-text">{revendedora.nombre}</span>
-        <span className="shrink-0 font-display text-[20px] leading-none text-accent tabular-nums">
-          {formatCentavos(revendedora.debeCentavos)}
-        </span>
-      </div>
-      <div className="flex items-baseline justify-between gap-2 text-[14px]">
-        <span className="text-text-muted ">En su poder</span>
-        <span className="tabular-nums text-text">
-          {revendedora.enPoder} {envase(revendedora.enPoder)}
-        </span>
-      </div>
-      {revendedora.valorEnPoderCentavos > 0 && (
-        <div className="flex items-baseline justify-between gap-2 text-[14px]">
-          <span className="text-text-muted ">Valor en poder</span>
-          <span className="tabular-nums text-text">{formatCentavos(revendedora.valorEnPoderCentavos)}</span>
-        </div>
-      )}
-      <button
-        type="button"
-        onClick={() => setAbierto(true)}
-        className="mt-1 flex min-h-11 items-center justify-center border border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
-      >
+    <div className="flex flex-col gap-2 py-2">
+      <Fila
+        titulo={<span className="break-words">{revendedora.nombre}</span>}
+        detalle={
+          <>
+            Tiene {revendedora.enPoder} {envase(revendedora.enPoder)}
+            {revendedora.valorEnPoderCentavos > 0 && (
+              <> · valen {formatCentavos(revendedora.valorEnPoderCentavos)}</>
+            )}
+          </>
+        }
+        valor={
+          debe ? (
+            <Pastilla variante="debe">Debe {formatCentavos(revendedora.debeCentavos)}</Pastilla>
+          ) : (
+            <Pastilla variante="ok">Al día</Pastilla>
+          )
+        }
+      />
+      <button type="button" onClick={() => setAbierto(true)} className={`${BOTON_SECUNDARIO} flex w-full px-4`}>
         Entregar
       </button>
 
