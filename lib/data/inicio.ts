@@ -112,7 +112,7 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
   const miVendedorId = yo?.id ?? null;
 
   const desdeMargen = inicioMesAnterior(anio, mes);
-  const [fuentes, cuentaRes, margenRes, gastosRes, deudaVendedorRes, deudaClienteRes, destinoEfectivo] =
+  const [fuentes, cuentaRes, margenRes, gastosRes, destinoEfectivo] =
     await Promise.all([
       cargarFuentesTareas(supabase, { miVendedorId, hoy }).catch(
         (error: unknown): FuentesTareas | null => {
@@ -123,14 +123,20 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
       supabase.from("v_cuenta_ananja").select("*").maybeSingle(),
       listarMargenVentas(supabase, desdeMargen),
       listarGastosConCategoria(supabase, desdeMargen),
-      listarDeudaVendedor(supabase),
-      listarDeudaClienteMontos(supabase),
       obtenerDestinoEfectivo(supabase),
     ]);
 
   if (cuentaRes.error) console.error("cargarInicio: cuenta", cuentaRes.error);
-  if (deudaVendedorRes.error) console.error("cargarInicio: deuda vendedores", deudaVendedorRes.error);
-  if (deudaClienteRes.error) console.error("cargarInicio: deuda clientes", deudaClienteRes.error);
+
+  // "Te deben": las mismas vistas (`v_deuda_vendedor` / `v_deuda_cliente`,
+  // `select *` sin filtros) que ya leyó `cargarFuentesTareas` — se reusan.
+  // Solo si las fuentes fallaron se leen acá, para que esa cifra siga
+  // saliendo igual que en `/plata`.
+  const [deudaVendedor, deudaCliente] = fuentes
+    ? [fuentes.deudaVendedor, fuentes.deudaCliente]
+    : await Promise.all([listarDeudaVendedor(supabase), listarDeudaClienteMontos(supabase)]).then(
+        ([deudaVendedorRes, deudaClienteRes]) => [deudaVendedorRes.data, deudaClienteRes.data] as const,
+      );
 
   // ── Tareas ──
   const tareas = fuentes ? calcularTareas(fuentes.input) : [];
@@ -162,7 +168,7 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
     medioDeposito: destinoEfectivo ?? DESTINO_EFECTIVO_DEFAULT,
     cuentaTotalCentavos: cuentaRes.data?.total_centavos ?? 0,
     enManos: resumirPlataEnManos(fuentes?.plataEnManos ?? []),
-    leDebenCentavos: totalLeDeben(deudaVendedorRes.data ?? [], deudaClienteRes.data ?? []),
+    leDebenCentavos: totalLeDeben(deudaVendedor, deudaCliente),
     botellasDeposito: totalBotellasDeposito(fuentes?.stock ?? []),
     ganancia,
     stockBajo: (fuentes?.stock ?? [])
