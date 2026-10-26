@@ -299,7 +299,11 @@ export async function cargarDeudaAnanja(supabase: Supa): Promise<DeudaAnanja> {
 export type FiltroMovimientos =
   | { tipo: "todo"; limite: number }
   | { tipo: "cuenta"; medio: MedioCuenta; limite: number }
-  | { tipo: "manos"; personaIds: string[] };
+  /** `personaIds: null` = las de TODAS las personas, sin firmar comprobantes:
+   * para pedir la lista "en manos de" en paralelo con el resto de `/plata`
+   * (todavía no se sabe quién tiene plata) y filtrar después en memoria con
+   * `filtrarEnManosDe`. */
+  | { tipo: "manos"; personaIds: string[] | null };
 
 type Pagina<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
@@ -376,7 +380,7 @@ export async function cargarMovimientosPlata(
   filtro: FiltroMovimientos,
   vendedoresPromise?: VendedoresPromise,
 ): Promise<FilaMovimiento[]> {
-  if (filtro.tipo === "manos" && filtro.personaIds.length === 0) return [];
+  if (filtro.tipo === "manos" && filtro.personaIds?.length === 0) return [];
 
   const leer = <T,>(pagina: (desde: number, hasta: number) => Pagina<T>) =>
     filtro.tipo === "manos"
@@ -389,6 +393,7 @@ export async function cargarMovimientosPlata(
   const medio: MedioPago | null =
     filtro.tipo === "cuenta" ? filtro.medio : filtro.tipo === "manos" ? "efectivo" : null;
   const personas = filtro.tipo === "manos" ? filtro.personaIds : null;
+  const todasLasManos = filtro.tipo === "manos" && filtro.personaIds === null;
 
   const [vendedores, comprobantes, cobros, gastos, pagosDeuda, ajustes, rendiciones, transferencias, depositos] =
     await Promise.all([
@@ -444,6 +449,7 @@ export async function cargarMovimientosPlata(
           q = q.eq("medio_pago", filtro.medio).in("via", ["directo_cuenta", "cliente_directo"]);
         }
         if (personas) q = q.eq("via", "encargado").in("tenedor_id", personas);
+        else if (todasLasManos) q = q.eq("via", "encargado");
         return q.order("created_at", { ascending: false }).order("id").range(desde, hasta);
       }),
       leer((desde, hasta) => {
@@ -644,10 +650,21 @@ export async function cargarMovimientosPlata(
     filtro.tipo === "cuenta"
       ? conDonde.filter((f) => montoEnCuenta(f.mov, filtro.medio) !== null)
       : filtro.tipo === "manos"
-        ? conDonde.filter((f) => filtro.personaIds.some((id) => montoEnManos(f.mov, id) !== null))
+        ? personas === null
+          ? conDonde
+          : conDonde.filter((f) => personas.some((id) => montoEnManos(f.mov, id) !== null))
         : conDonde;
 
   const ordenadas = propias.sort(compararPorFechaDesc);
   const finales = filtro.tipo === "todo" ? ordenadas.slice(0, filtro.limite) : ordenadas;
-  return conComprobantes(supabase, finales, avisos);
+  // Sin personas puntuales no hay comprobantes que mostrar (solo se usa
+  // para calcular antigüedades): no se firma nada.
+  return todasLasManos ? finales : conComprobantes(supabase, finales, avisos);
+}
+
+/** De la lista "en manos de" de TODAS las personas, deja solo lo que pasa
+ * por la plata en mano de las `personaIds` dadas: el mismo criterio que
+ * aplica `cargarMovimientosPlata` cuando se le pasan esas personas. */
+export function filtrarEnManosDe(filas: FilaMovimiento[], personaIds: string[]): FilaMovimiento[] {
+  return filas.filter((f) => personaIds.some((id) => montoEnManos(f.mov, id) !== null));
 }

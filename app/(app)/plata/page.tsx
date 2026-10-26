@@ -12,6 +12,7 @@ import { listarGastosConCategoria, listarMargenVentas } from "@/lib/data/gananci
 import {
   cargarDeudaAnanja,
   cargarMovimientosPlata,
+  filtrarEnManosDe,
   itemsGenerales,
   listarDeudaClienteMontos,
   listarDeudaVendedor,
@@ -54,8 +55,8 @@ export default async function PlataPage() {
   const supabase = await createClient();
 
   // Consulta compartida entre las dos llamadas a `cargarMovimientosPlata`
-  // de abajo ("todo" y, más adelante, "manos") — antes cada una pedía
-  // `vendedores` por su cuenta, dos veces por request.
+  // de abajo ("todo" y "manos") — antes cada una pedía `vendedores` por su
+  // cuenta, dos veces por request.
   const vendedoresPromise = listarVendedoresNombre(supabase);
 
   // Mes en curso (hora de Argentina) para el resultado: solo las filas de
@@ -74,6 +75,7 @@ export default async function PlataPage() {
     deudaAnanja,
     margenRes,
     gastosRes,
+    filasEfectivo,
   ] = await Promise.all([
     listarSaldosCaja(supabase),
     obtenerCuentaAnanja(supabase),
@@ -85,6 +87,11 @@ export default async function PlataPage() {
     cargarDeudaAnanja(supabase),
     listarMargenVentas(supabase, `${periodoMes}-01`),
     listarGastosConCategoria(supabase, `${periodoMes}-01`),
+    // "En manos de" de TODAS las personas, en paralelo con el resto: todavía
+    // no se sabe quién tiene plata (sale de `plataEnManos`), así que se
+    // filtra en memoria más abajo — antes era una segunda tanda de lecturas
+    // en serie, después de esta.
+    cargarMovimientosPlata(supabase, { tipo: "manos", personaIds: null }, vendedoresPromise),
   ]);
 
   const saldoPorMedio = new Map<string, number>(
@@ -115,7 +122,7 @@ export default async function PlataPage() {
   // Desde cuándo tiene cada uno la plata: la carga de filas queda acá, el
   // cálculo es puro (`lib/movimientos-plata.ts`).
   const conPlata = personas.filter((p) => p.total_centavos > 0).map((p) => p.tenedor_id);
-  const filasEnManos = await cargarMovimientosPlata(supabase, { tipo: "manos", personaIds: conPlata }, vendedoresPromise);
+  const filasEnManos = filtrarEnManosDe(filasEfectivo, conPlata);
   const diasPorPersona = diasEnManoPorPersona(personas, filasEnManos, hoyISO());
 
   // Deudores con saldo > 0, del más grande al más chico (pedido explícito
