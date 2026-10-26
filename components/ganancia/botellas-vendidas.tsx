@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import type { Periodo } from "@/components/ganancia/ganancia-header";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { hoyISO } from "@/lib/fechas";
 import {
   rangoPeriodo,
@@ -48,13 +49,12 @@ export function BotellasVendidas({
   }, [items, presentacionPorProducto, periodo]);
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center gap-2.5">
-        <span className="text-[13px] text-text-muted">Botellas vendidas</span>
-        <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
-      </div>
+    <Tarjeta como="section" aria-labelledby="ganancia-botellas" className="flex flex-col gap-2">
+      <h2 id="ganancia-botellas" className="text-[17px] font-semibold text-text">
+        Botellas vendidas
+      </h2>
       {resumen.total === 0 ? (
-        <p className="py-2 text-[16px] text-text-muted">Sin ventas en este período.</p>
+        <p className="py-1 text-[16px] text-text-muted">Sin ventas en este período.</p>
       ) : (
         <p className="text-[16px] text-text tabular-nums">
           {resumen.total} {envase(resumen.total)}
@@ -66,6 +66,6 @@ export function BotellasVendidas({
           ))}
         </p>
       )}
-    </section>
+    </Tarjeta>
   );
 }

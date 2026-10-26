@@ -85,7 +85,7 @@ export function EliminarDepositoAccion({
         <button
           type="button"
           onClick={abrir}
-          className="text-[13px] text-text-muted hover:text-accent"
+          className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-accent"
         >
           Eliminar
         </button>

@@ -175,7 +175,9 @@ describe("cifras de Hoy = pantallas de origen", () => {
     const hoy = readFileSync("lib/data/inicio.ts", "utf8");
     const ganancia = readFileSync("app/(app)/ganancia/page.tsx", "utf8");
     expect(hoy).toContain("gananciaAnanjaDelPeriodo(");
-    expect(ganancia).toContain("gananciaAnanjaDelPeriodo(");
+    // /ganancia lo usa a través de `desgloseResultadoDelPeriodo`, que parte de
+    // `gananciaAnanjaDelPeriodo` (ver tests/plata-fase4.test.tsx).
+    expect(ganancia).toContain("desgloseResultadoDelPeriodo(");
   });
 
   it("Hoy y /plata usan las mismas funciones para 'Te deben' y 'en manos'", () => {

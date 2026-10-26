@@ -1,12 +1,14 @@
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { AjustarSaldoButton } from "@/components/caja/ajustar-saldo-button";
 import { DestinoEfectivoButton } from "@/components/caja/destino-efectivo-button";
-import { AnanjaDebe } from "@/components/plata/ananja-debe";
 import { CuentaHeader } from "@/components/plata/cuenta-header";
-import { EnManosLista } from "@/components/plata/en-manos-lista";
-import { LeDeben } from "@/components/plata/le-deben";
+import { FueraDeLaCuenta } from "@/components/plata/fuera-de-la-cuenta";
 import { MovimientosPaginados } from "@/components/plata/movimientos-paginados";
-import { Separador } from "@/components/plata/separador";
+import { TarjetaResultado } from "@/components/plata/resultado-mes";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { listarVendedoresNombre } from "@/lib/data/catalogos";
+import { listarGastosConCategoria, listarMargenVentas } from "@/lib/data/ganancia";
 import {
   cargarDeudaAnanja,
   cargarMovimientosPlata,
@@ -20,8 +22,9 @@ import {
   PASO_MOVIMIENTOS,
 } from "@/lib/data/plata";
 import { DESTINO_EFECTIVO_DEFAULT } from "@/lib/dominio/transferencias";
-import { hoyISO } from "@/lib/fechas";
-import { resumirClientes, resumirPlataEnManos, totalLeDeben } from "@/lib/dominio/inicio";
+import { NOMBRES_MES, hoyISO, partesFechaHoraArgentina } from "@/lib/fechas";
+import { periodoDeMes, resumirClientes, resumirPlataEnManos, totalLeDeben } from "@/lib/dominio/inicio";
+import { desgloseResultadoDelPeriodo, filtrarGastosOperativos, mapearFilasMargenVentas } from "@/lib/dominio/margen";
 import { diasEnManoPorPersona, type MedioCuenta } from "@/lib/dominio/movimientos-plata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,22 +37,18 @@ const LIMITE_INICIAL_MOVIMIENTOS = 10;
 export const dynamic = "force-dynamic";
 
 /**
- * `/plata` — 2026-09-16: /caja se fundió en /plata para que la plata y las
- * deudas estén en un solo lugar. Responde una sola pregunta, "¿dónde está
- * la plata y quién debe?", en el orden que decidió Fran:
- *  1. Oliva con dos cifras — Cuenta Ananja (`v_cuenta_ananja`, con link al
- *     historial de cada medio en `/plata/cuenta/[medio]`) y En manos de
- *     (`v_plata_en_manos`). Sin un tercer "Total combinado": confunde más
- *     de lo que aclara.
- *  2. `EnManosLista` — una fila por persona con plata en mano.
- *  3. `LeDeben` — revendedoras + clientes.
- *  4. `AnanjaDebe` — pedidos al proveedor y deudas del negocio
- *     (`lib/deuda-ananja.ts`), cada una con su "Pagar".
- *  5. Últimos movimientos (`cargarMovimientosPlata`, arranca en 10 con
- *     "Ver más" para recorrer todo el historial — `MovimientosPaginados`,
- *     2026-09-18) y, al pie, "Ajustar saldo" / cuenta destino del efectivo.
- * Ya no hay una lista de accesos del sector al pie: Gastos, Ganancia y
- * Precios se llegan por el rail/tab bar (`lib/navegacion.ts`).
+ * `/plata` — "Cuenta" (rediseño 2026-10, fase 4). Responde "¿cuánta hay,
+ * dónde está y cuánto ganamos?", de arriba a abajo:
+ *  1. Héroe: lo que hay en la cuenta de Ananja (`v_cuenta_ananja`, con link
+ *     al historial de Mercado Pago y Banco en `/plata/cuenta/[medio]`).
+ *  2. "Fuera de la cuenta": en manos de personas (`v_plata_en_manos`), lo que
+ *     te deben (`totalLeDeben`, la misma cifra que Hoy) y lo que Ananja debe.
+ *  3. "Resultado de <mes>": cobrado − costo − gastos = ganaste, con la MISMA
+ *     función que Hoy y `/ganancia` (`desgloseResultadoDelPeriodo` parte de
+ *     `gananciaAnanjaDelPeriodo`).
+ *  4. Movimientos (con filtro Entradas/Salidas y "Ver más") y "Opciones".
+ * En ancho de contenido ≥ `@3xl`, dónde está la plata a la izquierda y el
+ * resultado a la derecha.
  */
 export default async function PlataPage() {
   const supabase = await createClient();
@@ -58,6 +57,11 @@ export default async function PlataPage() {
   // de abajo ("todo" y, más adelante, "manos") — antes cada una pedía
   // `vendedores` por su cuenta, dos veces por request.
   const vendedoresPromise = listarVendedoresNombre(supabase);
+
+  // Mes en curso (hora de Argentina) para el resultado: solo las filas de
+  // este mes, como hace Hoy.
+  const { anio, mes } = partesFechaHoraArgentina(new Date());
+  const periodoMes = periodoDeMes(anio, mes);
 
   const [
     { data: saldos },
@@ -68,6 +72,8 @@ export default async function PlataPage() {
     movimientos,
     destino,
     deudaAnanja,
+    margenRes,
+    gastosRes,
   ] = await Promise.all([
     listarSaldosCaja(supabase),
     obtenerCuentaAnanja(supabase),
@@ -77,6 +83,8 @@ export default async function PlataPage() {
     cargarMovimientosPlata(supabase, { tipo: "todo", limite: LIMITE_INICIAL_MOVIMIENTOS }, vendedoresPromise),
     obtenerDestinoEfectivo(supabase).then((d) => d ?? DESTINO_EFECTIVO_DEFAULT),
     cargarDeudaAnanja(supabase),
+    listarMargenVentas(supabase, `${periodoMes}-01`),
+    listarGastosConCategoria(supabase, `${periodoMes}-01`),
   ]);
 
   const saldoPorMedio = new Map<string, number>(
@@ -122,35 +130,64 @@ export default async function PlataPage() {
   // Misma función que "Te deben" de Hoy.
   const totalLeDebenCentavos = totalLeDeben(deudaVendedor ?? [], deudaCliente ?? []);
 
+  // Resultado del mes: la misma ganancia que Hoy y `/ganancia`, abierta en
+  // filas. Si falla la carga se avisa en la tarjeta (no se inventa un cero).
+  const desglose =
+    margenRes.error || gastosRes.error
+      ? null
+      : desgloseResultadoDelPeriodo(
+          mapearFilasMargenVentas(margenRes.data),
+          filtrarGastosOperativos(gastosRes.data),
+          "mes",
+          periodoMes,
+        );
+
   const itemsMovimientos = itemsGenerales(movimientos);
 
   return (
-    <div className="flex min-w-0 flex-col pb-8">
-      <CuentaHeader cuentaTotal={cuentaTotal} saldoCuenta={saldoCuenta} totalEnManos={totalEnManos} />
+    <div className="@container flex w-full min-w-0 flex-col gap-6 pb-8">
+      <EncabezadoPantalla titulo="Plata" pregunta="¿Cuánta hay, dónde está y cuánto ganamos?" />
 
-      <div className="hidden items-center py-6 md:flex">
-        <h1 className="font-display text-[28px] leading-[1.05] text-text">Plata</h1>
+      <div className="grid grid-cols-1 items-start gap-6 @3xl:grid-cols-2 @3xl:gap-8">
+        <div className="flex min-w-0 flex-col gap-6">
+          <CuentaHeader cuentaTotal={cuentaTotal} saldoCuenta={saldoCuenta} />
+          <FueraDeLaCuenta
+            personas={personas}
+            diasPorPersona={diasPorPersona}
+            totalEnManos={totalEnManos}
+            efectivoSinDueno={efectivoSinDueno}
+            deudores={deudores}
+            clientes={clientes}
+            totalLeDeben={totalLeDebenCentavos}
+            deudaAnanja={deudaAnanja}
+          />
+        </div>
+        <div className="flex min-w-0 flex-col gap-6">
+          <TarjetaResultado nombreMes={NOMBRES_MES[mes].toLowerCase()} desglose={desglose} />
+        </div>
       </div>
 
-      <EnManosLista personas={personas} diasPorPersona={diasPorPersona} efectivoSinDueno={efectivoSinDueno} />
-      <LeDeben deudores={deudores} clientes={clientes} total={totalLeDebenCentavos} />
-      <AnanjaDebe deudaAnanja={deudaAnanja} />
-
-      {/* Últimos movimientos */}
-      <div className="flex flex-col pt-8">
-        <Separador titulo="Últimos movimientos" />
+      <Tarjeta como="section" aria-labelledby="plata-movimientos" className="flex flex-col gap-3">
+        <h2 id="plata-movimientos" className="text-[20px] leading-tight font-semibold text-text">
+          Movimientos
+        </h2>
         <MovimientosPaginados
           itemsIniciales={itemsMovimientos}
           limiteInicial={LIMITE_INICIAL_MOVIMIENTOS}
           paso={PASO_MOVIMIENTOS}
           vacio="Todavía no hay movimientos."
         />
+      </Tarjeta>
 
-        <div className="mt-6 flex flex-wrap items-center gap-4">
+      <Tarjeta como="section" aria-labelledby="plata-opciones" className="flex flex-col gap-3">
+        <h2 id="plata-opciones" className="text-[20px] leading-tight font-semibold text-text">
+          Opciones
+        </h2>
+        <div className="flex flex-wrap items-center gap-3">
           <DestinoEfectivoButton destinoActual={destino} />
-          <AjustarSaldoButton className="flex min-h-11 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary rounded-xl" />
+          <AjustarSaldoButton className={`${BOTON_SECUNDARIO} flex px-4`} />
         </div>
-      </div>
+      </Tarjeta>
     </div>
   );
 }

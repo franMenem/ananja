@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CobrosList } from "@/components/cobros/cobros-list";
 import { ComprobanteDeleteButton } from "@/components/comprobante-delete-button";
 import { IconReceipt } from "@/components/icons";
+import { Pastilla } from "@/components/ui/pastilla";
 import { VolverLink } from "@/components/volver-link";
 import {
   listarCobrosDeComprobante,
@@ -62,19 +63,17 @@ export default async function ComprobanteDetailPage({
         <VolverLink href="/comprobantes" label="comprobantes" />
 
         <div className="flex flex-col gap-1">
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             {formatFecha(comprobante.fecha)} ·{" "}
             {etiquetaMedioPago(comprobante.medio_pago)} ·{" "}
             {comprobante.vendedores?.nombre ?? "—"}
           </span>
-          <div className="flex items-baseline gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className="font-display text-[clamp(28px,9vw,40px)] leading-none text-text tabular-nums">
               {formatCentavos(comprobante.monto_centavos)}
             </span>
             {deudaCentavos > 0 && (
-              <span className="border border-accent px-1.5 py-0.5 text-[13px] text-accent">
-                Debe {formatCentavos(deudaCentavos)}
-              </span>
+              <Pastilla variante="debe">Debe {formatCentavos(deudaCentavos)}</Pastilla>
             )}
           </div>
         </div>

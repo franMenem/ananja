@@ -127,7 +127,7 @@ export async function cargarDatosGraficos(
 }
 
 const COLUMNAS_MARGEN_VENTAS =
-  "origen, fecha, vendedor_id, cantidad, margen_ananja_centavos, margen_vendedor_centavos, precio_unitario_venta_centavos, costo_estimado";
+  "origen, fecha, vendedor_id, cantidad, margen_ananja_centavos, ingreso_ananja_centavos, margen_vendedor_centavos, precio_unitario_venta_centavos, costo_estimado";
 
 /** Filas de `v_margen_ventas` para toda la vida de la app — `/ganancia`
  * agrupa por mes/año en memoria (`lib/margen.ts`), no hay filtro de fecha

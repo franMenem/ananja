@@ -1,6 +1,5 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import Link from "next/link";
-
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import {
   ComprobantesList,
   type ComprobanteRow,
@@ -23,18 +22,10 @@ const MES_LARGO = new Intl.DateTimeFormat("es-AR", {
   month: "long",
 });
 
-// Cifra heroica de la cabecera móvil (design/handoff README § Tipografía — la cifra grande
-// no lleva decimales, a diferencia de los montos tabulares del resto de la
-// app). Es solo presentación: el monto exacto sigue viviendo en centavos.
-function formatSinDecimales(centavos: number): string {
-  const pesos = Math.trunc(centavos / 100);
-  return `$ ${pesos.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-}
-
 /**
- * Pestaña "Ventas" de `/comprobantes`: cobrado del mes, franja de métricas y
- * la lista de comprobantes de venta. Es lo que mostraba la página entera
- * antes de las pestañas.
+ * Pestaña "Ventas" de `/comprobantes`: cobrado del mes (número héroe, con
+ * las demás métricas al lado en escritorio) y la lista de comprobantes de
+ * venta directa.
  */
 export async function VentasTab() {
   const supabase = await createClient();
@@ -70,6 +61,7 @@ export async function VentasTab() {
         : null,
     cantidadesLabel: formatCantidadesPorPresentacion(comprobante.comprobante_items),
     vendedorNombre: comprobante.vendedores?.nombre ?? null,
+    clienteNombre: comprobante.clientes?.nombre ?? null,
   }));
 
   // Franja oliva de métricas del mes actual (design/handoff README § /comprobantes —
@@ -90,97 +82,37 @@ export async function VentasTab() {
   } = resumenMesComprobantes(rows, mesActual);
   const medioMasUsado = etiquetaMedioPago(medioMasUsadoValor);
   const nombreMes = MES_LARGO.format(hoy);
-  const nombreMesCapitalizado =
-    nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
 
   return (
-    <div className="flex flex-col gap-5 pb-8">
-      {/* Cabecera de sección: cobrado en el mes + accesos */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="flex flex-col gap-0.5">
-          <div className="flex items-baseline justify-between gap-2 md:hidden">
-            <span className="text-[13px] text-text-muted">
-              Cobrado en {nombreMesCapitalizado.toLowerCase()}
-            </span>
-            <Link
-              href="/clientes"
-              className="text-[13px] text-text-muted hover:text-primary-hover"
-            >
-              Clientes
-            </Link>
-          </div>
-          <span className="font-display text-[32px] leading-none text-text tabular-nums md:hidden">
-            {formatSinDecimales(totalMesCentavos)}
-          </span>
-          <span className="text-[13px] text-text-muted md:hidden">
-            {cantidadMes} registros
-          </span>
-
-          <div className="hidden flex-col gap-0.5 md:flex">
-            <span className="text-[13px] text-text-muted">
-              {cantidadMes} registros
-            </span>
-            <h1 className="font-display text-[28px] leading-[1.05] text-text">
-              Comprobantes
-            </h1>
-          </div>
-        </div>
-
-        <div className="hidden items-center gap-2.5 md:flex">
-          <Link
-            href="/clientes"
-            className="flex min-h-11 items-center border border-border px-4 text-[13px] text-text-muted"
-          >
-            Clientes
-          </Link>
-          <Link
-            href="/comprobantes/nuevo"
-            className={`${BOTON_PRIMARIO} flex gap-2 px-5`}
-          >
-            + Cargar
-          </Link>
-        </div>
-      </div>
-
-      {/* Franja oliva de métricas — solo escritorio. `flex-wrap` + gaps
-          más chicos en `md` (768–1023px: poco margen al lado del rail de
-          238px) evitan que los rótulos largos ("Medio más usado") se
-          partan en 2–3 líneas; desde `lg` (1024px) vuelve al espaciado
-          del artboard. */}
-      <div className="hidden flex-wrap items-end gap-x-6 gap-y-3 rounded-2xl border border-border bg-surface px-[26px] py-[18px] md:flex lg:gap-x-10">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[13px] whitespace-nowrap text-text-muted">
-            Cobrado en el mes
-          </span>
-          <span className="font-display text-[28px] leading-none text-text tabular-nums lg:text-[40px]">
+    <div className="flex flex-col gap-5">
+      {/* Número héroe: cobrado en el mes. En escritorio, al lado, el resto
+          de las métricas del mes. */}
+      <Tarjeta className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:justify-between md:gap-x-10">
+        <div className="flex min-w-0 flex-col gap-1">
+          <NumeroGrande etiqueta={`Cobrado en ${nombreMes.toLowerCase()}`}>
             {formatCentavos(totalMesCentavos)}
+          </NumeroGrande>
+          <span className="text-[14px] text-text-muted">
+            {cantidadMes} {cantidadMes === 1 ? "registro" : "registros"} este mes
           </span>
         </div>
-        <div className="flex min-w-0 flex-1 flex-wrap gap-x-6 gap-y-3 border-l border-border pl-6 lg:gap-x-8 lg:pl-[34px]">
-          <div className="flex min-w-[70px] flex-col gap-0.5">
-            <span className="text-[13px] whitespace-nowrap text-text-muted">
-              {capitalizar(NEGOCIO.envase.plural)}
-            </span>
-            <span className="text-lg text-text tabular-nums">
-              {unidadesMes}
-            </span>
+        <dl className="hidden flex-wrap gap-x-8 gap-y-2 md:flex">
+          <div className="flex min-w-[70px] flex-col">
+            <dt className="text-[14px] whitespace-nowrap text-text-muted">{capitalizar(NEGOCIO.envase.plural)}</dt>
+            <dd className="text-[18px] font-semibold text-text tabular-nums">{unidadesMes}</dd>
           </div>
-          <div className="flex min-w-[110px] flex-col gap-0.5">
-            <span className="text-[13px] whitespace-nowrap text-text-muted">
-              Ticket promedio
-            </span>
-            <span className="text-lg text-text tabular-nums">
+          <div className="flex min-w-[110px] flex-col">
+            <dt className="text-[14px] whitespace-nowrap text-text-muted">Ticket promedio</dt>
+            <dd className="text-[18px] font-semibold text-text tabular-nums">
               {formatCentavos(ticketPromedioCentavos)}
-            </span>
+            </dd>
           </div>
-          <div className="flex min-w-[120px] flex-col gap-0.5">
-            <span className="text-[13px] whitespace-nowrap text-text-muted">
-              Medio más usado
-            </span>
-            <span className="text-lg text-text">{medioMasUsado}</span>
+          <div className="flex min-w-[120px] flex-col">
+            <dt className="text-[14px] whitespace-nowrap text-text-muted">Medio más usado</dt>
+            <dd className="text-[18px] font-semibold text-text">{medioMasUsado}</dd>
           </div>
-        </div>
-      </div>
+        </dl>
+      </Tarjeta>
 
       <ComprobantesList rows={listRows} />
     </div>

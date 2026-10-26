@@ -16,8 +16,8 @@ export function Fila({
   return (
     <div className={`flex min-h-14 items-center justify-between gap-3 py-2 ${className}`}>
       <div className="flex min-w-0 flex-col">
-        <span className="text-[16px] font-semibold text-text">{titulo}</span>
-        {detalle && <span className="text-[14px] text-text-muted">{detalle}</span>}
+        <div className="text-[16px] font-semibold text-text">{titulo}</div>
+        {detalle && <div className="text-[14px] text-text-muted">{detalle}</div>}
       </div>
       {valor !== undefined && valor !== null && (
         <div className="shrink-0 text-right text-[16px] font-semibold text-text tabular-nums">{valor}</div>

@@ -166,3 +166,21 @@ export function periodoDeMes(anio: number, mes: number): string {
 export function periodoMesAnterior(anio: number, mes: number): string {
   return mes === 0 ? periodo(anio - 1, 11) : periodo(anio, mes - 1);
 }
+
+// ─── Plata (rediseño 2026-10, fase 4) ───────────────────────────────────────
+
+/** Lo que Ananja debe, para el encabezado de "Ananja debe" de `/plata`:
+ * pedidos por pagar y deudas en pesos suman juntos; las deudas en dólares no
+ * se pueden sumar a pesos, así que van aparte. */
+export function totalAnanjaDebe(
+  pedidos: { saldoCentavos: number }[],
+  deudas: { moneda: "USD" | "ARS"; restanteCentavos: number }[],
+): { pesosCentavos: number; usdCentavos: number } {
+  let pesosCentavos = pedidos.reduce((acc, p) => acc + p.saldoCentavos, 0);
+  let usdCentavos = 0;
+  for (const d of deudas) {
+    if (d.moneda === "USD") usdCentavos += d.restanteCentavos;
+    else pesosCentavos += d.restanteCentavos;
+  }
+  return { pesosCentavos, usdCentavos };
+}

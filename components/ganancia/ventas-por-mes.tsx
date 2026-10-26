@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { GraficoLineas, type SerieLinea } from "@/components/graficos/grafico-lineas";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { aniosDisponibles, ventasPorAnioMes, type VentaConFecha } from "@/lib/dominio/graficos";
 import type { DatosGraficos } from "@/lib/data/ganancia";
 import { PALETA_GRAFICOS } from "@/lib/paleta-graficos";
@@ -34,12 +35,11 @@ export function VentasPorMes({ datosGraficos }: { datosGraficos: DatosGraficos }
   );
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center gap-2.5">
-        <span className="text-[13px] text-text-muted">Ventas por mes</span>
-        <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
-      </div>
+    <Tarjeta como="section" aria-labelledby="ganancia-ventas-por-mes" className="flex flex-col gap-3">
+      <h2 id="ganancia-ventas-por-mes" className="text-[17px] font-semibold text-text">
+        Ventas por mes
+      </h2>
       <GraficoLineas series={series} />
-    </section>
+    </Tarjeta>
   );
 }

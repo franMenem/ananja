@@ -1,6 +1,9 @@
 "use client";
 
+import { claseChip } from "@/components/ui/chip";
+import { Fila, ListaTarjeta } from "@/components/ui/fila";
 import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -53,38 +56,32 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center px-8 py-16 text-center">
-        <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-        <p className="font-display mt-5 text-[28px] leading-[1.2] text-text text-balance md:text-[32px]">
-          Todavía no hay pagos de revendedores.
+      <Tarjeta className="flex flex-col items-center px-6 py-12 text-center">
+        <p className="text-[20px] leading-[1.25] font-semibold text-text text-balance">
+          Todavía no hay pagos informados.
         </p>
-        <p className="mt-3.5 max-w-md text-[16px] leading-[1.6] text-text-muted text-balance">
+        <p className="mt-2 max-w-md text-[16px] leading-[1.5] text-text-muted text-balance">
           Cuando una revendedora informe un pago desde su celular, lo vas a ver acá con su
           comprobante, a quién se lo pagó y si ya lo confirmaron.
         </p>
-      </div>
+      </Tarjeta>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap gap-2 border-b border-border pb-3.5">
-        {FILTROS.map((f) => {
-          const active = filtro === f.value;
-          return (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFiltro(f.value)}
-              aria-pressed={active}
-              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[13px] transition-colors ${
-                active ? "bg-primary text-primary-foreground" : "border border-border text-text-muted"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por estado">
+        {FILTROS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFiltro(f.value)}
+            aria-pressed={filtro === f.value}
+            className={claseChip(filtro === f.value)}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {filtradas.length === 0 ? (
@@ -92,18 +89,16 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
           {filtro === "todos" ? "No hay pagos." : MENSAJE_FILTRO_VACIO[filtro]}
         </p>
       ) : (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-4">
           {grupos.map(([grupo, items]) => (
-            <div key={grupo}>
-              <div className="pt-3 pb-1">
-                <span className="text-[13px] text-text-muted">
-                  {grupo}
-                </span>
-              </div>
-              {items.map((row) => (
-                <FilaPago key={row.id} row={row} />
-              ))}
-            </div>
+            <section key={grupo} className="flex flex-col gap-1.5">
+              <h2 className="px-1 text-[15px] font-semibold text-text-muted">{grupo}</h2>
+              <ListaTarjeta className="px-4">
+                {items.map((row) => (
+                  <FilaPago key={row.id} row={row} />
+                ))}
+              </ListaTarjeta>
+            </section>
           ))}
         </div>
       )}
@@ -113,41 +108,45 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
 
 function FilaPago({ row }: { row: PagoRevendedorItem }) {
   return (
-    <Link
-      href={`/tareas/pagos/${row.id}`}
-      className="flex items-start gap-3 border-b border-border py-3 hover:bg-border/30 md:gap-4"
-    >
-      <MiniaturaComprobante
-        tieneImagen={row.imagenPath !== null}
-        isPdf={row.isPdf}
-        signedUrl={row.signedUrl}
-        size="sm"
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-display text-[26px] leading-none break-all text-text tabular-nums">
-          {formatCentavos(row.montoCentavos)}
-        </span>
-        <span className="text-[16px] break-words text-text">
-          {row.quienPago} <span aria-hidden="true">→</span>
-          <span className="sr-only"> a </span> {row.destino}
-        </span>
-        <span className="text-[14px] break-words text-text-muted">
-          {etiquetaMedioPago(row.medioPago)} · {formatDiaMesAbrev(row.fecha)} ·{" "}
-          <Pastilla
-            variante={row.estado === "confirmado" ? "ok" : row.estado === "pendiente" ? "confirmar" : "debe"}
-          >
-            {textoEstadoPago(row)}
-          </Pastilla>
-        </span>
-        {row.estado === "rechazado" && row.motivoRechazo && (
-          <span className="text-[14px] break-words text-accent">Motivo: {row.motivoRechazo}</span>
-        )}
-        {row.nota && (
-          <span className="line-clamp-2 text-[14px] break-words text-text-muted italic">
-            “{row.nota}”
+    <Link href={`/tareas/pagos/${row.id}`} className="flex items-center gap-3 py-2 hover:bg-background">
+      <span className="hidden min-[380px]:block">
+        <MiniaturaComprobante
+          tieneImagen={row.imagenPath !== null}
+          isPdf={row.isPdf}
+          signedUrl={row.signedUrl}
+          size="sm"
+        />
+      </span>
+      <Fila
+        className="min-w-0 flex-1"
+        titulo={
+          <span className="break-words">
+            {row.quienPago} <span aria-hidden="true">→</span>
+            <span className="sr-only"> a </span> {row.destino}
           </span>
-        )}
-      </div>
+        }
+        detalle={
+          <div className="flex flex-col gap-1">
+            <span className="break-words">
+              {etiquetaMedioPago(row.medioPago)} · {formatDiaMesAbrev(row.fecha)}
+            </span>
+            {row.estado === "rechazado" && row.motivoRechazo && (
+              <span className="break-words">Motivo: {row.motivoRechazo}</span>
+            )}
+            {row.nota && <span className="line-clamp-2 break-words italic">“{row.nota}”</span>}
+          </div>
+        }
+        valor={
+          <div className="flex flex-col items-end gap-1">
+            <span>{formatCentavos(row.montoCentavos)}</span>
+            <Pastilla
+              variante={row.estado === "confirmado" ? "ok" : row.estado === "pendiente" ? "confirmar" : "debe"}
+            >
+              {textoEstadoPago(row)}
+            </Pastilla>
+          </div>
+        }
+      />
     </Link>
   );
 }

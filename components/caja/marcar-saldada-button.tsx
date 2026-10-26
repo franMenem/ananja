@@ -68,7 +68,7 @@ export function MarcarSaldadaButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[13px] text-text-muted hover:text-primary"
+        className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-primary"
       >
         Marcar saldada sin pago
       </button>
@@ -82,8 +82,7 @@ export function MarcarSaldadaButton({
         </p>
         <p className="mt-3 text-[16px] text-accent">
           Esto marca la deuda como saldada SIN descontar plata de ninguna
-          caja. Si la pagaste, usá «Registrar pago» para que se descuente
-          de la caja.
+          cuenta. Si la pagaste, usá «Registrar pago» para que se descuente.
         </p>
         {error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">

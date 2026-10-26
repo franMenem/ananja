@@ -152,7 +152,7 @@ describe("pagoRevendedorFila", () => {
   it("directo a la Cuenta Ananja cuando destinatario_id es null", () => {
     const f = pagoRevendedorFila(pagoFuente({ destinatario_id: null, destinatario: null }));
     expect(f.destino).toBe(DESTINO_CUENTA);
-    expect(DESTINO_CUENTA).toBe("Cuenta Ananja");
+    expect(DESTINO_CUENTA).toBe("Cuenta de Ananja");
   });
 
   it("confirmado: trae quién y cuándo lo resolvió", () => {

@@ -1,5 +1,8 @@
+import { claseGanaste } from "@/components/plata/resultado-mes";
+import { Fila } from "@/components/ui/fila";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { labelDePeriodo } from "@/lib/fechas";
-import { colorGanancia, formatMargen, notaUnidadesSinCosto, type FilaGananciaAnanjaPeriodo } from "@/lib/dominio/margen";
+import { formatMargen, notaUnidadesSinCosto, type FilaGananciaAnanjaPeriodo } from "@/lib/dominio/margen";
 import { formatCentavos } from "@/lib/money";
 
 /**
@@ -9,48 +12,46 @@ import { formatCentavos } from "@/lib/money";
  * `app/(app)/gastos/page.tsx`.
  */
 export function TablaPorMes({ filas }: { filas: FilaGananciaAnanjaPeriodo[] }) {
+  const hayEstimado = filas.some((f) => f.algunCostoEstimado);
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2.5">
-        <span className="text-[13px] text-text-muted">Por mes</span>
-        <span className="h-px flex-1 bg-[linear-gradient(to_right,var(--color-border),transparent)]" />
-      </div>
+    <Tarjeta como="section" aria-labelledby="ganancia-por-mes" className="flex flex-col gap-3">
+      <h2 id="ganancia-por-mes" className="text-[17px] font-semibold text-text">
+        Por mes
+      </h2>
 
       {/* Tabla — escritorio */}
       <div className="hidden md:block">
         <div className="overflow-x-auto">
-          <div className="min-w-[560px] grid grid-cols-[160px_1fr_1fr_1fr] gap-4 border-b border-border pb-2 text-[13px] text-text-muted">
+          <div className="grid min-w-[560px] grid-cols-[160px_1fr_1fr_1fr] gap-4 border-b border-border pb-2 text-[14px] text-text-muted">
             <span>Mes</span>
-            <span className="text-right">Margen botellas</span>
-            <span className="text-right">Gastos operativos</span>
-            <span className="text-right">Ganancia</span>
+            <span className="text-right">Margen de botellas</span>
+            <span className="text-right">Gastos</span>
+            <span className="text-right">Ganaste</span>
           </div>
           {filas.map((fila) => {
             const nota = notaUnidadesSinCosto(fila.unidadesSinCosto);
             return (
               <div
                 key={fila.periodo}
-                className="min-w-[560px] grid grid-cols-[160px_1fr_1fr_1fr] items-start gap-4 border-b border-border py-[11px] text-[16px]"
+                className="grid min-h-12 min-w-[560px] grid-cols-[160px_1fr_1fr_1fr] items-start gap-4 border-b border-line py-2.5 text-[16px]"
               >
                 <span className="text-text">
                   {labelDePeriodo(fila.periodo)}
-                  {fila.algunCostoEstimado && (
-                    <span className="ml-1.5 text-[13px] text-text-muted">*</span>
-                  )}
+                  {fila.algunCostoEstimado && <span className="ml-1.5 text-[14px] text-text-muted">*</span>}
                 </span>
                 <div className="flex flex-col items-end gap-0.5">
                   <span className="text-right text-text-muted tabular-nums">
                     {formatMargen(fila.margenAnanjaCentavos, fila.algunCostoCargado)}
                   </span>
-                  {nota && (
-                    <span className="text-right text-[13px] text-text-muted">{nota}</span>
-                  )}
+                  {nota && <span className="text-right text-[14px] text-text-muted">{nota}</span>}
                 </div>
                 <span className="text-right text-text-muted tabular-nums">
                   {formatCentavos(fila.gastosOperativosCentavos)}
                 </span>
                 <span
-                  className={`text-right font-medium tabular-nums ${colorGanancia(fila.gananciaAnanjaCentavos)}`}
+                  className={`text-right font-semibold tabular-nums ${
+                    fila.algunCostoCargado ? claseGanaste(fila.gananciaAnanjaCentavos) : "text-text-muted"
+                  }`}
                 >
                   {formatMargen(fila.gananciaAnanjaCentavos, fila.algunCostoCargado)}
                 </span>
@@ -61,36 +62,42 @@ export function TablaPorMes({ filas }: { filas: FilaGananciaAnanjaPeriodo[] }) {
       </div>
 
       {/* Lista — celular */}
-      <div className="flex flex-col md:hidden">
+      <div className="flex flex-col divide-y divide-line md:hidden">
         {filas.map((fila) => {
           const nota = notaUnidadesSinCosto(fila.unidadesSinCosto);
           return (
-            <div
+            <Fila
               key={fila.periodo}
-              className="flex items-baseline justify-between gap-2 border-b border-border py-3"
-            >
-              <div className="flex flex-col">
-                <span className="font-display text-[19px] leading-[1.1] text-text">
+              titulo={
+                <>
                   {labelDePeriodo(fila.periodo)}
-                  {fila.algunCostoEstimado && (
-                    <span className="ml-1.5 text-[13px] text-text-muted">*</span>
-                  )}
-                </span>
-                <span className="text-[13px] text-text-muted">
+                  {fila.algunCostoEstimado && <span className="ml-1.5 text-[14px] text-text-muted">*</span>}
+                </>
+              }
+              detalle={
+                <>
                   Margen {formatMargen(fila.margenAnanjaCentavos, fila.algunCostoCargado)} · Gastos{" "}
                   {formatCentavos(fila.gastosOperativosCentavos)}
+                  {nota && <div>{nota}</div>}
+                </>
+              }
+              valor={
+                <span
+                  className={fila.algunCostoCargado ? claseGanaste(fila.gananciaAnanjaCentavos) : "text-text-muted"}
+                >
+                  {formatMargen(fila.gananciaAnanjaCentavos, fila.algunCostoCargado)}
                 </span>
-                {nota && <span className="text-[13px] text-text-muted">{nota}</span>}
-              </div>
-              <span
-                className={`shrink-0 text-[16px] font-medium tabular-nums ${colorGanancia(fila.gananciaAnanjaCentavos)}`}
-              >
-                {formatMargen(fila.gananciaAnanjaCentavos, fila.algunCostoCargado)}
-              </span>
-            </div>
+              }
+            />
           );
         })}
       </div>
-    </div>
+
+      {hayEstimado && (
+        <p className="text-[14px] text-text-muted">
+          * Algunas ventas no tienen lote asignado, el costo es estimado.
+        </p>
+      )}
+    </Tarjeta>
   );
 }

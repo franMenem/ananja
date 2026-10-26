@@ -1,9 +1,10 @@
+import { FilasResultado } from "@/components/plata/resultado-mes";
+import { claseChip } from "@/components/ui/chip";
 import { NumeroGrande } from "@/components/ui/numero-grande";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { labelDePeriodo } from "@/lib/fechas";
-import { formatMargen, notaUnidadesSinCosto, type FilaGananciaAnanjaPeriodo } from "@/lib/dominio/margen";
+import type { DesgloseResultado } from "@/lib/dominio/margen";
 import { formatCentavos } from "@/lib/money";
-import { NEGOCIO } from "@/lib/negocio";
 
 /** Los dos períodos de `/ganancia` — chip "Este mes"/"Este año", default
  * "Este año" (`app/(app)/ganancia/page.tsx`). */
@@ -16,70 +17,58 @@ const OPCIONES_PERIODO: { value: Periodo; label: string }[] = [
 
 /**
  * Cabecera de `/ganancia`: los chips de período (siempre visibles, incluso
- * mientras carga) y, cuando ya hay datos (`filaPeriodoActual` no es
- * `null`), la tarjeta "Ganancia de Ananja · {período}" con su nota de
- * botellas sin costo y el aviso de costo estimado.
+ * mientras carga) y, cuando ya hay datos (`desglose` no es `null`), la
+ * tarjeta con UNA sola ganancia: "Ganaste en <período>" y, debajo, la cuenta
+ * en filas (mismo componente que la tarjeta "Resultado" de `/plata`). El
+ * número grande es el total de la cuenta, por eso las filas van sin "Ganaste".
  */
 export function GananciaHeader({
   periodo,
   onChangePeriodo,
-  filaPeriodoActual,
-  algunCostoEstimado,
+  desglose,
 }: {
   periodo: Periodo;
   onChangePeriodo: (periodo: Periodo) => void;
-  /** `null` mientras carga o si no hay nada que mostrar todavía — el
+  /** `null` mientras carga o si no hay nada que mostrar todavía — la
    * tarjeta no se renderiza en ese caso. */
-  filaPeriodoActual: FilaGananciaAnanjaPeriodo | null;
-  /** Alguna venta del histórico completo (no solo del período elegido)
-   * tiene el costo estimado por FIFO en vez de un lote elegido a mano. */
-  algunCostoEstimado: boolean;
+  desglose: DesgloseResultado | null;
 }) {
   return (
     <>
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Período">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Período">
         {OPCIONES_PERIODO.map((opcion) => (
           <button
             key={opcion.value}
             type="button"
             onClick={() => onChangePeriodo(opcion.value)}
             aria-pressed={periodo === opcion.value}
-            className={`border border-border px-3 py-2 text-[16px] rounded-full ${
-              periodo === opcion.value ? "bg-primary text-primary-foreground" : "bg-surface text-text"
-            }`}
+            className={claseChip(periodo === opcion.value)}
           >
             {opcion.label}
           </button>
         ))}
       </div>
 
-      {filaPeriodoActual && (
-        <>
-          <Tarjeta className="flex flex-col gap-3">
-            <NumeroGrande
-              etiqueta={`Ganancia de ${NEGOCIO.nombre} · ${labelDePeriodo(filaPeriodoActual.periodo).toLowerCase()}`}
-              tono={filaPeriodoActual.gananciaAnanjaCentavos < 0 ? "debe" : undefined}
-            >
-              {formatMargen(filaPeriodoActual.gananciaAnanjaCentavos, filaPeriodoActual.algunCostoCargado)}
-            </NumeroGrande>
-            <p className="text-[16px] text-text-muted tabular-nums">
-              Margen de botellas{" "}
-              {formatMargen(filaPeriodoActual.margenAnanjaCentavos, filaPeriodoActual.algunCostoCargado)} · Gastos{" "}
-              {formatCentavos(filaPeriodoActual.gastosOperativosCentavos)}
-            </p>
-            {filaPeriodoActual.unidadesSinCosto > 0 && (
-              <p className="text-[13px] text-text-muted">
-                {notaUnidadesSinCosto(filaPeriodoActual.unidadesSinCosto)}
-              </p>
-            )}
-          </Tarjeta>
-
-          {algunCostoEstimado && (
-            <p className="text-[13px] text-text-muted">
-              * Algunas ventas no tienen lote asignado, el costo es estimado.
-            </p>
-          )}
-        </>
+      {desglose && (
+        <Tarjeta className="flex flex-col gap-3">
+          <NumeroGrande
+            etiqueta={`Ganaste en ${labelDePeriodo(desglose.periodo).toLowerCase()}`}
+            tono={
+              !desglose.algunCostoCargado
+                ? undefined
+                : desglose.gananciaCentavos > 0
+                  ? "ok"
+                  : desglose.gananciaCentavos < 0
+                    ? "debe"
+                    : undefined
+            }
+          >
+            {desglose.algunCostoCargado ? formatCentavos(desglose.gananciaCentavos) : "Sin costos cargados"}
+          </NumeroGrande>
+          <div className="border-t border-line pt-2">
+            <FilasResultado desglose={desglose} mostrarTotal={false} />
+          </div>
+        </Tarjeta>
       )}
     </>
   );

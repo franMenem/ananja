@@ -1,6 +1,9 @@
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Fila } from "@/components/ui/fila";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { MarcarSaldadaButton } from "@/components/caja/marcar-saldada-button";
 import { PagosDeudaList } from "@/components/deudas/pagos-deuda-list";
 import { VolverLink } from "@/components/volver-link";
@@ -22,15 +25,15 @@ export default async function DeudasPage() {
     <div className="flex flex-col gap-6 pb-8">
       <VolverLink href="/plata" label="plata" />
 
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-[28px] text-text">Deudas</h1>
-        <Link
-          href="/plata/deudas/nueva"
-          className={`${BOTON_PRIMARIO} flex gap-2 px-4`}
-        >
-          + Nueva deuda
-        </Link>
-      </div>
+      <EncabezadoPantalla
+        titulo="Deudas"
+        pregunta="¿Qué debe Ananja y cuánto falta pagar?"
+        acciones={
+          <Link href="/plata/deudas/nueva" className={`${BOTON_PRIMARIO} flex gap-2 px-4`}>
+            + Nueva deuda
+          </Link>
+        }
+      />
 
       {error && (
         <p role="alert" className="text-[16px] text-accent">
@@ -38,47 +41,93 @@ export default async function DeudasPage() {
         </p>
       )}
 
-      <div className="flex flex-col gap-2">
-        <span className="text-[13px] text-text-muted">
+      <Tarjeta como="section" aria-labelledby="deudas-pendientes" className="flex flex-col gap-1">
+        <h2 id="deudas-pendientes" className="text-[20px] leading-tight font-semibold text-text">
           Pendientes
-        </span>
+        </h2>
         {pendientes.length === 0 ? (
           <p className="py-2 text-[16px] text-text-muted">No hay deudas pendientes.</p>
         ) : (
-          pendientes.map((deuda) => {
-            const progresoPct =
-              deuda.montoCentavos > 0
-                ? Math.min(100, Math.max(0, (deuda.pagadoCentavos / deuda.montoCentavos) * 100))
-                : 0;
+          <div className="flex flex-col divide-y divide-line">
+            {pendientes.map((deuda) => {
+              const progresoPct =
+                deuda.montoCentavos > 0
+                  ? Math.min(100, Math.max(0, (deuda.pagadoCentavos / deuda.montoCentavos) * 100))
+                  : 0;
 
-            return (
-              <div key={deuda.id} className="flex flex-col gap-2.5 border-b border-border py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col">
-                    <span className="text-[16px] text-text">{deuda.descripcion}</span>
-                    <span className="text-[14px] text-text-muted">
-                      {formatFecha(deuda.fecha)}
-                      {deuda.nota ? ` · ${deuda.nota}` : ""}
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end">
-                    <span className="text-[16px] font-medium tabular-nums text-text">
-                      Resta {formatMonto(deuda.moneda, deuda.restanteCentavos)}
-                    </span>
-                    <span className="text-[14px] text-text-muted tabular-nums">
-                      de {formatMonto(deuda.moneda, deuda.montoCentavos)}
-                    </span>
+              return (
+                <div key={deuda.id} className="flex flex-col gap-2.5 py-3">
+                  <Fila
+                    titulo={<span className="break-words">{deuda.descripcion}</span>}
+                    detalle={
+                      <>
+                        {formatFecha(deuda.fecha)}
+                        {deuda.nota ? ` · ${deuda.nota}` : ""}
+                      </>
+                    }
+                    valor={
+                      <div className="flex flex-col items-end">
+                        <span className={deuda.restanteCentavos > 0 ? "text-accent" : "text-text"}>
+                          Resta {formatMonto(deuda.moneda, deuda.restanteCentavos)}
+                        </span>
+                        <span className="text-[14px] font-normal text-text-muted">
+                          de {formatMonto(deuda.moneda, deuda.montoCentavos)}
+                        </span>
+                      </div>
+                    }
+                  />
+
+                  {deuda.pagadoCentavos > 0 && (
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                      <div className="h-1.5 rounded-full bg-secondary" style={{ width: `${progresoPct}%` }} />
+                    </div>
+                  )}
+
+                  <PagosDeudaList
+                    moneda={deuda.moneda}
+                    pagos={deuda.pagos.map((p) => ({
+                      id: p.id,
+                      montoCentavos: p.monto_centavos,
+                      montoCajaCentavos: p.monto_caja_centavos,
+                      medioPago: p.medio_pago,
+                      fecha: p.fecha,
+                      nota: p.nota,
+                    }))}
+                  />
+
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <MarcarSaldadaButton
+                      deudaId={deuda.id}
+                      descripcion={deuda.descripcion}
+                      moneda={deuda.moneda}
+                      montoCentavos={deuda.restanteCentavos}
+                    />
+                    <Link href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
+                      Registrar pago
+                    </Link>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </Tarjeta>
 
-                {deuda.pagadoCentavos > 0 && (
-                  <div className="h-1 w-full bg-border">
-                    <div
-                      className="h-1 bg-secondary"
-                      style={{ width: `${progresoPct}%` }}
-                    />
-                  </div>
-                )}
+      <Tarjeta como="section" aria-labelledby="deudas-saldadas" className="flex flex-col gap-1">
+        <h2 id="deudas-saldadas" className="text-[20px] leading-tight font-semibold text-text">
+          Saldadas
+        </h2>
+        {saldadas.length === 0 ? (
+          <p className="py-2 text-[16px] text-text-muted">Todavía no hay ninguna.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-line">
+            {saldadas.map((deuda) => (
+              <div key={deuda.id} className="flex flex-col gap-2 py-3">
+                <Fila
+                  titulo={<span className="break-words line-through">{deuda.descripcion}</span>}
+                  detalle={`Saldada el ${formatFecha(deuda.saldadaEn as string)}`}
+                  valor={<span className="text-text-muted">{formatMonto(deuda.moneda, deuda.montoCentavos)}</span>}
+                />
 
                 <PagosDeudaList
                   moneda={deuda.moneda}
@@ -91,68 +140,11 @@ export default async function DeudasPage() {
                     nota: p.nota,
                   }))}
                 />
-
-                <div className="flex items-center justify-between gap-3">
-                  <MarcarSaldadaButton
-                    deudaId={deuda.id}
-                    descripcion={deuda.descripcion}
-                    moneda={deuda.moneda}
-                    montoCentavos={deuda.restanteCentavos}
-                  />
-                  <Link
-                    href={`/plata/deudas/${deuda.id}/pago`}
-                    className={`${BOTON_PRIMARIO} flex px-4`}
-                  >
-                    Registrar pago
-                  </Link>
-                </div>
               </div>
-            );
-          })
+            ))}
+          </div>
         )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-[13px] text-text-muted">
-          Saldadas
-        </span>
-        {saldadas.length === 0 ? (
-          <p className="py-2 text-[16px] text-text-muted">Todavía no hay ninguna.</p>
-        ) : (
-          saldadas.map((deuda) => (
-            <div
-              key={deuda.id}
-              className="flex flex-col gap-2 border-b border-border py-3"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 flex-col">
-                  <span className="text-[16px] text-text line-through">
-                    {deuda.descripcion}
-                  </span>
-                  <span className="text-[14px] text-text-muted">
-                    Saldada el {formatFecha(deuda.saldadaEn as string)}
-                  </span>
-                </div>
-                <span className="shrink-0 whitespace-nowrap text-[16px] tabular-nums text-text-muted">
-                  {formatMonto(deuda.moneda, deuda.montoCentavos)}
-                </span>
-              </div>
-
-              <PagosDeudaList
-                moneda={deuda.moneda}
-                pagos={deuda.pagos.map((p) => ({
-                  id: p.id,
-                  montoCentavos: p.monto_centavos,
-                  montoCajaCentavos: p.monto_caja_centavos,
-                  medioPago: p.medio_pago,
-                  fecha: p.fecha,
-                  nota: p.nota,
-                }))}
-              />
-            </div>
-          ))
-        )}
-      </div>
+      </Tarjeta>
     </div>
   );
 }

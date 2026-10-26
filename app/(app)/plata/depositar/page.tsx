@@ -79,6 +79,7 @@ export default async function DepositarPage({
             escritorio; con FormHeaderDesktop leyendo la fuente única, la
             duplicación desaparece sin cambiar nada visible. */}
         <FormHeaderDesktop />
+        <p className="text-[15px] text-text-muted">¿Cuánta plata llegó a la cuenta de Ananja?</p>
         <DepositarForm
           personas={personas}
           montosPorPersona={montosPorPersona}

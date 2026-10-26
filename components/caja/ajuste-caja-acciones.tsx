@@ -142,14 +142,14 @@ export function AjusteCajaAcciones({
         <button
           type="button"
           onClick={abrirEditar}
-          className="text-[13px] text-text-muted hover:text-primary"
+          className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-primary"
         >
           Editar
         </button>
         <button
           type="button"
           onClick={abrirEliminar}
-          className="text-[13px] text-text-muted hover:text-accent"
+          className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-accent"
         >
           Eliminar
         </button>
@@ -169,7 +169,7 @@ export function AjusteCajaAcciones({
         </div>
         <p className="mt-2 text-[16px] text-text-muted">
           {formatCentavos(Math.abs(montoCentavos))} en {MEDIO_PAGO_LABELS[medioPago]} — el
-          monto y la caja no se pueden cambiar acá; si están mal, eliminá este
+          monto y el medio no se pueden cambiar acá; si están mal, eliminá este
           ajuste y cargá uno nuevo.
         </p>
 

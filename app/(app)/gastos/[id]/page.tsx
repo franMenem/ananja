@@ -383,8 +383,8 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
         </span>
         <p className="font-display mt-2 text-[24px] leading-[1.3] text-text">
           Se va a eliminar el gasto de {titulo} por{" "}
-          {formatCentavos(gasto.monto_centavos)} y se devuelve ese monto a la
-          caja {etiquetaMedioPago(gasto.medio_pago)}.
+          {formatCentavos(gasto.monto_centavos)} y se devuelve ese monto a{" "}
+          {etiquetaMedioPago(gasto.medio_pago)}.
         </p>
         <p className="mt-2 text-[14px] text-text-muted">
           No se puede deshacer.

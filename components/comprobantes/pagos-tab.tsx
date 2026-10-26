@@ -8,7 +8,7 @@ import { esPathPdf, getSignedUrls } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Pestaña "Pagos de revendedores" de `/comprobantes`: los pagos que las
+ * Pestaña "Pagos informados" de `/comprobantes`: los pagos que las
  * revendedoras informan desde `/mi/pagar`, con la foto del comprobante.
  * Cada fila lleva al detalle (`/tareas/pagos/[id]`), donde se confirma o
  * rechaza.
@@ -32,16 +32,11 @@ export async function PagosTab() {
   const pendientes = filas.filter((f) => f.estado === "pendiente").length;
 
   return (
-    <div className="flex flex-col gap-5 pb-8">
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[13px] text-text-muted">
-          {filas.length} {filas.length === 1 ? "pago" : "pagos"}
-          {pendientes > 0 ? ` · ${pendientes} por confirmar` : ""}
-        </span>
-        <h1 className="font-display hidden text-[32px] leading-[1.05] text-text md:block">
-          Pagos de revendedores
-        </h1>
-      </div>
+    <div className="flex flex-col gap-4">
+      <p className="text-[15px] text-text-muted">
+        {filas.length} {filas.length === 1 ? "pago" : "pagos"}
+        {pendientes > 0 ? ` · ${pendientes} por confirmar` : ""}
+      </p>
 
       {error ? (
         <p role="alert" className="text-[16px] text-accent">

@@ -54,9 +54,9 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[13px] text-text-muted hover:text-primary"
+        className={`${BOTON_SECUNDARIO} flex px-4`}
       >
-        Configurar cuenta destino
+        Cuenta destino del efectivo
       </button>
 
       <BottomSheet open={open} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">

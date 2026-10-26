@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { BotellasVendidas } from "@/components/ganancia/botellas-vendidas";
 import { GananciaHeader, type Periodo } from "@/components/ganancia/ganancia-header";
 import { GananciaVendedores } from "@/components/ganancia/ganancia-vendedores";
@@ -18,7 +19,7 @@ import {
 import {
   agruparMargenVendedorPorPeriodo,
   calcularGananciaAnanjaPorPeriodo,
-  gananciaAnanjaDelPeriodo,
+  desgloseResultadoDelPeriodo,
   filtrarGastosOperativos,
   mapearFilasMargenVentas,
   margenVendedoresDePeriodo,
@@ -124,26 +125,25 @@ export default function GananciaPage() {
   const mesActual = mesActualISO();
   const periodoActual = periodo === "mes" ? mesActual : anioActual;
 
-  // Misma función que usa la pantalla Hoy para "Este mes ganaste…".
-  const filaPeriodoActual = gananciaAnanjaDelPeriodo(margenRows, gastosOperativos, periodo, periodoActual);
+  // Parte de la misma función que usa la pantalla Hoy para "Este mes
+  // ganaste…" (`gananciaAnanjaDelPeriodo`), abierta en filas.
+  const desglose = desgloseResultadoDelPeriodo(margenRows, gastosOperativos, periodo, periodoActual);
 
   // Las coordinadoras no van en esta tabla (venden a precio = costo, 0073).
   const vendedoresEsteMes = margenVendedoresDePeriodo(vendedorPorMes, mesActual, coordinadorIds);
   const vendedoresEsteAnio = margenVendedoresDePeriodo(vendedorPorAnio, anioActual, coordinadorIds);
   const nombreDe = (vendedorId: string) => vendedores.find((v) => v.id === vendedorId)?.nombre ?? "Vendedor";
-  const algunCostoEstimadoGlobal = margenRows.some(
-    (fila) => fila.costoEstimado && fila.margenAnanjaCentavos !== null,
-  );
 
   const vacio = filasAnanjaPorMes.length === 0 && filasAnanjaPorAnio.length === 0;
 
   return (
-    <div className="flex flex-col gap-8 pb-8">
+    <div className="flex min-w-0 flex-col gap-5 pb-8">
+      <EncabezadoPantalla titulo="Ganancia" pregunta="¿Cuánto ganamos?" />
+
       <GananciaHeader
         periodo={periodo}
         onChangePeriodo={setPeriodo}
-        filaPeriodoActual={!loading && !error && !vacio ? filaPeriodoActual : null}
-        algunCostoEstimado={algunCostoEstimadoGlobal}
+        desglose={!loading && !error && !vacio ? desglose : null}
       />
 
       {error && (

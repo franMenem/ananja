@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Tarjeta } from "@/components/ui/tarjeta";
 import type { DesglosePorLote } from "@/lib/dominio/plata-por-lote";
 import { formatFechaSinAnio } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
@@ -13,21 +14,14 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
   const { lineas, otrosMovimientosCentavos } = desglose;
 
   return (
-    <section className="flex flex-col gap-2">
-      <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[13px] text-text-muted">De qué lote es</span>
-        <span
-          className="h-px flex-1"
-          style={{ background: "linear-gradient(to right, var(--color-border), transparent)" }}
-        />
-      </div>
+    <Tarjeta como="section" aria-labelledby="desglose-lotes" className="flex flex-col gap-2">
+      <h2 id="desglose-lotes" className="text-[20px] leading-tight font-semibold text-text">
+        De qué lote es
+      </h2>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col divide-y divide-line">
         {lineas.map((l) => (
-          <div
-            key={l.loteId ?? "sin-lote"}
-            className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]"
-          >
+          <div key={l.loteId ?? "sin-lote"} className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px]">
             {l.loteId === null ? (
               <span className="min-w-0 break-words text-text-muted">Sin lote asignado</span>
             ) : (
@@ -42,11 +36,9 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
           </div>
         ))}
         {otrosMovimientosCentavos !== 0 && (
-          <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]">
+          <div className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px]">
             <span className="min-w-0 break-words text-text-muted">Otros movimientos</span>
-            <span
-              className={`shrink-0 tabular-nums ${otrosMovimientosCentavos < 0 ? "text-accent" : "text-text"}`}
-            >
+            <span className="shrink-0 tabular-nums text-text">
               {otrosMovimientosCentavos < 0 ? "− " : ""}
               {formatCentavos(Math.abs(otrosMovimientosCentavos))}
             </span>
@@ -57,6 +49,6 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
       <p className="text-[14px] leading-relaxed text-text-muted">
         Lo que ya pasó a la cuenta se descuenta primero del lote más viejo.
       </p>
-    </section>
+    </Tarjeta>
   );
 }

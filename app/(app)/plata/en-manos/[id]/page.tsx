@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 
 import { FormPage } from "@/components/app/form-page";
 import { ListaMovimientos } from "@/components/caja/lista-movimientos";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { DesgloseLotes } from "@/components/plata/desglose-por-lote";
 import { cargarMovimientosPlata, obtenerPersonaEnManos } from "@/lib/data/plata";
 import { cargarLineasPorLote } from "@/lib/data/plata-por-lote";
@@ -85,18 +87,13 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
 
   return (
     <FormPage title={`En manos de ${nombre}`} backHref="/plata" backLabel="Volver a Plata" maxWidth={760} pb>
-      <div>
-        <span className="text-[13px] text-text-muted">
-          {nombre} {etiquetaTotal}
-        </span>
-        <p
-          className={`font-display text-[40px] leading-[1] tabular-nums ${
-            total < 0 ? "text-accent" : "text-primary"
-          }`}
-        >
+      <p className="text-[15px] text-text-muted">¿De dónde sale la plata que tiene {nombre}?</p>
+
+      <Tarjeta className="flex flex-col gap-3">
+        <NumeroGrande etiqueta={`${nombre} ${etiquetaTotal}`} tono={total < 0 ? "debe" : undefined}>
           {formatCentavos(total)}
-        </p>
-        <p className="mt-1.5 text-[14px] leading-relaxed text-text-muted">
+        </NumeroGrande>
+        <p className="text-[14px] leading-relaxed text-text-muted">
           {total > 0
             ? `Es plata de ${NEGOCIO.nombre} que todavía no pasó a la cuenta${
                 desde ? ` (la más vieja, ${desdeTexto(diasEntre(desde, hoyISO()))})` : ""
@@ -107,60 +104,48 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
                 ? "No tiene nada pendiente de pasar a la cuenta."
                 : "No tiene plata en mano."}
         </p>
-      </div>
-
-      {total > 0 && (
-        <Link
-          href={`/plata/depositar?tenedor=${id}&monto=${total}`}
-          className={`${BOTON_PRIMARIO} flex px-4`}
-        >
-          Pasar a la cuenta
-        </Link>
-      )}
+        {total > 0 && (
+          <Link href={`/plata/depositar?tenedor=${id}&monto=${total}`} className={`${BOTON_PRIMARIO} flex px-4`}>
+            Pasar a la cuenta
+          </Link>
+        )}
+      </Tarjeta>
 
       {desglose.length > 0 && (
-        <div className="flex flex-col">
+        <Tarjeta className="flex flex-col">
           {desglose.map((d) => (
             <div
               key={d.label}
-              className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]"
+              className="flex min-h-11 items-center justify-between gap-3 border-b border-line py-2 text-[16px]"
             >
               <span className="min-w-0 text-text-muted">{d.label}</span>
-              <span
-                className={`shrink-0 tabular-nums ${d.centavos < 0 ? "text-accent" : "text-text"}`}
-              >
+              <span className="shrink-0 text-text tabular-nums">
                 {d.centavos < 0 ? "− " : "+ "}
                 {formatCentavos(Math.abs(d.centavos))}
               </span>
             </div>
           ))}
-          <div className="flex items-baseline justify-between gap-3 py-2 text-[16px] font-medium">
+          <div className="flex min-h-12 items-center justify-between gap-3 pt-2 text-[17px] font-semibold">
             <span className="text-text">{etiquetaDesglose}</span>
             <span className="tabular-nums text-text">{formatCentavos(total)}</span>
           </div>
-        </div>
+        </Tarjeta>
       )}
 
       {desgloseLotes && <DesgloseLotes desglose={desgloseLotes} />}
 
-      <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[13px] text-text-muted">
+      <Tarjeta como="section" aria-labelledby="manos-movimientos" className="flex flex-col gap-3">
+        <h2 id="manos-movimientos" className="text-[20px] leading-tight font-semibold text-text">
           Movimientos
-        </span>
-        <span
-          className="h-px flex-1"
-          style={{ background: "linear-gradient(to right, var(--color-border), transparent)" }}
-        />
-      </div>
-
-      {sumaLista !== total && (
-        <p className="text-[14px] text-accent">
-          Ojo: los movimientos de abajo suman {formatCentavos(sumaLista)} y el total dice{" "}
-          {formatCentavos(total)}. Puede faltar algún movimiento en la lista.
-        </p>
-      )}
-
-      <ListaMovimientos items={items} vacio={`${nombre} no tiene movimientos de plata en mano.`} />
+        </h2>
+        {sumaLista !== total && (
+          <p className="text-[14px] text-text">
+            Ojo: los movimientos de abajo suman {formatCentavos(sumaLista)} y el total dice{" "}
+            {formatCentavos(total)}. Puede faltar algún movimiento en la lista.
+          </p>
+        )}
+        <ListaMovimientos items={items} vacio={`${nombre} no tiene movimientos de plata en mano.`} />
+      </Tarjeta>
     </FormPage>
   );
 }

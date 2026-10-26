@@ -157,7 +157,7 @@ export function AjustarSaldoButton({
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-5">
           <div>
             <span className="text-[13px] text-text-muted">
-              Caja
+              Medio
             </span>
             <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
               {MEDIOS_CAJA.map((medio) => {
@@ -301,7 +301,7 @@ export function AjustarSaldoButton({
 
           <p className="text-center text-[13px] text-text-muted">
             Después de guardarlo podés editar la fecha/nota o eliminarlo
-            desde el historial de Caja.
+            desde el historial de la cuenta.
           </p>
         </form>
       </BottomSheet>

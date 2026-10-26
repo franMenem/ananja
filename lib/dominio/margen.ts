@@ -435,6 +435,11 @@ export interface FilaMargenPeriodo {
    * cuando el margen da `null`. */
   cantidad: number;
   margenAnanjaCentavos: number | null;
+  /** `v_margen_ventas.ingreso_ananja_centavos` — lo que le corresponde a
+   * Ananja por esas botellas (costo Ananja × cantidad; para una revendedora,
+   * lo que cobró Ananja). Opcional para no romper callers viejos; solo lo usa
+   * {@link desgloseResultadoDelPeriodo}. */
+  ingresoAnanjaCentavos?: number | null;
   margenVendedorCentavos: number | null;
   /** `v_margen_ventas.precio_unitario_venta_centavos` — distingue, cuando
    * `margenVendedorCentavos` es `null`, entre "no se cargó precio de venta"
@@ -676,6 +681,8 @@ export interface FilaMargenVentasCruda {
   vendedor_id: string | null;
   cantidad: number | null;
   margen_ananja_centavos: number | null;
+  /** Opcional: los callers que no necesitan el desglose no lo piden. */
+  ingreso_ananja_centavos?: number | null;
   margen_vendedor_centavos: number | null;
   precio_unitario_venta_centavos: number | null;
   costo_estimado: boolean | null;
@@ -696,6 +703,7 @@ export function mapearFilasMargenVentas(filas: FilaMargenVentasCruda[]): FilaMar
       vendedorId: f.vendedor_id,
       cantidad: f.cantidad,
       margenAnanjaCentavos: f.margen_ananja_centavos,
+      ...(f.ingreso_ananja_centavos !== undefined && { ingresoAnanjaCentavos: f.ingreso_ananja_centavos }),
       margenVendedorCentavos: f.margen_vendedor_centavos,
       precioUnitarioVentaCentavos: f.precio_unitario_venta_centavos,
       costoEstimado: f.costo_estimado ?? false,
@@ -765,6 +773,58 @@ export function gananciaAnanjaDelPeriodo(
   periodo: string,
 ): FilaGananciaAnanjaPeriodo {
   return filaGananciaDelPeriodo(calcularGananciaAnanjaPorPeriodo(filas, gastosOperativos, granularidad), periodo);
+}
+
+/** El resultado de un período en filas: lo que cobró Ananja por las botellas,
+ * lo que costaron, los gastos y lo que ganó. */
+export interface DesgloseResultado {
+  periodo: string;
+  /** Σ `ingreso_ananja` de las botellas CON costo cargado: lo que le
+   * corresponde a Ananja (no el precio final al cliente). */
+  cobroBotellasCentavos: number;
+  /** `cobroBotellas − margen`: lo que costó producir esas botellas. */
+  costoBotellasCentavos: number;
+  /** Gastos operativos del período (los de producción ya están en el costo). */
+  gastosCentavos: number;
+  /** Idéntico a `gananciaAnanjaDelPeriodo(...).gananciaAnanjaCentavos`. */
+  gananciaCentavos: number;
+  algunCostoCargado: boolean;
+  unidadesSinCosto: number;
+  algunCostoEstimado: boolean;
+}
+
+/**
+ * Desglose de {@link gananciaAnanjaDelPeriodo}: parte de ESA misma función
+ * (así "Ganaste" es siempre el número de Hoy y de `/ganancia`) y reparte el
+ * margen en cobro − costo. Solo cuentan las filas con costo cargado (las
+ * mismas que entran al margen), de modo que
+ * `cobro − costo − gastos = ganancia` exacto, sin redondeos.
+ */
+export function desgloseResultadoDelPeriodo(
+  filas: FilaMargenPeriodo[],
+  gastosOperativos: GastoOperativo[],
+  granularidad: "mes" | "anio",
+  periodo: string,
+): DesgloseResultado {
+  const base = gananciaAnanjaDelPeriodo(filas, gastosOperativos, granularidad, periodo);
+  const largo = granularidad === "mes" ? 7 : 4;
+  let cobro = 0;
+  for (const fila of filas) {
+    if (fila.margenAnanjaCentavos === null || fila.fecha.slice(0, largo) !== periodo) continue;
+    // Con margen siempre hay ingreso (así lo arma la vista); si faltara, se
+    // toma el margen como cobro y el costo de esa fila queda en 0.
+    cobro += fila.ingresoAnanjaCentavos ?? fila.margenAnanjaCentavos;
+  }
+  return {
+    periodo,
+    cobroBotellasCentavos: cobro,
+    costoBotellasCentavos: cobro - base.margenAnanjaCentavos,
+    gastosCentavos: base.gastosOperativosCentavos,
+    gananciaCentavos: base.gananciaAnanjaCentavos,
+    algunCostoCargado: base.algunCostoCargado,
+    unidadesSinCosto: base.unidadesSinCosto,
+    algunCostoEstimado: base.algunCostoEstimado,
+  };
 }
 
 /** Clase de color Tailwind de un monto de ganancia: bordó (`text-accent`)

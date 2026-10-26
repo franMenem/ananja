@@ -1,6 +1,10 @@
 "use client";
 
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
+import { claseChip } from "@/components/ui/chip";
+import { Fila, ListaTarjeta } from "@/components/ui/fila";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -8,7 +12,7 @@ import { MiniaturaComprobante } from "@/components/comprobantes/miniatura-compro
 import { etiquetaMedioPago, type MedioPago } from "@/lib/etiquetas/medio-pago";
 import { formatFechaCorta, hoyISO, rotuloGrupoFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import { NEGOCIO, capitalizar } from "@/lib/negocio";
+import { NEGOCIO } from "@/lib/negocio";
 
 export type ComprobanteRow = {
   id: string;
@@ -21,16 +25,31 @@ export type ComprobanteRow = {
   signedUrl: string | null;
   cantidadesLabel: string;
   vendedorNombre: string | null;
+  /** A quién se le vendió (si se cargó un cliente). */
+  clienteNombre?: string | null;
 };
 
-// Abreviados para las chips de filtro (distinto de la etiqueta completa de
-// `etiquetaMedioPago` que se usa en cada fila de la lista).
+// Filtro por medio de pago (chips).
 const FILTROS: { value: MedioPago | "todos"; label: string }[] = [
   { value: "todos", label: "Todos" },
   { value: "banco", label: "Banco" },
-  { value: "mercado_pago", label: "M. Pago" },
-  { value: "efectivo", label: "Efec." },
+  { value: "mercado_pago", label: "Mercado Pago" },
+  { value: "efectivo", label: "Efectivo" },
 ];
+
+/** Estado de cobro de una venta: "Debe $X" (rojo) si queda algo por cobrar,
+ * "Cobrado" (verde) si no. */
+function EstadoCobro({ row }: { row: ComprobanteRow }) {
+  return row.debeCentavos > 0 ? (
+    <Pastilla variante="debe">Debe {formatCentavos(row.debeCentavos)}</Pastilla>
+  ) : (
+    <Pastilla variante="ok">Cobrado</Pastilla>
+  );
+}
+
+function tituloDe(row: ComprobanteRow): string {
+  return row.clienteNombre ?? row.vendedorNombre ?? "Venta";
+}
 
 function Miniatura({
   row,
@@ -71,170 +90,133 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center px-8 py-16 text-center">
-        <span className="h-0.5 w-10 bg-mark" aria-hidden="true" />
-        <p className="font-display mt-5 text-[28px] leading-[1.2] text-text text-balance md:text-[32px]">
-          Todavía no cargaste ningún comprobante.
+      <Tarjeta className="flex flex-col items-center px-6 py-12 text-center">
+        <p className="text-[20px] leading-[1.25] font-semibold text-text text-balance">
+          Todavía no cargaste ninguna venta.
         </p>
-        <p className="mt-3.5 max-w-md text-[16px] leading-[1.6] text-text-muted text-balance">
-          Cuando registres el primero, acá vas a ver el monto, {NEGOCIO.envase.plural} y
-          quién lo cargó. Sacale una foto al comprobante y el monto se lee
-          solo.
+        <p className="mt-2 max-w-md text-[16px] leading-[1.5] text-text-muted text-balance">
+          Cuando registres la primera, acá vas a ver el monto, {NEGOCIO.envase.plural} y quién la
+          cargó. Sacale una foto al comprobante y el monto se lee solo.
         </p>
-        <Link
-          href="/comprobantes/nuevo"
-          className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}
-        >
-          + Cargar el primero
+        <Link href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}>
+          + Cargar la primera
         </Link>
-      </div>
+      </Tarjeta>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
       {/* Filtros por medio de pago */}
-      <div className="flex gap-2 overflow-x-auto border-b border-border pb-3.5">
-        {FILTROS.map((f) => {
-          const active = filtro === f.value;
-          return (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFiltro(f.value)}
-              aria-pressed={active}
-              className={`flex min-h-[38px] shrink-0 items-center px-3.5 text-[13px] transition-colors ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border text-text-muted"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por medio de pago">
+        {FILTROS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFiltro(f.value)}
+            aria-pressed={filtro === f.value}
+            className={claseChip(filtro === f.value)}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-6 text-center text-[16px] text-text-muted">
-          No hay comprobantes con ese medio de pago.
-        </p>
+        <p className="py-6 text-center text-[16px] text-text-muted">No hay ventas con ese medio de pago.</p>
       ) : (
         <>
           {/* Lista agrupada — celular */}
-          <div className="flex flex-col md:hidden">
+          <div className="flex flex-col gap-4 md:hidden">
             {grupos.map(([grupo, items]) => (
-              <div key={grupo}>
-                <div className="pt-3 pb-1">
-                  <span className="text-[13px] text-text-muted">
-                    {grupo}
-                  </span>
-                </div>
-                {items.map((row) => (
+              <section key={grupo} className="flex flex-col gap-1.5">
+                <h2 className="px-1 text-[15px] font-semibold text-text-muted">{grupo}</h2>
+                <ListaTarjeta className="px-4">
+                  {items.map((row) => (
+                    <Link key={row.id} href={`/comprobantes/${row.id}`} className="flex items-center gap-3 py-2">
+                      <Miniatura row={row} size="sm" />
+                      <Fila
+                        className="min-w-0 flex-1"
+                        titulo={<span className="break-words">{tituloDe(row)}</span>}
+                        detalle={
+                          <div className="flex flex-col gap-1">
+                            <span className="break-words">
+                              {row.cantidadesLabel}
+                              {row.vendedorNombre && row.clienteNombre ? ` · ${row.vendedorNombre}` : ""}
+                              {" · "}
+                              {row.fecha === hoy ? "hoy" : formatFechaCorta(row.fecha)}
+                            </span>
+                            {!row.tieneImagen && (
+                              <span>
+                                <Pastilla variante="aviso">Sin comprobante</Pastilla>
+                              </span>
+                            )}
+                          </div>
+                        }
+                        valor={
+                          <div className="flex flex-col items-end gap-1">
+                            <span>{formatCentavos(row.montoCentavos)}</span>
+                            <EstadoCobro row={row} />
+                          </div>
+                        }
+                      />
+                    </Link>
+                  ))}
+                </ListaTarjeta>
+              </section>
+            ))}
+
+            <Link href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex`}>
+              + Cargar comprobante
+            </Link>
+          </div>
+
+          {/* Tabla — escritorio */}
+          <Tarjeta className="hidden md:block">
+            <div className="overflow-x-auto">
+              <div className="flex min-w-[760px] gap-3.5 border-b border-border pb-2.5 text-[14px] text-text-muted">
+                <span className="w-14 shrink-0" />
+                <span className="w-[82px] shrink-0">Fecha</span>
+                <span className="min-w-0 flex-1">Venta</span>
+                <span className="w-[110px] shrink-0">Medio</span>
+                <span className="w-[120px] shrink-0 text-right">Monto</span>
+                <span className="w-[150px] shrink-0">Estado</span>
+              </div>
+              <div className="flex min-w-[760px] flex-col divide-y divide-line">
+                {filtered.map((row) => (
                   <Link
                     key={row.id}
                     href={`/comprobantes/${row.id}`}
-                    className="flex items-center gap-3 border-b border-border py-3"
+                    className="flex min-h-14 items-center gap-3.5 py-2 hover:bg-background"
                   >
-                    <Miniatura row={row} size="sm" />
-                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                        <span className="font-display text-[24px] leading-none whitespace-nowrap text-text tabular-nums">
-                          {formatCentavos(row.montoCentavos)}
-                        </span>
-                        {row.debeCentavos > 0 && (
-                          <span className="border border-accent px-1 text-[13px] whitespace-nowrap text-accent">
-                            Debe {formatCentavos(row.debeCentavos)}
-                          </span>
-                        )}
-                        {!row.tieneImagen && (
-                          <span className="border border-accent px-1 text-[13px] whitespace-nowrap text-accent">
-                            Sin comprobante
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        className="truncate text-[14px] text-text-muted"
-                        title={row.cantidadesLabel}
-                      >
+                    <span className="w-14 shrink-0">
+                      <Miniatura row={row} size="md" />
+                    </span>
+                    <span className="w-[82px] shrink-0 text-[14px] text-text-muted tabular-nums">
+                      {formatFechaCorta(row.fecha)}
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-[16px] font-semibold text-text" title={tituloDe(row)}>
+                        {tituloDe(row)}
+                      </span>
+                      <span className="truncate text-[14px] text-text-muted" title={row.cantidadesLabel}>
                         {row.cantidadesLabel}
-                        {row.vendedorNombre ? ` · ${row.vendedorNombre}` : ""}
-                        {row.fecha !== hoy ? ` · ${formatFechaCorta(row.fecha)}` : ""}
+                        {row.vendedorNombre && row.clienteNombre ? ` · ${row.vendedorNombre}` : ""}
                       </span>
-                    </div>
-                    <span className="shrink-0 self-end pb-0.5 text-[13px] text-primary">
-                      <span className="border-b border-mark pb-0.5">
-                        {etiquetaMedioPago(row.medioPago)}
-                      </span>
+                    </span>
+                    <span className="w-[110px] shrink-0 text-[15px] text-text">{etiquetaMedioPago(row.medioPago)}</span>
+                    <span className="w-[120px] shrink-0 text-right text-[16px] font-semibold whitespace-nowrap text-text tabular-nums">
+                      {formatCentavos(row.montoCentavos)}
+                    </span>
+                    <span className="flex w-[150px] shrink-0 flex-col items-start gap-1">
+                      <EstadoCobro row={row} />
+                      {!row.tieneImagen && <Pastilla variante="aviso">Sin comprobante</Pastilla>}
                     </span>
                   </Link>
                 ))}
               </div>
-            ))}
-
-            <div className="pt-5">
-              <Link
-                href="/comprobantes/nuevo"
-                className={`${BOTON_PRIMARIO} flex`}
-              >
-                + Cargar comprobante
-              </Link>
             </div>
-          </div>
-
-          {/* Tabla — escritorio */}
-          <div className="hidden md:block">
-          <div className="overflow-x-auto">
-            <div className="flex min-w-[720px] gap-3.5 border-b border-border pb-2.5 text-[13px] text-text-muted">
-              <span className="w-14 shrink-0" />
-              <span className="w-[82px] shrink-0">Fecha</span>
-              <span className="w-[150px] shrink-0 text-right">Monto</span>
-              <span className="w-[140px] shrink-0">Medio</span>
-              <span className="flex-1">{capitalizar(NEGOCIO.envase.plural)}</span>
-              <span className="w-[110px] shrink-0">Vendedor</span>
-            </div>
-            <div className="flex min-w-[720px] flex-col">
-              {filtered.map((row) => (
-                <Link
-                  key={row.id}
-                  href={`/comprobantes/${row.id}`}
-                  className="flex items-center gap-3.5 border-b border-border py-2.5 hover:bg-border/30"
-                >
-                  <span className="w-14 shrink-0">
-                    <Miniatura row={row} size="md" />
-                  </span>
-                  <span className="w-[82px] shrink-0 text-[14px] text-text-muted tabular-nums">
-                    {formatFechaCorta(row.fecha)}
-                  </span>
-                  <span className="font-display w-[150px] shrink-0 text-right text-[24px] whitespace-nowrap leading-none text-text tabular-nums">
-                    {formatCentavos(row.montoCentavos)}
-                  </span>
-                  <span className="w-[140px] shrink-0 text-[13px] text-primary">
-                    <span className="border-b border-mark pb-0.5">
-                      {etiquetaMedioPago(row.medioPago)}
-                    </span>
-                  </span>
-                  <span className="min-w-0 flex-1 text-[16px] text-text-muted">
-                    {row.debeCentavos > 0 && (
-                      <span className="mr-2 inline-block border border-accent px-1.5 py-0.5 text-[13px] whitespace-nowrap text-accent">
-                        Debe {formatCentavos(row.debeCentavos)}
-                      </span>
-                    )}
-                    {!row.tieneImagen && (
-                      <span className="mr-2 inline-block border border-accent px-1.5 py-0.5 text-[13px] whitespace-nowrap text-accent">
-                        Sin comprobante
-                      </span>
-                    )}
-                    {row.cantidadesLabel}
-                  </span>
-                  <span className="w-[110px] shrink-0 text-[16px] break-words text-text">
-                    {row.vendedorNombre ?? "—"}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-          </div>
+          </Tarjeta>
         </>
       )}
     </div>

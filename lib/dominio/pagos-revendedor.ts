@@ -207,7 +207,7 @@ export function pagoRechazadoParaAvisar(
 
 /** Destino que se muestra cuando `destinatario_id` es null: el pago fue
  * directo a la Cuenta Ananja, sin pasar por un encargado. */
-export const DESTINO_CUENTA = `Cuenta ${NEGOCIO.nombre}`;
+export const DESTINO_CUENTA = `Cuenta de ${NEGOCIO.nombre}`;
 
 /**
  * Fila cruda de `pagos_revendedor` con los nombres ya traídos por embed —

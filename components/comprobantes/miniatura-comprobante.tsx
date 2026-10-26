@@ -20,7 +20,7 @@ export function MiniaturaComprobante({
   const iconDims = size === "sm" ? "h-[19px] w-[19px]" : "h-5 w-5";
   return (
     <div
-      className={`flex ${dims} shrink-0 items-center justify-center overflow-hidden border border-border bg-surface-raised text-text-muted`}
+      className={`flex ${dims} shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface-raised text-text-muted`}
     >
       {tieneImagen && !isPdf && signedUrl ? (
         // eslint-disable-next-line @next/next/no-img-element

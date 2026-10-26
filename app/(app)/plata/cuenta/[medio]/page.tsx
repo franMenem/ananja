@@ -3,6 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { FormPage } from "@/components/app/form-page";
 import { AjustarSaldoButton } from "@/components/caja/ajustar-saldo-button";
 import { ListaMovimientos } from "@/components/caja/lista-movimientos";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { esMedioPagoValido, MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { cargarMovimientosPlata, obtenerCajaSaldoInicial, obtenerSaldoCuentaMedio } from "@/lib/data/plata";
 import { formatCentavos } from "@/lib/money";
@@ -52,45 +55,28 @@ export default async function CuentaMedioPage({ params }: PageProps<"/plata/cuen
 
   return (
     <FormPage title={label} backHref="/plata" backLabel="Volver a Plata" maxWidth={760} pb>
-      <div>
-        <span className="text-[13px] text-text-muted">
-          Saldo en {label} · Cuenta {NEGOCIO.nombre}
-        </span>
-        <p
-          className={`font-display text-[40px] leading-[1] tabular-nums ${
-            saldoCentavos < 0 ? "text-accent" : "text-primary"
-          }`}
-        >
-          {formatCentavos(saldoCentavos)}
-        </p>
-        <p className="mt-1.5 text-[14px] text-text-muted">
+      <p className="text-[15px] text-text-muted">¿Qué entró y qué salió de {label}?</p>
+
+      <Tarjeta className="flex flex-col gap-3">
+        <NumeroGrande etiqueta={`Saldo en ${label} · Cuenta de ${NEGOCIO.nombre}`}>
+          <span className={saldoCentavos < 0 ? "text-accent" : undefined}>{formatCentavos(saldoCentavos)}</span>
+        </NumeroGrande>
+        <p className="text-[14px] text-text-muted">
           Saldo inicial{" "}
           <span className="text-text tabular-nums">
             {formatCentavos(caja?.saldo_inicial_centavos ?? 0)}
           </span>
+          . Lo que quedó en manos de alguien no aparece acá.
         </p>
-      </div>
+        <AjustarSaldoButton medioInicial={medioCuenta} className={`${BOTON_SECUNDARIO} flex self-start px-4`} />
+      </Tarjeta>
 
-      <p className="text-[14px] text-text-muted">
-        Lo que quedó en manos de alguien no aparece acá.
-      </p>
-
-      <AjustarSaldoButton
-        medioInicial={medioCuenta}
-        className="flex min-h-12 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
-      />
-
-      <div className="flex items-center gap-2.5 pt-2">
-        <span className="text-[13px] text-text-muted">
+      <Tarjeta como="section" aria-labelledby="cuenta-movimientos" className="flex flex-col gap-3">
+        <h2 id="cuenta-movimientos" className="text-[20px] leading-tight font-semibold text-text">
           Movimientos
-        </span>
-        <span
-          className="h-px flex-1"
-          style={{ background: "linear-gradient(to right, var(--color-border), transparent)" }}
-        />
-      </div>
-
-      <ListaMovimientos items={items} vacio={`Todavía no hay movimientos en ${label}.`} />
+        </h2>
+        <ListaMovimientos items={items} vacio={`Todavía no hay movimientos en ${label}.`} />
+      </Tarjeta>
     </FormPage>
   );
 }

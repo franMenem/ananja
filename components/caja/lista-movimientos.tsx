@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AjusteCajaAcciones } from "@/components/caja/ajuste-caja-acciones";
 import { EliminarDepositoAccion } from "@/components/caja/eliminar-deposito-accion";
+import { Fila } from "@/components/ui/fila";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import type { FilaMovimiento } from "@/lib/data/plata";
@@ -17,10 +18,10 @@ export interface ItemMovimiento {
 }
 
 /**
- * Filas regladas de movimientos de plata (Plata, Mercado Pago / Banco,
- * "en manos de"). Una sola maqueta flexible para todos los anchos: el
- * título hace salto de línea en vez de cortarse, monto y fecha no se
- * achican.
+ * Filas de movimientos de plata (Plata, Mercado Pago / Banco, "en manos
+ * de") con la pieza `Fila`: título y detalle a la izquierda, monto con signo
+ * a la derecha. El título hace salto de línea en vez de cortarse y el monto
+ * no se achica. Va dentro de una `Tarjeta`.
  */
 export function ListaMovimientos({
   items,
@@ -34,84 +35,76 @@ export function ListaMovimientos({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col divide-y divide-line">
       {items.map(({ fila, montoCentavos, neutro = false, mostrarDonde = false }) => {
         const positivo = montoCentavos >= 0;
         const signo = neutro ? "⇄" : positivo ? "+" : "−";
-        const detalle = [mostrarDonde ? fila.donde : null, fila.detalle]
+        const detalle = [mostrarDonde ? fila.donde : null, fila.detalle, formatFecha(fila.fecha)]
           .filter(Boolean)
           .join(" · ");
 
         return (
-          <div key={fila.key} className="flex items-baseline gap-3 border-b border-border py-3">
-            <span
-              aria-hidden="true"
-              className={`w-[13px] shrink-0 ${
-                neutro ? "text-text-muted" : positivo ? "text-secondary" : "text-accent"
-              }`}
-            >
-              {signo}
-            </span>
-
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[16px]">
-              <div className="flex items-baseline justify-between gap-3">
-                {fila.href ? (
+          <div key={fila.key} className="flex flex-col">
+            <Fila
+              titulo={
+                fila.href ? (
                   <Link
                     href={fila.href}
-                    className="min-w-0 break-words text-text underline decoration-border underline-offset-4 hover:text-primary"
+                    className="inline-flex min-h-11 items-center break-words underline decoration-border underline-offset-4 hover:text-primary"
                   >
                     {fila.titulo}
                   </Link>
                 ) : (
-                  <span className="min-w-0 break-words text-text">{fila.titulo}</span>
+                  <span className="break-words">{fila.titulo}</span>
+                )
+              }
+              detalle={<span className="break-words">{detalle}</span>}
+              valor={
+                neutro ? (
+                  <span className="text-text-muted">
+                    <span aria-hidden="true">⇄ </span>
+                    {formatCentavos(Math.abs(montoCentavos))}
+                  </span>
+                ) : (
+                  <>
+                    {signo} {formatCentavos(Math.abs(montoCentavos))}
+                  </>
+                )
+              }
+            />
+            {fila.ajuste && (
+              <AjusteCajaAcciones
+                ajusteId={fila.id}
+                medioPago={fila.ajuste.medioPago}
+                montoCentavos={fila.ajuste.montoCentavos}
+                nota={fila.ajuste.nota}
+                fecha={fila.fecha}
+                className="-mt-1 flex gap-3 pb-2"
+              />
+            )}
+            {fila.deposito && (
+              <div className="-mt-1 flex gap-3 pb-2">
+                {fila.comprobanteUrl && (
+                  <a
+                    href={fila.comprobanteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-primary"
+                  >
+                    Ver comprobante
+                  </a>
                 )}
-                <span
-                  className={`shrink-0 font-medium tabular-nums ${
-                    neutro || positivo ? "text-text" : "text-accent"
-                  }`}
-                >
-                  {neutro ? "" : `${signo} `}
-                  {formatCentavos(Math.abs(montoCentavos))}
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between gap-3 text-[13px] text-text-muted">
-                <span className="min-w-0 break-words">{detalle}</span>
-                <span className="shrink-0">{formatFecha(fila.fecha)}</span>
-              </div>
-              {fila.ajuste && (
-                <AjusteCajaAcciones
-                  ajusteId={fila.id}
-                  medioPago={fila.ajuste.medioPago}
-                  montoCentavos={fila.ajuste.montoCentavos}
-                  nota={fila.ajuste.nota}
-                  fecha={fila.fecha}
-                  className="mt-0.5 flex gap-3"
+                {/* `contents`: el botón Eliminar queda en esta misma fila,
+                    al lado del link, sin su propio contenedor. */}
+                <EliminarDepositoAccion
+                  depositoId={fila.id}
+                  medioPago={fila.deposito.medioPago}
+                  montoCentavos={fila.deposito.montoCentavos}
+                  tenedor={fila.deposito.tenedor}
+                  className="contents"
                 />
-              )}
-              {fila.deposito && (
-                <div className="mt-0.5 flex gap-3">
-                  {fila.comprobanteUrl && (
-                    <a
-                      href={fila.comprobanteUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[13px] text-text-muted hover:text-primary"
-                    >
-                      Ver comprobante
-                    </a>
-                  )}
-                  {/* `contents`: el botón Eliminar queda en esta misma fila,
-                      al lado del link, sin su propio contenedor. */}
-                  <EliminarDepositoAccion
-                    depositoId={fila.id}
-                    medioPago={fila.deposito.medioPago}
-                    montoCentavos={fila.deposito.montoCentavos}
-                    tenedor={fila.deposito.tenedor}
-                    className="contents"
-                  />
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         );
       })}
