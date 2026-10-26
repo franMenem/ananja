@@ -30,6 +30,7 @@ export type ProductoEnPoder = {
  */
 export function EnPoderFicha({ vendedorId, productos }: { vendedorId: string; productos: ProductoEnPoder[] }) {
   const valorTotalCentavos = productos.reduce((acc, p) => acc + p.valorEnPoderCentavos, 0);
+  const conBotellas = productos.filter((p) => p.enPoder > 0);
 
   return (
     <Tarjeta como="section" aria-labelledby="ficha-tiene" className="flex flex-col gap-2">
@@ -37,30 +38,36 @@ export function EnPoderFicha({ vendedorId, productos }: { vendedorId: string; pr
         <h2 id="ficha-tiene" className="text-[20px] leading-tight font-semibold text-text">
           Lo que tiene
         </h2>
-        {valorTotalCentavos > 0 && (
+        {conBotellas.length > 0 && valorTotalCentavos > 0 && (
           <span className="shrink-0 text-[16px] font-semibold tabular-nums text-text">
             Vale {formatCentavos(valorTotalCentavos)}
           </span>
         )}
       </div>
-      <div className="flex flex-col divide-y divide-line">
-        {productos.map((p) => (
-          <PrecioRevendedorRow
-            key={p.id}
-            vendedorId={vendedorId}
-            productoId={p.id}
-            productoNombre={p.nombre}
-            enPoder={p.enPoder}
-            valorEnPoderCentavos={p.valorEnPoderCentavos}
-            precioActualCentavos={p.precioActualCentavos}
-            precioMayoristaCentavos={p.precioMayoristaCentavos}
-          />
-        ))}
-      </div>
-      <p className="text-[14px] text-text-muted">
-        Lo que le debe a {NEGOCIO.nombre} por cada {NEGOCIO.envase.singular} se aprueba en cada entrega. El precio de
-        acá solo se usa para entregas viejas que no lo tienen.
-      </p>
+      {conBotellas.length === 0 ? (
+        <p className="py-2 text-[16px] text-text-muted">No tiene botellas ahora</p>
+      ) : (
+        <div className="flex flex-col divide-y divide-line">
+          {conBotellas.map((p) => (
+            <PrecioRevendedorRow
+              key={p.id}
+              vendedorId={vendedorId}
+              productoId={p.id}
+              productoNombre={p.nombre}
+              enPoder={p.enPoder}
+              valorEnPoderCentavos={p.valorEnPoderCentavos}
+              precioActualCentavos={p.precioActualCentavos}
+              precioMayoristaCentavos={p.precioMayoristaCentavos}
+            />
+          ))}
+        </div>
+      )}
+      {conBotellas.length > 0 && (
+        <p className="text-[14px] text-text-muted">
+          Lo que le debe a {NEGOCIO.nombre} por cada {NEGOCIO.envase.singular} se aprueba en cada entrega. El precio de
+          acá solo se usa para entregas viejas que no lo tienen.
+        </p>
+      )}
     </Tarjeta>
   );
 }

@@ -389,6 +389,7 @@ export default async function RevendedorDetallePage({
   const enPoderTotal = [...stockPorProducto.values()].reduce((acc, n) => acc + n, 0);
   const vendidasEnElMes = botellasVendidasEnMes(ventas, hoyISO());
   const lineaDeTiempo = armarLineaDeTiempo(movimientos, movimientosPago);
+  const encargadoNombre = (coordinadores ?? []).find((c) => c.id === revendedor.encargado_id)?.nombre ?? null;
 
   return (
     <div className="flex flex-col gap-6 pb-8">
@@ -408,6 +409,7 @@ export default async function RevendedorDetallePage({
         debeCentavos={deudaResumen.debeCentavos}
         pendienteCentavos={deudaResumen.pendienteCentavos}
         rendidoCentavos={resumen?.rendido_centavos ?? 0}
+        encargadoNombre={encargadoNombre}
       />
 
       <div className="grid grid-cols-2 gap-3">

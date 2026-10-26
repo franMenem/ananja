@@ -63,7 +63,7 @@ describe("MiInicioVista", () => {
 
   it("sin encargado: el botón y la pastilla usan Ananja", () => {
     const html = renderToStaticMarkup(
-      <MiInicioVista {...BASE} encargadoNombre={null} debeCentavos={1} pendienteCentavos={100} />,
+      <MiInicioVista {...BASE} encargadoNombre={null} debeCentavos={1000} pendienteCentavos={100} />,
     );
     expect(html).toContain("Pagarle a Ananja");
     expect(html).toContain("esperando que Ananja lo confirme");

@@ -9,6 +9,7 @@ import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { hoyISO, formatFecha } from "@/lib/fechas";
 import { calcularGananciaRevendedor, gananciaDelMes, type VentaGanancia } from "@/lib/dominio/ganancia-revendedor";
+import { estadoDeudaHero } from "@/lib/dominio/deuda-hero";
 import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
@@ -91,11 +92,11 @@ export function MiInicioVista({
 }: MiInicioVistaProps) {
   const destinoPago = encargadoNombre ?? NEGOCIO.nombre;
   const totalBotellas = stock.reduce((acc, p) => acc + p.enPoder, 0);
-  const gananciaMes = gananciaDelMes(
-    calcularGananciaRevendedor(ventas).porMes,
-    periodoActual ?? hoyISO().slice(0, 7),
-  );
+  const gananciaMes = gananciaDelMes(calcularGananciaRevendedor(ventas).porMes, periodoActual ?? hoyISO().slice(0, 7));
   const conEntregas = stock.filter((p) => p.tramos.length > 0);
+  const conBotellas = stock.filter((p) => p.enPoder > 0);
+  const deuda = estadoDeudaHero(debeCentavos, pendienteCentavos);
+  const todoPagado = deuda.tipo === "todo-pagado";
 
   return (
     <div className="@container w-full">
@@ -107,20 +108,31 @@ export function MiInicioVista({
         <div className="flex flex-col gap-5">
           {nombre !== null && (
             <Tarjeta como="section" className="flex flex-col gap-4">
-              <NumeroGrande etiqueta={`Le debés a ${NEGOCIO.nombre}`} tono={debeCentavos > 0 ? "debe" : undefined}>
+              <NumeroGrande
+                etiqueta={`Le debés a ${NEGOCIO.nombre}`}
+                tono={deuda.tipo === "debe" || deuda.tipo === "parcial" ? "debe" : undefined}
+              >
                 {formatCentavos(debeCentavos)}
               </NumeroGrande>
-              {debeCentavos <= 0 && pendienteCentavos <= 0 && (
+              {deuda.tipo === "al-dia" && pendienteCentavos <= 0 && (
                 <Pastilla variante="ok" className="w-fit">
                   Al día
                 </Pastilla>
               )}
-              {pendienteCentavos > 0 && (
+              {todoPagado && (
+                <Pastilla variante="confirmar" className="w-fit max-w-full whitespace-normal! leading-snug!">
+                  Ya pagaste todo, falta que {destinoPago} lo confirme
+                </Pastilla>
+              )}
+              {(deuda.tipo === "parcial" || (deuda.tipo === "al-dia" && pendienteCentavos > 0)) && (
                 <Pastilla variante="confirmar" className="w-fit max-w-full whitespace-normal! leading-snug!">
                   {formatCentavos(pendienteCentavos)} esperando que {destinoPago} lo confirme
                 </Pastilla>
               )}
-              <Link href="/mi/pagar" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+              {deuda.tipo === "parcial" && (
+                <p className="text-[14px] text-text-muted">Te queda pagar {formatCentavos(deuda.quedaCentavos)}</p>
+              )}
+              <Link href="/mi/pagar" className={`${todoPagado ? BOTON_SECUNDARIO : BOTON_PRIMARIO} flex w-full px-4`}>
                 Pagarle a {destinoPago}
               </Link>
               <p className="text-[14px] text-text-muted">
@@ -138,23 +150,25 @@ export function MiInicioVista({
 
           <Tarjeta como="section" className="flex flex-col gap-1">
             <h2 className="font-display text-[20px] leading-tight font-bold text-text">
-              {totalBotellas === 0
-                ? `No tenés ${envase(2)}`
-                : `Tenés ${totalBotellas} ${envase(totalBotellas)}`}
+              {totalBotellas === 0 ? `No tenés ${envase(2)} ahora` : `Tenés ${totalBotellas} ${envase(totalBotellas)}`}
             </h2>
             {stock.length === 0 ? (
               <p className="py-2 text-[16px] text-text-muted">Todavía no hay productos cargados.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-line">
-                {stock.map((p) => (
-                  <Fila key={p.id} titulo={p.nombre} valor={p.enPoder} />
-                ))}
-              </div>
+              totalBotellas > 0 && (
+                <div className="flex flex-col divide-y divide-line">
+                  {conBotellas.map((p) => (
+                    <Fila key={p.id} titulo={p.nombre} valor={p.enPoder} />
+                  ))}
+                </div>
+              )
             )}
-            {valorEnPoderCentavos > 0 && (
+            {totalBotellas > 0 && valorEnPoderCentavos > 0 && (
               <p className="text-[14px] text-text-muted">
                 Cuando lo vendas le vas a deber a {valorEnPoderDestino ?? NEGOCIO.nombre}{" "}
-                <span className="font-semibold whitespace-nowrap tabular-nums text-text">{formatCentavos(valorEnPoderCentavos)}</span>
+                <span className="font-semibold whitespace-nowrap tabular-nums text-text">
+                  {formatCentavos(valorEnPoderCentavos)}
+                </span>
               </p>
             )}
             {conEntregas.length > 0 && (
