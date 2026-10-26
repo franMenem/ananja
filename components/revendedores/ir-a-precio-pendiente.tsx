@@ -33,7 +33,7 @@ export function IrAPrecioPendiente({ destinoId, children }: { destinoId: string;
   }
 
   return (
-    <button type="button" onClick={() => irAlDestino(true)} className="border-b border-mark text-text">
+    <button type="button" onClick={() => irAlDestino(true)} className="inline-flex min-h-11 items-center border-b border-mark text-text">
       {children}
     </button>
   );

@@ -1,10 +1,14 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ClienteBajaButton } from "@/components/cliente-baja-button";
 import { ClienteElegirVenta } from "@/components/cobros/elegir-venta";
-import { IconReceipt } from "@/components/icons";
+import { Dato } from "@/components/ui/dato";
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { ListaTarjeta } from "@/components/ui/fila";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { VolverLink } from "@/components/volver-link";
 import {
   listarCobrosDeComprobantes,
@@ -17,6 +21,7 @@ import { etiquetaMedioPago } from "@/lib/etiquetas/medio-pago";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { formatCantidadesPorPresentacion } from "@/lib/negocio";
+import { ChevronFila, FilaLink } from "@/components/ui/estado-fila";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -66,172 +71,51 @@ export default async function ClienteDetailPage({
   const cobradoCentavos = resumen?.cobrado_centavos ?? 0;
   const deudaCentavos = resumen?.deuda_centavos ?? 0;
 
+  const datosContacto = [
+    cliente.telefono ? `Teléfono: ${cliente.telefono}` : null,
+    cliente.direccion ? `Dirección: ${cliente.direccion}` : null,
+    cliente.email ? `Email: ${cliente.email}` : null,
+  ].filter((d): d is string => d !== null);
+  const debe = deudaCentavos > 0;
+
   return (
     <div className="mx-auto w-full max-w-[760px]">
       <div className="flex flex-col gap-6 pb-8">
-        <VolverLink href="/clientes" label="clientes" />
+        <VolverLink href="/clientes" label="clientes" corto />
 
-        <div className="flex flex-col gap-4">
-          <div className="flex items-baseline justify-between gap-2">
-            <h1 className="font-display text-[28px] leading-[1.1] text-text">
+        <header className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h1 className="font-display text-[28px] leading-[1.1] font-bold break-words text-text">
               {cliente.nombre}
             </h1>
-            {!cliente.activo && (
-              <span className="shrink-0 text-[13px] text-accent">
-                Dado de baja
-              </span>
-            )}
+            {!cliente.activo && <Pastilla variante="neutra">Dado de baja</Pastilla>}
           </div>
-
-          <div className="flex flex-col gap-1 text-[16px] text-text">
-            {cliente.telefono && <p>Teléfono: {cliente.telefono}</p>}
-            {cliente.direccion && <p>Dirección: {cliente.direccion}</p>}
-            {cliente.email && <p>Email: {cliente.email}</p>}
-            {cliente.nota && (
-              <p className="text-text-muted">Nota: {cliente.nota}</p>
-            )}
-            {!cliente.telefono &&
-              !cliente.direccion &&
-              !cliente.email &&
-              !cliente.nota && (
-                <p className="text-text-muted">Sin datos adicionales cargados.</p>
-              )}
-          </div>
-
-          <div className="flex gap-2.5 pt-1">
-            <Link
-              href={`/clientes/${id}/editar`}
-              className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
-            >
-              Editar
-            </Link>
-            <div className="flex-1">
-              <ClienteBajaButton clienteId={id} nombre={cliente.nombre} activo={cliente.activo} />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] text-text-muted">
-              Ventas
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-          </div>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] text-text-muted">
-                Vendido
-              </span>
-              <span className="text-base font-medium whitespace-nowrap tabular-nums text-text">
-                {formatCentavos(vendidoCentavos)}
-              </span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] text-text-muted">
-                Cobrado
-              </span>
-              <span className="text-base font-medium whitespace-nowrap tabular-nums text-text">
-                {formatCentavos(cobradoCentavos)}
-              </span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] text-text-muted">
-                Debe
-              </span>
-              <span
-                className={`text-base font-medium whitespace-nowrap tabular-nums ${deudaCentavos > 0 ? "text-accent" : "text-text"}`}
-              >
-                {formatCentavos(deudaCentavos)}
-              </span>
-            </div>
-          </div>
-
-          {rows.length === 0 ? (
-            <div className="flex flex-col items-center px-6 py-10 text-center">
-              <IconReceipt className="h-7 w-7 text-text-muted" />
-              <p className="mt-3 text-[16px] text-text-muted">
-                Este cliente todavía no tiene comprobantes registrados.
-              </p>
-            </div>
-          ) : (
-            <ul className="flex flex-col">
-              {rows.map((comprobante) => (
-                <li key={comprobante.id} className="border-b border-border">
-                  <Link
-                    href={`/comprobantes/${comprobante.id}`}
-                    className="flex items-center justify-between gap-3 py-3.5"
-                  >
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                        <span className="font-display text-[22px] leading-none whitespace-nowrap text-text tabular-nums">
-                          {formatCentavos(comprobante.monto_centavos)}
-                        </span>
-                        {(deudaPorVenta.get(comprobante.id) ?? 0) > 0 && (
-                          <span className="border border-accent px-1 text-[13px] whitespace-nowrap text-accent">
-                            Debe {formatCentavos(deudaPorVenta.get(comprobante.id)!)}
-                          </span>
-                        )}
-                      </div>
-                      <p
-                        className="truncate text-[14px] text-text-muted"
-                        title={`${formatCantidadesPorPresentacion(comprobante.comprobante_items)} · ${comprobante.vendedores?.nombre ?? "—"} · ${formatFecha(comprobante.fecha)}`}
-                      >
-                        {formatCantidadesPorPresentacion(comprobante.comprobante_items)} ·{" "}
-                        {comprobante.vendedores?.nombre ?? "—"} ·{" "}
-                        {formatFecha(comprobante.fecha)}
-                      </p>
-                    </div>
-                    <span className="shrink-0 self-start pb-0.5 text-[13px] text-primary">
-                      <span className="border-b border-mark pb-0.5">
-                        {etiquetaMedioPago(comprobante.medio_pago)}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] text-text-muted">
-              Cobros
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-          </div>
-
-          {(cobros ?? []).length === 0 ? (
-            <p className="py-2 text-[16px] text-text-muted">
-              Todavía no hay cobros registrados.
+          {datosContacto.map((d) => (
+            <p key={d} className="text-[15px] break-words text-text-muted">
+              {d}
             </p>
-          ) : (
-            <ul className="flex flex-col">
-              {(cobros ?? []).map((cobro) => (
-                <li key={cobro.id} className="border-b border-border py-2.5">
-                  <Link
-                    href={`/comprobantes/${cobro.comprobante_id}`}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <span className="text-[16px] text-text">
-                      {formatCentavos(cobro.monto_centavos)} ·{" "}
-                      {etiquetaMedioPago(cobro.medio_pago)}
-                    </span>
-                    <span className="text-[14px] text-text-muted">
-                      {formatFecha(cobro.fecha)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          ))}
+          {cliente.nota && <p className="text-[15px] break-words text-text-muted">Nota: {cliente.nota}</p>}
+          {datosContacto.length === 0 && !cliente.nota && (
+            <p className="text-[15px] text-text-muted">Sin datos adicionales cargados.</p>
           )}
+        </header>
 
+        <Tarjeta como="section" aria-label="Cuánto debe" className="flex flex-col gap-3">
+          <NumeroGrande etiqueta="Debe" tono={debe ? "debe" : undefined}>
+            {formatCentavos(Math.max(deudaCentavos, 0))}
+          </NumeroGrande>
+          {!debe && <Pastilla variante="ok" className="self-start">Al día</Pastilla>}
+        </Tarjeta>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Dato etiqueta="Vendido">{formatCentavos(vendidoCentavos)}</Dato>
+          <Dato etiqueta="Cobrado">{formatCentavos(cobradoCentavos)}</Dato>
+        </div>
+
+        <div className="flex flex-col gap-2">
           {ventasPendientes.length === 1 ? (
-            <Link
-              href={`/comprobantes/${ventasPendientes[0].id}/cobro`}
-              className={`${BOTON_PRIMARIO} flex px-4`}
-            >
+            <Link href={`/comprobantes/${ventasPendientes[0].id}/cobro`} className={`${BOTON_PRIMARIO} flex px-4`}>
               Registrar cobro
             </Link>
           ) : ventasPendientes.length > 1 ? (
@@ -243,7 +127,81 @@ export default async function ClienteDetailPage({
               }))}
             />
           ) : null}
+          <div className="grid grid-cols-2 gap-2">
+            <Link href={`/clientes/${id}/editar`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+              Editar
+            </Link>
+            <ClienteBajaButton clienteId={id} nombre={cliente.nombre} activo={cliente.activo} />
+          </div>
         </div>
+
+        <section aria-labelledby="cliente-compras" className="flex flex-col gap-3">
+          <h2 id="cliente-compras" className="text-[20px] leading-tight font-semibold text-text">
+            Comprobantes
+          </h2>
+          {rows.length === 0 ? (
+            <p className="text-[16px] text-text-muted">Este cliente todavía no tiene comprobantes registrados.</p>
+          ) : (
+            <ListaTarjeta>
+              {rows.map((comprobante) => {
+                const deudaVenta = deudaPorVenta.get(comprobante.id) ?? 0;
+                return (
+                  <FilaLink
+                    key={comprobante.id}
+                    href={`/comprobantes/${comprobante.id}`}
+                    izquierda={
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-[16px] font-semibold tabular-nums text-text">
+                          {formatCentavos(comprobante.monto_centavos)}
+                        </span>
+                        <span className="text-[14px] break-words text-text-muted">
+                          {formatCantidadesPorPresentacion(comprobante.comprobante_items)} ·{" "}
+                          {comprobante.vendedores?.nombre ?? "—"} · {formatFecha(comprobante.fecha)} ·{" "}
+                          {etiquetaMedioPago(comprobante.medio_pago)}
+                        </span>
+                      </div>
+                    }
+                    derecha={
+                      <>
+                        {deudaVenta > 0 && <Pastilla variante="debe">Debe {formatCentavos(deudaVenta)}</Pastilla>}
+                        <ChevronFila />
+                      </>
+                    }
+                  />
+                );
+              })}
+            </ListaTarjeta>
+          )}
+        </section>
+
+        <section aria-labelledby="cliente-cobros" className="flex flex-col gap-3">
+          <h2 id="cliente-cobros" className="text-[20px] leading-tight font-semibold text-text">
+            Cobros
+          </h2>
+          {(cobros ?? []).length === 0 ? (
+            <p className="text-[16px] text-text-muted">Todavía no hay cobros registrados.</p>
+          ) : (
+            <ListaTarjeta>
+              {(cobros ?? []).map((cobro) => (
+                <FilaLink
+                  key={cobro.id}
+                  href={`/comprobantes/${cobro.comprobante_id}`}
+                  izquierda={
+                    <div className="flex min-w-0 flex-col">
+                      <span className="text-[16px] font-semibold tabular-nums text-text">
+                        {formatCentavos(cobro.monto_centavos)}
+                      </span>
+                      <span className="text-[14px] text-text-muted">
+                        {etiquetaMedioPago(cobro.medio_pago)} · {formatFecha(cobro.fecha)}
+                      </span>
+                    </div>
+                  }
+                  derecha={<ChevronFila />}
+                />
+              ))}
+            </ListaTarjeta>
+          )}
+        </section>
       </div>
     </div>
   );

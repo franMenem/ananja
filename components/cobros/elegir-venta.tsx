@@ -39,15 +39,15 @@ export function ClienteElegirVenta({ ventas }: ClienteElegirVentaProps) {
       </button>
 
       {open && (
-        <div className="flex flex-col border border-border">
-          <p className="border-b border-border px-3.5 py-2 text-[13px] text-text-muted">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface">
+          <p className="border-b border-line px-4 py-2 text-[14px] text-text-muted">
             Elegí la venta a cobrar
           </p>
           {ventas.map((venta) => (
             <Link
               key={venta.id}
               href={`/comprobantes/${venta.id}/cobro`}
-              className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5 text-[16px] text-text last:border-b-0 hover:bg-surface-raised"
+              className="flex min-h-12 items-center justify-between gap-3 border-b border-line px-4 py-2.5 text-[16px] text-text last:border-b-0 hover:bg-background"
             >
               <span>{formatFecha(venta.fecha)}</span>
               <span className="tabular-nums text-accent">

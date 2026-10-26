@@ -58,8 +58,8 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
           setError(null);
           setConfirmando(true);
         }}
-        className={`min-h-11 w-full border px-4 text-[14px] font-medium ${
-          activo ? "border-accent text-accent" : "border-border text-text"
+        className={`min-h-12 w-full rounded-xl border bg-surface px-4 text-[16px] font-semibold ${
+          activo ? "border-accent text-accent" : "border-[#d0cec8] text-text"
         }`}
       >
         {activo ? "Dar de baja" : "Reactivar"}
@@ -84,7 +84,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
             cargando={saving}
             textoCargando="Guardando…"
             onClick={() => void handleToggle()}
-            className={`min-h-11 flex-[1.6] px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45 ${
+            className={`min-h-12 flex-[1.6] rounded-xl px-4 text-[16px] font-semibold text-primary-foreground disabled:opacity-45 ${
               activo ? "bg-accent" : "bg-primary hover:bg-primary-hover"
             }`}
           >

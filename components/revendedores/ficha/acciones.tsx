@@ -1,29 +1,43 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+
+/** Adónde lleva cada botón de la ficha. Las secciones son las del formulario
+ * único `/revendedores/[id]/carga` (`?seccion=entrega|ventas|pago`). */
+export function hrefsAcciones(vendedorId: string) {
+  const base = `/revendedores/${vendedorId}`;
+  return {
+    entregar: `${base}/carga?seccion=entrega`,
+    pago: `${base}/carga?seccion=pago`,
+    venta: `${base}/carga?seccion=ventas`,
+    devolucion: `${base}/devolucion`,
+  };
+}
+
+const SECUNDARIO = `${BOTON_SECUNDARIO} flex px-2 text-[15px] leading-tight`;
+
 /**
- * Bloque 2 de la ficha (`/revendedores/[id]`, rediseño "de 10 bloques a
- * 5", 2026-09-16): dos botones — "Cargar movimiento" (entrega, ventas y
- * pago juntos, `/revendedores/[id]/carga`) y "Devolución" (solo
- * devoluciones, `/revendedores/[id]/devolucion`). Reemplazan los cuatro
- * botones de antes (Entregar / Cargar ventas / Registrar pago / "Cargar
- * todo junto").
+ * Acciones de la ficha de una revendedora: "Entregar botellas" (principal,
+ * ancho completo) y debajo "Registrar pago", "Registrar venta" y "Devolución".
  */
 export function AccionesFicha({ vendedorId }: { vendedorId: string }) {
+  const href = hrefsAcciones(vendedorId);
   return (
-    <div className="flex flex-wrap gap-2">
-      <Link
-        href={`/revendedores/${vendedorId}/carga`}
-        className={`${BOTON_PRIMARIO} flex flex-1 px-4 sm:flex-none`}
-      >
-        Cargar movimiento
+    <div className="flex flex-col gap-2">
+      <Link href={href.entregar} className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+        Entregar botellas
       </Link>
-      <Link
-        href={`/revendedores/${vendedorId}/devolucion`}
-        className="flex min-h-11 flex-1 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary sm:flex-none rounded-xl"
-      >
-        Devolución
-      </Link>
+      <div className="grid grid-cols-3 gap-2">
+        <Link href={href.pago} className={SECUNDARIO}>
+          Registrar pago
+        </Link>
+        <Link href={href.venta} className={SECUNDARIO}>
+          Registrar venta
+        </Link>
+        <Link href={href.devolucion} className={SECUNDARIO}>
+          Devolución
+        </Link>
+      </div>
     </div>
   );
 }

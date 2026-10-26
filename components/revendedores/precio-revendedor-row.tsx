@@ -7,6 +7,7 @@ import { BotonAccion } from "@/components/boton-accion";
 import { MontoInput } from "@/components/monto-input";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { createClient } from "@/lib/supabase/client";
+import { textoBotellas } from "@/lib/dominio/personas";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 
 const ERRORES: Record<string, string> = {
@@ -20,6 +21,10 @@ type PrecioRevendedorRowProps = {
   vendedorId: string;
   productoId: string;
   productoNombre: string;
+  /** Botellas de este producto que tiene hoy. */
+  enPoder: number;
+  /** Lo que valen a costo de Ananja. */
+  valorEnPoderCentavos: number;
   precioActualCentavos: number | null;
   precioMayoristaCentavos: number | null;
 };
@@ -35,6 +40,8 @@ export function PrecioRevendedorRow({
   vendedorId,
   productoId,
   productoNombre,
+  enPoder,
+  valorEnPoderCentavos,
   precioActualCentavos,
   precioMayoristaCentavos,
 }: PrecioRevendedorRowProps) {
@@ -76,16 +83,21 @@ export function PrecioRevendedorRow({
 
   if (!editando) {
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-border py-3">
-        <span className="text-[16px] text-text">{productoNombre}</span>
-        <div className="flex items-center gap-3">
-          <span className="text-[16px] font-medium tabular-nums text-text">
-            {actual !== null ? formatCentavos(actual) : "Sin precio asignado"}
+      <div className="flex min-h-14 items-center justify-between gap-3 py-2">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-[16px] font-semibold text-text">{productoNombre}</span>
+          <span className="text-[14px] text-text-muted">
+            {textoBotellas(enPoder)} · vale {formatCentavos(valorEnPoderCentavos)}
+          </span>
+        </div>
+        <div className="flex shrink-0 flex-col items-end">
+          <span className="text-[16px] tabular-nums text-text">
+            {actual !== null ? `${formatCentavos(actual)} c/u` : "Sin precio"}
           </span>
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-[13px] text-text-muted hover:text-primary"
+            className="inline-flex min-h-11 items-center px-1 text-[15px] font-semibold text-primary hover:underline"
           >
             Editar
           </button>
@@ -95,8 +107,8 @@ export function PrecioRevendedorRow({
   }
 
   return (
-    <div className="flex flex-col gap-2 border-b border-border py-3">
-      <span className="text-[16px] text-text">{productoNombre}</span>
+    <div className="flex flex-col gap-2 py-3">
+      <span className="text-[16px] font-semibold text-text">{productoNombre}</span>
       <div className="flex items-start gap-2">
         <MontoInput
           ariaLabel={`Precio revendedor de ${productoNombre}`}
@@ -112,7 +124,7 @@ export function PrecioRevendedorRow({
           <button
             type="button"
             onClick={() => setValor(formatMontoDisplay(precioMayoristaCentavos))}
-            className="min-h-11 shrink-0 text-[13px] text-text-muted hover:text-primary"
+            className="min-h-11 shrink-0 px-1 text-[15px] text-text-muted hover:text-primary"
           >
             Usar mayorista
           </button>

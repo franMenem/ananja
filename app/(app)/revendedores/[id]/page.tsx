@@ -1,11 +1,12 @@
 import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
 import { AccionesFicha } from "@/components/revendedores/ficha/acciones";
+import { AjustesFicha } from "@/components/revendedores/ficha/ajustes";
 import { CabeceraFicha } from "@/components/revendedores/ficha/cabecera";
 import { EnPoderFicha } from "@/components/revendedores/ficha/en-poder";
 import { FichaCoordinador } from "@/components/revendedores/ficha/ficha-coordinador";
-import { MovimientosFicha } from "@/components/revendedores/ficha/movimientos";
-import { PagosFicha } from "@/components/revendedores/ficha/pagos";
-import { PlegadosFicha } from "@/components/revendedores/ficha/plegados";
+import { HeroeRevendedora } from "@/components/revendedores/ficha/heroe";
+import { LoQuePasoFicha } from "@/components/revendedores/ficha/lo-que-paso";
+import { Dato } from "@/components/ui/dato";
 import { VolverLink } from "@/components/volver-link";
 import { listarMisRevendedoras } from "@/lib/coordinador";
 import { cargarBotellasAdeudadas } from "@/lib/data/botellas-adeudadas";
@@ -34,6 +35,8 @@ import {
   ventasComoMovimientos,
 } from "@/lib/dominio/movimientos-revendedor";
 import { calcularDeudaConPendientes, historialPagos } from "@/lib/dominio/pagos-revendedor";
+import { armarLineaDeTiempo, botellasVendidasEnMes, textoBotellas } from "@/lib/dominio/personas";
+import { hoyISO } from "@/lib/fechas";
 import { obtenerVersionVigente } from "@/lib/precios";
 import { pagoComoHistorial } from "@/lib/dominio/revendedores";
 import {
@@ -264,7 +267,7 @@ export default async function RevendedorDetallePage({
   if (!revendedor) {
     return (
       <div className="flex flex-col gap-6 pb-8">
-        <VolverLink href="/revendedores" label="revendedores" />
+        <VolverLink href="/revendedores" label="revendedores" corto />
         <p className="text-[16px] text-text-muted">No encontramos este revendedor.</p>
       </div>
     );
@@ -278,17 +281,15 @@ export default async function RevendedorDetallePage({
       : await cargarTandaCoordinador();
 
     return (
-      <div className="flex flex-col gap-8 pb-8">
-        <VolverLink href="/revendedores" label="revendedores" />
+      <div className="flex flex-col gap-6 pb-8">
+        <VolverLink href="/revendedores" label="revendedores" corto />
 
         <CabeceraFicha
           vendedorId={id}
           nombre={revendedor.nombre}
           rol={revendedor.rol}
           revende={revendedor.revende}
-          debeCentavos={0}
-          pendienteCentavos={0}
-          rendidoCentavos={0}
+          mostrarEncargado={false}
           encargadoActualId={null}
           coordinadores={[]}
         />
@@ -303,6 +304,14 @@ export default async function RevendedorDetallePage({
           plataEnManoCentavos={plataEnMano ?? 0}
           entregas={entregas}
           botellas={botellas}
+        />
+
+        <AjustesFicha
+          vendedorId={id}
+          nombre={revendedor.nombre}
+          rol={revendedor.rol}
+          revende={revendedor.revende}
+          tomaDirecto={false}
         />
       </div>
     );
@@ -377,26 +386,36 @@ export default async function RevendedorDetallePage({
   const { data: borradores } = await listarVendedoresPorIds(supabase, idsBorradores);
   const nombreBorrador = new Map((borradores ?? []).map((b) => [b.id, b.nombre]));
 
+  const enPoderTotal = [...stockPorProducto.values()].reduce((acc, n) => acc + n, 0);
+  const vendidasEnElMes = botellasVendidasEnMes(ventas, hoyISO());
+  const lineaDeTiempo = armarLineaDeTiempo(movimientos, movimientosPago);
+
   return (
-    <div className="flex flex-col gap-8 pb-8">
-      <VolverLink href="/revendedores" label="revendedores" />
+    <div className="flex flex-col gap-6 pb-8">
+      <VolverLink href="/revendedores" label="revendedores" corto />
 
       <CabeceraFicha
         vendedorId={id}
         nombre={revendedor.nombre}
         rol={revendedor.rol}
         revende={revendedor.revende}
-        debeCentavos={deudaResumen.debeCentavos}
-        pendienteCentavos={deudaResumen.pendienteCentavos}
-        rendidoCentavos={resumen?.rendido_centavos ?? 0}
+        mostrarEncargado
         encargadoActualId={revendedor.encargado_id}
-        tomaDirecto={revendedor.toma_directo}
         coordinadores={coordinadores}
       />
 
-      <AccionesFicha vendedorId={id} />
+      <HeroeRevendedora
+        debeCentavos={deudaResumen.debeCentavos}
+        pendienteCentavos={deudaResumen.pendienteCentavos}
+        rendidoCentavos={resumen?.rendido_centavos ?? 0}
+      />
 
-      <BotellasAdeudadas resumen={botellas} variante="revendedora" />
+      <div className="grid grid-cols-2 gap-3">
+        <Dato etiqueta="Tiene">{textoBotellas(enPoderTotal)}</Dato>
+        <Dato etiqueta="Vendió este mes">{textoBotellas(vendidasEnElMes)}</Dato>
+      </div>
+
+      <AccionesFicha vendedorId={id} />
 
       <EnPoderFicha
         vendedorId={id}
@@ -410,15 +429,20 @@ export default async function RevendedorDetallePage({
         }))}
       />
 
-      <PagosFicha movimientos={movimientosPago} />
+      <BotellasAdeudadas resumen={botellas} variante="revendedora" />
 
-      <MovimientosFicha
-        movimientos={movimientos}
+      <LoQuePasoFicha
+        items={lineaDeTiempo}
         nombrePorProducto={nombrePorProducto}
         primerGrupoSinPrecio={grupoSinPrecio}
       />
 
-      <PlegadosFicha
+      <AjustesFicha
+        vendedorId={id}
+        nombre={revendedor.nombre}
+        rol={revendedor.rol}
+        revende={revendedor.revende}
+        tomaDirecto={revendedor.toma_directo}
         ventasGanancia={ventas.map((v) => ({
           fecha: v.fecha,
           cantidad: v.cantidad,

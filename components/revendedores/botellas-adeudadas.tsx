@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import type {
   CantidadProducto,
@@ -12,7 +13,7 @@ import type {
   ResumenBotellas,
 } from "@/lib/dominio/botellas-adeudadas";
 import { formatCentavos } from "@/lib/money";
-import { NEGOCIO, concordar, envase } from "@/lib/negocio";
+import { NEGOCIO, capitalizar, concordar, envase } from "@/lib/negocio";
 
 /** "8 × Botella 250 ml · 4 × Botella 500 ml" */
 export function textoProductos(productos: CantidadProducto[]): string {
@@ -34,7 +35,7 @@ export function textoEstados(e: Estados): string {
   return partes.join(" · ");
 }
 
-const ROTULO = "text-[13px] text-text-muted";
+const ROTULO = "text-[14px] text-text-muted";
 
 function textoSinBotella(centavos: number): string {
   return `${centavos < 0 ? "−" : "+"} ${formatCentavos(Math.abs(centavos))} sin ${envase(1)} ${concordar("asignado", "asignada")}`;
@@ -52,7 +53,7 @@ function LineaEstado({
   sinBotellaCentavos?: number;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-border py-2 text-[16px]">
+    <div className="flex items-baseline justify-between gap-3 border-b border-line py-2 text-[16px] last:border-b-0">
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="break-words text-text">{titulo}</span>
         {productos.length > 0 && <span className="break-words text-[14px] text-text-muted">{textoProductos(productos)}</span>}
@@ -68,13 +69,13 @@ function LineaEstado({
 function FilaDesglose({ encabezado, grupo }: { encabezado: ReactNode; grupo: GrupoBotellas }) {
   const estados = textoEstados(grupo.estados);
   return (
-    <li className="flex flex-col gap-0.5 border-b border-border py-2 text-[16px]">
+    <li className="flex flex-col gap-0.5 border-b border-line py-2 text-[16px]">
       <div className="flex items-baseline justify-between gap-3">
         <span className="min-w-0 break-words">{encabezado}</span>
         <span className="shrink-0 tabular-nums text-text">{cantidadTexto(grupo.total)}</span>
       </div>
       <span className="break-words text-[14px] text-text-muted">{textoProductos(grupo.productos)}</span>
-      {estados && <span className="break-words text-[13px] text-text-muted">{estados}</span>}
+      {estados && <span className="break-words text-[14px] text-text-muted">{estados}</span>}
     </li>
   );
 }
@@ -160,8 +161,8 @@ export type BotellasAdeudadasProps = {
   /** `null`: la lectura falló → "No se pudo calcular." sin romper la pantalla. */
   resumen: ResumenBotellas | null;
   /**
-   * - `equipo`: bloque grande "Se le deben a Ananja" (listado y ficha de coordinadora).
-   * - `revendedora`: una línea "Le debe a Ananja N botellas" para la ficha de una revendedora.
+   * - `equipo`: tarjeta grande (listado y ficha de coordinadora).
+   * - `revendedora`: la de la ficha de una revendedora.
    */
   variante: "equipo" | "revendedora";
   /** Lista "Por persona" dentro del desglose (solo el listado general). */
@@ -170,29 +171,40 @@ export type BotellasAdeudadasProps = {
   nota?: string;
 };
 
+/** Qué son las botellas adeudadas, en una línea. */
+const EXPLICACION = `Salieron del depósito y su plata todavía no llegó a ${NEGOCIO.nombre}: las que tienen las revendedoras, las vendidas sin pagar y las cobradas sin pasar a la cuenta.`;
+
+function TituloTarjeta({ children }: { children: ReactNode }) {
+  return <h2 className="text-[20px] leading-tight font-semibold text-text">{children}</h2>;
+}
+
 /**
- * "Se le deben a Ananja N botellas": todas las botellas que salieron del
- * depósito y todavía no llegaron a Ananja en plata — en poder de
- * revendedoras, vendidas sin pagar y cobradas por la coordinadora sin pasar
- * (ver `lib/dominio/botellas-adeudadas.ts`). Solo presentación; la usan el
- * listado `/revendedores`, la ficha de la coordinadora y la de la revendedora.
+ * "Botellas adeudadas": todas las botellas que salieron del depósito y
+ * todavía no llegaron a Ananja en plata — en poder de revendedoras,
+ * vendidas sin pagar y cobradas por la coordinadora sin pasar (ver
+ * `lib/dominio/botellas-adeudadas.ts`). Solo presentación; la usan el
+ * listado `/revendedores`, la ficha de la coordinadora y la de la
+ * revendedora. Si no hay ninguna no se muestra nada (si la lectura falló,
+ * avisa).
  */
 export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false, nota }: BotellasAdeudadasProps) {
-  const titulo = variante === "revendedora" ? `En ${envase(2)}` : `Se le deben a ${NEGOCIO.nombre}`;
+  if (resumen !== null && resumen.total === 0 && !resumen.coordinadoras.some((c) => c.sinBotellaCentavos !== 0)) {
+    return null;
+  }
+
+  const titulo = `${capitalizar(envase(2))} adeudadas`;
 
   if (variante === "revendedora") {
     return (
-      <section className="flex flex-col gap-1.5">
-        <span className={ROTULO}>{titulo}</span>
+      <Tarjeta como="section" className="flex flex-col gap-2">
+        <TituloTarjeta>{titulo}</TituloTarjeta>
         {resumen === null ? (
           <p className="text-[16px] text-text-muted">No se pudo calcular.</p>
-        ) : resumen.total === 0 ? (
-          <p className="text-[16px] text-text-muted">No le debe ninguna {envase(1)}.</p>
         ) : (
           <>
             <p className="text-[16px] text-text">
               Le debe a {NEGOCIO.nombre}{" "}
-              <span className="font-display text-[26px] leading-[1.05] tabular-nums text-text">
+              <span className="font-display text-[24px] leading-[1.05] font-bold tabular-nums text-text">
                 {cantidadTexto(resumen.total)}
               </span>
             </p>
@@ -201,19 +213,22 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
             <Desglose resumen={resumen} mostrarPorPersona={false} titulo="Ver por lote" />
           </>
         )}
-      </section>
+      </Tarjeta>
     );
   }
 
   const sinBotellaTotal = resumen?.coordinadoras.some((c) => c.sinBotellaCentavos !== 0) ?? false;
   return (
-    <section className="flex flex-col gap-3 border-b border-border pb-6">
-      <span className={ROTULO}>{titulo}</span>
+    <Tarjeta como="section" className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <TituloTarjeta>{titulo}</TituloTarjeta>
+        <p className="text-[14px] text-text-muted">{EXPLICACION}</p>
+      </div>
       {resumen === null ? (
         <p className="text-[16px] text-text-muted">No se pudo calcular.</p>
       ) : (
         <>
-          {resumen.total > 0 ? (
+          {resumen.total > 0 && (
             <div className="flex flex-col gap-1">
               <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] tabular-nums text-text">
                 {cantidadTexto(resumen.total)}
@@ -221,8 +236,6 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
               <p className="text-[16px] text-text">{textoProductos(resumen.productos)}</p>
               {nota && <p className="text-[14px] text-text-muted">{nota}</p>}
             </div>
-          ) : (
-            <p className="text-[16px] text-text-muted">No se le debe ninguna {envase(1)}.</p>
           )}
 
           {(resumen.total > 0 || sinBotellaTotal) && (
@@ -258,6 +271,6 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
           )}
         </>
       )}
-    </section>
+    </Tarjeta>
   );
 }

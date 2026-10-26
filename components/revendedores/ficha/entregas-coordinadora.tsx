@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import {
   ENTREGAS_COORDINADORA_VISIBLES,
@@ -24,10 +25,15 @@ export type EntregasCoordinadoraProps = {
  */
 export function EntregasCoordinadora({ entregas }: EntregasCoordinadoraProps) {
   return (
-    <section className="flex flex-col gap-3">
-      <span className="text-[13px] text-text-muted">Entregas a sus revendedoras</span>
+    <Tarjeta como="section" aria-labelledby="coord-paso" className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h2 id="coord-paso" className="text-[20px] leading-tight font-semibold text-text">
+          Lo que pasó
+        </h2>
+        <p className="text-[14px] text-text-muted">Entregas y devoluciones a sus revendedoras.</p>
+      </div>
       <Cuerpo entregas={entregas} />
-    </section>
+    </Tarjeta>
   );
 }
 
@@ -71,7 +77,7 @@ function Cuerpo({ entregas }: EntregasCoordinadoraProps) {
 
       {anteriores.length > 0 && (
         <details className="group">
-          <summary className="flex items-center gap-1.5 select-none text-[13px] text-text-muted [&::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-11 cursor-pointer items-center gap-1.5 text-[15px] font-semibold text-primary select-none [&::-webkit-details-marker]:hidden">
             <span aria-hidden className="inline-block transition-transform group-open:rotate-90">
               ›
             </span>
@@ -92,14 +98,14 @@ function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
   const link = (
     <Link
       href={`/revendedores/${fila.revendedoraId}`}
-      className="font-medium text-text underline decoration-border underline-offset-4 hover:text-primary"
+      className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-border underline-offset-4 hover:text-primary"
     >
       {fila.revendedoraNombre}
     </Link>
   );
 
   return (
-    <div className="flex flex-col gap-1 border-b border-border py-3 text-[16px]">
+    <div className="flex flex-col gap-1 border-b border-line py-3 text-[16px] last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="shrink-0 text-[14px] tabular-nums text-text-muted">{formatFecha(fila.fecha)}</span>
         <span className="min-w-0 break-words text-text">
@@ -118,9 +124,9 @@ function FilaEntrega({ fila }: { fila: FilaEntregaCoordinadora }) {
         </ul>
       )}
       {fila.automatica && (
-        <p className="text-[13px] text-text-muted">{etiquetaEntregaAutomatica(fila.tipo, true)}</p>
+        <p className="text-[14px] text-text-muted">{etiquetaEntregaAutomatica(fila.tipo, true)}</p>
       )}
-      {fila.cargadaPor !== null && <p className="text-[13px] text-text-muted">la cargó {fila.cargadaPor}</p>}
+      {fila.cargadaPor !== null && <p className="text-[14px] text-text-muted">la cargó {fila.cargadaPor}</p>}
     </div>
   );
 }

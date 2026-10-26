@@ -48,6 +48,7 @@ export default async function DevolucionRevendedorPage({
             "Devolución"/"Revisá la entrega") con su propio SetFormHeader —
             mismo criterio que /revendedores/[id]/carga. */}
         <FormHeaderDesktop />
+        <p className="text-[15px] text-text-muted">¿Qué botellas devolvió {revendedor.nombre}?</p>
         <EntregaForm
           vendedorId={id}
           vendedorNombre={revendedor.nombre}

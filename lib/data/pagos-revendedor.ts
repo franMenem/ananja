@@ -46,3 +46,26 @@ export async function listarPagosRevendedor(
   // `lib/data/comprobantes.ts`).
   return { data: (data ?? []) as unknown as PagoRevendedorFuente[], error: null };
 }
+
+/**
+ * Lo que cada persona informó y todavía no se confirmó (pagos en estado
+ * `pendiente`), sumado por `vendedor_id` — para el estado "por confirmar"
+ * de `/revendedores`. Una consulta liviana (solo dos columnas); si falla se
+ * loguea y la lista se ve igual, sin ese dato.
+ */
+export async function sumarPendientesPorVendedor(supabase: Supa): Promise<Map<string, number>> {
+  const { data, error } = await supabase
+    .from("pagos_revendedor")
+    .select("vendedor_id, monto_centavos")
+    .eq("estado", "pendiente");
+
+  const porVendedor = new Map<string, number>();
+  if (error) {
+    console.error("sumarPendientesPorVendedor", error);
+    return porVendedor;
+  }
+  for (const fila of data ?? []) {
+    porVendedor.set(fila.vendedor_id, (porVendedor.get(fila.vendedor_id) ?? 0) + fila.monto_centavos);
+  }
+  return porVendedor;
+}

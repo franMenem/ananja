@@ -26,6 +26,8 @@ export type ClienteConStats = {
   nombre: string;
   telefono: string | null;
   totalCentavos: number;
+  /** Cuántos comprobantes tiene. */
+  cantidadCompras: number;
   ultimaCompra: string | null;
   deudaCentavos: number;
 };
@@ -42,11 +44,12 @@ export function armarFilasClientes(
   comprobantes: ComprobanteParaStatsCliente[],
   deudas: DeudaParaCliente[],
 ): ClienteConStats[] {
-  const stats = new Map<string, { total: number; ultima: string | null }>();
+  const stats = new Map<string, { total: number; cantidad: number; ultima: string | null }>();
   for (const c of comprobantes) {
     if (!c.cliente_id) continue;
-    const prev = stats.get(c.cliente_id) ?? { total: 0, ultima: null };
+    const prev = stats.get(c.cliente_id) ?? { total: 0, cantidad: 0, ultima: null };
     prev.total += c.monto_centavos;
+    prev.cantidad += 1;
     if (!prev.ultima || c.fecha > prev.ultima) prev.ultima = c.fecha;
     stats.set(c.cliente_id, prev);
   }
@@ -63,6 +66,7 @@ export function armarFilasClientes(
         nombre: cliente.nombre,
         telefono: cliente.telefono,
         totalCentavos: s?.total ?? 0,
+        cantidadCompras: s?.cantidad ?? 0,
         ultimaCompra: s?.ultima ?? null,
         deudaCentavos: deudaPorCliente.get(cliente.id) ?? 0,
       };

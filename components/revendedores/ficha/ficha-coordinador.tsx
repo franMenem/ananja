@@ -1,8 +1,13 @@
-import Link from "next/link";
-
 import { VentaCoordinador, type LoteDepositoAdmin } from "@/components/coordinador/venta-coordinador";
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { BotellasAdeudadas } from "@/components/revendedores/botellas-adeudadas";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { ChevronFila, FilaLink } from "@/components/ui/estado-fila";
+import { ListaTarjeta } from "@/components/ui/fila";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
+import { textoBotellas } from "@/lib/dominio/personas";
 import { EntregasCoordinadora } from "@/components/revendedores/ficha/entregas-coordinadora";
 import type { ResumenBotellas } from "@/lib/dominio/botellas-adeudadas";
 import type { RevendedoraCoordinador } from "@/lib/dominio/coordinador";
@@ -10,7 +15,7 @@ import type { EntregasCoordinadora as Entregas } from "@/lib/dominio/entregas-co
 import { descripcionVentaPropia, type VentaPropiaFila } from "@/lib/dominio/venta-coordinador";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import { NEGOCIO, envase } from "@/lib/negocio";
+import { NEGOCIO } from "@/lib/negocio";
 
 export type FichaCoordinadorProps = {
   coordinadorId: string;
@@ -62,20 +67,24 @@ export function FichaCoordinador({
   botellas,
 }: FichaCoordinadorProps) {
   return (
-    <div className="flex flex-col gap-8">
-      {plataEnManoCentavos > 0 && (
-        <div className="flex flex-col gap-1 border-b border-border pb-6">
-          <span className="text-[13px] text-text-muted">
-            Tiene que pasar a {NEGOCIO.nombre}
-          </span>
-          <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] whitespace-nowrap text-text">
-            {formatCentavos(plataEnManoCentavos)}
-          </p>
-          <p className="text-[14px] text-text-muted">
-            Todavía no la pasó a la cuenta de {NEGOCIO.nombre}.
-          </p>
-        </div>
-      )}
+    <div className="flex flex-col gap-6">
+      <Tarjeta como="section" aria-label={`Lo que tiene que pasar a ${NEGOCIO.nombre}`} className="flex flex-col gap-3">
+        <NumeroGrande etiqueta={`Tiene que pasar a ${NEGOCIO.nombre}`}>
+          {formatCentavos(Math.max(plataEnManoCentavos, 0))}
+        </NumeroGrande>
+        {plataEnManoCentavos > 0 ? (
+          <div className="flex flex-col items-start gap-2">
+            <Pastilla variante="aviso">Todavía no la pasó</Pastilla>
+            <p className="text-[14px] text-text-muted">
+              Es plata en mano que todavía no llegó a la cuenta de {NEGOCIO.nombre}.
+            </p>
+          </div>
+        ) : (
+          <Pastilla variante="ok" className="self-start">
+            Al día
+          </Pastilla>
+        )}
+      </Tarjeta>
 
       <BotellasAdeudadas
         resumen={botellas}
@@ -83,9 +92,46 @@ export function FichaCoordinador({
         nota="Entre sus revendedoras y la plata que cobró."
       />
 
-      <section className="flex flex-col gap-3">
+      <section aria-labelledby="coord-a-cargo" className="flex flex-col gap-3">
+        <h2 id="coord-a-cargo" className="text-[20px] leading-tight font-semibold text-text">
+          Revendedoras a cargo ({revendedoras.length})
+        </h2>
+        {revendedoras.length === 0 ? (
+          <p className="text-[16px] text-text-muted">Todavía no tiene ninguna revendedora asignada.</p>
+        ) : (
+          <ListaTarjeta>
+            {revendedoras.map((r) => (
+              <FilaLink
+                key={r.id}
+                href={`/revendedores/${r.id}`}
+                izquierda={
+                  <div className="flex min-w-0 flex-col">
+                    <span className="text-[16px] font-semibold break-words text-text">{r.nombre}</span>
+                    <span className="text-[14px] text-text-muted">
+                      Tiene {textoBotellas(r.enPoder)}
+                      {r.valorEnPoderCentavos > 0 && ` · ${formatCentavos(r.valorEnPoderCentavos)} en poder`}
+                    </span>
+                  </div>
+                }
+                derecha={
+                  <>
+                    <Pastilla variante={r.debeCentavos > 0 ? "debe" : "ok"}>
+                      {r.debeCentavos > 0 ? `Debe ${formatCentavos(r.debeCentavos)}` : "Al día"}
+                    </Pastilla>
+                    <ChevronFila />
+                  </>
+                }
+              />
+            ))}
+          </ListaTarjeta>
+        )}
+      </section>
+
+      <Tarjeta como="section" aria-labelledby="coord-ventas" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[13px] text-text-muted">Ventas propias</span>
+          <h2 id="coord-ventas" className="text-[20px] leading-tight font-semibold text-text">
+            Ventas propias
+          </h2>
           <VentaCoordinador
             coordinadorId={coordinadorId}
             coordinadorNombre={coordinadorNombre}
@@ -93,45 +139,14 @@ export function FichaCoordinador({
             modo="admin"
             lotesAdmin={lotesAdmin}
             etiqueta="Vendió ella"
+            className={`${BOTON_SECUNDARIO} flex px-4`}
           />
         </div>
         <p className="text-[14px] text-text-muted">
-          Botellas que agarró del depósito y vendió ella misma. Se suman a lo que tiene que pasar a{" "}
-          {NEGOCIO.nombre}.
+          Botellas que agarró del depósito y vendió ella misma. Se suman a lo que tiene que pasar a {NEGOCIO.nombre}.
         </p>
         <VentasPropias ventas={ventasPropias} coordinadorNombre={coordinadorNombre} />
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <span className="text-[13px] text-text-muted">
-          Revendedoras a cargo ({revendedoras.length})
-        </span>
-
-        {revendedoras.length === 0 ? (
-          <p className="py-6 text-[16px] text-text-muted">Todavía no tiene ninguna revendedora asignada.</p>
-        ) : (
-          <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
-            {revendedoras.map((r) => (
-              <Link
-                key={r.id}
-                href={`/revendedores/${r.id}`}
-                className="flex items-baseline justify-between gap-3 bg-surface-raised p-3.5 hover:bg-border/30"
-              >
-                <span className="min-w-0 break-words font-medium text-text">{r.nombre}</span>
-                <span className="flex shrink-0 items-baseline gap-3 text-[14px]">
-                  <span className="text-text-muted">
-                    {r.enPoder} {envase(r.enPoder)}
-                    {r.valorEnPoderCentavos > 0 && ` · ${formatCentavos(r.valorEnPoderCentavos)} en poder`}
-                  </span>
-                  <span className="font-display text-[16px] leading-none text-accent tabular-nums">
-                    {formatCentavos(r.debeCentavos)}
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+      </Tarjeta>
 
       <EntregasCoordinadora entregas={entregas} />
     </div>
@@ -152,9 +167,9 @@ function VentasPropias({
     return <p className="py-2 text-[16px] text-text-muted">Todavía no cargó ventas propias.</p>;
   }
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col divide-y divide-line">
       {ventas.map((v) => (
-        <div key={v.grupoId} className="flex flex-col gap-1.5 border-b border-border py-3 text-[16px]">
+        <div key={v.grupoId} className="flex flex-col gap-1.5 py-3 text-[16px]">
           <div className="flex items-start justify-between gap-3">
             <span className="min-w-0 break-words text-text">
               <span className="text-[14px] tabular-nums text-text-muted">{formatFecha(v.fecha)}</span>
@@ -164,7 +179,7 @@ function VentasPropias({
             <span className="shrink-0 text-right tabular-nums text-text">{formatCentavos(v.montoCentavos)}</span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-text-muted">Suma a lo que tiene que pasar</span>
+            <span className="text-[14px] text-text-muted">Suma a lo que tiene que pasar</span>
             <EliminarVentaButton
               ventaId={v.ventaId}
               redirectHref={null}

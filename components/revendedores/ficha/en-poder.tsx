@@ -1,5 +1,5 @@
 import { PrecioRevendedorRow } from "@/components/revendedores/precio-revendedor-row";
-import { Separador } from "@/components/plata/separador";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 
@@ -17,45 +17,50 @@ export type ProductoEnPoder = {
 };
 
 /**
- * Bloque 3 de la ficha (`/revendedores/[id]`, rediseño "de 10 bloques a
- * 5", 2026-09-16): una fila por presentación con lo que tiene en poder y a
- * cuánto se la cobra. El precio manual (`revendedor_precios`,
- * `PrecioRevendedorRow`) sigue siendo editable: todavía es el fallback que
- * usa `carga-form`/`venta-form` cuando una entrega vieja (anterior a
+ * Tarjeta "Lo que tiene" de la ficha (`/revendedores/[id]`): una fila por
+ * presentación con la cantidad, lo que valen a costo de Ananja y a cuánto se
+ * la cobra por botella. El precio manual (`revendedor_precios`,
+ * `PrecioRevendedorRow`) sigue siendo editable: es el fallback que usan los
+ * formularios de carga cuando una entrega vieja (anterior a
  * 0040_revendedores_pagos_precios.sql) no tiene costo aprobado por ítem.
  *
- * "Valor en poder" (total, 0059_valor_stock_revendedor_costo_real.sql):
- * el costo REAL de Ananja de todo lo que tiene sin vender — distinto de
- * "Le debe a Ananja" de la cabecera (lo YA vendido y no rendido). Para
- * una revendedora de un coordinador (ej. Sofi, bajo Laura) es MENOR que
- * lo que ella le debe a su coordinador: acá se ve lo que Ananja tiene en
- * juego de verdad, no el margen del coordinador.
+ * El total "valen" (0059_valor_stock_revendedor_costo_real.sql) es el costo
+ * REAL de Ananja de todo lo que tiene sin vender — distinto de "Le debe a
+ * Ananja" (lo YA vendido y no rendido).
  */
 export function EnPoderFicha({ vendedorId, productos }: { vendedorId: string; productos: ProductoEnPoder[] }) {
   const valorTotalCentavos = productos.reduce((acc, p) => acc + p.valorEnPoderCentavos, 0);
 
   return (
-    <div className="flex flex-col gap-2">
-      <Separador
-        titulo="Valor en poder"
-        total={valorTotalCentavos > 0 ? formatCentavos(valorTotalCentavos) : undefined}
-      />
-      <p className="text-[14px] text-text-muted">
-        Lo que le debe a {NEGOCIO.nombre} por cada {NEGOCIO.envase.singular} se aprueba en cada entrega.
-        El precio de acá solo se usa para entregas viejas que no lo tienen.
-      </p>
-      {productos.map((p) => (
-        <div key={p.id} className="flex flex-col">
+    <Tarjeta como="section" aria-labelledby="ficha-tiene" className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 id="ficha-tiene" className="text-[20px] leading-tight font-semibold text-text">
+          Lo que tiene
+        </h2>
+        {valorTotalCentavos > 0 && (
+          <span className="shrink-0 text-[16px] font-semibold tabular-nums text-text">
+            Vale {formatCentavos(valorTotalCentavos)}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col divide-y divide-line">
+        {productos.map((p) => (
           <PrecioRevendedorRow
+            key={p.id}
             vendedorId={vendedorId}
             productoId={p.id}
             productoNombre={p.nombre}
+            enPoder={p.enPoder}
+            valorEnPoderCentavos={p.valorEnPoderCentavos}
             precioActualCentavos={p.precioActualCentavos}
             precioMayoristaCentavos={p.precioMayoristaCentavos}
           />
-          <span className="pb-1 text-[13px] text-text-muted">En poder: {p.enPoder}</span>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      <p className="text-[14px] text-text-muted">
+        Lo que le debe a {NEGOCIO.nombre} por cada {NEGOCIO.envase.singular} se aprueba en cada entrega. El precio de
+        acá solo se usa para entregas viejas que no lo tienen.
+      </p>
+    </Tarjeta>
   );
 }

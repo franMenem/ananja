@@ -8,6 +8,8 @@ type VolverLinkProps = {
   /** El shell `(mi)` no lleva estado hover en este link (ver
    * `components/mi-header.tsx`); el resto de las páginas de detalle sí. */
   hover?: boolean;
+  /** Rediseño: muestra "‹ Revendedores" en vez de "← Volver a revendedores". */
+  corto?: boolean;
 };
 
 /**
@@ -19,13 +21,13 @@ type VolverLinkProps = {
  * páginas de formulario (p.ej. stock/lotes/[id], gastos/[id]) — ese es un
  * componente visual distinto.
  */
-export function VolverLink({ href, label, hover = true }: VolverLinkProps) {
+export function VolverLink({ href, label, hover = true, corto = false }: VolverLinkProps) {
   return (
     <Link
       href={href}
-      className={`w-fit text-[13px] text-text-muted ${hover ? " hover:text-primary-hover" : ""}`}
+      className={`inline-flex min-h-11 w-fit items-center text-[15px] text-text-muted ${hover ? " hover:text-primary-hover" : ""}`}
     >
-      ← Volver a {label}
+      {corto ? `‹ ${label.charAt(0).toLocaleUpperCase("es-AR")}${label.slice(1)}` : `← Volver a ${label}`}
     </Link>
   );
 }

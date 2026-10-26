@@ -1,7 +1,8 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
 import { ClientesList } from "@/components/clientes-list";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { armarFilasClientes } from "@/lib/dominio/clientes";
 import {
   listarClientesActivos,
@@ -33,25 +34,18 @@ export default async function ClientesPage() {
   const rows = armarFilasClientes(clientes, comprobantes, deudas);
 
   return (
-    <div className="flex flex-col gap-5 pb-8">
-      <div className="flex items-baseline justify-between gap-2">
-        <h1 className="font-display text-[28px] text-text">Clientes</h1>
-        <Link
-          href="/comprobantes"
-          className="text-[13px] text-text-muted hover:text-primary-hover"
-        >
-          ← Comprobantes
-        </Link>
-      </div>
+    <div className="flex flex-col gap-6 pb-8">
+      <EncabezadoPantalla
+        titulo="Clientes"
+        pregunta="¿Quién nos compra y quién debe?"
+        acciones={
+          <Link href="/clientes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            + Nuevo cliente
+          </Link>
+        }
+      />
 
       <ClientesList clientes={rows} />
-
-      <Link
-        href="/clientes/nuevo"
-        className={`${BOTON_PRIMARIO} flex`}
-      >
-        + Nuevo cliente
-      </Link>
     </div>
   );
 }

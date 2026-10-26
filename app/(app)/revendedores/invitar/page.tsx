@@ -57,12 +57,12 @@ export default async function InvitarPage() {
         </p>
       )}
 
+      <p className="text-[15px] text-text-muted">¿A quién sumamos al equipo?</p>
+
       <AltaForm coordinadores={coordinadores ?? []} />
 
       <section className="flex flex-col gap-3">
-        <span className="text-[13px] text-text-muted">
-          Pendientes de entrar
-        </span>
+        <h2 className="text-[20px] leading-tight font-semibold text-text">Pendientes de entrar</h2>
         {servicio === "error" ? (
           <p className="text-[16px] text-accent">No se pudieron cargar las invitaciones. Recargá la página.</p>
         ) : (

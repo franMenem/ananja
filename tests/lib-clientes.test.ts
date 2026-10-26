@@ -15,6 +15,7 @@ describe("armarFilasClientes — sin compras ni deuda", () => {
         nombre: "Almacén San José",
         telefono: null,
         totalCentavos: 0,
+        cantidadCompras: 0,
         ultimaCompra: null,
         deudaCentavos: 0,
       },

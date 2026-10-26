@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ListaTarjeta } from "@/components/ui/fila";
+import { Pastilla } from "@/components/ui/pastilla";
 import type { Material } from "@/lib/data/material";
 import { moverMaterial } from "@/lib/material";
 import { createClient } from "@/lib/supabase/client";
@@ -47,17 +49,17 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
         </p>
       )}
 
-      <div className="flex flex-col">
+      <ListaTarjeta>
         {materiales.map((material, index) => (
-          <div
-            key={material.id}
-            className="flex items-center justify-between gap-3 border-b border-border py-3.5"
-          >
-            <Link href={`/material/${material.id}`} className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-[16px] text-text">{material.titulo}</span>
-              <span className="text-[13px] text-text-muted">
+          <div key={material.id} className="flex items-center gap-2 pr-3">
+            <Link
+              href={`/material/${material.id}`}
+              className="flex min-h-14 min-w-0 flex-1 items-center justify-between gap-3 py-2 pl-4 hover:bg-background"
+            >
+              <span className="text-[16px] font-semibold break-words text-text">{material.titulo}</span>
+              <Pastilla variante={material.publicado ? "ok" : "neutra"}>
                 {material.publicado ? "Publicado" : "Borrador"}
-              </span>
+              </Pastilla>
             </Link>
             <div className="flex shrink-0 gap-1">
               <button
@@ -65,7 +67,7 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
                 onClick={() => handleMover(material.id, "subir")}
                 disabled={index === 0 || moviendo !== null}
                 aria-label={`Subir "${material.titulo}"`}
-                className="flex min-h-11 min-w-11 items-center justify-center border border-border text-text disabled:opacity-30"
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#d0cec8] bg-surface text-[18px] text-text disabled:opacity-30"
               >
                 ↑
               </button>
@@ -74,14 +76,14 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
                 onClick={() => handleMover(material.id, "bajar")}
                 disabled={index === materiales.length - 1 || moviendo !== null}
                 aria-label={`Bajar "${material.titulo}"`}
-                className="flex min-h-11 min-w-11 items-center justify-center border border-border text-text disabled:opacity-30"
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#d0cec8] bg-surface text-[18px] text-text disabled:opacity-30"
               >
                 ↓
               </button>
             </div>
           </div>
         ))}
-      </div>
+      </ListaTarjeta>
     </>
   );
 }

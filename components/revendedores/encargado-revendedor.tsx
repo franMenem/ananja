@@ -65,8 +65,8 @@ export function EncargadoRevendedor({
   const opciones = coordinadores.filter((a) => a.id !== vendedorId);
 
   function nombreDe(id: string): string {
-    if (!id) return "sin coordinador";
-    return coordinadores.find((a) => a.id === id)?.nombre ?? "el coordinador actual";
+    if (!id) return "sin encargado";
+    return coordinadores.find((a) => a.id === id)?.nombre ?? "el encargado actual";
   }
 
   function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -107,19 +107,19 @@ export function EncargadoRevendedor({
   const nombreActual = nombreDe(actual);
   const nombreNuevo = propuesto === null ? "" : nombreDe(propuesto);
   const titulo = !actual
-    ? `¿Poner a ${nombreNuevo} como coordinador de ${revendedorNombre}?`
+    ? `¿Poner a ${nombreNuevo} como encargado de ${revendedorNombre}?`
     : !propuesto
-      ? `¿Dejar a ${revendedorNombre} sin coordinador?`
-      : `¿Cambiar el coordinador de ${revendedorNombre} de ${nombreActual} a ${nombreNuevo}?`;
+      ? `¿Dejar a ${revendedorNombre} sin encargado?`
+      : `¿Cambiar el encargado de ${revendedorNombre} de ${nombreActual} a ${nombreNuevo}?`;
 
   if (!editando) {
     return (
-      <span className="text-[14px] text-text-muted">
-        {encargadoActualId ? `Coordinador: ${nombreActual}` : "Sin coordinador"}{" "}
+      <span className="inline-flex flex-wrap items-center gap-x-2 text-[15px] text-text-muted">
+        {encargadoActualId ? `su encargado es ${nombreActual}` : "no tiene encargado"}
         <button
           type="button"
           onClick={() => setEditando(true)}
-          className="text-primary underline-offset-2 hover:underline"
+          className="inline-flex min-h-11 items-center px-1 font-semibold text-primary underline-offset-2 hover:underline"
         >
           {encargadoActualId ? "Cambiar" : "Asignar"}
         </button>
@@ -129,29 +129,29 @@ export function EncargadoRevendedor({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor="encargado" className="text-[13px] text-text-muted">
-        Coordinador
+      <label htmlFor="encargado" className="text-[14px] text-text-muted">
+        Encargado
       </label>
       <select
         id="encargado"
         value={propuesto ?? actual}
         onChange={handleChange}
         disabled={saving}
-        className="min-h-11 w-full max-w-[260px] border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
+        className="min-h-12 w-full max-w-[320px] rounded-xl border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60"
       >
-        <option value="">Sin coordinador</option>
+        <option value="">Sin encargado</option>
         {opciones.map((a) => (
           <option key={a.id} value={a.id}>
             {a.nombre}
           </option>
         ))}
       </select>
-      {!encargadoActualId && <p className="text-[14px] text-accent">Sin coordinador asignado.</p>}
+      {!encargadoActualId && <p className="text-[14px] text-text-muted">Todavía no tiene encargado.</p>}
       <button
         type="button"
         onClick={() => setEditando(false)}
         disabled={saving}
-        className="self-start text-[13px] text-text-muted hover:text-primary"
+        className="inline-flex min-h-11 items-center self-start text-[15px] text-text-muted hover:text-primary"
       >
         Cerrar
       </button>

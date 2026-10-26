@@ -63,7 +63,7 @@ export function EliminarVentaButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[13px] text-accent"
+        className="inline-flex min-h-11 items-center text-[14px] text-accent"
       >
         Borrar venta
       </button>

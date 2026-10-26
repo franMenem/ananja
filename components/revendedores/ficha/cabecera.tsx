@@ -1,148 +1,60 @@
-import { Pastilla } from "@/components/ui/pastilla";
-import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
 import { EncargadoRevendedor } from "@/components/revendedores/encargado-revendedor";
-import { EspacioRevendedorButton } from "@/components/revendedores/espacio-revendedor-button";
-import { TomaDirectoRevendedor } from "@/components/revendedores/toma-directo-revendedor";
-import { formatCentavos } from "@/lib/money";
-import { NEGOCIO } from "@/lib/negocio";
 
 type Coordinador = { id: string; nombre: string };
+
+/** Cómo se llama a la persona en el subtítulo de la ficha. */
+export function textoRol(rol: string, revende: boolean): string {
+  if (rol === "coordinador") return "Coordinadora";
+  if (rol === "admin") return revende ? "Admin que también revende" : "Admin";
+  return "Revendedora";
+}
 
 export type CabeceraFichaProps = {
   vendedorId: string;
   nombre: string;
-  /** `vendedores.rol` es `string` en los tipos generados (es un `check`,
-   * no un enum de Postgres) — acá solo importan estos valores
-   * ("coordinador" sumado en 0057_coordinador_plata_stock.sql). */
+  /** `vendedores.rol` es `string` en los tipos generados (es un `check`). */
   rol: "admin" | "revendedor" | "coordinador" | string;
   revende: boolean;
-  debeCentavos: number;
-  pendienteCentavos: number;
-  rendidoCentavos: number;
+  /** Solo una revendedora tiene encargado al que rinde la plata. */
+  mostrarEncargado: boolean;
   encargadoActualId: string | null;
-  /** "Agarra directo del depósito" (`vendedores.toma_directo`, 0073). */
-  tomaDirecto?: boolean;
-  /** Admins y coordinadores activos, elegibles como coordinador de esta
-   * revendedora (0055_coordinador.sql). */
+  /** Admins y coordinadores activos, elegibles como encargado
+   * (0055_coordinador.sql). */
   coordinadores: Coordinador[];
 };
 
 /**
- * Bloque 1 de la ficha (`/revendedores/[id]`, rediseño "de 10 bloques a 5",
- * 2026-09-16): nombre, cifra grande "Le debe a Ananja" y un resumen de una
- * línea con lo pendiente de confirmar, lo ya pagado y el encargado
- * (colapsado, `EncargadoRevendedor`). Un admin nunca se pasa a revendedor
- * (0026_roles_pendiente_espacio_revendedor.sql) — "Pasar a admin" solo
- * aplica a un revendedor de verdad; para un admin con espacio propio, la
- * acción disponible es deshabilitarlo. Un admin (Laura) puede pasar a
- * coordinador, y un coordinador puede volver a admin
- * (0057_coordinador_plata_stock.sql) — un admin ve las dos acciones juntas
- * si además tiene espacio de revendedor. Al pasar a coordinador se apaga
- * el espacio de revendedor (un coordinador no vende) y NO se vuelve a
- * prender solo al volver a admin — se avisa en `AsignarRolButton` y, acá,
- * el botón para reactivarlo se ve con el mismo estilo destacado
- * (`border-primary`) que "Habilitar" en la tabla "Admins" de
- * `/revendedores`, para que no pase desapercibido. Un coordinador no tiene deuda
- * propia con el negocio (no compra ni vende) — la cifra "Le debe" y el
- * resumen de pagos/encargado no se muestran para él (números en $0 que
- * no significan nada); la página arma en su lugar `FichaCoordinador` con
- * lo que sí le corresponde.
+ * Cabecera de la ficha (`/revendedores/[id]`): el nombre (28px/700) y, debajo,
+ * "Revendedora · su encargado es X" con el link "Cambiar" (la misma acción
+ * de siempre, `EncargadoRevendedor`). Un coordinador no tiene encargado: solo
+ * se ve su rol. Los cambios de rol y "agarra directo" viven en "Ajustes".
  */
 export function CabeceraFicha({
   vendedorId,
   nombre,
   rol,
   revende,
-  debeCentavos,
-  pendienteCentavos,
-  rendidoCentavos,
+  mostrarEncargado,
   encargadoActualId,
-  tomaDirecto = false,
   coordinadores,
 }: CabeceraFichaProps) {
-  // Solo quien puede revender tiene botellas en su poder (un coordinador no
-  // vende; un admin solo si tiene su espacio de revendedor): el interruptor
-  // "agarra directo" no tiene sentido para el resto.
-  const puedeRevender = rol === "revendedor" || (rol === "admin" && revende);
   return (
-    <div className="flex flex-col gap-3 border-b border-border pb-6">
-      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-        <h1 className="font-display min-w-0 text-[28px] leading-[1.05] text-text md:text-[32px]">{nombre}</h1>
-        {rol === "revendedor" || rol === "coordinador" ? (
-          <AsignarRolButton
-            vendedorId={vendedorId}
-            nombre={nombre}
-            rolDestino="admin"
-            label="Pasar a admin"
-            className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-primary hover:text-primary"
-          />
-        ) : (
-          rol === "admin" && (
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              <AsignarRolButton
-                vendedorId={vendedorId}
-                nombre={nombre}
-                rolDestino="coordinador"
-                label="Pasar a coordinador"
-                className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-primary hover:text-primary"
-              />
-              {revende ? (
-                <EspacioRevendedorButton
-                  vendedorId={vendedorId}
-                  nombre={nombre}
-                  habilitar={false}
-                  className="flex min-h-9 shrink-0 items-center justify-center border border-border px-3 text-[13px] font-medium text-text-muted hover:border-accent hover:text-accent"
-                />
-              ) : (
-                // Espacio de revendedor apagado (siempre al pasar a
-                // coordinador, 0057 — también puede pasar por
-                // `EspacioRevendedorButton` desde `/revendedores`): se
-                // reactiva a mano, así que el botón tiene que verse claro
-                // acá (mismo estilo `border-primary` que "Habilitar" en la
-                // tabla "Admins"), no perderse entre el resto de acciones.
-                <EspacioRevendedorButton
-                  vendedorId={vendedorId}
-                  nombre={nombre}
-                  habilitar={true}
-                  className="flex min-h-9 shrink-0 items-center justify-center border border-primary px-3 text-[13px] font-medium text-primary rounded-xl"
-                />
-              )}
-            </div>
-          )
-        )}
-      </div>
-
-      {rol !== "coordinador" && (
-        <>
-          <div>
-            <span className="text-[13px] text-text-muted">
-              Le debe a {NEGOCIO.nombre}
-            </span>
-            <p className="font-display text-[clamp(28px,9vw,40px)] leading-[1.05] whitespace-nowrap text-accent">
-              {formatCentavos(debeCentavos)}
-            </p>
-          </div>
-
-          <p className="text-[14px] text-text-muted">
-            {pendienteCentavos > 0 && (
-              <>
-                <Pastilla variante="confirmar">Pendiente de confirmar {formatCentavos(pendienteCentavos)}</Pastilla>{" "}
-              </>
-            )}
-            Ya pagó {formatCentavos(rendidoCentavos)} ·{" "}
+    <header className="flex flex-col gap-1">
+      <h1 className="font-display text-[28px] leading-[1.1] font-bold break-words text-text">{nombre}</h1>
+      <div className="flex flex-wrap items-center gap-x-2 text-[15px] text-text-muted">
+        <span>{textoRol(rol, revende)}</span>
+        {mostrarEncargado && (
+          <>
+            <span aria-hidden="true" className="hidden sm:inline">·</span>
             <EncargadoRevendedor
               vendedorId={vendedorId}
               revendedorNombre={nombre}
               encargadoActualId={encargadoActualId}
               coordinadores={coordinadores}
             />
-          </p>
-
-          {puedeRevender && (
-            <TomaDirectoRevendedor vendedorId={vendedorId} nombre={nombre} tomaDirecto={tomaDirecto} />
-          )}
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </header>
   );
 }

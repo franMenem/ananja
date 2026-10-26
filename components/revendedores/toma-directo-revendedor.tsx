@@ -4,6 +4,7 @@ import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Pastilla } from "@/components/ui/pastilla";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
@@ -66,22 +67,14 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-[13px] text-text-muted">
-          Agarra directo del depósito
-        </span>
-        <span
-          className={`border px-1.5 py-px text-[13px] ${
-            tomaDirecto ? "border-primary text-primary" : "border-border text-text-muted"
-          }`}
-        >
-          {tomaDirecto ? "Sí" : "No"}
-        </span>
+        <span className="text-[16px] font-semibold text-text">Agarra directo del depósito</span>
+        <Pastilla variante={tomaDirecto ? "ok" : "neutra"}>{tomaDirecto ? "Sí" : "No"}</Pastilla>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="min-h-9 text-[13px] font-medium text-primary underline-offset-2 hover:underline"
+          className="inline-flex min-h-11 items-center px-1 text-[15px] font-semibold text-primary hover:underline"
         >
           {tomaDirecto ? "Apagar" : "Prender"}
         </button>

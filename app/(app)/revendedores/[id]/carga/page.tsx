@@ -129,6 +129,7 @@ export default async function CargaUnificadaPage({
             fijo en "Cargar movimiento" aunque mobile mostrara "Revisá
             todo"). */}
         <FormHeaderDesktop />
+        <p className="text-[15px] text-text-muted">¿Qué pasó con {revendedor.nombre}?</p>
         {/* `key`: si ya se está en esta pantalla y el botón "+" manda a otra
             sección (misma ruta, otro `?seccion=`), el formulario se vuelve
             a montar para que arranque con esa sección abierta. */}
