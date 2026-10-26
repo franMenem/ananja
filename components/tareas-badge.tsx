@@ -7,19 +7,29 @@ type TareasBadgeContexto = {
   cantidad: number;
   /** Vuelve a contar ya (después de confirmar un pago o depositar). */
   refrescar: () => void;
+  /** Una pantalla que YA calculó el número de tareas (Hoy, Para hacer) se
+   * lo pasa al badge: queda al día sin pedir nada y cuenta como recuento
+   * reciente. */
+  informar: (cantidad: number) => void;
 };
 
-const Contexto = createContext<TareasBadgeContexto>({ cantidad: 0, refrescar: () => {} });
+const Contexto = createContext<TareasBadgeContexto>({ cantidad: 0, refrescar: () => {}, informar: () => {} });
 
-/** Al navegar no se recuenta si el último recuento EXITOSO fue hace menos
- * de esto; `refrescar()` no espera. */
-const MIN_MS_ENTRE_RECUENTOS = 20_000;
+/** Al navegar no se recuenta si el último dato (recuento o número informado
+ * por una pantalla) es de hace menos de esto; `refrescar()` no espera. */
+const MIN_MS_ENTRE_RECUENTOS = 120_000;
+
+/** `true` si el último dato del badge es lo bastante viejo como para
+ * volver a contar al navegar. */
+export function hayQueRecontar(ahora: number, ultimoDato: number): boolean {
+  return ahora - ultimoDato >= MIN_MS_ENTRE_RECUENTOS;
+}
 
 /**
  * Fuente ÚNICA del número de tareas del badge (antes el hook se montaba dos
  * veces — TabBar y AppRail — y nunca se actualizaba). Vive en el layout de
- * admin: cuenta al montar, al cambiar de ruta (si el último recuento
- * exitoso tiene más de 20 s) y cuando una acción llama a `refrescar()`.
+ * admin: cuenta al montar, al cambiar de ruta (si el último dato
+ * tiene más de 2 minutos) y cuando una acción llama a `refrescar()`.
  *
  * Un solo `fetch` a `/api/tareas-count` (antes: ~15 consultas livianas
  * desde el navegador contra Supabase, una batería completa solo para
@@ -80,14 +90,18 @@ export function TareasBadgeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (Date.now() - ultimoExito.current < MIN_MS_ENTRE_RECUENTOS) return;
+    if (!hayQueRecontar(Date.now(), ultimoExito.current)) return;
     void contar(false);
   }, [pathname, contar]);
 
   const refrescar = useCallback(() => {
     void contar(true);
   }, [contar]);
-  const valor = useMemo(() => ({ cantidad, refrescar }), [cantidad, refrescar]);
+  const informar = useCallback((nuevaCantidad: number) => {
+    setCantidad(nuevaCantidad);
+    ultimoExito.current = Date.now();
+  }, []);
+  const valor = useMemo(() => ({ cantidad, refrescar, informar }), [cantidad, refrescar, informar]);
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;
 }
@@ -95,6 +109,16 @@ export function TareasBadgeProvider({ children }: { children: ReactNode }) {
 /** Número del badge de Tareas (0 fuera del layout de admin). */
 export function useTareasPendientes(): number {
   return useContext(Contexto).cantidad;
+}
+
+/** Pantalla que ya calculó el número de tareas: se lo pasa al badge para que
+ * no tenga que pedirlo de nuevo. No renderiza nada. */
+export function InformarTareasPendientes({ cantidad }: { cantidad: number }) {
+  const { informar } = useContext(Contexto);
+  useEffect(() => {
+    informar(cantidad);
+  }, [cantidad, informar]);
+  return null;
 }
 
 /** Pedir un recuento del badge (no-op fuera del layout de admin). */

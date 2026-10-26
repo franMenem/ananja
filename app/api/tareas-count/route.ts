@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  * Cuenta el badge de Tareas del lado del servidor: MISMA lógica que usaba
  * `TareasBadgeProvider` (`components/tareas-badge.tsx`) — antes corría
  * entera en el navegador, ~15 consultas livianas en cada cambio de ruta
- * (con un piso de 20 s) —, ahora en una sola consulta HTTP. Reusa
+ * (con un piso de 20 s; hoy 2 min, y Hoy / Para hacer le pasan el número ya calculado) —, ahora en una sola consulta HTTP. Reusa
  * `cargarTareas`/`contarTareasPendientes` (`lib/tareas-datos.ts`,
  * `lib/tareas.ts`) en vez de duplicar las reglas: el número tiene que salir
  * IDÉNTICO al que ya calculan `/tareas` (`tareas.length`) e Inicio —

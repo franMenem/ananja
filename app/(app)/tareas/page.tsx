@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { NotificacionesBanner } from "@/components/notificaciones-banner";
+import { InformarTareasPendientes } from "@/components/tareas-badge";
 import { ListaTareas } from "@/components/tareas/lista-tareas";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { hoyISO } from "@/lib/fechas";
@@ -11,7 +12,7 @@ import { grupoDeFecha } from "@/lib/dominio/notificaciones";
 import { cargarAvisos } from "@/lib/notificaciones";
 import { sesionActual } from "@/lib/sesion-actual";
 import { createClient } from "@/lib/supabase/server";
-import type { Tarea } from "@/lib/dominio/tareas";
+import { contarTareasPendientes, type Tarea } from "@/lib/dominio/tareas";
 
 // Las tareas se calculan sobre datos en vivo — no se pueden cachear.
 export const dynamic = "force-dynamic";
@@ -66,6 +67,8 @@ export default async function TareasPage() {
 
   return (
     <div className="@container w-full">
+      {/* El número ya está calculado: el badge no lo pide de nuevo. */}
+      {resultado && <InformarTareasPendientes cantidad={contarTareasPendientes(resultado.tareas)} />}
       {/*
         Encabezado y contenido comparten el mismo contenedor (`max-w` +
         `mx-auto`) para que "N pendientes" quede alineado con el borde

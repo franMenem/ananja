@@ -1,4 +1,5 @@
 import { InicioVista } from "@/components/inicio/inicio-vista";
+import { InformarTareasPendientes } from "@/components/tareas-badge";
 import { cargarInicio } from "@/lib/data/inicio";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,5 +14,11 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const supabase = await createClient();
   const datos = await cargarInicio(supabase);
-  return <InicioVista datos={datos} />;
+  return (
+    <>
+      {/* El número de tareas ya está calculado: el badge no lo pide de nuevo. */}
+      {!datos.errorTareas && <InformarTareasPendientes cantidad={datos.totalTareasBadge} />}
+      <InicioVista datos={datos} />
+    </>
+  );
 }
