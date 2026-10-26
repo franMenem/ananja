@@ -1,10 +1,10 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE, MensajeError } from "@/components/ui/campo";
 import { MontoInput } from "@/components/monto-input";
 import { CamposPagoCaja } from "@/components/pagos/campos-pago-caja";
 import { convertirUsdAPesos } from "@/lib/dominio/calculos";
@@ -20,7 +20,7 @@ type Moneda = "USD" | "ARS";
 
 const ERRORES_PAGO_DEUDA: Record<string, string> = {
   MONTO_INVALIDO: "Ingresá un monto válido.",
-  MONTO_CAJA_INVALIDO: "Ingresá cuántos pesos salen de la caja.",
+  MONTO_CAJA_INVALIDO: "Ingresá cuántos pesos salen de la cuenta.",
   PAGO_EXCEDE_SALDO: "El pago supera lo que resta de la deuda.",
   DEUDA_NO_ENCONTRADA: "Esta deuda ya no existe.",
   DEUDA_YA_SALDADA: "Esta deuda ya está saldada.",
@@ -103,7 +103,7 @@ export function PagoDeudaForm({
       return;
     }
     if (!medioPago) {
-      setFormError("Elegí una caja.");
+      setFormError("Elegí de qué cuenta sale la plata.");
       return;
     }
 
@@ -111,7 +111,7 @@ export function PagoDeudaForm({
     if (moneda === "USD") {
       const parsed = parseMontoInput(montoCajaInput);
       if (parsed === null || parsed <= 0) {
-        setFormError("Ingresá cuántos pesos salen de la caja.");
+        setFormError("Ingresá cuántos pesos salen de la cuenta.");
         return;
       }
       montoCajaCentavos = parsed;
@@ -139,15 +139,16 @@ export function PagoDeudaForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 pb-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
       <CamposPagoCaja
         idPrefix="pago"
+        tituloSeccion="¿Cuánto pagás?"
         montoLabel={moneda === "USD" ? "USD que pagás" : "Monto"}
         montoValue={montoInput}
         onMontoChange={handleMontoChange}
         montoSimbolo={moneda === "USD" ? "USD" : "$"}
         captionMonto={`Resta ${formatMonto(moneda, restanteCentavos)}.`}
-        medioLabel="Caja"
+        medioLabel="¿De qué cuenta sale la plata?"
         medioValue={medioPago}
         onMedioChange={setMedioPago}
         fecha={fecha}
@@ -159,7 +160,7 @@ export function PagoDeudaForm({
             <div className="flex flex-col gap-2">
               <MontoInput
                 id="pago-monto-caja"
-                label="Pesos que salen de la caja"
+                label="Pesos que salen de la cuenta"
                 value={montoCajaInput}
                 onChange={(valor) => {
                   setMontoCajaTocado(true);
@@ -167,13 +168,11 @@ export function PagoDeudaForm({
                 }}
                 required
                 placeholder="0,00"
-                labelClassName="block text-[13px] text-text-muted"
-                cajaClassName="mt-2 flex items-baseline gap-2 border-b-2 border-border pb-1.5"
-                simboloClassName="font-display text-[18px] text-text-muted"
-                inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-text tabular-nums"
+                cajaClassName={CLASE_CAJA_MONTO}
+                inputClassName={CLASE_INPUT_MONTO_GRANDE}
               />
               {dolarCentavos === null && (
-                <p className="text-[13px] text-text-muted">
+                <p className="text-[14px] text-text-muted">
                   Sin dólar de referencia cargado — completá el monto a mano.
                 </p>
               )}
@@ -182,20 +181,9 @@ export function PagoDeudaForm({
         }
       />
 
-      {formError && (
-        <p role="alert" className="text-[14px] text-accent">
-          {formError}
-        </p>
-      )}
+      {formError && <MensajeError>{formError}</MensajeError>}
 
-      <BotonAccion
-        cargando={submitting}
-        textoCargando="Guardando…"
-        type="submit"
-        className={BOTON_PRIMARIO}
-      >
-        Registrar pago
-      </BotonAccion>
+      <AccionesForm etiqueta="Registrar pago" cargando={submitting} cancelarHref="/plata/deudas" />
     </form>
   );
 }

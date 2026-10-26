@@ -140,7 +140,7 @@ export function ActualizarCostoLoteForm({
       </div>
 
       {precargadoDesdeFecha && (
-        <p className="text-[13px] leading-snug text-text-muted">
+        <p className="text-[14px] leading-snug text-text-muted">
           Precargado con la actualización del {formatFechaHora(precargadoDesdeFecha)}.
         </p>
       )}

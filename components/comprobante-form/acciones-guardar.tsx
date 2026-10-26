@@ -1,7 +1,7 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { MensajeError } from "@/components/ui/campo";
 
 type AccionesGuardarProps = {
   submitting: boolean;
@@ -10,6 +10,9 @@ type AccionesGuardarProps = {
   showRetry: boolean;
   onRetry: () => void;
   resumenDescuento: string;
+  /** "Guardar venta" al crear, "Guardar cambios" al editar. */
+  etiqueta: string;
+  cancelarHref: string;
 };
 
 /** Error del formulario (con "Reintentar" si fue de conexión), botón de
@@ -22,19 +25,19 @@ export function AccionesGuardar({
   showRetry,
   onRetry,
   resumenDescuento,
+  etiqueta,
+  cancelarHref,
 }: AccionesGuardarProps) {
   return (
     <>
       {formError && (
         <div className="flex flex-col gap-2">
-          <p role="alert" className="text-[14px] text-accent">
-            {formError}
-          </p>
+          <MensajeError>{formError}</MensajeError>
           {showRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="min-h-11 self-start border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
+              className="min-h-12 self-start rounded-xl border border-accent px-4 text-[15px] font-semibold text-accent"
             >
               Reintentar
             </button>
@@ -42,22 +45,14 @@ export function AccionesGuardar({
         </div>
       )}
 
-      <div className="flex flex-col gap-2.5">
-        <BotonAccion
-          cargando={submitting}
-          textoCargando="Guardando…"
-          type="submit"
-          disabled={uploading}
-          className={BOTON_PRIMARIO}
-        >
-          Guardar comprobante
-        </BotonAccion>
-        {resumenDescuento && (
-          <p className="text-center text-[13px] text-text-muted">
-            Descuenta {resumenDescuento} del depósito.
-          </p>
-        )}
-      </div>
+      <AccionesForm
+        etiqueta={etiqueta}
+        cargando={submitting}
+        disabled={uploading}
+        cancelarHref={cancelarHref}
+        fija
+        nota={resumenDescuento ? `Descuenta ${resumenDescuento} del depósito.` : undefined}
+      />
     </>
   );
 }

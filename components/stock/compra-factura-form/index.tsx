@@ -265,7 +265,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
       <MedioPagoChips value={medioPago} onChange={setMedioPago} />
 
       <div className="flex flex-col gap-3">
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Líneas de la factura
         </span>
         {insumosError && (
@@ -332,7 +332,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
           labelClassName={labelClass}
           cajaClassName="mt-1.5 flex items-center gap-2 border border-border bg-surface px-3 focus-within:border-primary"
         />
-        <p className="mt-1 text-[13px] leading-snug text-text-muted">
+        <p className="mt-1 text-[14px] leading-snug text-text-muted">
           Lo que pagaste por el envío de esta factura. Se reparte entre las
           líneas según la cantidad de unidades.
         </p>

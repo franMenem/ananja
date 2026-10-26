@@ -1,6 +1,7 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { CLASE_ENTRADA, CLASE_ETIQUETA, MensajeError } from "@/components/ui/campo";
 import { useEffect, useMemo, useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
@@ -125,18 +126,19 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[13px] text-text-muted">
-        Cliente (opcional)
+      <span id="cliente-etiqueta" className={CLASE_ETIQUETA}>
+        Cliente <span className="font-normal text-text-muted">(opcional)</span>
       </span>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex min-h-11 items-center justify-between border border-border bg-surface px-3.5 text-base text-text rounded-xl"
+        aria-labelledby="cliente-etiqueta cliente-valor"
+        className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
       >
-        <span className={selected ? "text-text" : "text-text-muted"}>
+        <span id="cliente-valor" className={selected ? "text-text" : "text-text-muted"}>
           {selected ? selected.nombre : "Sin cliente"}
         </span>
-        <span className="text-[14px] font-medium text-primary">
+        <span aria-hidden="true" className="text-[15px] font-semibold text-primary">
           {selected ? "Cambiar" : "Elegir"}
         </span>
       </button>
@@ -156,7 +158,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-[13px] text-text-muted"
+                className="inline-flex min-h-11 items-center px-2 text-[15px] text-text-muted"
               >
                 Cerrar
               </button>
@@ -168,14 +170,14 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar cliente…"
               autoFocus
-              className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+              className={CLASE_ENTRADA}
             />
 
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
               <button
                 type="button"
                 onClick={() => handleSelect(null)}
-                className="flex min-h-11 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
+                className="flex min-h-12 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
               >
                 Sin cliente
               </button>
@@ -192,7 +194,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                     key={cliente.id}
                     type="button"
                     onClick={() => handleSelect(cliente)}
-                    className="flex min-h-11 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
+                    className="flex min-h-12 items-center border-b border-border px-1 text-left text-[16px] text-text hover:bg-surface-raised"
                   >
                     {cliente.nombre}
                   </button>
@@ -205,7 +207,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                 <button
                   type="button"
                   onClick={() => setCreating(true)}
-                  className="min-h-11 w-full border border-border px-3 text-[14px] font-medium text-primary"
+                  className={`${BOTON_SECUNDARIO} flex w-full px-3 text-primary`}
                 >
                   + Nuevo cliente
                 </button>
@@ -217,12 +219,10 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                     onChange={(event) => setNuevoNombre(event.target.value)}
                     placeholder="Nombre o empresa"
                     autoFocus
-                    className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+                    className={CLASE_ENTRADA}
                   />
                   {creatingError && (
-                    <p role="alert" className="text-[14px] text-accent">
-                      {creatingError}
-                    </p>
+                    <MensajeError>{creatingError}</MensajeError>
                   )}
                   <div className="flex gap-2">
                     <button
@@ -232,7 +232,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                         setNuevoNombre("");
                         setCreatingError(null);
                       }}
-                      className="min-h-11 flex-1 border border-border px-3 text-[14px] font-medium text-text"
+                      className={`${BOTON_SECUNDARIO} flex flex-1 px-3`}
                     >
                       Cancelar
                     </button>

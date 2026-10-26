@@ -8,7 +8,7 @@ import { GastoForm } from "@/components/gasto-form";
  */
 export default function NuevoGastoPage() {
   return (
-    <FormPage title="Registrar gasto" backHref="/gastos" backLabel="Volver a gastos" pb>
+    <FormPage title="Cargar un gasto" pregunta="¿En qué se fue la plata?" backHref="/gastos" backLabel="Volver a gastos" pb>
       <GastoForm />
     </FormPage>
   );

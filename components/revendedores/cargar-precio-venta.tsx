@@ -82,14 +82,13 @@ export function CargarPrecioVenta({
         onChange={setPrecio}
         placeholder="$ 0,00"
         simbolo={null}
-        labelClassName="block text-[13px] text-text-muted"
         cajaClassName="mt-2 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
-        inputClassName="min-h-11 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
+        inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
       />
       {pideMedio && (
         <div className="flex flex-col gap-1">
           <MedioPagoChips value={medioPago} onChange={setMedioPago} />
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             {persona === "vos" ? "¿Cómo te pagaron?" : "¿Cómo le pagaron?"} Opcional.
           </span>
         </div>

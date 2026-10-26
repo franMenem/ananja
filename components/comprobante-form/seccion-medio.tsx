@@ -1,6 +1,7 @@
 "use client";
 
 import { MedioPagoChips } from "@/components/medio-pago-chips";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import type { Enums } from "@/lib/types";
 
 type MedioPago = Enums<"medio_pago">;
@@ -13,11 +14,8 @@ type SeccionMedioProps = {
 /** Paso 3 · Medio de pago — extraído de `components/comprobante-form.tsx`. */
 export function SeccionMedio({ medioPago, onMedioPagoChange }: SeccionMedioProps) {
   return (
-    <div className="flex flex-col gap-2.5">
-      <span className="text-[13px] text-text-muted">
-        3 · Medio de pago
-      </span>
+    <SeccionForm titulo="¿Cómo te pagaron?">
       <MedioPagoChips value={medioPago} onChange={onMedioPagoChange} ocultarRotulo />
-    </div>
+    </SeccionForm>
   );
 }

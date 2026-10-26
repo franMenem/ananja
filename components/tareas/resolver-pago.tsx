@@ -65,7 +65,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
 
       {rechazando && (
         <div>
-          <label htmlFor="motivo" className="text-[13px] text-text-muted">
+          <label htmlFor="motivo" className="block text-[15px] font-semibold text-text">
             ¿Por qué lo rechazás?
           </label>
           <textarea
@@ -74,7 +74,7 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
             onChange={(event) => setMotivo(event.target.value)}
             rows={2}
             placeholder="Ej.: no me llegó la transferencia"
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
       )}

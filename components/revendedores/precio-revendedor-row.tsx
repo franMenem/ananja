@@ -118,7 +118,7 @@ export function PrecioRevendedorRow({
           simbolo={null}
           className="min-w-0 flex-1"
           cajaClassName="flex items-center border-b border-primary"
-          inputClassName="min-h-11 w-full min-w-0 bg-transparent px-1 text-base tabular-nums text-text focus:outline-none"
+          inputClassName="min-h-12 w-full min-w-0 bg-transparent px-1 text-base tabular-nums text-text focus:outline-none"
         />
         {precioMayoristaCentavos !== null && (
           <button

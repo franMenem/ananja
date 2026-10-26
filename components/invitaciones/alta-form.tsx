@@ -19,7 +19,7 @@ import {
 
 type Admin = { id: string; nombre: string };
 
-const labelClass = "text-[13px] text-text-muted";
+const labelClass = "text-[14px] text-text-muted";
 const inputClass =
   "min-h-11 w-full border-0 border-b border-border bg-transparent text-base text-text focus:border-primary";
 
@@ -261,7 +261,7 @@ function CamposPersona({ coordinadores, valores }: { coordinadores: Admin[]; val
             id="encargadoId"
             name="encargadoId"
             defaultValue={valores?.encargadoId ?? ""}
-            className="min-h-11 w-full max-w-[320px] border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="min-h-12 w-full max-w-[320px] border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           >
             <option value="">Sin coordinador por ahora</option>
             {coordinadores.map((a) => (

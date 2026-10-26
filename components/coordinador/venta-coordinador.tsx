@@ -381,7 +381,7 @@ function VentaCoordinadorSheet({
                     renovarGrupo();
                   }}
                   rows={2}
-                  className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+                  className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
                 />
               </div>
 

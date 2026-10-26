@@ -13,6 +13,7 @@ import { hoyISO } from "@/lib/fechas";
 import { createClient } from "@/lib/supabase/client";
 import { parseMontoInput } from "@/lib/money";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
 
 type Signo = "suma" | "resta";
 
@@ -148,7 +149,7 @@ export function AjustarSaldoButton({
             type="button"
             onClick={handleClose}
             disabled={saving}
-            className="text-[13px] text-text-muted"
+            className="text-[14px] text-text-muted"
           >
             Cerrar
           </button>
@@ -156,7 +157,7 @@ export function AjustarSaldoButton({
 
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-5">
           <div>
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[14px] text-text-muted">
               Medio
             </span>
             <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -182,7 +183,7 @@ export function AjustarSaldoButton({
           </div>
 
           <div>
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[14px] text-text-muted">
               Tipo de ajuste
             </span>
             <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -221,15 +222,14 @@ export function AjustarSaldoButton({
             required
             placeholder="$ 0,00"
             simbolo={null}
-            labelClassName="text-[13px] text-text-muted"
-            cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums"
+            cajaClassName={CLASE_CAJA_MONTO}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
           />
 
           <div>
             <label
               htmlFor="ajuste-fecha"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Fecha
             </label>
@@ -239,14 +239,14 @@ export function AjustarSaldoButton({
               required
               value={fecha}
               onChange={(event) => setFecha(event.target.value)}
-              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text tabular-nums focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="ajuste-nota"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Nota (obligatoria)
             </label>
@@ -257,7 +257,7 @@ export function AjustarSaldoButton({
               onChange={(event) => setNota(event.target.value)}
               rows={2}
               placeholder="Ej. conteo inicial demo"
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
@@ -299,7 +299,7 @@ export function AjustarSaldoButton({
             </button>
           </div>
 
-          <p className="text-center text-[13px] text-text-muted">
+          <p className="text-center text-[14px] text-text-muted">
             Después de guardarlo podés editar la fecha/nota o eliminarlo
             desde el historial de la cuenta.
           </p>

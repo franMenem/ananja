@@ -56,7 +56,7 @@ export function ListaRevendedores({ filas }: { filas: FilaRevendedor[] }) {
         onChange={(e) => setBusqueda(e.target.value)}
         placeholder="Buscar por nombre"
         aria-label="Buscar revendedor por nombre"
-        className="min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-[16px] text-text placeholder:text-text-muted focus:border-primary"
+        className="min-h-12 w-full rounded-xl border border-[#d0cec8] bg-surface px-4 text-[16px] text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
 
       {filas.length === 0 ? (

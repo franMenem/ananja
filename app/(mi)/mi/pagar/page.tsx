@@ -1,5 +1,4 @@
 import { PagoForm } from "@/components/mi/pago-form";
-import { Tarjeta } from "@/components/ui/tarjeta";
 import { TituloFormularioEscritorio } from "@/components/mi/titulo-formulario";
 import { obtenerDeudaVendedor } from "@/lib/data/revendedores";
 import { calcularDeudaConPendientes, pagoEstado } from "@/lib/dominio/pagos-revendedor";
@@ -38,7 +37,6 @@ export default async function PagarPage() {
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5">
       <TituloFormularioEscritorio pregunta="¿Cuánto le pasaste?" />
-      <Tarjeta>
       <PagoForm
         vendedorId={revendedor.id}
         encargado={encargado}
@@ -46,7 +44,6 @@ export default async function PagarPage() {
         pendienteCentavos={resumen.pendienteCentavos}
         sugeridoCentavos={resumen.aPagarSugeridoCentavos}
       />
-      </Tarjeta>
     </div>
   );
 }

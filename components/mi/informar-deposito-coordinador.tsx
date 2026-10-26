@@ -17,6 +17,7 @@ import { subirComprobanteDepositoCoordinador, validarArchivoComprobante } from "
 import { createClient } from "@/lib/supabase/client";
 import { validarMontoDeposito } from "@/lib/dominio/tareas";
 import { MEDIOS_DESTINO_TRANSFERENCIA } from "@/lib/dominio/transferencias";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
 
 const ERRORES: Record<string, string> = {
   NO_AUTORIZADO: "No tenés permiso para esto.",
@@ -181,12 +182,11 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             onChange={setMonto}
             required
             simbolo={null}
-            labelClassName="text-[13px] text-text-muted"
-            cajaClassName="mt-1 flex border-b-2 border-primary"
-            inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums"
+            cajaClassName={CLASE_CAJA_MONTO}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
           />
           <div>
-            <span className="text-[13px] text-text-muted">Cuenta destino</span>
+            <span className="text-[15px] font-semibold text-text">Cuenta destino</span>
             <MedioPagoChips
               value={medio}
               onChange={setMedio}
@@ -196,7 +196,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[14px] text-text-muted">
               Comprobante de la transferencia
             </span>
             <label
@@ -205,7 +205,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
             >
               {archivo ? archivo.name : "Sacar foto o elegir archivo"}
               {archivo && (
-                <span className="text-[13px] text-text-muted">Tocá para cambiarlo</span>
+                <span className="text-[14px] text-text-muted">Tocá para cambiarlo</span>
               )}
             </label>
             <input

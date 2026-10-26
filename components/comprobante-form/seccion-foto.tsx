@@ -1,6 +1,8 @@
 "use client";
 
 import { IconReceipt } from "@/components/icons";
+import { MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 
 type SeccionFotoProps = {
   cameraInputRef: React.RefObject<HTMLInputElement | null>;
@@ -28,12 +30,11 @@ export function SeccionFoto({
   onRetryUpload,
 }: SeccionFotoProps) {
   return (
-    <div className="flex flex-col gap-2.5">
-      <span className="text-[13px] text-text-muted">
-        1 · Foto del comprobante (opcional)
-      </span>
-
-      <div className="flex min-h-[150px] flex-col items-center justify-center gap-2.5 overflow-hidden border border-border bg-surface-raised text-center">
+    <SeccionForm
+      titulo="Foto del comprobante"
+      descripcion="Es opcional. Si la subís, el monto se completa solo."
+    >
+      <div className="flex min-h-[150px] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-[#d0cec8] bg-surface-raised text-center">
         {previewUrl && !previewIsPdf ? (
           // previewUrl es un blob: URL local del archivo recién elegido
           // (aún no subido a Storage), no una URL remota: next/image no
@@ -62,18 +63,18 @@ export function SeccionFoto({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#d0cec8] bg-border">
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
         >
           Subir archivo
         </button>
@@ -101,22 +102,20 @@ export function SeccionFoto({
       />
 
       {uploading && (
-        <p className="text-[13px] text-text-muted">Subiendo comprobante…</p>
+        <p className="text-[14px] text-text-muted">Subiendo comprobante…</p>
       )}
       {uploadError && (
         <div className="flex items-center justify-between gap-2">
-          <p role="alert" className="text-[14px] text-accent">
-            {uploadError}
-          </p>
+          <MensajeError>{uploadError}</MensajeError>
           <button
             type="button"
             onClick={onRetryUpload}
-            className="min-h-11 shrink-0 border border-border px-3 text-[14px] font-medium text-text"
+            className="min-h-11 shrink-0 rounded-xl border border-[#d0cec8] px-3 text-[15px] font-semibold text-text"
           >
             Reintentar
           </button>
         </div>
       )}
-    </div>
+    </SeccionForm>
   );
 }

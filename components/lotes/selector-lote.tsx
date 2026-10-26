@@ -132,7 +132,7 @@ export function SelectorLote({
 
   if (unico) {
     return (
-      <p className="text-[13px] text-text-muted">
+      <p className="text-[14px] text-text-muted">
         {modoPreferido
           ? `Vuelve al pedido del ${formatFechaSinAnio(unico.fecha)}`
           : `Del pedido del ${formatFechaSinAnio(unico.fecha)} (quedan ${unico.quedan})`}
@@ -163,7 +163,7 @@ export function SelectorLote({
 
   return (
     <div className="flex flex-col gap-2 border-t border-border pt-2.5">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[15px] font-semibold text-text">
         De qué pedido
       </span>
       {ordenados.map((lote) => (
@@ -203,7 +203,7 @@ export function SelectorLote({
         </div>
       )}
       {descuadrado && (
-        <p role="alert" className="text-[13px] text-accent">
+        <p role="alert" className="text-[14px] text-accent">
           Asignaste {total} de {cantidad} — ajustá las cantidades para que coincidan.
         </p>
       )}

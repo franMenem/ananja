@@ -1,10 +1,10 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { MensajeError } from "@/components/ui/campo";
 import { CamposPagoCaja } from "@/components/pagos/campos-pago-caja";
 import { registrarCobro } from "@/lib/cobros";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
@@ -90,14 +90,15 @@ export function CobroForm({ comprobanteId, deudaCentavos, volverA }: CobroFormPr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 pb-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
       <CamposPagoCaja
         idPrefix="cobro"
+        tituloSeccion="¿Cuánto cobraste?"
         montoLabel="Monto"
         montoValue={montoInput}
         onMontoChange={setMontoInput}
         captionMonto={`Debe ${formatCentavos(deudaCentavos)}.`}
-        medioLabel="Medio de pago"
+        medioLabel="¿Cómo te pagaron?"
         medioValue={medioPago}
         onMedioChange={setMedioPago}
         fecha={fecha}
@@ -106,20 +107,9 @@ export function CobroForm({ comprobanteId, deudaCentavos, volverA }: CobroFormPr
         onNotaChange={setNota}
       />
 
-      {formError && (
-        <p role="alert" className="text-[14px] text-accent">
-          {formError}
-        </p>
-      )}
+      {formError && <MensajeError>{formError}</MensajeError>}
 
-      <BotonAccion
-        cargando={submitting}
-        textoCargando="Guardando…"
-        type="submit"
-        className={BOTON_PRIMARIO}
-      >
-        Registrar cobro
-      </BotonAccion>
+      <AccionesForm etiqueta="Registrar cobro" cargando={submitting} cancelarHref={volverA} />
     </form>
   );
 }

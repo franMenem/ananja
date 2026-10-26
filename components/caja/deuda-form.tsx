@@ -1,16 +1,26 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { MontoInput } from "@/components/monto-input";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { hoyISO } from "@/lib/fechas";
 import { parseMontoInput } from "@/lib/money";
 import { crearDeuda } from "@/lib/precios";
 import { createClient } from "@/lib/supabase/client";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
 
 type Moneda = "USD" | "ARS";
 
@@ -78,112 +88,69 @@ export function DeudaForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 pb-8">
-      <div className="flex flex-col gap-2.5">
-        <label
-          htmlFor="descripcion"
-          className="text-[13px] text-text-muted"
-        >
-          Descripción
-        </label>
-        <input
-          id="descripcion"
-          type="text"
-          required
-          value={descripcion}
-          onChange={(event) => setDescripcion(event.target.value)}
-          className="min-h-12 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
+      <SeccionForm titulo="¿Qué se debe y cuánto?">
+        <Campo id="descripcion" etiqueta="Descripción">
+          <Entrada
+            type="text"
+            required
+            value={descripcion}
+            onChange={(event) => setDescripcion(event.target.value)}
+          />
+        </Campo>
 
-      <div>
-        <span className="text-[13px] text-text-muted">
-          Moneda
-        </span>
-        <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
-          {(["ARS", "USD"] as const).map((opcion) => {
-            const selected = moneda === opcion;
-            return (
-              <button
-                key={opcion}
-                type="button"
-                onClick={() => setMoneda(opcion)}
-                aria-pressed={selected}
-                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
-                  selected
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-surface-raised text-text"
-                }`}
-              >
-                {opcion}
-              </button>
-            );
-          })}
+        <div>
+          <span className={CLASE_ETIQUETA}>Moneda</span>
+          <div
+            role="group"
+            aria-label="Moneda"
+            className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-[#d0cec8] bg-border"
+          >
+            {(["ARS", "USD"] as const).map((opcion) => {
+              const selected = moneda === opcion;
+              return (
+                <button
+                  key={opcion}
+                  type="button"
+                  onClick={() => setMoneda(opcion)}
+                  aria-pressed={selected}
+                  className={`min-h-12 flex-1 px-3 text-[16px] font-semibold transition-colors ${
+                    selected ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
+                  }`}
+                >
+                  {opcion}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <MontoInput
-        id="monto"
-        label={`Monto (${moneda})`}
-        value={montoInput}
-        onChange={setMontoInput}
-        required
-        placeholder="0,00"
-        simbolo={moneda === "USD" ? "USD" : "$"}
-        className="flex flex-col gap-2.5"
-        labelClassName="text-[13px] text-text-muted"
-        cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1"
-        simboloClassName="font-display text-[18px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[28px] text-text tabular-nums"
-      />
-
-      <div className="flex flex-col gap-2.5">
-        <label
-          htmlFor="fecha"
-          className="text-[13px] text-text-muted"
-        >
-          Fecha
-        </label>
-        <input
-          id="fecha"
-          type="date"
+        <MontoInput
+          id="monto"
+          label={`Monto (${moneda})`}
+          value={montoInput}
+          onChange={setMontoInput}
           required
-          value={fecha}
-          onChange={(event) => setFecha(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
+          placeholder="0,00"
+          simbolo={moneda === "USD" ? "USD" : "$"}
+          cajaClassName={CLASE_CAJA_MONTO}
+          simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+          inputClassName={CLASE_INPUT_MONTO_GRANDE}
         />
-      </div>
+      </SeccionForm>
 
-      <div className="flex flex-col gap-2.5">
-        <label
-          htmlFor="nota"
-          className="text-[13px] text-text-muted"
-        >
-          Nota (opcional)
-        </label>
-        <textarea
-          id="nota"
-          value={nota}
-          onChange={(event) => setNota(event.target.value)}
-          rows={2}
-          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
-        />
-      </div>
+      <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+        <Campo id="fecha" etiqueta="Fecha">
+          <Entrada type="date" required value={fecha} onChange={(event) => setFecha(event.target.value)} className="tabular-nums" />
+        </Campo>
+        <Campo id="nota" etiqueta="Nota" opcional>
+          <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={2} />
+        </Campo>
+      </MasDatos>
 
-      {formError && (
-        <p role="alert" className="text-[14px] text-accent">
-          {formError}
-        </p>
-      )}
+      {formError && <MensajeError>{formError}</MensajeError>}
 
-      <BotonAccion
-        cargando={submitting}
-        textoCargando="Guardando…"
-        type="submit"
-        className={BOTON_PRIMARIO}
-      >
-        Guardar deuda
-      </BotonAccion>
+      <AccionesForm etiqueta="Guardar deuda" cargando={submitting} cancelarHref="/plata" />
     </form>
   );
 }

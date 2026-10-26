@@ -405,7 +405,7 @@ export function LoteForm({
         <div>
           <label
             htmlFor="fecha"
-            className="text-[13px] text-text-muted"
+            className="block text-[15px] font-semibold text-text"
           >
             Fecha del pedido
           </label>
@@ -415,12 +415,12 @@ export function LoteForm({
             required
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Cantidades por presentación
           </span>
           {productos.map((producto) => (
@@ -443,12 +443,12 @@ export function LoteForm({
               </div>
             </div>
           ))}
-          <p className="pt-2 text-[13px] leading-[1.5] text-text-muted">
+          <p className="pt-2 text-[14px] leading-[1.5] text-text-muted">
             Se puede cargar el costo del pedido acá abajo, o completarlo
             después desde el detalle del pedido.
           </p>
           {consumo.length > 0 && (
-            <p className="pt-1 text-[13px] leading-[1.5] text-text">
+            <p className="pt-1 text-[14px] leading-[1.5] text-text">
               Va a descontar:{" "}
               {consumo
                 .map((c) => {
@@ -492,7 +492,7 @@ export function LoteForm({
         <div>
           <label
             htmlFor="nota"
-            className="text-[13px] text-text-muted"
+            className="block text-[15px] font-semibold text-text"
           >
             Nota (opcional)
           </label>
@@ -502,7 +502,7 @@ export function LoteForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             placeholder="Ej. producción semana 35"
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
 
@@ -549,7 +549,7 @@ export function LoteForm({
           const resultante = insumoAlert.disponible - consumoInsumo;
           return (
             <>
-              <span className="text-[13px] font-medium text-accent">
+              <span className="text-[14px] font-medium text-accent">
                 Insumo insuficiente
               </span>
               <p className="mt-3 font-display text-[20px] leading-[1.3] text-text">

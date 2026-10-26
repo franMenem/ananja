@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { BotonAccion } from "@/components/boton-accion";
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { MensajeError } from "@/components/ui/campo";
 import { AvisoCargaRepetida } from "@/components/revendedores/aviso-carga-repetida";
 import { Resumen } from "@/components/revendedores/carga/resumen";
 import { LINK_CHICO, ROTULO } from "@/components/revendedores/carga/ui";
@@ -164,7 +166,7 @@ export function Revision({
 
       {error && (
         <div role="alert" className="flex flex-col gap-2">
-          <p className="text-[16px] text-accent">{error}</p>
+          <MensajeError>{error}</MensajeError>
           {yaGuardada && (
             <Link
               href={`/revendedores/${vendedorId}`}
@@ -190,7 +192,7 @@ export function Revision({
             textoCargando="Guardando…"
             type="button"
             onClick={onConfirmar}
-            className="flex min-h-[54px] flex-[1.6] items-center justify-center bg-primary px-4 text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45 rounded-xl"
+            className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
           >
             Confirmar y guardar
           </BotonAccion>
@@ -198,7 +200,7 @@ export function Revision({
             type="button"
             onClick={onVolverAEditar}
             disabled={saving || avisoBuscando}
-            className="flex min-h-[54px] flex-1 items-center justify-center border border-border px-4 text-[16px] font-medium text-text-muted disabled:opacity-45"
+            className={`${BOTON_SECUNDARIO} flex flex-1 px-4`}
           >
             Volver a editar
           </button>

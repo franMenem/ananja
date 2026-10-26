@@ -17,6 +17,7 @@ import { registrarPagoLote, type PagoLoteItem } from "@/lib/lotes";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
 
 type MedioPago = Enums<"medio_pago">;
 
@@ -254,14 +255,14 @@ export function PagoLoteForm({
                 {filasGrupo.map((fila, i) => (
                   <div key={fila.key} className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] text-text-muted">
+                      <span className="text-[14px] text-text-muted">
                         {filasGrupo.length > 1 ? `Medio ${i + 1}` : "Medio de pago"}
                       </span>
                       {filasGrupo.length > 1 && (
                         <button
                           type="button"
                           onClick={() => quitarFila(fila.key)}
-                          className="min-h-11 text-[13px] font-medium text-accent"
+                          className="min-h-11 text-[14px] font-medium text-accent"
                         >
                           Quitar
                         </button>
@@ -277,9 +278,9 @@ export function PagoLoteForm({
                       value={fila.monto}
                       onChange={(valor) => actualizarFila(fila.key, { monto: valor })}
                       placeholder="0,00"
-                      cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
+                      cajaClassName={CLASE_CAJA_MONTO}
                       simboloClassName="font-display text-[18px] text-text-muted"
-                      inputClassName="font-display w-full min-w-0 text-[28px] leading-none text-text tabular-nums"
+                      inputClassName={CLASE_INPUT_MONTO_GRANDE}
                     />
                   </div>
                 ))}
@@ -320,7 +321,7 @@ export function PagoLoteForm({
             aria-label="Fecha"
             value={fecha}
             onChange={(event) => setFecha(event.target.value)}
-            className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
+            className="min-h-12 min-w-0 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text tabular-nums focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
           <textarea
             id="pago-lote-nota"
@@ -328,7 +329,7 @@ export function PagoLoteForm({
             onChange={(event) => setNota(event.target.value)}
             rows={2}
             placeholder="Nota (opcional)"
-            className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
+            className="min-h-24 border border-[#d0cec8] bg-surface px-3.5 py-3 text-[16px] text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
 

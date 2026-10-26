@@ -18,7 +18,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         Transporte
       </span>
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -88,7 +88,7 @@ export function OtrosBlock({ value, onChange }: OtrosBlockProps) {
       <div className="flex-1">
         <label
           htmlFor="otros-descripcion"
-          className="block text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Descripción
         </label>
@@ -98,9 +98,9 @@ export function OtrosBlock({ value, onChange }: OtrosBlockProps) {
           value={value.otrosDescripcion}
           onChange={(event) => onChange({ ...value, otrosDescripcion: event.target.value })}
           placeholder="Ej. cajas"
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
-        <p className="mt-1 text-[13px] leading-snug text-text-muted">
+        <p className="mt-1 text-[14px] leading-snug text-text-muted">
           Para acordarte qué fue ese gasto.
         </p>
       </div>

@@ -72,7 +72,7 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
       <div>
         <label
           htmlFor="proveedor-nombre"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Nombre del proveedor
         </label>
@@ -86,15 +86,15 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
             setNombre(event.target.value);
             setExito(null);
           }}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
-        <p className="mt-1.5 text-[13px] leading-[1.5] text-text-muted">
+        <p className="mt-1.5 text-[14px] leading-[1.5] text-text-muted">
           Si lo dejás vacío, la app dice «el proveedor».
         </p>
       </div>
 
       <div className="flex flex-col gap-1 border-l-2 border-border bg-surface-raised p-4">
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Así se va a ver
         </span>
         <p className="text-[16px] leading-[1.5] text-text">

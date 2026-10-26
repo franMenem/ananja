@@ -36,7 +36,7 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
 
   return (
     <div>
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         Foto de la factura (opcional)
       </span>
       <div className="mt-1.5 flex min-h-[120px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center rounded-xl">
@@ -49,14 +49,14 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[14px] font-medium text-primary"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[14px] font-medium text-primary"
         >
           Subir archivo
         </button>

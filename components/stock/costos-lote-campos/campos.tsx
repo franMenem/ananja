@@ -9,7 +9,6 @@ export function MoneyField({
   onChange,
   hint,
   symbol = "$",
-  small = false,
   onBlur,
 }: {
   id: string;
@@ -20,10 +19,6 @@ export function MoneyField({
   /** Símbolo mostrado antes del monto — "$" (default, ARS) o "USD" para el
    * precio del litro de aceite en dólares (0030). */
   symbol?: string;
-  /** Campo secundario (más chico) — usado para el override ARS puntual del
-   * litro de aceite, que queda por debajo de dólar + USD/L en jerarquía
-   * visual. */
-  small?: boolean;
   /** Al perder el foco — usado por el campo unificado de etiquetas para
    * recién ahí repartir el total escrito entre sus insumos (`confirmarEtiquetaGrupo`). */
   onBlur?: () => void;
@@ -36,7 +31,6 @@ export function MoneyField({
       onChange={onChange}
       hint={hint}
       simbolo={symbol}
-      small={small}
       placeholder="0,00"
       onBlur={onBlur}
     />

@@ -14,6 +14,8 @@ import { NEGOCIO, envase } from "@/lib/negocio";
 export function SeccionEntrega({
   activa,
   onToggle,
+  bloqueada = false,
+  comoEnlace,
   hoy,
   fecha,
   onCambiarFecha,
@@ -27,6 +29,10 @@ export function SeccionEntrega({
 }: {
   activa: boolean;
   onToggle: () => void;
+  /** Es la sección con la que se abrió la pantalla: no se puede sacar. */
+  bloqueada?: boolean;
+  /** Cerrada, se ve como este link en vez de como tarjeta. */
+  comoEnlace?: string;
   hoy: string;
   fecha: string;
   onCambiarFecha: (fecha: string) => void;
@@ -40,10 +46,11 @@ export function SeccionEntrega({
 }) {
   return (
     <Seccion
-      numero={1}
-      titulo="Entrega"
+      titulo="Entrega de botellas"
       activa={activa}
       onToggle={onToggle}
+      bloqueada={bloqueada}
+      comoEnlace={comoEnlace}
       descripcion={
         activa
           ? `${botellasEntregadas} ${envase(botellasEntregadas)} · ${formatFecha(fecha || hoy)}`
@@ -77,7 +84,7 @@ export function SeccionEntrega({
         return (
           <div key={p.id} className="flex flex-col gap-3 border-b border-border pb-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="min-w-0 break-words text-[16px] text-text">{p.nombre}</span>
+              <span className="min-w-0 break-words text-[16px] font-semibold text-text">{p.nombre}</span>
               <CantidadStepper
                 value={f.cantidad}
                 onChange={(value) => onActualizarFila(p.id, { cantidad: value })}
@@ -138,26 +145,26 @@ export function SeccionEntrega({
                   />
                 </div>
                 {(!lote || lote.costoAnanjaCentavos === null) && (
-                  <p className="text-[13px] text-accent">
+                  <p className="text-[14px] text-accent">
                     {lote
                       ? "Este pedido todavía no tiene costos cargados: completá a mano cuánto le cobrás."
                       : "Sin pedido no hay costo para precargar: completá a mano cuánto le cobrás."}
                   </p>
                 )}
                 {lote && fecha && lote.fecha > fecha && (
-                  <p className="text-[13px] text-accent">
+                  <p className="text-[14px] text-accent">
                     Ojo: este pedido es del {formatFecha(lote.fecha)}, posterior a la fecha de la
                     entrega.
                   </p>
                 )}
                 {lote && lote.quedan < f.cantidad && (
-                  <p className="text-[13px] text-accent">
+                  <p className="text-[14px] text-accent">
                     En el sistema quedan {Math.max(lote.quedan, 0)} de este pedido. Si igual se
                     las llevó, al confirmar te preguntamos.
                   </p>
                 )}
                 {costo !== null && sugerido !== null && sugerido < costo && (
-                  <p className="text-[13px] text-accent">
+                  <p className="text-[14px] text-accent">
                     Ojo: el precio sugerido es menor a lo que le cobrás.
                   </p>
                 )}

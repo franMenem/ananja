@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { BOTON_PRIMARIO } from "@/components/ui/boton";
+import { AreaTexto, Campo, Entrada, MensajeError, Selector } from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { MontoInput } from "@/components/monto-input";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
@@ -15,6 +19,7 @@ import { hoyISO } from "@/lib/fechas";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 import { MEDIOS_DESTINO_TRANSFERENCIA } from "@/lib/dominio/transferencias";
+import { CLASE_CAJA_MONTO, CLASE_ETIQUETA, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
 
 type Persona = { id: string; nombre: string };
 
@@ -152,101 +157,60 @@ export function DepositarForm({
       <SetFormHeader title="Pasar a la cuenta" backHref="/plata" backLabel="Volver a Plata" />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <label
-            htmlFor="deposito-persona"
-            className="text-[13px] text-text-muted"
-          >
-            Quién tenía la plata
-          </label>
-          <select
-            id="deposito-persona"
-            value={tenedorId ?? ""}
-            onChange={(event) => handlePersonaChange(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
-          >
-            {personas.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre}
-                {montosPorPersona[p.id] > 0 ? ` · ${formatCentavos(montosPorPersona[p.id])} en mano` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SeccionForm titulo="¿De quién es la plata y cuánto es?">
+          <Campo id="deposito-persona" etiqueta="Quién tenía la plata">
+            <Selector value={tenedorId ?? ""} onChange={(event) => handlePersonaChange(event.target.value)}>
+              {personas.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre}
+                  {montosPorPersona[p.id] > 0 ? ` · ${formatCentavos(montosPorPersona[p.id])} en mano` : ""}
+                </option>
+              ))}
+            </Selector>
+          </Campo>
 
-        <MontoInput
-          id="deposito-monto"
-          label="Monto"
-          value={montoInput}
-          onChange={setMontoInput}
-          required
-          placeholder="$ 0,00"
-          simbolo={null}
-          labelClassName="text-[13px] text-text-muted"
-          cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums"
-        />
-
-        <div>
-          <span className="text-[13px] text-text-muted">
-            Cuenta destino
-          </span>
-          <MedioPagoChips
-            value={medioPago}
-            onChange={setMedioPago}
-            opciones={MEDIOS_DESTINO_TRANSFERENCIA}
-            ocultarRotulo
-            className="mt-1.5"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="deposito-fecha"
-            className="text-[13px] text-text-muted"
-          >
-            Fecha
-          </label>
-          <input
-            id="deposito-fecha"
-            type="date"
+          <MontoInput
+            id="deposito-monto"
+            label="Monto"
+            value={montoInput}
+            onChange={setMontoInput}
             required
-            value={fecha}
-            onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            placeholder="$ 0,00"
+            simbolo={null}
+            cajaClassName={CLASE_CAJA_MONTO}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
           />
-        </div>
 
-        <div>
-          <label
-            htmlFor="deposito-nota"
-            className="text-[13px] text-text-muted"
-          >
-            Nota (opcional)
-          </label>
-          <textarea
-            id="deposito-nota"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
-          />
-        </div>
+          <div>
+            <span className={CLASE_ETIQUETA}>¿A qué cuenta llegó?</span>
+            <MedioPagoChips
+              value={medioPago}
+              onChange={setMedioPago}
+              opciones={MEDIOS_DESTINO_TRANSFERENCIA}
+              ocultarRotulo
+              className="mt-1.5"
+            />
+          </div>
+        </SeccionForm>
 
-        {error && (
-          <p role="alert" className="text-[16px] text-accent">
-            {error}
-          </p>
-        )}
+        <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+          <Campo id="deposito-fecha" etiqueta="Fecha">
+            <Entrada
+              type="date"
+              required
+              value={fecha}
+              onChange={(event) => setFecha(event.target.value)}
+              className="tabular-nums"
+            />
+          </Campo>
+          <Campo id="deposito-nota" etiqueta="Nota" opcional>
+            <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={2} />
+          </Campo>
+        </MasDatos>
 
-        <BotonAccion
-          cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
-        >
-          Guardar depósito
-        </BotonAccion>
+        {error && <MensajeError>{error}</MensajeError>}
+
+        <AccionesForm etiqueta="Guardar depósito" cargando={saving} cancelarHref="/plata" />
       </form>
 
       <BottomSheet
@@ -266,7 +230,7 @@ export function DepositarForm({
             textoCargando="Guardando…"
             type="button"
             onClick={handleGuardarIgual}
-            className="min-h-11 flex-[1.6] bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
+            className={`${BOTON_PRIMARIO} flex flex-[1.6] px-4`}
           >
             Guardar igual
           </BotonAccion>

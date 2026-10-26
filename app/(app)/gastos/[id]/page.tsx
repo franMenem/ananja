@@ -19,6 +19,7 @@ import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
 import { createClient } from "@/lib/supabase/client";
 import { formatCentavos, parseMontoInput } from "@/lib/money";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE, CLASE_SIMBOLO_MONTO_GRANDE } from "@/components/ui/campo";
 
 type GastoDetallePageProps = {
   params: Promise<{ id: string }>;
@@ -230,10 +231,9 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             value={monto}
             onChange={setMonto}
             required
-            labelClassName="text-[13px] text-text-muted"
-            cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
-            simboloClassName="font-display text-[22px] text-text-muted"
-            inputClassName="font-display w-full min-w-0 bg-transparent text-[clamp(28px,9vw,40px)] text-text tabular-nums"
+            cajaClassName={CLASE_CAJA_MONTO}
+            simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
           />
 
           <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
@@ -243,7 +243,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
           <div>
             <label
               htmlFor="fecha"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Fecha
             </label>
@@ -253,14 +253,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               required
               value={fecha}
               onChange={(event) => setFecha(event.target.value)}
-              className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="nota"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Nota (opcional)
             </label>
@@ -269,7 +269,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               value={nota}
               onChange={(event) => setNota(event.target.value)}
               rows={3}
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
@@ -308,7 +308,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
 
           <dl className="flex flex-col">
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[13px] text-text-muted">
+              <dt className="text-[14px] text-text-muted">
                 Categoría
               </dt>
               <dd className="text-right text-text">
@@ -316,13 +316,13 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[13px] text-text-muted">
+              <dt className="text-[14px] text-text-muted">
                 Medio de pago
               </dt>
               <dd className="text-text">{etiquetaMedioPago(gasto.medio_pago)}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[13px] text-text-muted">
+              <dt className="text-[14px] text-text-muted">
                 Vendedor
               </dt>
               <dd className="text-text">
@@ -330,14 +330,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-              <dt className="text-[13px] text-text-muted">
+              <dt className="text-[14px] text-text-muted">
                 Fecha
               </dt>
               <dd className="text-text">{formatFecha(gasto.fecha)}</dd>
             </div>
             {gasto.nota && (
               <div className="flex items-baseline justify-between gap-2 border-b border-border py-3">
-                <dt className="text-[13px] text-text-muted">
+                <dt className="text-[14px] text-text-muted">
                   Nota
                 </dt>
                 <dd className="text-right text-text">{gasto.nota}</dd>
@@ -378,7 +378,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
         ariaLabel="Eliminar gasto"
         variant="accent"
       >
-        <span className="text-[13px] text-accent">
+        <span className="text-[14px] text-accent">
           Eliminar gasto
         </span>
         <p className="font-display mt-2 text-[24px] leading-[1.3] text-text">

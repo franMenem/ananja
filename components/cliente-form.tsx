@@ -85,7 +85,7 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-nombre"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Nombre o empresa
         </label>
@@ -96,14 +96,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           value={nombre}
           onChange={(event) => setNombre(event.target.value)}
           placeholder="Ej: Almacén San José"
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-telefono"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Teléfono (opcional)
         </label>
@@ -112,14 +112,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="tel"
           value={telefono}
           onChange={(event) => setTelefono(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-direccion"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Dirección (opcional)
         </label>
@@ -128,14 +128,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="text"
           value={direccion}
           onChange={(event) => setDireccion(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-email"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Email (opcional)
         </label>
@@ -144,14 +144,14 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="min-h-11 border border-border bg-surface px-3.5 text-base text-text focus:border-primary rounded-xl"
+          className="min-h-12 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
           htmlFor="cliente-nota"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Nota (opcional)
         </label>
@@ -160,7 +160,7 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
           value={nota}
           onChange={(event) => setNota(event.target.value)}
           rows={3}
-          className="border border-border bg-surface px-3.5 py-2.5 text-base text-text focus:border-primary rounded-xl"
+          className="border border-[#d0cec8] bg-surface px-3.5 py-2.5 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl min-h-12"
         />
       </div>
 

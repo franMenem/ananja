@@ -139,7 +139,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
 
       {rechazando ? (
         <div className="mt-4 flex flex-col gap-2">
-          <label htmlFor="motivo-rechazo-deposito" className="text-[13px] text-text-muted">
+          <label htmlFor="motivo-rechazo-deposito" className="block text-[15px] font-semibold text-text">
             Motivo
           </label>
           <textarea
@@ -147,7 +147,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
             value={motivo}
             onChange={(event) => setMotivo(event.target.value)}
             rows={2}
-            className="min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+            className="min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
           <div className="mt-1 flex gap-2">
             <BotonAccion

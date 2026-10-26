@@ -75,7 +75,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
             onChange={setInput}
             className="w-44"
             cajaClassName="flex items-center border border-border bg-surface px-1.5 focus-within:border-primary"
-            inputClassName="min-h-11 w-full min-w-0 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
+            inputClassName="min-h-12 w-full min-w-0 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
           />
           <BotonAccion
             onClick={guardar}
@@ -91,7 +91,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
               setInput(textoInicial);
               setError(null);
             }}
-            className="min-h-11 px-1 text-[13px] text-text-muted"
+            className="min-h-11 px-1 text-[14px] text-text-muted"
           >
             Cancelar
           </button>

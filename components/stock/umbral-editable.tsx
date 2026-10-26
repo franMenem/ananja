@@ -62,7 +62,7 @@ export function UmbralEditable({ productoId, umbralMinimo }: { productoId: strin
             onChange={setUmbralInput}
             className="w-44"
             cajaClassName="flex items-center border border-border bg-surface px-1.5 focus-within:border-primary"
-            inputClassName="min-h-11 w-full min-w-0 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
+            inputClassName="min-h-12 w-full min-w-0 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
           />
           <BotonAccion onClick={guardar} cargando={guardando} className={`${BOTON_PRIMARIO} px-3`}>
             Guardar

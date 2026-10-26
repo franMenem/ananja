@@ -1,6 +1,8 @@
 "use client";
 
 import { MontoInput } from "@/components/monto-input";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_EN_CAJA } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { SelectorLote, type FilaLote } from "@/components/lotes/selector-lote";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
@@ -43,11 +45,10 @@ export function SeccionEnvases({
   montoInput,
 }: SeccionEnvasesProps) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[13px] text-text-muted">
-        4 · {capitalizar(NEGOCIO.envase.plural)}{" "}
-        {concordar("vendidos", "vendidas")}
-      </span>
+    <SeccionForm
+      titulo={`${capitalizar(NEGOCIO.envase.plural)} ${concordar("vendidos", "vendidas")}`}
+      descripcion="Sumá las que vendiste de cada tamaño."
+    >
       {productosLoading ? (
         <p className="py-3 text-[16px] text-text-muted">Cargando productos…</p>
       ) : (
@@ -59,8 +60,8 @@ export function SeccionEnvases({
                 key={producto.id}
                 className="flex flex-col gap-2 border-b border-border py-3.5"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-display text-[21px] text-text">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 break-words text-[17px] font-semibold text-text">
                     {producto.nombre}
                   </span>
                   <CantidadStepper
@@ -85,14 +86,11 @@ export function SeccionEnvases({
                   <MontoInput
                     id={`precio-${producto.id}`}
                     label="Precio por botella (opcional)"
-                    labelEnLinea
                     value={precios[producto.id] ?? ""}
                     onChange={(valor) => onPrecioChange(producto.id, valor)}
                     placeholder="0,00"
-                    labelClassName="text-[13px] text-text-muted"
-                    cajaClassName="flex shrink-0 items-baseline gap-1 border-b border-border pb-0.5"
-                    simboloClassName="text-[14px] text-text-muted"
-                    inputClassName="w-24 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
+                    cajaClassName={CLASE_CAJA_MONTO}
+                    inputClassName={`${CLASE_INPUT_EN_CAJA} text-right`}
                   />
                 )}
               </div>
@@ -106,7 +104,7 @@ export function SeccionEnvases({
           const difiere =
             montoParaComparar !== null && montoParaComparar !== totalPreciosCentavos;
           return (
-            <p className="pt-1 text-[13px] text-text-muted">
+            <p className="pt-1 text-[14px] text-text-muted">
               Los precios por botella suman {formatCentavos(totalPreciosCentavos)}
               {difiere && montoParaComparar !== null
                 ? `, la venta dice ${formatCentavos(montoParaComparar)}.`
@@ -114,6 +112,6 @@ export function SeccionEnvases({
             </p>
           );
         })()}
-    </div>
+    </SeccionForm>
   );
 }

@@ -137,7 +137,7 @@ export function EncargadoRevendedor({
         value={propuesto ?? actual}
         onChange={handleChange}
         disabled={saving}
-        className="min-h-12 w-full max-w-[320px] rounded-xl border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60"
+        className="min-h-12 w-full max-w-[320px] rounded-xl border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
       >
         <option value="">Sin encargado</option>
         {opciones.map((a) => (

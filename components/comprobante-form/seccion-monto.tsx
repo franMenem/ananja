@@ -4,6 +4,13 @@ import {
   ComprobanteCobroCampos,
 } from "@/components/comprobante-cobro-campos";
 import { MontoInput } from "@/components/monto-input";
+import {
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+} from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import type { Enums } from "@/lib/types";
 
 type EstadoOcr = Enums<"estado_ocr">;
@@ -32,17 +39,14 @@ export function SeccionMonto({
   quedaACobrarCentavos,
 }: SeccionMontoProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
+    <SeccionForm titulo="¿Cuánto fue?">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between gap-2">
-          <label
-            htmlFor="monto"
-            className="text-[13px] text-text-muted"
-          >
-            2 · Monto
+          <label htmlFor="monto" className={CLASE_ETIQUETA}>
+            Monto de la venta
           </label>
           {montoAutocompletado && ocrEstado === "propuesto" && (
-            <span className="text-[13px] font-medium text-accent">
+            <span className="text-[14px] font-semibold text-accent">
               Leído de la foto
             </span>
           )}
@@ -54,12 +58,12 @@ export function SeccionMonto({
           onChange={onMontoInputChange}
           required
           placeholder="0,00"
-          cajaClassName="flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
-          simboloClassName="font-display text-[22px] text-text-muted"
-          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-text tabular-nums"
+          cajaClassName={CLASE_CAJA_MONTO}
+          simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+          inputClassName={CLASE_INPUT_MONTO_GRANDE}
         />
         {montoAutocompletado && ocrEstado === "propuesto" && (
-          <p className="text-[13px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             Verificalo antes de guardar — el número se leyó automáticamente.
           </p>
         )}
@@ -71,6 +75,6 @@ export function SeccionMonto({
         esVentaACredito={esVentaACredito}
         quedaACobrarCentavos={quedaACobrarCentavos}
       />
-    </div>
+    </SeccionForm>
   );
 }

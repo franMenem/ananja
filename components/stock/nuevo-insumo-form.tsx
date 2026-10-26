@@ -95,7 +95,7 @@ export function NuevoInsumoForm() {
       <div>
         <label
           htmlFor="nombre"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Nombre
         </label>
@@ -106,12 +106,12 @@ export function NuevoInsumoForm() {
           value={nombre}
           onChange={(event) => setNombre(event.target.value)}
           placeholder="Ej. Tapa metálica"
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div>
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Tipo
         </span>
         <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -132,7 +132,7 @@ export function NuevoInsumoForm() {
       </div>
 
       <div>
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Unidad
         </span>
         <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -159,7 +159,6 @@ export function NuevoInsumoForm() {
           label="Umbral mínimo (opcional)"
           value={umbral}
           onChange={setUmbral}
-          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
           inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
         />

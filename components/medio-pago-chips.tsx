@@ -1,5 +1,6 @@
 "use client";
 
+import { CLASE_ETIQUETA } from "@/components/ui/campo";
 import { ETIQUETA_MEDIO_PAGO, type MedioPago } from "@/lib/etiquetas/medio-pago";
 
 const OPTIONS: { value: MedioPago; label: string }[] = (
@@ -44,14 +45,10 @@ export function MedioPagoChips({
     : OPTIONS;
 
   return (
-    <div className={className}>
-      {!ocultarRotulo && (
-        <span className="text-[13px] text-text-muted">
-          Medio de pago
-        </span>
-      )}
+    <div className={className} role="group" aria-label="Medio de pago">
+      {!ocultarRotulo && <span className={CLASE_ETIQUETA}>Medio de pago</span>}
       <div
-        className={`grid gap-px overflow-hidden rounded-xl border border-border bg-border ${ocultarRotulo ? "" : "mt-1.5"}`}
+        className={`grid gap-px overflow-hidden rounded-xl border border-[#d0cec8] bg-border ${ocultarRotulo ? "" : "mt-1.5"}`}
         style={{
           gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
         }}
@@ -64,7 +61,7 @@ export function MedioPagoChips({
               type="button"
               onClick={() => onChange(option.value)}
               aria-pressed={selected}
-              className={`min-h-[52px] px-2 text-[16px] font-medium transition-colors ${
+              className={`min-h-12 px-2 text-[16px] font-medium transition-colors ${
                 selected
                   ? "bg-primary text-primary-foreground"
                   : "bg-surface-raised text-text"

@@ -93,7 +93,7 @@ export function FormularioEntrega({
       )}
 
       <div className="flex flex-col gap-1">
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Cantidades por producto
         </span>
         {productos.map((producto) => {
@@ -131,7 +131,7 @@ export function FormularioEntrega({
       </div>
 
       <div>
-        <label htmlFor="fecha" className="text-[13px] text-text-muted">
+        <label htmlFor="fecha" className="block text-[15px] font-semibold text-text">
           Fecha
         </label>
         <input
@@ -140,12 +140,12 @@ export function FormularioEntrega({
           required
           value={fecha}
           onChange={(event) => onCambiarFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 
       <div>
-        <label htmlFor="nota" className="text-[13px] text-text-muted">
+        <label htmlFor="nota" className="block text-[15px] font-semibold text-text">
           Nota (opcional)
         </label>
         <textarea
@@ -153,7 +153,7 @@ export function FormularioEntrega({
           value={nota}
           onChange={(event) => onCambiarNota(event.target.value)}
           rows={2}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 

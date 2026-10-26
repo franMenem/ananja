@@ -22,7 +22,7 @@ function FilaTotal({
     <div className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 text-[16px]">
       <span className="min-w-0 break-words text-text">
         {label}
-        {nota && <span className="text-[13px] text-text-muted"> · {nota}</span>}
+        {nota && <span className="text-[14px] text-text-muted"> · {nota}</span>}
       </span>
       <span
         className={`shrink-0 tabular-nums ${destacado ? "font-medium text-primary" : "text-text"}`}
@@ -111,7 +111,7 @@ export function RevisionFactura({
         />
         {calculo.envioCentavos > 0 && <FilaTotal label="Envío" monto={calculo.envioCentavos} />}
         <div className="flex items-baseline justify-between gap-3 pt-3">
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Total pagado
           </span>
           <span className="font-display text-[26px] leading-none text-text tabular-nums">

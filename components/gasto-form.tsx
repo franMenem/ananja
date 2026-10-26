@@ -1,16 +1,26 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CategoriaSelect } from "@/app/(app)/gastos/categoria-select";
-import { BotonAccion } from "@/components/boton-accion";
 import { IconExpense } from "@/components/icons";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
-import { hoyISO } from "@/lib/fechas";
+import { formatFecha, hoyISO } from "@/lib/fechas";
 import { BUCKET } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import { parseMontoInput } from "@/lib/money";
@@ -209,138 +219,114 @@ export function GastoForm({ volverA }: GastoFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <MontoInput
-        id="monto"
-        label="Monto"
-        value={monto}
-        onChange={setMonto}
-        required
-        placeholder="0,00"
-        labelClassName="text-[13px] text-text-muted"
-        cajaClassName="mt-1 flex items-baseline gap-2 border-b-2 border-primary pb-1"
-        simboloClassName="font-display text-[22px] text-text-muted"
-        inputClassName="font-display w-full min-w-0 bg-transparent text-[40px] text-text tabular-nums"
-      />
+      <SeccionForm titulo="¿Cuánto fue?">
+        <MontoInput
+          id="monto"
+          label="Monto"
+          value={monto}
+          onChange={setMonto}
+          required
+          placeholder="0,00"
+          cajaClassName={CLASE_CAJA_MONTO}
+          simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+          inputClassName={CLASE_INPUT_MONTO_GRANDE}
+        />
 
-      <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
+        <CategoriaSelect value={categoriaId} onChange={setCategoriaId} />
+      </SeccionForm>
 
-      <MedioPagoChips value={medioPago} onChange={setMedioPago} />
+      <SeccionForm titulo="¿De qué cuenta sale la plata?">
+        <MedioPagoChips value={medioPago} onChange={setMedioPago} ocultarRotulo />
+      </SeccionForm>
 
       {!vendedorLoading && vendedor && (
         <p className="text-[14px] text-text-muted">
-          Registrando como{" "}
-          <span className="font-medium">{vendedor.nombre}</span>
+          Registrando como <span className="font-semibold text-text">{vendedor.nombre}</span>
+          {fecha ? ` · ${formatFecha(fecha)}` : ""}
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-[14px] text-accent">
-          Tu usuario no está vinculado a un vendedor. Pedile al dueño que
-          te dé de alta desde el dashboard de Supabase.
-        </p>
+        <MensajeError>
+          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+          dashboard de Supabase.
+        </MensajeError>
       )}
 
-      <div>
-        <label
-          htmlFor="fecha"
-          className="text-[13px] text-text-muted"
-        >
-          Fecha
-        </label>
-        <input
-          id="fecha"
-          type="date"
-          required
-          value={fecha}
-          onChange={(event) => setFecha(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
-        />
-      </div>
+      <MasDatos abierto={nota.trim() !== "" || foto !== null || fotoError !== null || (fecha !== "" && fecha !== hoyISO())}>
+        <Campo id="fecha" etiqueta="Fecha del gasto">
+          <Entrada
+            type="date"
+            required
+            value={fecha}
+            onChange={(event) => setFecha(event.target.value)}
+            className="tabular-nums"
+          />
+        </Campo>
 
-      <div>
-        <label
-          htmlFor="nota"
-          className="text-[13px] text-text-muted"
-        >
-          Nota (opcional)
-        </label>
-        <textarea
-          id="nota"
-          value={nota}
-          onChange={(event) => setNota(event.target.value)}
-          rows={3}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
-        />
-      </div>
+        <Campo id="nota" etiqueta="Nota" opcional>
+          <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={3} />
+        </Campo>
 
-      <div>
-        <span className="text-[13px] text-text-muted">
-          Foto (opcional)
-        </span>
-        <div className="mt-1.5 flex min-h-[150px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center rounded-xl">
-          <IconExpense className="h-[30px] w-[30px] text-text-muted" />
-          <span className="text-[14px] text-text-muted">
-            {foto ? foto.name : "Ningún comprobante elegido"}
+        <div className="flex flex-col gap-1.5">
+          <span className={CLASE_ETIQUETA}>
+            Foto <span className="font-normal text-text-muted">(opcional)</span>
           </span>
+          <div className="flex min-h-[150px] flex-col items-center justify-center gap-2 rounded-xl border border-[#d0cec8] bg-surface-raised px-4 text-center">
+            <IconExpense className="h-[30px] w-[30px] text-text-muted" />
+            <span className="break-all text-[14px] text-text-muted">
+              {foto ? foto.name : "Ningún comprobante elegido"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#d0cec8] bg-border">
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
+            >
+              Sacar foto
+            </button>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
+            >
+              Subir archivo
+            </button>
+          </div>
+
+          {/* `capture="environment"` abre la cámara directo — solo en este
+              input. El de "Subir archivo" no lo lleva para no forzar la
+              cámara en iOS Safari. */}
+          <input
+            ref={cameraInputRef}
+            id="foto-camara"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFotoChange}
+            className="sr-only"
+          />
+          <input
+            ref={fileInputRef}
+            id="foto-archivo"
+            type="file"
+            accept="image/heic,image/jpeg,image/png,image/webp,application/pdf,.heic,.pdf"
+            onChange={handleFotoChange}
+            className="sr-only"
+          />
+          {fotoError && <MensajeError>{fotoError}</MensajeError>}
         </div>
+      </MasDatos>
 
-        <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
-          <button
-            type="button"
-            onClick={() => cameraInputRef.current?.click()}
-            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
-          >
-            Sacar foto
-          </button>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[13px] font-medium text-primary"
-          >
-            Subir archivo
-          </button>
-        </div>
+      {error && <MensajeError>{error}</MensajeError>}
 
-        {/* `capture="environment"` abre la cámara directo — solo en este
-            input. El de "Subir archivo" no lo lleva para no forzar la
-            cámara en iOS Safari. */}
-        <input
-          ref={cameraInputRef}
-          id="foto-camara"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFotoChange}
-          className="sr-only"
-        />
-        <input
-          ref={fileInputRef}
-          id="foto-archivo"
-          type="file"
-          accept="image/heic,image/jpeg,image/png,image/webp,application/pdf,.heic,.pdf"
-          onChange={handleFotoChange}
-          className="sr-only"
-        />
-        {fotoError && (
-          <p role="alert" className="mt-1 text-[16px] text-accent">
-            {fotoError}
-          </p>
-        )}
-      </div>
-
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
-
-      <BotonAccion
+      <AccionesForm
+        etiqueta={error ? "Reintentar" : "Guardar gasto"}
         cargando={saving}
-        textoCargando="Guardando…"
-        type="submit"
-        className={`${BOTON_PRIMARIO} px-4`}
-      >
-        {error ? "Reintentar" : "Guardar gasto"}
-      </BotonAccion>
+        cancelarHref={volverA ?? "/gastos"}
+        fija
+      />
     </form>
   );
 }

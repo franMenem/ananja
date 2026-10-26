@@ -162,7 +162,7 @@ export function AjusteCajaAcciones({
             type="button"
             onClick={cerrar}
             disabled={saving}
-            className="text-[13px] text-text-muted"
+            className="text-[14px] text-text-muted"
           >
             Cerrar
           </button>
@@ -177,7 +177,7 @@ export function AjusteCajaAcciones({
           <div>
             <label
               htmlFor="ajuste-editar-fecha"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Fecha
             </label>
@@ -187,14 +187,14 @@ export function AjusteCajaAcciones({
               required
               value={fechaInput}
               onChange={(event) => setFechaInput(event.target.value)}
-              className="mt-1.5 min-h-11 w-full border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text tabular-nums focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
           <div>
             <label
               htmlFor="ajuste-editar-nota"
-              className="text-[13px] text-text-muted"
+              className="block text-[15px] font-semibold text-text"
             >
               Nota (obligatoria)
             </label>
@@ -204,7 +204,7 @@ export function AjusteCajaAcciones({
               value={notaInput}
               onChange={(event) => setNotaInput(event.target.value)}
               rows={2}
-              className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+              className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
             />
           </div>
 
@@ -236,7 +236,7 @@ export function AjusteCajaAcciones({
       </BottomSheet>
 
       <BottomSheet open={sheet === "eliminar"} ariaLabel="Eliminar ajuste" variant="accent">
-        <span className="text-[13px] font-medium text-accent">
+        <span className="text-[14px] font-medium text-accent">
           Eliminar ajuste
         </span>
         <p className="mt-3 text-[16px] text-text">

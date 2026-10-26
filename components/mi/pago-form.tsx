@@ -3,10 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { BotonAccion } from "@/components/boton-accion";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
 import { SetFormHeader } from "@/components/page-header-context";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { hoyISO } from "@/lib/fechas";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
@@ -128,108 +138,87 @@ export function PagoForm({
         <div className="flex flex-col gap-1 text-[16px]">
           <span className="text-text">
             Le debés a {NEGOCIO.nombre}{" "}
-            <span className="font-medium tabular-nums text-accent">{formatCentavos(debeCentavos)}</span>
+            <span className="font-semibold tabular-nums text-accent">{formatCentavos(debeCentavos)}</span>
           </span>
           {pendienteCentavos > 0 && (
             <span className="text-text-muted">
               Ya informaste{" "}
-              <span className="font-medium tabular-nums text-text">
+              <span className="font-semibold tabular-nums text-text">
                 {formatCentavos(pendienteCentavos)}
               </span>{" "}
               que todavía no te confirmaron.
             </span>
           )}
-          <span className="text-[16px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             {encargado
               ? `Cuando ${encargado.nombre} confirme que la recibió, se descuenta de lo que le debés.`
               : `Transferí a la cuenta de ${NEGOCIO.nombre} y subí el comprobante. Cuando lo confirmen, se descuenta de lo que le debés.`}
           </span>
         </div>
 
-        <MontoInput
-          id="monto"
-          label="Monto"
-          value={monto}
-          onChange={setMonto}
-          required
-          placeholder="$ 0,00"
-          simbolo={null}
-          labelClassName="text-[13px] text-text-muted"
-          cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums focus:outline-none"
-        />
-
-        <MedioPagoChips value={medioPago} onChange={setMedioPago} opciones={opciones} />
-
-        <div>
-          <label htmlFor="fecha" className="text-[13px] text-text-muted">
-            Fecha
-          </label>
-          <input
-            id="fecha"
-            type="date"
+        <SeccionForm titulo="Monto y comprobante">
+          <MontoInput
+            id="monto"
+            label="Monto"
+            value={monto}
+            onChange={setMonto}
             required
-            value={fecha}
-            onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            placeholder="$ 0,00"
+            simbolo={null}
+            cajaClassName={CLASE_CAJA_MONTO}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
           />
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] text-text-muted">
-            Comprobante{medioPago === "efectivo" ? " (opcional)" : ""}
-          </span>
-          <label
-            htmlFor="comprobante-pago"
-            className="flex min-h-12 items-center justify-center border border-dashed border-border px-3 text-center text-[16px] text-text hover:border-primary"
-          >
-            {archivo ? archivo.name : "Sacar foto o elegir archivo"}
-          </label>
-          <input
-            id="comprobante-pago"
-            type="file"
-            accept="image/*,.pdf,.heic"
-            className="sr-only"
-            onChange={(event) => setArchivo(event.target.files?.[0] ?? null)}
-          />
-          {archivo && (
-            <button
-              type="button"
-              onClick={() => setArchivo(null)}
-              className="self-start text-[13px] text-text-muted"
+          <MedioPagoChips value={medioPago} onChange={setMedioPago} opciones={opciones} />
+
+          <div className="flex flex-col gap-1.5">
+            <span className={CLASE_ETIQUETA}>
+              Comprobante
+              {medioPago === "efectivo" && <span className="font-normal text-text-muted"> (opcional)</span>}
+            </span>
+            <input
+              id="comprobante-pago"
+              type="file"
+              accept="image/*,.pdf,.heic"
+              className="peer sr-only"
+              onChange={(event) => setArchivo(event.target.files?.[0] ?? null)}
+            />
+            <label
+              htmlFor="comprobante-pago"
+              className="flex min-h-12 items-center justify-center rounded-xl border border-dashed border-[#d0cec8] px-3 text-center text-[16px] text-text hover:border-primary peer-focus-visible:border-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/30"
             >
-              Quitar archivo
-            </button>
-          )}
-        </div>
+              <span className="break-all">{archivo ? archivo.name : "Sacar foto o elegir archivo"}</span>
+            </label>
+            {archivo && (
+              <button
+                type="button"
+                onClick={() => setArchivo(null)}
+                className="inline-flex min-h-11 items-center self-start text-[15px] font-semibold text-text-muted"
+              >
+                Quitar archivo
+              </button>
+            )}
+          </div>
+        </SeccionForm>
 
-        <div>
-          <label htmlFor="nota" className="text-[13px] text-text-muted">
-            Nota (opcional)
-          </label>
-          <textarea
-            id="nota"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
-          />
-        </div>
+        <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+          <Campo id="fecha" etiqueta="Fecha del pago">
+            <Entrada
+              type="date"
+              required
+              value={fecha}
+              onChange={(event) => setFecha(event.target.value)}
+              className="tabular-nums"
+            />
+          </Campo>
+          <Campo id="nota" etiqueta="Nota" opcional>
+            <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={2} />
+          </Campo>
+        </MasDatos>
 
-        {error && (
-          <p role="alert" className="text-[16px] text-accent">
-            {error}
-          </p>
-        )}
+        {error && <MensajeError>{error}</MensajeError>}
 
-        <BotonAccion
-          cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
-        >
-          Avisar que pagué
-        </BotonAccion>
+        <AccionesForm etiqueta="Avisar que pagué" cargando={saving} cancelarHref="/mi" />
       </form>
     </>
   );

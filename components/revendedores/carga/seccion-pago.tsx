@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
-import { CAMPO, LINK_CHICO, ListaProblemas, ROTULO, Seccion } from "@/components/revendedores/carga/ui";
+import { CLASE_AREA_TEXTO, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
+import { MasDatos } from "@/components/ui/seccion-form";
+import { CAJA_MONTO, CAMPO, LINK_CHICO, ListaProblemas, ROTULO, Seccion } from "@/components/revendedores/carga/ui";
 import type { PagoPendienteCarga } from "@/components/revendedores/carga/tipos";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import type { MedioPago, ProblemaCarga, ViaPago } from "@/lib/dominio/carga-revendedor";
@@ -18,6 +20,8 @@ export type OpcionVia = { value: ViaPago; label: string };
 export function SeccionPago({
   activa,
   onToggle,
+  bloqueada = false,
+  comoEnlace,
   hoy,
   vendedorNombre,
   encargadoNombre,
@@ -42,6 +46,10 @@ export function SeccionPago({
 }: {
   activa: boolean;
   onToggle: () => void;
+  /** Es la sección con la que se abrió la pantalla: no se puede sacar. */
+  bloqueada?: boolean;
+  /** Cerrada, se ve como este link en vez de como tarjeta. */
+  comoEnlace?: string;
   hoy: string;
   vendedorNombre: string;
   encargadoNombre: string | null;
@@ -66,10 +74,11 @@ export function SeccionPago({
 }) {
   return (
     <Seccion
-      numero={3}
       titulo="Pago"
       activa={activa}
       onToggle={onToggle}
+      bloqueada={bloqueada}
+      comoEnlace={comoEnlace}
       descripcion={
         activa
           ? `${formatCentavos(pagoCentavos)} · ${formatFecha(fecha || hoy)}`
@@ -114,13 +123,13 @@ export function SeccionPago({
             <Link
               key={p.id}
               href={`/tareas/pagos/${p.id}`}
-              className="text-[14px] text-primary underline-offset-2 hover:underline"
+              className="inline-flex min-h-11 items-center text-[14px] text-primary underline-offset-2 hover:underline"
             >
               {formatFecha(p.fecha)} · {formatCentavos(p.montoCentavos)} ·{" "}
               {MEDIO_PAGO_LABELS[p.medioPago]} — ver en Tareas
             </Link>
           ))}
-          <p className="text-[13px] text-text-muted">
+          <p className="text-[14px] text-text-muted">
             El monto de abajo ya lo descuenta, para que no quede pagado dos veces.
           </p>
         </div>
@@ -136,11 +145,11 @@ export function SeccionPago({
           placeholder="$ 0,00"
           simbolo={null}
           labelClassName={ROTULO}
-          cajaClassName="mt-1 flex border-b-2 border-primary"
-          inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[40px] text-text tabular-nums focus:outline-none"
+          cajaClassName={CAJA_MONTO}
+          inputClassName={CLASE_INPUT_MONTO_GRANDE}
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Después de las ventas va a deber {formatCentavos(deudaDespuesVentasCentavos)}
           </span>
           <div className="flex gap-4">
@@ -164,33 +173,35 @@ export function SeccionPago({
         opciones={via === "encargado" ? undefined : MEDIOS_DESTINO_TRANSFERENCIA}
       />
 
-      <div>
-        <label htmlFor="fecha-pago" className={ROTULO}>
-          Fecha del pago
-        </label>
-        <input
-          id="fecha-pago"
-          type="date"
-          required
-          max={hoy}
-          value={fecha}
-          onChange={(event) => onCambiarFecha(event.target.value)}
-          className={CAMPO}
-        />
-      </div>
+      <MasDatos abierto={fecha !== hoy || nota.trim() !== ""}>
+        <div>
+          <label htmlFor="fecha-pago" className={ROTULO}>
+            Fecha del pago
+          </label>
+          <input
+            id="fecha-pago"
+            type="date"
+            required
+            max={hoy}
+            value={fecha}
+            onChange={(event) => onCambiarFecha(event.target.value)}
+            className={CAMPO}
+          />
+        </div>
 
-      <div>
-        <label htmlFor="nota-pago" className={ROTULO}>
-          Nota (opcional)
-        </label>
-        <textarea
-          id="nota-pago"
-          value={nota}
-          onChange={(event) => onCambiarNota(event.target.value)}
-          rows={2}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
-        />
-      </div>
+        <div>
+          <label htmlFor="nota-pago" className={ROTULO}>
+            Nota (opcional)
+          </label>
+          <textarea
+            id="nota-pago"
+            value={nota}
+            onChange={(event) => onCambiarNota(event.target.value)}
+            rows={2}
+            className={`mt-1.5 ${CLASE_AREA_TEXTO}`}
+          />
+        </div>
+      </MasDatos>
 
       <ListaProblemas problemas={problemas} />
     </Seccion>

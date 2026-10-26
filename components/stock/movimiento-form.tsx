@@ -187,7 +187,7 @@ export function MovimientoForm({
       <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Producto
           </span>
           <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -209,7 +209,7 @@ export function MovimientoForm({
         </div>
 
         <div>
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Cantidad
           </span>
           <div className="mt-1.5">
@@ -235,7 +235,7 @@ export function MovimientoForm({
         <div>
           <label
             htmlFor="motivo"
-            className="text-[13px] text-text-muted"
+            className="block text-[15px] font-semibold text-text"
           >
             Motivo
           </label>
@@ -243,7 +243,7 @@ export function MovimientoForm({
             id="motivo"
             value={motivo}
             onChange={(event) => setMotivo(event.target.value as MotivoEgreso)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           >
             {MOTIVOS_EGRESO_MANUAL.map((m) => (
               <option key={m.value} value={m.value}>
@@ -269,7 +269,7 @@ export function MovimientoForm({
         <div>
           <label
             htmlFor="nota"
-            className="text-[13px] text-text-muted"
+            className="block text-[15px] font-semibold text-text"
           >
             Nota (opcional)
           </label>
@@ -279,7 +279,7 @@ export function MovimientoForm({
             value={nota}
             onChange={(event) => setNota(event.target.value)}
             placeholder="Ej. rotura"
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
 

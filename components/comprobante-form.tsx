@@ -128,7 +128,7 @@ export function ComprobanteForm({
     : 0;
 
   return (
-    <form onSubmit={guardar.handleFormSubmit} className="flex flex-col gap-6 pb-8">
+    <form onSubmit={guardar.handleFormSubmit} className="flex flex-col gap-5 pb-8">
       <SeccionFoto
         cameraInputRef={foto.cameraInputRef}
         fileInputRef={foto.fileInputRef}
@@ -153,6 +153,12 @@ export function ComprobanteForm({
       />
 
       <SeccionMedio medioPago={medioPago} onMedioPagoChange={setMedioPago} />
+
+      <SeccionCliente
+        clienteId={clienteId}
+        onClienteChange={setClienteId}
+        esVentaACredito={esVentaACredito}
+      />
 
       <SeccionEnvases
         productos={catalogos.productos}
@@ -179,12 +185,6 @@ export function ComprobanteForm({
         onNotaChange={setNota}
       />
 
-      <SeccionCliente
-        clienteId={clienteId}
-        onClienteChange={setClienteId}
-        esVentaACredito={esVentaACredito}
-      />
-
       <AccionesGuardar
         submitting={guardar.submitting}
         uploading={foto.uploading}
@@ -192,6 +192,8 @@ export function ComprobanteForm({
         showRetry={guardar.showRetry}
         onRetry={() => void guardar.handleSubmit(guardar.permitirNegativoRef.current)}
         resumenDescuento={items.resumenDescuento}
+        etiqueta={mode === "crear" ? "Guardar venta" : "Guardar cambios"}
+        cancelarHref={volverA ?? "/comprobantes"}
       />
 
       <AlertaStock

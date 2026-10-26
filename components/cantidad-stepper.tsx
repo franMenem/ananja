@@ -19,7 +19,7 @@ type CantidadStepperProps = {
   ariaLabelRestar?: string;
   /** Reemplaza el `aria-label` completo del botón "+" (default: `Sumar una unidad${ariaLabelSufijo}`). */
   ariaLabelSumar?: string;
-  /** Tamaño de los botones y del valor: "md" (46px, default) o "sm" (42px). */
+  /** Tamaño de los botones y del valor: "md" (48px, default) o "sm" (44px). */
   size?: "sm" | "md";
   /**
    * Si es `false`, el valor se muestra como texto no editable (ej.
@@ -36,15 +36,15 @@ type CantidadStepperProps = {
 
 const DIMENSIONES = {
   md: {
-    boton: "h-[46px] w-[46px]",
+    boton: "h-12 w-12",
     textoBoton: "text-xl",
-    valorAncho: "w-[52px]",
+    valorAncho: "h-12 w-[52px]",
     valorTexto: "text-[26px]",
   },
   sm: {
-    boton: "h-[42px] w-[42px]",
+    boton: "h-11 w-11",
     textoBoton: "text-lg",
-    valorAncho: "w-[48px]",
+    valorAncho: "h-11 w-[48px]",
     valorTexto: "text-[20px]",
   },
 } as const;
@@ -83,7 +83,7 @@ export function CantidadStepper({
   const sumaDeshabilitada = max !== undefined && value >= max;
 
   return (
-    <div className="flex w-fit items-center border border-border">
+    <div className="flex w-fit shrink-0 items-center overflow-hidden rounded-xl border border-[#d0cec8]">
       <button
         type="button"
         aria-label={ariaLabelRestar ?? `Restar una unidad${ariaLabelSufijo}`}
@@ -102,7 +102,7 @@ export function CantidadStepper({
             const parsed = Number.parseInt(event.target.value, 10);
             onChange(Number.isFinite(parsed) ? clamp(parsed) : min);
           }}
-          className={`font-display h-[46px] ${dim.valorAncho} shrink-0 bg-transparent text-center ${dim.valorTexto} text-text tabular-nums`}
+          className={`font-display ${dim.valorAncho} shrink-0 bg-transparent text-center ${dim.valorTexto} text-text tabular-nums`}
         />
       ) : (
         <span

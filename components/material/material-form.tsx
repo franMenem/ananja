@@ -119,7 +119,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label htmlFor="titulo" className="text-[13px] text-text-muted">
+          <label htmlFor="titulo" className="block text-[15px] font-semibold text-text">
             Título
           </label>
           <input
@@ -128,12 +128,12 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
             required
             value={titulo}
             onChange={(event) => setTitulo(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
         </div>
 
         <div>
-          <label htmlFor="cuerpo" className="text-[13px] text-text-muted">
+          <label htmlFor="cuerpo" className="block text-[15px] font-semibold text-text">
             Cuerpo
           </label>
           <textarea
@@ -141,16 +141,16 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
             value={cuerpo}
             onChange={(event) => setCuerpo(event.target.value)}
             rows={12}
-            className="mt-1.5 w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+            className="mt-1.5 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl min-h-24"
           />
-          <p className="mt-1 text-[13px] text-text-muted">
+          <p className="mt-1 text-[14px] text-text-muted">
             Línea en blanco separa párrafos · <code>#&nbsp;</code> subtítulo ·{" "}
             <code>-&nbsp;</code> lista
           </p>
         </div>
 
         <div>
-          <span className="text-[13px] text-text-muted">
+          <span className="text-[14px] text-text-muted">
             Vista previa
           </span>
           <div className="mt-1.5 border border-border bg-surface px-4 py-3 rounded-xl">
@@ -164,7 +164,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-[16px] text-text">
+        <label className="flex min-h-11 items-center gap-2 text-[16px] text-text">
           <input
             type="checkbox"
             checked={publicado}
@@ -193,7 +193,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
           <button
             type="button"
             onClick={() => setConfirmarEliminar(true)}
-            className="text-[13px] text-accent"
+            className="text-[14px] text-accent"
           >
             Eliminar
           </button>

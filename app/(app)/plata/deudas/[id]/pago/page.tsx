@@ -43,8 +43,12 @@ export default async function PagoDeudaPage({
   const moneda = (saldo.moneda === "USD" ? "USD" : "ARS") as "USD" | "ARS";
 
   return (
-    <FormPage title="Registrar pago" backHref="/plata/deudas" backLabel="Volver a deudas">
-      <p className="text-[15px] text-text-muted">¿Cuánto pagaste de “{saldo.descripcion}”?</p>
+    <FormPage
+      title="Registrar pago de una deuda"
+      pregunta={<>¿Cuánto pagaste de “{saldo.descripcion}”?</>}
+      backHref="/plata/deudas"
+      backLabel="Volver a deudas"
+    >
 
       <PagoDeudaForm
         deudaId={id}

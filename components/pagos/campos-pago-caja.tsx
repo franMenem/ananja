@@ -3,6 +3,17 @@ import type { ReactNode } from "react";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
 import type { Enums } from "@/lib/types";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+  Campo,
+  Entrada,
+} from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
+import { hoyISO } from "@/lib/fechas";
 
 type MedioPago = Enums<"medio_pago">;
 
@@ -10,6 +21,8 @@ type CamposPagoCajaProps = {
   /** Prefijo de los `id`/`htmlFor` ("pago" en PagoDeudaForm, "cobro" en
    * CobroForm) — cada instancia necesita ids propios. */
   idPrefix: string;
+  /** Título de la tarjeta principal ("¿Cuánto pagás?", "¿Cuánto cobraste?"). */
+  tituloSeccion: string;
   montoLabel: ReactNode;
   montoValue: string;
   onMontoChange: (value: string) => void;
@@ -41,6 +54,7 @@ type CamposPagoCajaProps = {
  */
 export function CamposPagoCaja({
   idPrefix,
+  tituloSeccion,
   montoLabel,
   montoValue,
   onMontoChange,
@@ -57,49 +71,45 @@ export function CamposPagoCaja({
 }: CamposPagoCajaProps) {
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <MontoInput
-          id={`${idPrefix}-monto`}
-          label={montoLabel}
-          value={montoValue}
-          onChange={onMontoChange}
-          required
-          placeholder="0,00"
-          simbolo={montoSimbolo}
-          labelClassName="block text-[13px] text-text-muted"
-          cajaClassName="mt-2 flex items-baseline gap-2 border-b-2 border-primary pb-1.5"
-          simboloClassName="font-display text-[22px] text-text-muted"
-          inputClassName="font-display w-full min-w-0 text-[40px] leading-none text-text tabular-nums"
-        />
-        <p className="text-[13px] text-text-muted">{captionMonto}</p>
-      </div>
+      <SeccionForm titulo={tituloSeccion}>
+        <div className="flex flex-col gap-1.5">
+          <MontoInput
+            id={`${idPrefix}-monto`}
+            label={montoLabel}
+            value={montoValue}
+            onChange={onMontoChange}
+            required
+            placeholder="0,00"
+            simbolo={montoSimbolo}
+            cajaClassName={CLASE_CAJA_MONTO}
+            simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+            inputClassName={CLASE_INPUT_MONTO_GRANDE}
+          />
+          <p className="text-[14px] text-text-muted">{captionMonto}</p>
+        </div>
 
-      {extra}
+        {extra}
 
-      <div className="flex flex-col gap-2.5">
-        <span className="text-[13px] text-text-muted">{medioLabel}</span>
-        <MedioPagoChips value={medioValue} onChange={onMedioChange} ocultarRotulo />
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <span className={CLASE_ETIQUETA}>{medioLabel}</span>
+          <MedioPagoChips value={medioValue} onChange={onMedioChange} ocultarRotulo />
+        </div>
+      </SeccionForm>
 
-      <div className="flex flex-col gap-2.5">
-        <input
-          id={`${idPrefix}-fecha`}
-          type="date"
-          required
-          aria-label="Fecha"
-          value={fecha}
-          onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
-        />
-        <textarea
-          id={`${idPrefix}-nota`}
-          value={nota}
-          onChange={(event) => onNotaChange(event.target.value)}
-          rows={2}
-          placeholder="Nota (opcional)"
-          className="min-h-[60px] border border-border bg-surface px-3.5 py-3 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
-        />
-      </div>
+      <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+        <Campo id={`${idPrefix}-fecha`} etiqueta="Fecha">
+          <Entrada
+            type="date"
+            required
+            value={fecha}
+            onChange={(event) => onFechaChange(event.target.value)}
+            className="tabular-nums"
+          />
+        </Campo>
+        <Campo id={`${idPrefix}-nota`} etiqueta="Nota" opcional>
+          <AreaTexto value={nota} onChange={(event) => onNotaChange(event.target.value)} rows={2} />
+        </Campo>
+      </MasDatos>
     </>
   );
 }

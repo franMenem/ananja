@@ -3,6 +3,7 @@
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useEffect, useState } from "react";
 
+import { CLASE_ETIQUETA, MensajeError } from "@/components/ui/campo";
 import { BotonAccion } from "@/components/boton-accion";
 import { listarCategoriasActivas, obtenerCategoria, type CategoriaGasto } from "@/lib/data/gastos";
 import { createClient } from "@/lib/supabase/client";
@@ -120,10 +121,7 @@ export function CategoriaSelect({
 
   return (
     <div className={className}>
-      <label
-        htmlFor="categoria-select"
-        className="text-[13px] text-text-muted"
-      >
+      <label htmlFor="categoria-select" className={CLASE_ETIQUETA}>
         Categoría
       </label>
 
@@ -134,7 +132,7 @@ export function CategoriaSelect({
           disabled={loading}
           value={value ?? ""}
           onChange={(event) => handleSelect(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60 rounded-xl"
         >
           <option value="" disabled>
             {loading ? "Cargando…" : "Seleccioná una categoría"}
@@ -147,14 +145,14 @@ export function CategoriaSelect({
           <option value={NUEVA_VALUE}>+ Nueva categoría</option>
         </select>
       ) : (
-        <div className="mt-1.5 flex gap-2">
+        <div className="mt-1.5 flex flex-wrap gap-2">
           <input
             autoFocus
             type="text"
             value={newName}
             onChange={(event) => setNewName(event.target.value)}
             placeholder="Nombre de la categoría"
-            className="min-h-12 flex-1 border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
+            className="min-h-12 min-w-0 flex-1 border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
           />
           <BotonAccion
             cargando={saving}
@@ -180,9 +178,9 @@ export function CategoriaSelect({
       )}
 
       {error && (
-        <p role="alert" className="mt-1 text-[16px] text-accent">
-          {error}
-        </p>
+        <div className="mt-1.5">
+          <MensajeError>{error}</MensajeError>
+        </div>
       )}
     </div>
   );

@@ -17,7 +17,7 @@ type LoginFormProps = {
   aviso: string | null;
 };
 
-const labelClass = "text-[13px] text-text-muted";
+const labelClass = "text-[14px] text-text-muted";
 const submitClass =
   "mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45";
 
@@ -118,7 +118,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
   if (modo === "recuperar") {
     return (
       <form onSubmit={handleRecuperar} className="flex flex-col gap-5">
-        <span className="text-[13px] text-text-muted">Recuperar contraseña</span>
+        <span className="text-[14px] text-text-muted">Recuperar contraseña</span>
 
         {enviado ? (
           <p role="status" className="border-l-2 border-mark pl-3 text-[16px] text-text">
@@ -155,7 +155,7 @@ export function LoginForm({ aviso }: LoginFormProps) {
 
   return (
     <form onSubmit={handleIngresar} className="flex flex-col gap-5">
-      <span className="text-[13px] text-text-muted">Cuenta del equipo</span>
+      <span className="text-[14px] text-text-muted">Cuenta del equipo</span>
 
       {avisoTexto && (
         <p role="alert" className="border-l-2 border-accent pl-3 text-[16px] text-accent">

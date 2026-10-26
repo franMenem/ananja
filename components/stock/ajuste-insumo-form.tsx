@@ -114,7 +114,7 @@ export function AjusteInsumoForm() {
       <div>
         <label
           htmlFor="insumo"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Insumo
         </label>
@@ -124,7 +124,7 @@ export function AjusteInsumoForm() {
           disabled={insumosLoading}
           value={insumoId}
           onChange={(event) => setInsumoId(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary disabled:opacity-60 rounded-xl"
+          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60 rounded-xl"
         >
           <option value="" disabled>
             {insumosLoading ? "Cargando…" : "Seleccioná un insumo"}
@@ -138,7 +138,7 @@ export function AjusteInsumoForm() {
       </div>
 
       <div>
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Tipo de ajuste
         </span>
         <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
@@ -182,7 +182,6 @@ export function AjusteInsumoForm() {
           onChange={setCantidad}
           required
           placeholder="0"
-          labelClassName="text-[13px] text-text-muted"
           cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
           inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
         />
@@ -203,7 +202,7 @@ export function AjusteInsumoForm() {
       <div>
         <label
           htmlFor="nota"
-          className="text-[13px] text-text-muted"
+          className="block text-[15px] font-semibold text-text"
         >
           Nota (obligatoria)
         </label>
@@ -214,7 +213,7 @@ export function AjusteInsumoForm() {
           onChange={(event) => setNota(event.target.value)}
           rows={2}
           placeholder={`Ej. conteo ${proveedor.loDe}, rotura de 3 envases`}
-          className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
+          className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
         />
       </div>
 

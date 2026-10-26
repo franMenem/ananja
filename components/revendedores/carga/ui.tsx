@@ -1,75 +1,81 @@
 import type { ReactNode } from "react";
 
+import { CLASE_CAJA_MONTO, CLASE_ENTRADA, CLASE_ETIQUETA, CLASE_INPUT_EN_CAJA, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import type { ProblemaCarga } from "@/lib/dominio/carga-revendedor";
 
-/** Estilos compartidos por los campos de las tres secciones de `CargaForm`. */
-export const ROTULO = "text-[13px] text-text-muted";
-export const CAMPO =
-  "mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary";
-export const CAJA_MONTO =
-  "mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary";
-export const INPUT_MONTO =
-  "min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none";
-export const LINK_CHICO = "min-h-9 text-[13px] font-medium ";
+/** Estilos compartidos por los campos de las tres secciones de `CargaForm`
+ * (base común de `components/ui/campo.tsx`). */
+export const ROTULO = CLASE_ETIQUETA;
+export const CAMPO = `mt-1.5 ${CLASE_ENTRADA}`;
+export const CAJA_MONTO = CLASE_CAJA_MONTO;
+export const INPUT_MONTO = CLASE_INPUT_EN_CAJA;
+export const LINK_CHICO = "inline-flex min-h-11 items-center text-[15px] font-semibold ";
 
-/** Una de las tres partes plegables de `CargaForm` (Entrega, Ventas, Pago):
- * cabecera con número/título/descripción y un botón Sumar/Sacar, contenido
- * solo montado mientras está activa. */
+/** Una de las tres partes de `CargaForm` (Entrega, Ventas, Pago). Abierta es
+ * una Tarjeta con título de sección y su contenido. Cerrada se ve como un
+ * encabezado con "Sumar" o, con `comoEnlace` (cuando la pantalla se abrió
+ * para UNA acción), como un link "+ Agregar también…". `bloqueada` = la
+ * sección principal, que no se puede sacar. */
 export function Seccion({
-  numero,
   titulo,
   descripcion,
   activa,
   bloqueada = false,
+  comoEnlace,
   onToggle,
   children,
 }: {
-  numero: number;
   titulo: string;
   descripcion: ReactNode;
   activa: boolean;
   bloqueada?: boolean;
+  /** Texto del link cuando la sección está cerrada ("+ Agregar también una venta"). */
+  comoEnlace?: string;
   onToggle: () => void;
   children: ReactNode;
 }) {
-  return (
-    <section className="flex flex-col border border-border">
+  if (!activa && comoEnlace) {
+    return (
       <button
         type="button"
         onClick={onToggle}
-        disabled={bloqueada}
-        aria-expanded={activa}
-        className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 text-left"
+        aria-expanded={false}
+        className="inline-flex min-h-11 items-center self-start rounded-xl px-1 text-left text-[15px] font-semibold text-primary"
       >
-        <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="font-display text-[20px] text-text">
-            {numero} · {titulo}
-          </span>
-          <span className="text-[14px] leading-snug text-text-muted">{descripcion}</span>
-        </span>
-        {!bloqueada && (
-          <span
-            className={`shrink-0 border px-3 py-2 text-[14px] font-medium ${
-              activa ? "border-border text-text-muted" : "border-primary text-primary"
-            }`}
-          >
-            {activa ? "Sacar" : "Sumar"}
-          </span>
-        )}
+        {comoEnlace}
       </button>
-      {activa && (
-        <div className="flex flex-col gap-5 border-t border-border px-4 py-4">{children}</div>
-      )}
-    </section>
+    );
+  }
+
+  const boton = !bloqueada && (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={activa}
+      className={`inline-flex min-h-11 shrink-0 items-center rounded-xl border px-4 text-[15px] font-semibold ${
+        activa ? "border-[#d0cec8] text-text-muted" : "border-primary text-primary"
+      }`}
+    >
+      {activa ? "Sacar" : "Sumar"}
+    </button>
+  );
+
+  return (
+    <SeccionForm titulo={titulo} descripcion={descripcion} derecha={boton || undefined}>
+      {activa && <div className="flex flex-col gap-5">{children}</div>}
+    </SeccionForm>
   );
 }
 
 export function ListaProblemas({ problemas }: { problemas: ProblemaCarga[] }) {
   if (problemas.length === 0) return null;
   return (
-    <ul role="alert" className="flex flex-col gap-1 text-[16px] text-accent">
+    <ul role="alert" className="flex flex-col gap-1.5">
       {problemas.map((p, i) => (
-        <li key={i}>{p.mensaje}</li>
+        <li key={i}>
+          <MensajeError>{p.mensaje}</MensajeError>
+        </li>
       ))}
     </ul>
   );

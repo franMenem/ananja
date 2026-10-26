@@ -79,12 +79,12 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] text-text-muted">{etiqueta}</span>
+        <span className="text-[14px] text-text-muted">{etiqueta}</span>
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-pressed={visible}
-          className="flex min-h-11 items-center text-[13px] text-primary underline-offset-4 hover:underline"
+          className="flex min-h-11 items-center text-[14px] text-primary underline-offset-4 hover:underline"
         >
           {visible ? "Ocultar" : "Mostrar"}
         </button>
@@ -94,7 +94,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="password-actual"
-            className="text-[13px] text-text-muted"
+            className="block text-[15px] font-semibold text-text"
           >
             Contraseña actual
           </label>
@@ -116,7 +116,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
       )}
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-[13px] text-text-muted">
+        <label htmlFor="password" className="block text-[15px] font-semibold text-text">
           Contraseña
         </label>
         <input
@@ -135,7 +135,7 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="confirmacion" className="text-[13px] text-text-muted">
+        <label htmlFor="confirmacion" className="block text-[15px] font-semibold text-text">
           Repetí la contraseña
         </label>
         <input

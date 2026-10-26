@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { MensajeError } from "@/components/ui/campo";
+import { AccionesForm } from "@/components/ui/acciones-form";
 import { SetFormHeader } from "@/components/page-header-context";
 import { AlertaStock } from "@/components/revendedores/carga/alerta-stock";
 import { Resumen } from "@/components/revendedores/carga/resumen";
@@ -42,6 +44,10 @@ type CargaFormProps = {
    * plegadas) — lo usan los redirects de las rutas viejas /entrega,
    * /ventas/nueva y /rendicion. Sin parámetro, la página manda "entrega". */
   seccionInicial: "entrega" | "ventas" | "pago";
+  /** La pantalla se abrió para UNA acción (`?seccion=`/`?abrir=`): el título
+   * dice esa acción, solo esa sección se ve abierta y las otras quedan como
+   * links "+ Agregar también…". Sin esto, se ven las tres como hasta ahora. */
+  conSeccion?: boolean;
   /** Encargado que queda con la plata en mano (solo si es admin activo), o
    * `null` → queda el admin que carga. */
   encargadoNombre: string | null;
@@ -82,6 +88,7 @@ export function CargaForm({
   vendedorId,
   vendedorNombre,
   seccionInicial,
+  conSeccion = false,
   encargadoNombre,
   deudaCentavos,
   tomaDirecto = false,
@@ -168,10 +175,116 @@ export function CargaForm({
   const problemasDe = (seccion: "general" | "entrega" | "ventas" | "pago") =>
     guardado.mostrarProblemas ? problemas.filter((p) => p.seccion === seccion) : [];
 
+  const titulos = {
+    entrega: `Entregar botellas a ${vendedorNombre}`,
+    ventas: `Registrar venta de ${vendedorNombre}`,
+    pago: `Registrar pago de ${vendedorNombre}`,
+  } as const;
+  const preguntas = {
+    entrega: "¿Qué botellas se lleva y de qué pedido?",
+    ventas: "¿Qué vendió y a cuánto?",
+    pago: "¿Cuánto te pagó y cómo te lo dio?",
+  } as const;
+  const titulo = conSeccion ? titulos[seccionInicial] : `Cargar movimiento de ${vendedorNombre}`;
+  const pregunta = conSeccion
+    ? preguntas[seccionInicial]
+    : "¿Qué pasó? Sumá solo las partes que necesites: se guarda todo junto, o no se guarda nada.";
+
+  // Las secciones, con la principal primero cuando la pantalla se abrió para
+  // una sola acción. El orden de lectura es el del DOM.
+  const principal = (s: "entrega" | "ventas" | "pago") => conSeccion && seccionInicial === s;
+  const enlace = (s: "entrega" | "ventas" | "pago", texto: string) => (conSeccion && !principal(s) ? texto : undefined);
+
+  const nodoEntrega = (
+    <SeccionEntrega
+      key="entrega"
+      activa={entrega.activa}
+      onToggle={entrega.toggle}
+      bloqueada={principal("entrega")}
+      comoEnlace={enlace("entrega", "+ Agregar también una entrega")}
+      hoy={hoy}
+      fecha={entrega.fecha}
+      onCambiarFecha={entrega.cambiarFecha}
+      productos={productos}
+      lotes={lotes}
+      filas={entrega.filas}
+      onActualizarFila={entrega.actualizarFila}
+      onCambiarLote={entrega.cambiarLote}
+      botellasEntregadas={resumen.botellasEntregadas}
+      problemas={problemasDe("entrega")}
+    />
+  );
+  const nodoVentas = (
+    <SeccionVentas
+      key="ventas"
+      activa={ventasSeccion.activa}
+      onToggle={ventasSeccion.toggle}
+      bloqueada={principal("ventas")}
+      comoEnlace={enlace("ventas", "+ Agregar también una venta")}
+      hoy={hoy}
+      fechaEfectiva={ventasSeccion.fechaEfectiva}
+      fechaSinDefault={ventasSeccion.fecha}
+      onCambiarFecha={ventasSeccion.setFecha}
+      conEntrega={entrega.activa}
+      vendedorNombre={vendedorNombre}
+      tomaDirecto={tomaDirecto}
+      delDeposito={resumen.delDeposito}
+      productos={productos}
+      disponible={disponible}
+      entregado={entregado}
+      tramos={tramos}
+      lineas={ventasSeccion.lineas}
+      fechaLotePorId={fechaLotePorId}
+      onActualizarLinea={ventasSeccion.actualizarLinea}
+      onAgregarLinea={ventasSeccion.agregarLinea}
+      onQuitarLinea={ventasSeccion.quitarLinea}
+      onVenderTodo={ventasSeccion.venderTodo}
+      medioPago={ventasSeccion.medioPago}
+      onCambiarMedioPago={ventasSeccion.setMedioPago}
+      vendidas={vendidas}
+      problemas={problemasDe("ventas")}
+    />
+  );
+  const nodoPago = (
+    <SeccionPago
+      key="pago"
+      activa={pago.activa}
+      onToggle={pago.toggle}
+      bloqueada={principal("pago")}
+      comoEnlace={enlace("pago", "+ Agregar también un pago")}
+      hoy={hoy}
+      vendedorNombre={vendedorNombre}
+      encargadoNombre={encargadoNombre}
+      opcionesVia={opcionesVia}
+      via={pago.via}
+      onCambiarVia={pago.cambiarVia}
+      pagosPendientes={pagosPendientes}
+      pendienteCentavos={pendienteCentavos}
+      montoEnPantalla={pago.montoEnPantalla}
+      onCambiarMonto={pago.setMontoTexto}
+      onMontoTodo={() => pago.setMontoTexto(null)}
+      onMontoBorrar={() => pago.setMontoTexto("")}
+      deudaDespuesVentasCentavos={resumen.deudaDespuesVentasCentavos}
+      medioPago={pago.medioPago}
+      onCambiarMedioPago={pago.setMedioPago}
+      fecha={pago.fecha}
+      onCambiarFecha={pago.setFecha}
+      nota={pago.nota}
+      onCambiarNota={pago.setNota}
+      pagoCentavos={resumen.pagoCentavos}
+      problemas={problemasDe("pago")}
+    />
+  );
+  const porSeccion = { entrega: nodoEntrega, ventas: nodoVentas, pago: nodoPago };
+  const ordenNatural = ["entrega", "ventas", "pago"] as const;
+  const orden = conSeccion
+    ? [seccionInicial, ...ordenNatural.filter((x) => x !== seccionInicial)]
+    : [...ordenNatural];
+
   return (
     <>
       <SetFormHeader
-        title={guardado.revisando ? "Revisá todo" : "Cargar movimiento"}
+        title={guardado.revisando ? "Revisá todo" : titulo}
         backHref={`/revendedores/${vendedorId}`}
         backLabel="Volver al revendedor"
       />
@@ -179,97 +292,23 @@ export function CargaForm({
       {/* Se oculta (no se desmonta) durante la revisión: "Volver a editar"
           conserva todo lo cargado. */}
       <div hidden={guardado.revisando} className="flex flex-col gap-5">
-        <p className="text-[14px] leading-relaxed text-text-muted">
-          Para <span className="font-medium text-text">{vendedorNombre}</span>. Sumá solo las
-          partes que necesites: lo que le entregaste, lo que vendió y lo que pagó. Se guarda todo
-          junto, o no se guarda nada.
-        </p>
+        <p className="text-[15px] leading-relaxed text-text-muted">{pregunta}</p>
 
-        <SeccionEntrega
-          activa={entrega.activa}
-          onToggle={entrega.toggle}
-          hoy={hoy}
-          fecha={entrega.fecha}
-          onCambiarFecha={entrega.cambiarFecha}
-          productos={productos}
-          lotes={lotes}
-          filas={entrega.filas}
-          onActualizarFila={entrega.actualizarFila}
-          onCambiarLote={entrega.cambiarLote}
-          botellasEntregadas={resumen.botellasEntregadas}
-          problemas={problemasDe("entrega")}
-        />
-
-        <SeccionVentas
-          activa={ventasSeccion.activa}
-          onToggle={ventasSeccion.toggle}
-          hoy={hoy}
-          fechaEfectiva={ventasSeccion.fechaEfectiva}
-          fechaSinDefault={ventasSeccion.fecha}
-          onCambiarFecha={ventasSeccion.setFecha}
-          conEntrega={entrega.activa}
-          vendedorNombre={vendedorNombre}
-          tomaDirecto={tomaDirecto}
-          delDeposito={resumen.delDeposito}
-          productos={productos}
-          disponible={disponible}
-          entregado={entregado}
-          tramos={tramos}
-          lineas={ventasSeccion.lineas}
-          fechaLotePorId={fechaLotePorId}
-          onActualizarLinea={ventasSeccion.actualizarLinea}
-          onAgregarLinea={ventasSeccion.agregarLinea}
-          onQuitarLinea={ventasSeccion.quitarLinea}
-          onVenderTodo={ventasSeccion.venderTodo}
-          medioPago={ventasSeccion.medioPago}
-          onCambiarMedioPago={ventasSeccion.setMedioPago}
-          vendidas={vendidas}
-          problemas={problemasDe("ventas")}
-        />
-
-        <SeccionPago
-          activa={pago.activa}
-          onToggle={pago.toggle}
-          hoy={hoy}
-          vendedorNombre={vendedorNombre}
-          encargadoNombre={encargadoNombre}
-          opcionesVia={opcionesVia}
-          via={pago.via}
-          onCambiarVia={pago.cambiarVia}
-          pagosPendientes={pagosPendientes}
-          pendienteCentavos={pendienteCentavos}
-          montoEnPantalla={pago.montoEnPantalla}
-          onCambiarMonto={pago.setMontoTexto}
-          onMontoTodo={() => pago.setMontoTexto(null)}
-          onMontoBorrar={() => pago.setMontoTexto("")}
-          deudaDespuesVentasCentavos={resumen.deudaDespuesVentasCentavos}
-          medioPago={pago.medioPago}
-          onCambiarMedioPago={pago.setMedioPago}
-          fecha={pago.fecha}
-          onCambiarFecha={pago.setFecha}
-          nota={pago.nota}
-          onCambiarNota={pago.setNota}
-          pagoCentavos={resumen.pagoCentavos}
-          problemas={problemasDe("pago")}
-        />
+        {orden.map((x) => porSeccion[x])}
 
         <ListaProblemas problemas={problemasDe("general")} />
 
         <Resumen resumen={resumen} pendienteCentavos={pendienteCentavos} />
 
-        {guardado.error && !guardado.revisando && (
-          <p role="alert" className="text-[16px] text-accent">
-            {guardado.error}
-          </p>
-        )}
+        {guardado.error && !guardado.revisando && <MensajeError>{guardado.error}</MensajeError>}
 
-        <button
+        <AccionesForm
           type="button"
           onClick={guardado.handleRevisar}
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-        >
-          Revisar todo
-        </button>
+          etiqueta="Revisar antes de guardar"
+          cancelarHref={`/revendedores/${vendedorId}`}
+          fija
+        />
       </div>
 
       {guardado.revisando && (

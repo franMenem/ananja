@@ -1,6 +1,8 @@
 "use client";
 
 import { ClienteSelect } from "@/components/cliente-select";
+import { MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 
 type SeccionClienteProps = {
   clienteId: string | null;
@@ -12,13 +14,11 @@ type SeccionClienteProps = {
  * de `components/comprobante-form.tsx`. */
 export function SeccionCliente({ clienteId, onClienteChange, esVentaACredito }: SeccionClienteProps) {
   return (
-    <>
+    <SeccionForm titulo="¿A quién se la vendiste?">
       <ClienteSelect value={clienteId} onChange={(id) => onClienteChange(id)} />
       {esVentaACredito && !clienteId && (
-        <p role="alert" className="text-[14px] text-accent">
-          Para dejar saldo a cobrar elegí un cliente.
-        </p>
+        <MensajeError>Para dejar saldo a cobrar elegí un cliente.</MensajeError>
       )}
-    </>
+    </SeccionForm>
   );
 }

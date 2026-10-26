@@ -23,6 +23,8 @@ import { lotesConStockRevendedora, type TramoStock } from "@/lib/dominio/revende
 export function SeccionVentas({
   activa,
   onToggle,
+  bloqueada = false,
+  comoEnlace,
   hoy,
   fechaEfectiva,
   fechaSinDefault,
@@ -48,6 +50,10 @@ export function SeccionVentas({
 }: {
   activa: boolean;
   onToggle: () => void;
+  /** Es la sección con la que se abrió la pantalla: no se puede sacar. */
+  bloqueada?: boolean;
+  /** Cerrada, se ve como este link en vez de como tarjeta. */
+  comoEnlace?: string;
   hoy: string;
   fechaEfectiva: string;
   /** Fecha cruda elegida a mano, `null` = sigue la de la entrega (o hoy). */
@@ -81,10 +87,11 @@ export function SeccionVentas({
 
   return (
     <Seccion
-      numero={2}
       titulo="Ventas"
       activa={activa}
       onToggle={onToggle}
+      bloqueada={bloqueada}
+      comoEnlace={comoEnlace}
       descripcion={
         activa
           ? `${vendidas} vendidas · ${formatFecha(fechaEfectiva || hoy)}`
@@ -105,7 +112,7 @@ export function SeccionVentas({
           className={CAMPO}
         />
         {conEntrega && fechaSinDefault === null && (
-          <p className="mt-1 text-[13px] text-text-muted">La misma fecha de la entrega.</p>
+          <p className="mt-1 text-[14px] text-text-muted">La misma fecha de la entrega.</p>
         )}
       </div>
 
@@ -135,8 +142,8 @@ export function SeccionVentas({
           return (
             <div key={p.id} className="flex flex-col gap-3 border-b border-border pb-4">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <span className="min-w-0 break-words text-[16px] text-text">{p.nombre}</span>
-                <span className="text-[13px] text-text-muted">
+                <span className="min-w-0 break-words text-[16px] font-semibold text-text">{p.nombre}</span>
+                <span className="text-[14px] text-text-muted">
                   Va a tener {disp}
                   {deEstaEntrega > 0 ? ` (${deEstaEntrega} de esta entrega)` : ""}
                 </span>
@@ -257,7 +264,7 @@ export function SeccionVentas({
       <div className="flex flex-col gap-2">
         <MedioPagoChips value={medioPago} onChange={onCambiarMedioPago} />
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[13px] text-text-muted">Medio de pago opcional</span>
+          <span className="text-[14px] text-text-muted">Medio de pago opcional</span>
           {medioPago !== null && (
             <button
               type="button"

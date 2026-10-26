@@ -1,10 +1,20 @@
 "use client";
 
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
@@ -187,7 +197,7 @@ export function VentaForm({
   if (disponibles.length === 0) {
     return (
       <>
-        <SetFormHeader title="Nueva venta" backHref="/mi/ventas" backLabel="Volver a ventas" />
+        <SetFormHeader title="Registrar una venta" backHref="/mi/ventas" backLabel="Volver a ventas" />
         <p className="text-[16px] text-text-muted">
           Todavía no tenés {NEGOCIO.envase.plural} para vender.
         </p>
@@ -197,13 +207,12 @@ export function VentaForm({
 
   return (
     <>
-      <SetFormHeader title="Nueva venta" backHref="/mi/ventas" backLabel="Volver a ventas" />
+      <SetFormHeader title="Registrar una venta" backHref="/mi/ventas" backLabel="Volver a ventas" />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <SeccionForm titulo="¿Qué vendiste?">
         <div>
-          <span className="text-[13px] text-text-muted">
-            Producto
-          </span>
+          <span className={CLASE_ETIQUETA}>Producto</span>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {disponibles.map((p) => (
               <button
@@ -211,10 +220,10 @@ export function VentaForm({
                 type="button"
                 onClick={() => handleElegirProducto(p.producto.id)}
                 aria-pressed={productoId === p.producto.id}
-                className={`min-h-11 px-4 text-[16px] font-medium ${
+                className={`min-h-12 rounded-xl px-4 text-[16px] font-semibold ${
                   productoId === p.producto.id
                     ? "bg-primary text-primary-foreground"
-                    : "border border-border text-text"
+                    : "border border-[#d0cec8] bg-surface text-text"
                 }`}
               >
                 {p.producto.nombre}
@@ -226,8 +235,8 @@ export function VentaForm({
         {seleccionado && (
           <>
             <div>
-              <span className="text-[13px] text-text-muted">
-                Cantidad (tenés {seleccionado.enPoder})
+              <span className={CLASE_ETIQUETA}>
+                Cantidad <span className="font-normal text-text-muted">(tenés {seleccionado.enPoder})</span>
               </span>
               <div className="mt-1.5">
                 <CantidadStepper
@@ -253,9 +262,8 @@ export function VentaForm({
                 required
                 placeholder="$ 0,00"
                 simbolo={null}
-                labelClassName="text-[13px] text-text-muted"
-                cajaClassName="mt-1 flex border-b-2 border-primary"
-                inputClassName="font-display block w-full min-w-0 bg-transparent py-1 text-[28px] text-text tabular-nums focus:outline-none"
+                cajaClassName={CLASE_CAJA_MONTO}
+                inputClassName={CLASE_INPUT_MONTO_GRANDE}
               />
               {sugerido !== null && (
                 <span className="mt-1 block text-[14px] text-text-muted">
@@ -288,7 +296,7 @@ export function VentaForm({
                         .
                       </p>
                     )}
-                    <p className="text-[13px] text-text-muted">
+                    <p className="text-[14px] text-text-muted">
                       Lo de las {resumen.delDeposito} del depósito lo calcula {NEGOCIO.nombre} al
                       guardar: todavía no podemos mostrarte ese costo ni cuánto ganás en total.
                     </p>
@@ -303,7 +311,7 @@ export function VentaForm({
                   </p>
                 ) : null}
                 {atribucion.tramos.length > 0 && (
-                  <p className="text-[13px] text-text-muted">
+                  <p className="text-[14px] text-text-muted">
                     {atribucion.tramos
                       .map(
                         (t) =>
@@ -341,51 +349,31 @@ export function VentaForm({
             )}
           </>
         )}
+        </SeccionForm>
 
-        <MedioPagoChips value={medioPago} onChange={setMedioPago} />
+        <SeccionForm titulo="¿Cómo te pagaron?">
+          <MedioPagoChips value={medioPago} onChange={setMedioPago} ocultarRotulo />
+        </SeccionForm>
 
-        <div>
-          <label htmlFor="fecha" className="text-[13px] text-text-muted">
-            Fecha
-          </label>
-          <input
-            id="fecha"
-            type="date"
-            required
-            max={hoyISO()}
-            value={fecha}
-            onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary rounded-xl"
-          />
-        </div>
+        <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+          <Campo id="fecha" etiqueta="Fecha de la venta">
+            <Entrada
+              type="date"
+              required
+              max={hoyISO()}
+              value={fecha}
+              onChange={(event) => setFecha(event.target.value)}
+              className="tabular-nums"
+            />
+          </Campo>
+          <Campo id="nota" etiqueta="Nota" opcional>
+            <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={2} />
+          </Campo>
+        </MasDatos>
 
-        <div>
-          <label htmlFor="nota" className="text-[13px] text-text-muted">
-            Nota (opcional)
-          </label>
-          <textarea
-            id="nota"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            rows={2}
-            className="mt-1.5 min-h-[60px] w-full border border-border bg-surface px-3 py-2 text-base text-text focus:border-primary rounded-xl"
-          />
-        </div>
+        {error && <MensajeError>{error}</MensajeError>}
 
-        {error && (
-          <p role="alert" className="text-[16px] text-accent">
-            {error}
-          </p>
-        )}
-
-        <BotonAccion
-          cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
-          className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
-        >
-          Guardar venta
-        </BotonAccion>
+        <AccionesForm etiqueta="Guardar venta" cargando={saving} cancelarHref="/mi/ventas" fija />
       </form>
 
       <BottomSheet

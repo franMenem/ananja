@@ -10,6 +10,13 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  CLASE_AYUDA,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_EN_CAJA,
+  MensajeError,
+} from "@/components/ui/campo";
 import { decimalesDeTipo, resolverCampoNumerico, type TipoCampoNumerico } from "@/lib/dominio/campo-numerico";
 
 type MontoInputProps = {
@@ -37,8 +44,6 @@ type MontoInputProps = {
   required?: boolean;
   disabled?: boolean;
   autoFocus?: boolean;
-  /** Campo secundario más chico (rótulo 9px, alto 40px) — mismo criterio que el viejo `MoneyField`. */
-  small?: boolean;
   /** Rótulo a la izquierda y campo a la derecha en la misma fila (precio por botella). */
   labelEnLinea?: boolean;
   /** Un número suelto con más decimales de los que se guardan ("12,345" en
@@ -171,7 +176,6 @@ export function MontoInput({
   required,
   disabled,
   autoFocus,
-  small = false,
   labelEnLinea = false,
   exigirExacto = false,
   className,
@@ -315,8 +319,7 @@ export function MontoInput({
     <label
       htmlFor={inputId}
       className={
-        labelClassName ??
-        `block break-words text-text-muted ${small ? "text-[13px]" : "text-[13px]"}`
+        labelClassName ?? `${CLASE_ETIQUETA} break-words`
       }
     >
       {label}
@@ -324,7 +327,7 @@ export function MontoInput({
   ) : null;
 
   const caja = (
-    <div className={cajaClassName ?? "mt-1.5 flex items-center gap-2 border border-border bg-surface px-3"}>
+    <div className={cajaClassName ?? CLASE_CAJA_MONTO}>
       {simboloEfectivo && <span className={claseSimbolo}>{simboloEfectivo}</span>}
       <input
         ref={inputRef}
@@ -346,7 +349,7 @@ export function MontoInput({
         aria-describedby={describedBy}
         className={
           inputClassName ??
-          `w-full min-w-0 bg-transparent text-text focus:outline-none ${small ? "min-h-10 text-base" : "min-h-12 text-base"}`
+          CLASE_INPUT_EN_CAJA
         }
       />
       {sufijo && <span className={claseSimbolo}>{sufijo}</span>}
@@ -422,14 +425,14 @@ export function MontoInput({
       )}
 
       {hint && (
-        <p id={hintId} className="mt-1 text-[13px] leading-snug text-text-muted">
+        <p id={hintId} className={`mt-1 ${CLASE_AYUDA}`}>
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="mt-1 text-[13px] leading-snug text-accent">
-          {error}
-        </p>
+        <div className="mt-1">
+          <MensajeError id={errorId}>{error}</MensajeError>
+        </div>
       )}
     </div>
   );

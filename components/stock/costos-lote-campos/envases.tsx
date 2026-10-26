@@ -48,7 +48,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         Envases
       </span>
       {/* Fran (dueño): en un mismo pedido todos los envases van iguales
@@ -65,7 +65,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
           />
           {soloCosto ? "Para el costo, los envases son sin IVA" : `${proveedor.sujeto} te cobra los envases sin IVA`}
         </label>
-        <p className="pl-[34px] text-[13px] leading-[1.5] text-text-muted">
+        <p className="pl-[34px] text-[14px] leading-[1.5] text-text-muted">
           {soloCosto
             ? "Al costo de reposición se le suma el 21% de IVA."
             : `Al costo de cada botella se le suma el 21% de IVA — no a lo que le pagás ${proveedor.a}.`}
@@ -95,7 +95,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
                   }
                 />
                 {envaseCalculado && precioCargado !== null && (
-                  <p className="pl-1 text-[13px] leading-snug tabular-nums text-text-muted">
+                  <p className="pl-1 text-[14px] leading-snug tabular-nums text-text-muted">
                     {soloCosto
                       ? cuentaEnvaseCampo(
                           envaseCalculado.cantidad,
@@ -124,7 +124,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
                     hint={`Con este precio se calcula cuánto cuesta cada botella: lo que les cobrás a las revendedoras y tu ganancia. No cambia lo que le pagás ${proveedor.a}. Vacío = usa el mismo que le pagás.`}
                   />
                   {envaseCalculado && envaseCalculado.totalCentavos > 0 && (
-                    <p className="pl-1 text-[13px] leading-snug tabular-nums text-text-muted">
+                    <p className="pl-1 text-[14px] leading-snug tabular-nums text-text-muted">
                       {cuentaEnvaseCampo(
                         envaseCalculado.cantidad,
                         precioCostoCargado ?? precioCargado ?? 0,

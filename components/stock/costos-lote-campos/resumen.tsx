@@ -35,7 +35,7 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
 
   return (
     <div className="flex flex-col gap-4 border-l-2 border-mark bg-surface-raised p-4">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         Costo por {NEGOCIO.envase.singular}
       </span>
       {preview.map((p) => (

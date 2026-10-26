@@ -68,7 +68,7 @@ export function RevisionEntrega({
                   {fila.cantidad} {envase(fila.cantidad)}
                 </span>
               </div>
-              <span className="text-[13px] text-text-muted">
+              <span className="text-[14px] text-text-muted">
                 {lote ? `Pedido del ${formatFecha(lote.fecha)}` : "Sin pedido elegido"}
               </span>
 
@@ -88,7 +88,6 @@ export function RevisionEntrega({
                   required
                   placeholder="$ 0,00"
                   simbolo={null}
-                  labelClassName="block text-[13px] text-text-muted"
                   cajaClassName="mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
                   inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
                 />
@@ -99,21 +98,20 @@ export function RevisionEntrega({
                   onChange={(value) => onActualizarFila(fila.clave, "sugerido", value)}
                   placeholder="$ 0,00"
                   simbolo={null}
-                  labelClassName="block text-[13px] text-text-muted"
                   cajaClassName="mt-1.5 flex items-center border border-border bg-surface px-3 focus-within:border-primary"
                   inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
                 />
               </div>
 
               {fila.sinCostosDelLote && (
-                <p className="text-[13px] text-accent">
+                <p className="text-[14px] text-accent">
                   {lote
                     ? "Este pedido todavía no tiene costos cargados: completá a mano cuánto le cobrás."
                     : "Sin pedido no hay costo para precargar: completá a mano cuánto le cobrás."}
                 </p>
               )}
               {costo !== null && sugerido !== null && sugerido < costo && (
-                <p className="text-[13px] text-accent">
+                <p className="text-[14px] text-accent">
                   Ojo: el precio sugerido es menor a lo que le cobrás.
                 </p>
               )}

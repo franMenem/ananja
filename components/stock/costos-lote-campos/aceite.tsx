@@ -116,7 +116,7 @@ export function AceiteBlock({
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         {NEGOCIO.materiaPrima.nombre} (se carga en dólares)
       </span>
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -144,13 +144,13 @@ export function AceiteBlock({
       {(dolarEsHeredado || usdEsHeredado) && aceiteHeredado && (
         <div className="flex flex-col gap-1 border-l-2 border-accent bg-surface-raised p-3">
           {dolarEsHeredado && (
-            <p className="text-[13px] leading-[1.5] text-accent">
+            <p className="text-[14px] leading-[1.5] text-accent">
               Dólar {formatCentavos(aceiteHeredado.dolarCentavos!)} — del pedido del{" "}
               {formatFecha(aceiteHeredado.fecha)}. ¿Lo actualizás?
             </p>
           )}
           {usdEsHeredado && (
-            <p className="text-[13px] leading-[1.5] text-accent">
+            <p className="text-[14px] leading-[1.5] text-accent">
               Precio del litro {formatMonto("USD", aceiteHeredado.usdCentavos!)} — del pedido
               del {formatFecha(aceiteHeredado.fecha)}. ¿Sigue vigente?
             </p>
@@ -173,7 +173,7 @@ export function AceiteBlock({
 
       {aceite.precioLitroResuelto === null &&
         (tanqueAceite && tanqueAceite.costoPromedioCentavosPorLitro != null ? (
-          <p className="text-[13px] leading-[1.5] text-text-muted">
+          <p className="text-[14px] leading-[1.5] text-text-muted">
             Sin dólar ni precio del litro cargados, el costo va a salir del
             promedio de lo que compraste (quedan{" "}
             {tanqueAceite.litrosRestantes.toLocaleString("es-AR", {
@@ -182,7 +182,7 @@ export function AceiteBlock({
             L en {NEGOCIO.materiaPrima.nombre.toLowerCase()}).
           </p>
         ) : (
-          <p className="text-[13px] leading-[1.5] text-text-muted">
+          <p className="text-[14px] leading-[1.5] text-text-muted">
             Sin dólar, precio del litro ni precio en pesos cargados, el
             pedido se va a guardar sin costo de{" "}
             {NEGOCIO.materiaPrima.nombre.toLowerCase()}.
@@ -195,9 +195,8 @@ export function AceiteBlock({
           label={`o poné el precio del litro de ${NEGOCIO.materiaPrima.nombre} en pesos`}
           value={value.precioLitroAceite}
           onChange={(v) => set("precioLitroAceite", v)}
-          small
         />
-        <p className="mt-1 text-[13px] leading-snug text-text-muted">
+        <p className="mt-1 text-[14px] leading-snug text-text-muted">
           Excepción puntual de este pedido — gana sobre el dólar y el
           precio en USD de arriba, pero no se guarda para el próximo
           pedido.

@@ -44,14 +44,14 @@ export function LineaFacturaCampos({
       className="flex flex-col gap-3 border border-border bg-surface-raised p-4 rounded-2xl"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] text-text-muted">
+        <span className="text-[14px] text-text-muted">
           Línea {indice + 1}
         </span>
         {mostrarQuitar && (
           <button
             type="button"
             onClick={onQuitar}
-            className="min-h-11 px-2 text-[13px] text-accent"
+            className="min-h-11 px-2 text-[14px] text-accent"
           >
             Quitar
           </button>

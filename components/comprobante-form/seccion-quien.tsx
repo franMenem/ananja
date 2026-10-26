@@ -1,5 +1,9 @@
 "use client";
 
+import { AreaTexto, Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { MasDatos } from "@/components/ui/seccion-form";
+import { formatFecha, hoyISO } from "@/lib/fechas";
+
 type SeccionQuienProps = {
   vendedorLoading: boolean;
   /** `true` si `useVendedorActual` ya resolvió un vendedor vinculado —
@@ -25,40 +29,40 @@ export function SeccionQuien({
   onNotaChange,
 }: SeccionQuienProps) {
   return (
-    <div className="flex flex-col gap-2.5">
-      <span className="text-[13px] text-text-muted">
-        5 · Quién y cuándo
-      </span>
-
-      <div className="flex gap-2.5">
-        <div className="flex min-h-12 min-w-0 flex-1 items-center border border-border bg-surface px-3.5 text-[16px] text-text rounded-xl">
-          {vendedorLoading ? "Cargando…" : (vendedorNombre ?? "Sin vendedor")}
-        </div>
-        <input
-          id="fecha"
-          type="date"
-          required
-          aria-label="Fecha"
-          value={fecha}
-          onChange={(event) => onFechaChange(event.target.value)}
-          className="min-h-12 min-w-0 border border-border bg-surface px-3.5 text-base text-text tabular-nums focus:border-primary rounded-xl"
-        />
-      </div>
-      {!vendedorLoading && !vendedorExiste && (
-        <p role="alert" className="text-[14px] text-accent">
-          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te
-          dé de alta desde el dashboard de Supabase.
+    <div className="flex flex-col gap-4">
+      {vendedorLoading ? (
+        <p className="text-[14px] text-text-muted">Cargando…</p>
+      ) : vendedorExiste ? (
+        <p className="text-[14px] text-text-muted">
+          Cargado por <span className="font-semibold text-text">{vendedorNombre ?? "Sin vendedor"}</span>
+          {fecha ? ` · ${formatFecha(fecha)}` : ""}
         </p>
+      ) : (
+        <MensajeError>
+          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+          dashboard de Supabase.
+        </MensajeError>
       )}
 
-      <textarea
-        id="nota"
-        value={nota}
-        onChange={(event) => onNotaChange(event.target.value)}
-        rows={2}
-        placeholder="Nota (opcional)"
-        className="min-h-[60px] border border-border bg-surface px-3.5 py-2 text-base text-text placeholder:text-text-muted focus:border-primary rounded-xl"
-      />
+      <MasDatos abierto={nota.trim() !== "" || (fecha !== "" && fecha !== hoyISO())}>
+        <Campo id="fecha" etiqueta="Fecha de la venta">
+          <Entrada
+            type="date"
+            required
+            value={fecha}
+            onChange={(event) => onFechaChange(event.target.value)}
+            className="tabular-nums"
+          />
+        </Campo>
+        <Campo id="nota" etiqueta="Nota" opcional>
+          <AreaTexto
+            value={nota}
+            onChange={(event) => onNotaChange(event.target.value)}
+            rows={2}
+            placeholder="Algo que quieras recordar de esta venta"
+          />
+        </Campo>
+      </MasDatos>
     </div>
   );
 }

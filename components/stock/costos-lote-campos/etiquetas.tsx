@@ -289,11 +289,11 @@ export function EtiquetasBlock({
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[13px] text-text-muted">
+      <span className="text-[14px] text-text-muted">
         Etiquetas
       </span>
       {avisoEtiquetaLegado && (
-        <p className="text-[13px] leading-[1.5] text-accent">
+        <p className="text-[14px] leading-[1.5] text-accent">
           Este pedido tenía las etiquetas cargadas con el formato
           anterior: revisá los precios antes de guardar.
         </p>
@@ -313,7 +313,7 @@ export function EtiquetasBlock({
           />
           {soloCosto ? "Para el costo, las etiquetas son sin IVA" : "Pagaste las etiquetas sin IVA"}
         </label>
-        <p className="pl-[34px] text-[13px] leading-[1.5] text-text-muted">
+        <p className="pl-[34px] text-[14px] leading-[1.5] text-text-muted">
           {soloCosto
             ? "Al costo de reposición se le suma el 21% de IVA."
             : "Al costo de cada botella se le suma el 21% de IVA — no cambia lo que ya pagaste."}
@@ -343,7 +343,7 @@ export function EtiquetasBlock({
                 hint={hintEtiqueta(campo)}
               />
               {cuenta && (
-                <p className="pl-1 text-[13px] leading-snug tabular-nums text-text-muted">{cuenta}</p>
+                <p className="pl-1 text-[14px] leading-snug tabular-nums text-text-muted">{cuenta}</p>
               )}
             </div>
             {!soloCosto && (
