@@ -401,7 +401,7 @@ export async function obtenerActualizarCostosLoteForm(
 // ────────────────────────────────────────────────────────────────
 
 export interface PagoLoteFormDatos {
-  saldo: Pick<Tables<"v_saldo_lote">, "saldo_centavos" | "pagado_centavos"> | null;
+  saldo: Pick<Tables<"v_saldo_lote">, "saldo_centavos" | "pagado_centavos" | "fecha"> | null;
   conceptosRows: Tables<"v_saldo_lote_concepto">[];
   items: (Pick<Tables<"lote_items">, "producto_id"> & { productos: { presentacion_ml: number } | null })[];
 }
@@ -410,7 +410,7 @@ export interface PagoLoteFormDatos {
  * consultas independientes en UN `Promise.all` (ya lo estaban). */
 export async function obtenerPagoLoteForm(supabase: Supa, loteId: string): Promise<PagoLoteFormDatos> {
   const [{ data: saldo }, { data: conceptosRows }, { data: items }] = await Promise.all([
-    supabase.from("v_saldo_lote").select("saldo_centavos, pagado_centavos").eq("lote_id", loteId).maybeSingle(),
+    supabase.from("v_saldo_lote").select("saldo_centavos, pagado_centavos, fecha").eq("lote_id", loteId).maybeSingle(),
     supabase.from("v_saldo_lote_concepto").select("*").eq("lote_id", loteId),
     supabase.from("lote_items").select("producto_id, productos(presentacion_ml)").eq("lote_id", loteId),
   ]);

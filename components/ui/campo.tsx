@@ -38,6 +38,8 @@ export const CLASE_AREA_TEXTO = `min-h-24 w-full rounded-xl border border-[#d0ce
 /** Caja que envuelve a un `MontoInput` (el input va adentro, sin borde). */
 export const CLASE_CAJA_MONTO =
   "mt-1.5 flex min-h-12 items-center gap-2 rounded-xl border border-[#d0cec8] bg-surface px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30";
+/** `CLASE_CAJA_MONTO` con el borde rojo (campo con error). */
+export const CLASE_CAJA_MONTO_ERROR = CLASE_CAJA_MONTO.replace("border-[#d0cec8]", "border-accent");
 export const CLASE_INPUT_EN_CAJA =
   "min-h-12 w-full min-w-0 bg-transparent text-[16px] text-text tabular-nums focus:outline-none";
 

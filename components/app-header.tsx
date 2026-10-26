@@ -57,7 +57,7 @@ export function AppHeader() {
       <div className="flex items-center justify-between px-5 pt-[14px] pb-3">
         <Link
           href="/"
-          className="font-display text-[20px] text-text"
+          className="flex min-h-11 items-center font-display text-[20px] text-text"
         >
           {NEGOCIO.wordmark}
         </Link>

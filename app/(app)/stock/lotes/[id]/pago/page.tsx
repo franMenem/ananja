@@ -38,6 +38,7 @@ export default async function StockLotePagoPage({
     <div className="mx-auto w-full max-w-[720px]">
       <PagoLoteForm
         loteId={id}
+        fecha={saldo.fecha}
         pendienteCentavos={saldo.saldo_centavos}
         conceptos={conceptos}
         pagadoSinConceptoCentavos={Math.max((saldo.pagado_centavos ?? 0) - pagadoConConcepto, 0)}

@@ -10,6 +10,8 @@ import { formatPresentacion, NEGOCIO } from "@/lib/negocio";
 import type { CostosLoteState } from "@/lib/dominio/lotes";
 
 import { MoneyField } from "@/components/stock/costos-lote-campos/campos";
+import { Aviso } from "@/components/ui/aviso";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import {
   parseCampo,
   type AceiteHeredado,
@@ -115,11 +117,11 @@ export function AceiteBlock({
   }, [items, aceite, dolarEsHeredado, usdEsHeredado]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <span className="text-[14px] text-text-muted">
-        {NEGOCIO.materiaPrima.nombre} (se carga en dólares)
-      </span>
-      <div className="flex flex-col gap-2 sm:flex-row">
+    <SeccionForm
+      titulo={NEGOCIO.materiaPrima.nombre.charAt(0).toUpperCase() + NEGOCIO.materiaPrima.nombre.slice(1)}
+      descripcion="Se carga en dólares."
+    >
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex-1">
           <MoneyField
             id="dolar"
@@ -142,20 +144,20 @@ export function AceiteBlock({
       </div>
 
       {(dolarEsHeredado || usdEsHeredado) && aceiteHeredado && (
-        <div className="flex flex-col gap-1 border-l-2 border-accent bg-surface-raised p-3">
+        <Aviso>
           {dolarEsHeredado && (
-            <p className="text-[14px] leading-[1.5] text-accent">
+            <p>
               Dólar {formatCentavos(aceiteHeredado.dolarCentavos!)} — del pedido del{" "}
               {formatFecha(aceiteHeredado.fecha)}. ¿Lo actualizás?
             </p>
           )}
           {usdEsHeredado && (
-            <p className="text-[14px] leading-[1.5] text-accent">
+            <p>
               Precio del litro {formatMonto("USD", aceiteHeredado.usdCentavos!)} — del pedido
               del {formatFecha(aceiteHeredado.fecha)}. ¿Sigue vigente?
             </p>
           )}
-        </div>
+        </Aviso>
       )}
 
       {aceiteLineas.length > 0 && (
@@ -189,19 +191,19 @@ export function AceiteBlock({
           </p>
         ))}
 
-      <div className="mt-1">
+      <div className="flex flex-col gap-1 border-t border-border pt-4">
         <MoneyField
           id="precio-litro-aceite"
           label={`o poné el precio del litro de ${NEGOCIO.materiaPrima.nombre} en pesos`}
           value={value.precioLitroAceite}
           onChange={(v) => set("precioLitroAceite", v)}
         />
-        <p className="mt-1 text-[14px] leading-snug text-text-muted">
+        <p className="text-[14px] leading-snug text-text-muted">
           Excepción puntual de este pedido — gana sobre el dólar y el
           precio en USD de arriba, pero no se guarda para el próximo
           pedido.
         </p>
       </div>
-    </div>
+    </SeccionForm>
   );
 }

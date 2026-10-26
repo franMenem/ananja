@@ -2,6 +2,8 @@
 
 import type { CostosLoteState, TransporteModo } from "@/lib/dominio/lotes";
 
+import { Campo, Entrada } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { MoneyField, PctField } from "@/components/stock/costos-lote-campos/campos";
 
 type TransporteBlockProps = {
@@ -17,10 +19,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <span className="text-[14px] text-text-muted">
-        Transporte
-      </span>
+    <SeccionForm titulo="Transporte">
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
         <button
           type="button"
@@ -62,7 +61,7 @@ export function TransporteBlock({ value, onChange }: TransporteBlockProps) {
           hint="Lo que pagaste de flete por todo el pedido. Se reparte entre las botellas."
         />
       )}
-    </div>
+    </SeccionForm>
   );
 }
 
@@ -75,35 +74,27 @@ type OtrosBlockProps = {
  * total libre (con descripción) repartido entre las botellas del pedido. */
 export function OtrosBlock({ value, onChange }: OtrosBlockProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
-      <div className="sm:w-[40%]">
-        <MoneyField
-          id="otros"
-          label="Otros (total)"
-          value={value.otros}
-          onChange={(v) => onChange({ ...value, otros: v })}
-          hint="Cualquier otro gasto del pedido. Se reparte entre las botellas."
-        />
+    <SeccionForm titulo="Otros gastos" descripcion="Cualquier otro gasto del pedido. Se reparte entre las botellas.">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="sm:w-[40%]">
+          <MoneyField
+            id="otros"
+            label="Otros (total)"
+            value={value.otros}
+            onChange={(v) => onChange({ ...value, otros: v })}
+          />
+        </div>
+        <div className="flex-1">
+          <Campo id="otros-descripcion" etiqueta="Descripción" ayuda="Para acordarte qué fue ese gasto.">
+            <Entrada
+              type="text"
+              value={value.otrosDescripcion}
+              onChange={(event) => onChange({ ...value, otrosDescripcion: event.target.value })}
+              placeholder="Ej. cajas"
+            />
+          </Campo>
+        </div>
       </div>
-      <div className="flex-1">
-        <label
-          htmlFor="otros-descripcion"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Descripción
-        </label>
-        <input
-          id="otros-descripcion"
-          type="text"
-          value={value.otrosDescripcion}
-          onChange={(event) => onChange({ ...value, otrosDescripcion: event.target.value })}
-          placeholder="Ej. cajas"
-          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-        <p className="mt-1 text-[14px] leading-snug text-text-muted">
-          Para acordarte qué fue ese gasto.
-        </p>
-      </div>
-    </div>
+    </SeccionForm>
   );
 }

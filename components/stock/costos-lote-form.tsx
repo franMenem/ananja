@@ -1,11 +1,11 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
-import { Tarjeta } from "@/components/ui/tarjeta";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { MensajeError } from "@/components/ui/campo";
 import { SetFormHeader } from "@/components/page-header-context";
 import {
   CostosLoteCampos,
@@ -15,6 +15,7 @@ import {
   type TanqueAceiteHint,
   type UltimasComprasEtiquetas,
 } from "@/components/stock/costos-lote-campos";
+import { formatFecha } from "@/lib/fechas";
 import { RevisionPedido } from "@/components/stock/revision-pedido";
 import type { RecetaEtiquetaConInsumo } from "@/lib/dominio/costos-lote";
 import {
@@ -33,6 +34,8 @@ import { createClient } from "@/lib/supabase/client";
 type CostosLoteFormProps = {
   loteId: string;
   titulo: string;
+  /** Fecha (YYYY-MM-DD) del pedido, para el título de la pantalla. */
+  fecha?: string | null;
   items: ProductoLoteItem[];
   recetasEtiqueta: RecetaEtiquetaConInsumo[];
   etiquetas: EtiquetaInsumoLote[];
@@ -73,6 +76,7 @@ type CostosLoteFormProps = {
 export function CostosLoteForm({
   loteId,
   titulo,
+  fecha = null,
   items,
   recetasEtiqueta,
   etiquetas,
@@ -170,12 +174,12 @@ export function CostosLoteForm({
   return (
     <div className="flex flex-col gap-5 pb-8">
       <SetFormHeader
-        title={`Costos — ${titulo}`}
+        title={fecha ? `Costos del pedido del ${formatFecha(fecha)}` : `Costos — ${titulo}`}
         backHref={`/stock/lotes/${loteId}`}
         backLabel="Volver al pedido"
       />
       <FormHeaderDesktop />
-      <p className="-mt-2 text-[15px] text-text-muted">¿Cuánto costó cada cosa de este pedido?</p>
+      <p className="-mt-2 text-[15px] text-text-muted">¿Cuánto costó cada cosa de este pedido? ({titulo})</p>
 
       {revisando ? (
         <RevisionPedido
@@ -192,7 +196,6 @@ export function CostosLoteForm({
           onConfirmar={(redondeos) => void guardar(redondeos)}
         />
       ) : (
-        <Tarjeta>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <CostosLoteCampos
             items={items}
@@ -206,20 +209,14 @@ export function CostosLoteForm({
             ultimasComprasEtiquetas={ultimasComprasEtiquetas}
           />
 
-          {error && (
-            <p role="alert" className="text-[14px] text-accent">
-              {error}
-            </p>
-          )}
+          {error && <MensajeError>{error}</MensajeError>}
 
-          <button
-            type="submit"
-            className={`${BOTON_PRIMARIO} px-4`}
-          >
-            Guardar costos
-          </button>
+          <AccionesForm
+            etiqueta="Guardar costos"
+            cancelarHref={`/stock/lotes/${loteId}`}
+            fija
+          />
         </form>
-        </Tarjeta>
       )}
     </div>
   );

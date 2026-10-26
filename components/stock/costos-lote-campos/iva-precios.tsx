@@ -4,6 +4,7 @@ import { NEGOCIO } from "@/lib/negocio";
 import type { CostosLoteState } from "@/lib/dominio/lotes";
 
 import { useProveedor } from "@/components/stock/proveedor-context";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { PctField } from "@/components/stock/costos-lote-campos/campos";
 
 type IvaBlockProps = {
@@ -18,10 +19,7 @@ export function IvaBlock({ value, onChange }: IvaBlockProps) {
   const proveedor = useProveedor();
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border pt-4">
-      <span className="text-[14px] text-text-muted">
-        IVA
-      </span>
+    <SeccionForm titulo="IVA">
       <p className="text-[14px] leading-[1.5] text-text-muted">
         El tilde &quot;sin IVA&quot; de cada envase/etiqueta está junto a su
         campo, más arriba — le suma el 21% al costo de la botella (nunca a
@@ -38,7 +36,7 @@ export function IvaBlock({ value, onChange }: IvaBlockProps) {
         Ananja es monotributo: ese IVA no se recupera, así que es parte del
         costo del envasado y las etiquetas (nunca del {NEGOCIO.materiaPrima.nombre}).
       </p>
-    </div>
+    </SeccionForm>
   );
 }
 
@@ -51,10 +49,7 @@ type PreciosBlockProps = {
  * ganancia/mayorista/minorista encadenados sobre el costo de producción. */
 export function PreciosBlock({ value, onChange }: PreciosBlockProps) {
   return (
-    <div className="flex flex-col gap-3 border-t border-border pt-4">
-      <span className="text-[14px] text-text-muted">
-        Precios
-      </span>
+    <SeccionForm titulo="Precios y ganancia">
       <PctField
         id="ganancia-pct"
         label="Ganancia Ananja %"
@@ -76,6 +71,6 @@ export function PreciosBlock({ value, onChange }: PreciosBlockProps) {
         onChange={(v) => onChange({ ...value, minoristaPct: v })}
         hint="Precio sugerido para vender al público."
       />
-    </div>
+    </SeccionForm>
   );
 }

@@ -406,7 +406,7 @@ export function RevisionPedido({
       )}
 
       {calculo.presentaciones.some((p) => p.totalCentavos > 0) && (
-        <div className="flex flex-col gap-1.5 border-l-2 border-mark bg-surface-raised p-4">
+        <div className="flex flex-col gap-1.5 rounded-2xl border border-border bg-surface p-4">
           <span className="text-[14px] text-text-muted">
             Costo por {NEGOCIO.envase.singular}
           </span>

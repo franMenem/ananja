@@ -5,6 +5,7 @@ import { formatCentavos } from "@/lib/money";
 import { formatPresentacion, NEGOCIO } from "@/lib/negocio";
 import type { CostosLoteState } from "@/lib/dominio/lotes";
 
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { MoneyField } from "@/components/stock/costos-lote-campos/campos";
 
 type ResumenBlockProps = {
@@ -34,10 +35,7 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
   if (preview.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-4 border-l-2 border-mark bg-surface-raised p-4">
-      <span className="text-[14px] text-text-muted">
-        Costo por {NEGOCIO.envase.singular}
-      </span>
+    <SeccionForm titulo={`Costo por ${NEGOCIO.envase.singular}`} descripcion="Así queda con lo que cargaste.">
       {preview.map((p) => (
         <div
           key={p.productoId}
@@ -74,6 +72,6 @@ export function ResumenBlock({ preview, value, onChange }: ResumenBlockProps) {
           </p>
         </div>
       ))}
-    </div>
+    </SeccionForm>
   );
 }

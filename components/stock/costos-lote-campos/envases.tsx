@@ -4,6 +4,7 @@ import { cuentaEnvaseCampo, type PedidoCalculado } from "@/lib/dominio/costos-lo
 import { formatPresentacion } from "@/lib/negocio";
 import type { CostosLoteState } from "@/lib/dominio/lotes";
 
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { useProveedor } from "@/components/stock/proveedor-context";
 import { MoneyField } from "@/components/stock/costos-lote-campos/campos";
 import { parseCampo, type ProductoLoteItem } from "@/components/stock/costos-lote-campos/tipos";
@@ -47,10 +48,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <span className="text-[14px] text-text-muted">
-        Envases
-      </span>
+    <SeccionForm titulo="Envasado" descripcion="Los envases de cada tamaño.">
       {/* Fran (dueño): en un mismo pedido todos los envases van iguales
           (con o sin IVA) — UN solo tilde para toda la sección, no uno por
           presentación (antes confundía: tocar uno cambiaba todos igual,
@@ -61,7 +59,7 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
             type="checkbox"
             checked={value.envaseSinIva}
             onChange={(event) => onChange({ ...value, envaseSinIva: event.target.checked })}
-            className="h-4 w-4 shrink-0"
+            className="h-5 w-5 shrink-0 accent-primary"
           />
           {soloCosto ? "Para el costo, los envases son sin IVA" : `${proveedor.sujeto} te cobra los envases sin IVA`}
         </label>
@@ -78,10 +76,10 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
         const precioCostoCargado = parseCampo(value.envaseCostoPorProducto[item.productoId] ?? "");
         return (
           <div key={item.productoId} className="flex flex-col gap-2 border-b border-border pb-4 last:border-b-0">
-            <span className="text-[14px] font-medium text-text">
+            <h3 className="text-[15px] font-semibold text-text">
               {formatPresentacion(item.presentacionMl)}
-            </span>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            </h3>
+            <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex flex-1 flex-col gap-1">
                 <MoneyField
                   id={`precio-envase-${item.productoId}`}
@@ -140,6 +138,6 @@ export function EnvasesBlock({ items, value, onChange, ivaPctNum, calculo, soloC
           </div>
         );
       })}
-    </div>
+    </SeccionForm>
   );
 }

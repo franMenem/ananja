@@ -127,12 +127,12 @@ export function CostosLoteCampos({
   const ivaPctNum = parsePctInput(value.ivaPct) ?? 0;
 
   return (
-    <div className="flex flex-col gap-4 border-t border-border pt-5">
-      <div>
-        <span className="text-[14px] text-text-muted">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[17px] font-semibold leading-snug text-text">
           Costos del pedido (opcional)
-        </span>
-        <p className="pt-1.5 text-[14px] leading-[1.5] text-text-muted">
+        </h2>
+        <p className="text-[14px] leading-snug text-text-muted">
           Se puede guardar el pedido sin costos y completarlos después. Litros
           de {NEGOCIO.materiaPrima.nombre} y etiquetas se calculan solos a
           partir de la cantidad — solo hace falta el precio.
@@ -147,6 +147,15 @@ export function CostosLoteCampos({
         aceiteHeredado={aceiteHeredado}
       />
 
+      <EnvasesBlock
+        items={items}
+        value={value}
+        onChange={onChange}
+        ivaPctNum={ivaPctNum}
+        calculo={calculo}
+        soloCosto={soloCosto}
+      />
+
       <EtiquetasBlock
         items={items}
         recetasEtiqueta={recetasEtiqueta}
@@ -157,15 +166,6 @@ export function CostosLoteCampos({
         calculo={calculo}
         avisoEtiquetaLegado={avisoEtiquetaLegado}
         ultimasComprasEtiquetas={ultimasComprasEtiquetas}
-        soloCosto={soloCosto}
-      />
-
-      <EnvasesBlock
-        items={items}
-        value={value}
-        onChange={onChange}
-        ivaPctNum={ivaPctNum}
-        calculo={calculo}
         soloCosto={soloCosto}
       />
 

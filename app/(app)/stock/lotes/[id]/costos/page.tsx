@@ -90,6 +90,7 @@ export default async function StockLoteCostosPage({
       <CostosLoteForm
         loteId={id}
         titulo={titulo}
+        fecha={lote.fecha}
         items={itemsForm}
         recetasEtiqueta={recetasEtiqueta}
         etiquetas={etiquetas}

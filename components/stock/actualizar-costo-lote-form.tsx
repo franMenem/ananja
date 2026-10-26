@@ -1,11 +1,12 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
-import { Tarjeta } from "@/components/ui/tarjeta";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Aviso } from "@/components/ui/aviso";
+import { MensajeError } from "@/components/ui/campo";
 import { SetFormHeader } from "@/components/page-header-context";
 import { useProveedor } from "@/components/stock/proveedor-context";
 import {
@@ -118,26 +119,28 @@ export function ActualizarCostoLoteForm({
   return (
     <div className="flex flex-col gap-5 pb-8">
       <SetFormHeader
-        title={`Actualizar costos — ${titulo}`}
+        title="Actualizar costos"
         backHref={`/stock/lotes/${loteId}`}
         backLabel="Volver al pedido"
       />
       <FormHeaderDesktop />
-      <p className="-mt-2 text-[15px] text-text-muted">¿A qué costo valuamos lo que queda en el depósito?</p>
+      <p className="-mt-2 text-[15px] text-text-muted">
+        ¿A qué costo valuamos lo que queda en el depósito? ({titulo})
+      </p>
 
-      <div className="flex flex-col gap-1.5 border-l-2 border-accent bg-surface-raised p-4">
+      <Aviso>
         {enDeposito > 0 ? (
-          <p className="text-[16px] leading-[1.5] text-text">
-            Cambia el costo de las <strong className="font-medium">{enDeposito}</strong> {plural} que
+          <p className="text-[15px] leading-snug">
+            Cambia el costo de las <strong className="font-semibold">{enDeposito}</strong> {plural} que
             quedan en el depósito. Lo ya entregado o vendido no cambia, y lo pagado {proveedor.a} tampoco.
           </p>
         ) : (
-          <p className="text-[16px] leading-[1.5] text-text">
+          <p className="text-[15px] leading-snug">
             Este pedido no tiene {NEGOCIO.envase.plural} en el depósito — actualizar el costo no cambia
             nada de lo ya entregado o vendido, que es todo lo que tiene este pedido hoy.
           </p>
         )}
-      </div>
+      </Aviso>
 
       {precargadoDesdeFecha && (
         <p className="text-[14px] leading-snug text-text-muted">
@@ -145,7 +148,6 @@ export function ActualizarCostoLoteForm({
         </p>
       )}
 
-      <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <CostosLoteCampos
           items={items}
@@ -157,21 +159,15 @@ export function ActualizarCostoLoteForm({
           soloCosto
         />
 
-        {error && (
-          <p role="alert" className="text-[14px] text-accent">
-            {error}
-          </p>
-        )}
+        {error && <MensajeError>{error}</MensajeError>}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className={`${BOTON_PRIMARIO} px-4`}
-        >
-          {saving ? "Guardando…" : "Actualizar costo vigente"}
-        </button>
+        <AccionesForm
+          etiqueta="Actualizar costos"
+          cargando={saving}
+          cancelarHref={`/stock/lotes/${loteId}`}
+          fija
+        />
       </form>
-      </Tarjeta>
     </div>
   );
 }

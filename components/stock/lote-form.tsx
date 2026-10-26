@@ -1,14 +1,16 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
-import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { CantidadStepper } from "@/components/cantidad-stepper";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { Tarjeta } from "@/components/ui/tarjeta";
+import { useProveedor } from "@/components/stock/proveedor-context";
 import { SetFormHeader } from "@/components/page-header-context";
 import {
   CostosLoteCampos,
@@ -127,6 +129,7 @@ export function LoteForm({
   ultimasComprasEtiquetas = null,
 }: LoteFormProps) {
   const router = useRouter();
+  const proveedor = useProveedor();
   const { vendedor, loading: vendedorLoading } = useVendedorActual();
 
   const [cantidades, setCantidades] = useState<Record<string, number>>(() =>
@@ -375,7 +378,7 @@ export function LoteForm({
   return (
     <div className="flex flex-col gap-5 pb-8">
       <SetFormHeader
-        title="Nuevo pedido de producción"
+        title={`Nuevo pedido ${proveedor.a}`}
         backHref="/stock/lotes"
         backLabel="Volver a pedidos"
       />
@@ -400,55 +403,32 @@ export function LoteForm({
         />
       )}
 
-      <Tarjeta hidden={revisando}>
       <form onSubmit={handleSubmit} hidden={revisando} className="flex flex-col gap-5">
-        <div>
-          <label
-            htmlFor="fecha"
-            className="block text-[15px] font-semibold text-text"
-          >
-            Fecha del pedido
-          </label>
-          <input
-            id="fecha"
-            type="date"
-            required
-            value={fecha}
-            onChange={(event) => setFecha(event.target.value)}
-            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span className="text-[14px] text-text-muted">
-            Cantidades por presentación
-          </span>
-          {productos.map((producto) => (
-            <div
-              key={producto.id}
-              className="flex min-w-0 items-center justify-between gap-3 border-b border-border py-3"
-            >
-              <span className="min-w-0 truncate text-[16px] text-text" title={producto.nombre}>
-                {producto.nombre}
-              </span>
-              <div className="shrink-0">
-                <CantidadStepper
-                  value={cantidades[producto.id] ?? 0}
-                  onChange={(value) =>
-                    setCantidades((prev) => ({ ...prev, [producto.id]: value }))
-                  }
-                  ariaLabelSufijo={` de ${producto.nombre}`}
-                  disableAtMin={false}
-                />
+        <SeccionForm titulo="Cantidades por tamaño" descripcion="¿Cuántas botellas de cada tamaño?">
+          <div className="flex flex-col">
+            {productos.map((producto) => (
+              <div
+                key={producto.id}
+                className="flex min-w-0 items-center justify-between gap-3 border-b border-border py-3 first:pt-0 last:border-b-0"
+              >
+                <span className="min-w-0 truncate text-[16px] text-text" title={producto.nombre}>
+                  {producto.nombre}
+                </span>
+                <div className="shrink-0">
+                  <CantidadStepper
+                    value={cantidades[producto.id] ?? 0}
+                    onChange={(value) =>
+                      setCantidades((prev) => ({ ...prev, [producto.id]: value }))
+                    }
+                    ariaLabelSufijo={` de ${producto.nombre}`}
+                    disableAtMin={false}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-          <p className="pt-2 text-[14px] leading-[1.5] text-text-muted">
-            Se puede cargar el costo del pedido acá abajo, o completarlo
-            después desde el detalle del pedido.
-          </p>
+            ))}
+          </div>
           {consumo.length > 0 && (
-            <p className="pt-1 text-[14px] leading-[1.5] text-text">
+            <p className="text-[14px] leading-snug text-text">
               Va a descontar:{" "}
               {consumo
                 .map((c) => {
@@ -461,9 +441,18 @@ export function LoteForm({
               .
             </p>
           )}
-        </div>
+          <Campo id="fecha" etiqueta="Fecha del pedido">
+            <Entrada
+              type="date"
+              required
+              value={fecha}
+              onChange={(event) => setFecha(event.target.value)}
+              className="tabular-nums"
+            />
+          </Campo>
+        </SeccionForm>
 
-        {productosConCantidad.length > 0 && (
+        {productosConCantidad.length > 0 ? (
           <CostosLoteCampos
             items={productosConCantidad}
             recetasEtiqueta={recetasEtiqueta}
@@ -474,48 +463,44 @@ export function LoteForm({
             aceiteHeredado={aceiteHeredado}
             ultimasComprasEtiquetas={ultimasComprasEtiquetas}
           />
-        )}
-
-        {!vendedorLoading && vendedor && (
-          <p className="text-[14px] text-text-muted">
-            Registrando como{" "}
-            <span className="font-medium">{vendedor.nombre}</span>
-          </p>
-        )}
-        {!vendedorLoading && !vendedor && (
-          <p role="alert" className="text-[14px] text-accent">
-            Tu usuario no está vinculado a un vendedor. Pedile al dueño que
-            te dé de alta desde el dashboard de Supabase.
+        ) : (
+          <p className="text-[14px] leading-snug text-text-muted">
+            Cargá las cantidades y te pedimos los costos. Se puede cargar el costo del pedido
+            ahora, o completarlo después desde el detalle del pedido.
           </p>
         )}
 
-        <div>
-          <label
-            htmlFor="nota"
-            className="block text-[15px] font-semibold text-text"
-          >
-            Nota (opcional)
-          </label>
-          <input
-            id="nota"
-            type="text"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            placeholder="Ej. producción semana 35"
-            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-        </div>
+        <Tarjeta className="flex flex-col gap-4">
+          <Campo id="nota" etiqueta="Nota" opcional>
+            <Entrada
+              type="text"
+              value={nota}
+              onChange={(event) => setNota(event.target.value)}
+              placeholder="Ej. producción semana 35"
+            />
+          </Campo>
+
+          {!vendedorLoading && vendedor && (
+            <p className="text-[14px] text-text-muted">
+              Registrando como <span className="font-semibold text-text">{vendedor.nombre}</span>
+            </p>
+          )}
+          {!vendedorLoading && !vendedor && (
+            <MensajeError>
+              Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+              dashboard de Supabase.
+            </MensajeError>
+          )}
+        </Tarjeta>
 
         {error && (
           <div className="flex flex-col gap-2">
-            <p role="alert" className="text-[14px] text-accent">
-              {error}
-            </p>
+            <MensajeError>{error}</MensajeError>
             {showRetry && (
               <button
                 type="button"
                 onClick={() => void guardarLote(permitirNegativoRef.current)}
-                className="min-h-11 self-start border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
+                className="min-h-12 self-start rounded-xl border border-accent px-4 text-[15px] font-semibold text-accent"
               >
                 Reintentar
               </button>
@@ -523,16 +508,13 @@ export function LoteForm({
           </div>
         )}
 
-        <BotonAccion
+        <AccionesForm
+          etiqueta="Guardar pedido"
           cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
-          className={`${BOTON_PRIMARIO} px-4`}
-        >
-          Guardar
-        </BotonAccion>
+          cancelarHref="/stock/lotes"
+          fija
+        />
       </form>
-      </Tarjeta>
 
       <BottomSheet
         open={insumoAlert !== null}

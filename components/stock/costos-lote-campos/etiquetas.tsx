@@ -15,6 +15,8 @@ import { formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 import type { CostosLoteState } from "@/lib/dominio/lotes";
 
+import { SeccionForm } from "@/components/ui/seccion-form";
+import { Aviso } from "@/components/ui/aviso";
 import { MoneyField } from "@/components/stock/costos-lote-campos/campos";
 import {
   parseCampo,
@@ -288,15 +290,14 @@ export function EtiquetasBlock({
   if (etiquetas.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <span className="text-[14px] text-text-muted">
-        Etiquetas
-      </span>
+    <SeccionForm titulo="Etiquetas" descripcion="Frente y reverso de cada tamaño.">
       {avisoEtiquetaLegado && (
-        <p className="text-[14px] leading-[1.5] text-accent">
-          Este pedido tenía las etiquetas cargadas con el formato
-          anterior: revisá los precios antes de guardar.
-        </p>
+        <Aviso>
+          <p>
+            Este pedido tenía las etiquetas cargadas con el formato
+            anterior: revisá los precios antes de guardar.
+          </p>
+        </Aviso>
       )}
       {/* Fran (dueño): en un mismo pedido todas las etiquetas van
           iguales (con o sin IVA) — UN solo tilde para toda la sección,
@@ -309,7 +310,7 @@ export function EtiquetasBlock({
             type="checkbox"
             checked={value.sinIva}
             onChange={(event) => onChange({ ...value, sinIva: event.target.checked })}
-            className="h-4 w-4 shrink-0"
+            className="h-5 w-5 shrink-0 accent-primary"
           />
           {soloCosto ? "Para el costo, las etiquetas son sin IVA" : "Pagaste las etiquetas sin IVA"}
         </label>
@@ -324,7 +325,7 @@ export function EtiquetasBlock({
         const cuenta = cuentaEtiquetaGrupo(campo);
         const campoCosto = camposEtiquetaCosto.find((c) => c.grupo.clave === campo.grupo.clave)!;
         return (
-          <div key={campo.grupo.clave} className="flex flex-col gap-2 border-b border-border pb-3 last:border-b-0">
+          <div key={campo.grupo.clave} className="flex flex-col gap-4 border-b border-border pb-4 last:border-b-0 last:pb-0">
             <div className="flex flex-col gap-1">
               <MoneyField
                 id={`etiqueta-precio-${campo.grupo.clave}`}
@@ -359,6 +360,6 @@ export function EtiquetasBlock({
           </div>
         );
       })}
-    </div>
+    </SeccionForm>
   );
 }

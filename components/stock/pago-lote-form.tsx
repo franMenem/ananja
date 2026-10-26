@@ -1,23 +1,34 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { MontoInput } from "@/components/monto-input";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Aviso } from "@/components/ui/aviso";
+import { NumeroGrande } from "@/components/ui/numero-grande";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
-import { hoyISO } from "@/lib/fechas";
+import { formatFecha, hoyISO } from "@/lib/fechas";
 import type { ConceptoPago } from "@/lib/dominio/gastos";
 import { mensajeErrorLote, montosSugeridosPago, type ConceptoPagoLote } from "@/lib/dominio/lotes";
 import { registrarPagoLote, type PagoLoteItem } from "@/lib/lotes";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types";
-import { CLASE_CAJA_MONTO, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
+import {
+  AreaTexto,
+  CLASE_CAJA_MONTO,
+  CLASE_ETIQUETA,
+  CLASE_INPUT_MONTO_GRANDE,
+  CLASE_SIMBOLO_MONTO_GRANDE,
+  Campo,
+  Entrada,
+  MensajeError,
+} from "@/components/ui/campo";
 
 type MedioPago = Enums<"medio_pago">;
 
@@ -49,6 +60,8 @@ type PagoLoteFormProps = {
   /** Pagado antes de 0038 sin concepto — descuenta del total, no de cada
    * concepto. */
   pagadoSinConceptoCentavos: number;
+  /** Fecha (YYYY-MM-DD) del pedido, para el título. */
+  fecha?: string | null;
 };
 
 function crearFila(clave: string, monto: string): FilaPago {
@@ -69,6 +82,7 @@ export function PagoLoteForm({
   pendienteCentavos,
   conceptos,
   pagadoSinConceptoCentavos,
+  fecha = null,
 }: PagoLoteFormProps) {
   const router = useRouter();
 
@@ -102,7 +116,7 @@ export function PagoLoteForm({
       crearFila(g.clave, sugeridos[g.clave] > 0 ? formatMontoDisplay(sugeridos[g.clave]) : ""),
     );
   });
-  const [fecha, setFecha] = useState(hoyISO());
+  const [fechaPago, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -184,7 +198,7 @@ export function PagoLoteForm({
     const supabase = createClient();
     const { error } = await registrarPagoLote(supabase, {
       loteId,
-      fecha,
+      fecha: fechaPago,
       pagos,
       nota: nota.trim() || null,
     });
@@ -202,107 +216,97 @@ export function PagoLoteForm({
   return (
     <div className="flex flex-col gap-5 pb-8">
       <SetFormHeader
-        title="Registrar pago"
+        title={fecha ? `Pagar el pedido del ${formatFecha(fecha)}` : "Pagar el pedido"}
         backHref={`/stock/lotes/${loteId}`}
         backLabel="Volver al pedido"
       />
-      <div className="hidden items-center gap-3 lg:flex">
-        <Link
-          href={`/stock/lotes/${loteId}`}
-          aria-label="Volver al pedido"
-          className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-primary"
-        >
-          ←
-        </Link>
-        <h1 className="font-display text-[22px] text-text">Registrar pago</h1>
-      </div>
-
+      <FormHeaderDesktop />
       <p className="-mt-2 text-[15px] text-text-muted">¿Cuánto pagaste de este pedido y cómo?</p>
-      <p className="text-[16px] text-text">
-        Falta pagar <strong className="font-semibold tabular-nums">{formatCentavos(pendienteCentavos)}</strong> de este pedido.
-      </p>
-
-      {pagadoSinConceptoCentavos > 0 && (
-        <p className="border-l-2 border-accent bg-surface-raised p-3 text-[14px] leading-[1.5] text-text">
-          Este pedido ya tiene {formatCentavos(pagadoSinConceptoCentavos)} pagados antes de
-          separar los pagos por concepto: cuentan para el total, pero no se descuentan de
-          cada concepto. En total no podés cargar más de {formatCentavos(pendienteCentavos)}.
-        </p>
-      )}
 
       <Tarjeta>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div className="flex flex-col gap-6">
-          {grupos.map((grupo) => {
-            const filasGrupo = filas.filter((f) => f.clave === grupo.clave);
-            const cargado = cargadoPorClave.get(grupo.clave) ?? 0;
-            const excedido = cargado - grupo.pendienteCentavos;
-            return (
-              <div key={grupo.clave} className="flex flex-col gap-3 border-b border-border pb-5">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="font-display text-[20px] leading-tight text-text">
-                    {grupo.etiqueta}
-                  </span>
-                  <span className="text-[14px] text-text-muted tabular-nums">
-                    Falta {formatCentavos(grupo.pendienteCentavos)}
-                    {grupo.aPagarCentavos !== null &&
-                    grupo.aPagarCentavos !== grupo.pendienteCentavos
-                      ? ` de ${formatCentavos(grupo.aPagarCentavos)}`
-                      : ""}
-                  </span>
-                </div>
+        <NumeroGrande etiqueta="Falta pagar" tono="debe">
+          {formatCentavos(pendienteCentavos)}
+        </NumeroGrande>
+      </Tarjeta>
 
-                {filasGrupo.map((fila, i) => (
-                  <div key={fila.key} className="flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[14px] text-text-muted">
-                        {filasGrupo.length > 1 ? `Medio ${i + 1}` : "Medio de pago"}
-                      </span>
-                      {filasGrupo.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => quitarFila(fila.key)}
-                          className="min-h-11 text-[14px] font-medium text-accent"
-                        >
-                          Quitar
-                        </button>
-                      )}
-                    </div>
-                    <MedioPagoChips
-                      value={fila.medioPago}
-                      onChange={(medio) => actualizarFila(fila.key, { medioPago: medio })}
-                      ocultarRotulo
-                    />
-                    <MontoInput
-                      ariaLabel={`Monto ${grupo.etiqueta}${filasGrupo.length > 1 ? ` ${i + 1}` : ""}`}
-                      value={fila.monto}
-                      onChange={(valor) => actualizarFila(fila.key, { monto: valor })}
-                      placeholder="0,00"
-                      cajaClassName={CLASE_CAJA_MONTO}
-                      simboloClassName="font-display text-[18px] text-text-muted"
-                      inputClassName={CLASE_INPUT_MONTO_GRANDE}
-                    />
-                  </div>
-                ))}
+      {pagadoSinConceptoCentavos > 0 && (
+        <Aviso>
+          <p>
+            Este pedido ya tiene {formatCentavos(pagadoSinConceptoCentavos)} pagados antes de
+            separar los pagos por concepto: cuentan para el total, pero no se descuentan de
+            cada concepto. En total no podés cargar más de {formatCentavos(pendienteCentavos)}.
+          </p>
+        </Aviso>
+      )}
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => agregarFila(grupo)}
-                    className="min-h-11 border border-border px-4 text-[14px] font-medium text-primary"
-                  >
-                    + Agregar otro medio
-                  </button>
-                  {excedido > 0 && (
-                    <span className="text-[14px] text-accent tabular-nums">
-                      Te pasaste por {formatCentavos(excedido)}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {grupos.map((grupo) => {
+          const filasGrupo = filas.filter((f) => f.clave === grupo.clave);
+          const cargado = cargadoPorClave.get(grupo.clave) ?? 0;
+          const excedido = cargado - grupo.pendienteCentavos;
+          return (
+            <SeccionForm
+              key={grupo.clave}
+              titulo={grupo.etiqueta}
+              descripcion={
+                <span className="tabular-nums">
+                  Falta {formatCentavos(grupo.pendienteCentavos)}
+                  {grupo.aPagarCentavos !== null && grupo.aPagarCentavos !== grupo.pendienteCentavos
+                    ? ` de ${formatCentavos(grupo.aPagarCentavos)}`
+                    : ""}
+                </span>
+              }
+            >
+              {filasGrupo.map((fila, i) => (
+                <div key={fila.key} className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={CLASE_ETIQUETA}>
+                      {filasGrupo.length > 1 ? `Medio ${i + 1}` : "Medio de pago"}
                     </span>
-                  )}
+                    {filasGrupo.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => quitarFila(fila.key)}
+                        className="min-h-11 px-2 text-[15px] font-semibold text-accent"
+                      >
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+                  <MedioPagoChips
+                    value={fila.medioPago}
+                    onChange={(medio) => actualizarFila(fila.key, { medioPago: medio })}
+                    ocultarRotulo
+                  />
+                  <MontoInput
+                    ariaLabel={`Monto ${grupo.etiqueta}${filasGrupo.length > 1 ? ` ${i + 1}` : ""}`}
+                    value={fila.monto}
+                    onChange={(valor) => actualizarFila(fila.key, { monto: valor })}
+                    placeholder="0,00"
+                    cajaClassName={CLASE_CAJA_MONTO}
+                    simboloClassName={CLASE_SIMBOLO_MONTO_GRANDE}
+                    inputClassName={CLASE_INPUT_MONTO_GRANDE}
+                  />
                 </div>
+              ))}
+
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => agregarFila(grupo)}
+                  className="min-h-12 rounded-xl border border-[#d0cec8] px-4 text-[15px] font-semibold text-primary"
+                >
+                  + Agregar otro medio
+                </button>
+                {excedido > 0 && (
+                  <span className="text-[14px] text-accent tabular-nums">
+                    Te pasaste por {formatCentavos(excedido)}
+                  </span>
+                )}
               </div>
-            );
-          })}
-        </div>
+            </SeccionForm>
+          );
+        })}
 
         <p
           className={`text-[14px] tabular-nums ${restante < 0 ? "text-accent" : "text-text-muted"}`}
@@ -313,42 +317,30 @@ export function PagoLoteForm({
             : `queda libre ${formatCentavos(restante)}`}
         </p>
 
-        <div className="flex flex-col gap-2.5">
-          <input
-            id="pago-lote-fecha"
-            type="date"
-            required
-            aria-label="Fecha"
-            value={fecha}
-            onChange={(event) => setFecha(event.target.value)}
-            className="min-h-12 min-w-0 border border-[#d0cec8] bg-surface px-3.5 text-[16px] text-text tabular-nums focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-          <textarea
-            id="pago-lote-nota"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            rows={2}
-            placeholder="Nota (opcional)"
-            className="min-h-24 border border-[#d0cec8] bg-surface px-3.5 py-3 text-[16px] text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-        </div>
+        <SeccionForm titulo="¿Cuándo lo pagaste?">
+          <Campo id="pago-lote-fecha" etiqueta="Fecha">
+            <Entrada
+              type="date"
+              required
+              value={fechaPago}
+              onChange={(event) => setFecha(event.target.value)}
+              className="tabular-nums"
+            />
+          </Campo>
+          <Campo id="pago-lote-nota" etiqueta="Nota" opcional>
+            <AreaTexto value={nota} onChange={(event) => setNota(event.target.value)} rows={2} />
+          </Campo>
+        </SeccionForm>
 
-        {formError && (
-          <p role="alert" className="text-[14px] text-accent">
-            {formError}
-          </p>
-        )}
+        {formError && <MensajeError>{formError}</MensajeError>}
 
-        <BotonAccion
+        <AccionesForm
+          etiqueta="Registrar pago"
           cargando={submitting}
-          textoCargando="Guardando…"
-          type="submit"
-          className={BOTON_PRIMARIO}
-        >
-          Registrar pago
-        </BotonAccion>
+          cancelarHref={`/stock/lotes/${loteId}`}
+          fija
+        />
       </form>
-      </Tarjeta>
     </div>
   );
 }
