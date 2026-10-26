@@ -1,12 +1,13 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { MasDatos, SeccionForm } from "@/components/ui/seccion-form";
 import { listarInsumosActivos } from "@/lib/data/insumos";
 import { calcularFacturaInsumos, evaluarLineaFactura } from "@/lib/dominio/factura-insumos";
 import { hoyISO } from "@/lib/fechas";
@@ -21,8 +22,6 @@ import { FotoFacturaCampos } from "@/components/stock/compra-factura-form/foto-f
 import { LineaFacturaCampos } from "@/components/stock/compra-factura-form/linea-factura";
 import { RevisionFactura } from "@/components/stock/compra-factura-form/revision-factura";
 import {
-  inputClass,
-  labelClass,
   mensajeErrorFactura,
   type LineaEditable,
   type LineaValida,
@@ -227,52 +226,25 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <p className="text-[14px] leading-[1.5] text-text-muted">
-        Para una factura con varios insumos. Cargá cada línea con el precio
-        unitario tal cual figura en la factura: el IVA (Ananja no lo recupera,
-        es costo) y el envío se suman al costo de cada insumo. El envío se
-        reparte según la cantidad de unidades de cada línea.
-      </p>
+      <SeccionForm titulo="La factura">
+        <Campo id="factura-fecha" etiqueta="Fecha de la factura">
+          <Entrada
+            type="date"
+            required
+            value={fecha}
+            onChange={(event) => setFecha(event.target.value)}
+            className="tabular-nums"
+          />
+        </Campo>
 
-      <div>
-        <label htmlFor="factura-fecha" className={labelClass}>
-          Fecha de la factura
-        </label>
-        <input
-          id="factura-fecha"
-          type="date"
-          required
-          value={fecha}
-          onChange={(event) => setFecha(event.target.value)}
-          className={inputClass}
-        />
-      </div>
+        <MedioPagoChips value={medioPago} onChange={setMedioPago} />
+      </SeccionForm>
 
-      <div>
-        <label htmlFor="factura-nota" className={labelClass}>
-          Proveedor / nota (opcional)
-        </label>
-        <input
-          id="factura-nota"
-          type="text"
-          value={nota}
-          onChange={(event) => setNota(event.target.value)}
-          placeholder="Ej. Imprenta Ejemplo S.A. — factura 0003-00012345"
-          className={inputClass}
-        />
-      </div>
-
-      <MedioPagoChips value={medioPago} onChange={setMedioPago} />
-
-      <div className="flex flex-col gap-3">
-        <span className="text-[14px] text-text-muted">
-          Líneas de la factura
-        </span>
-        {insumosError && (
-          <p role="alert" className="text-[16px] text-accent">
-            {insumosError}
-          </p>
-        )}
+      <SeccionForm
+        titulo="Lo que compraste"
+        descripcion="Cargá cada línea con el precio unitario tal cual figura en la factura."
+      >
+        {insumosError && <MensajeError>{insumosError}</MensajeError>}
 
         {lineas.map((linea, indice) => (
           <LineaFacturaCampos
@@ -292,72 +264,69 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
         <button
           type="button"
           onClick={agregarLinea}
-          className="min-h-12 border border-dashed border-primary px-4 text-[14px] font-medium text-primary rounded-xl"
+          className="min-h-12 rounded-xl border border-dashed border-primary px-4 text-[15px] font-semibold text-primary"
         >
-          + Agregar línea
+          + Agregar otra línea
         </button>
-      </div>
+      </SeccionForm>
 
-      <div className="flex flex-col gap-3">
+      <SeccionForm
+        titulo="IVA y envío"
+        descripcion="El IVA (Ananja no lo recupera, es costo) y el envío se suman al costo de cada insumo. El envío se reparte según las unidades de cada línea."
+      >
         <label className="flex min-h-11 items-center gap-3 text-[16px] text-text">
           <input
             type="checkbox"
             checked={preciosSinIva}
             onChange={(event) => setPreciosSinIva(event.target.checked)}
-            className="h-5 w-5 accent-[var(--color-primary)]"
+            className="h-5 w-5 shrink-0 accent-[var(--color-primary)]"
           />
           Los precios de la factura son sin IVA
         </label>
         {preciosSinIva && (
-          <MontoInput
-            id="factura-iva"
-            tipo="porcentaje"
-            label="IVA %"
-            value={ivaPct}
-            onChange={setIvaPct}
-            labelClassName={labelClass}
-            cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
-            inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
-          />
+          <MontoInput id="factura-iva" tipo="porcentaje" label="IVA %" value={ivaPct} onChange={setIvaPct} />
         )}
-      </div>
 
-      <div>
         <MontoInput
           id="factura-envio"
           label="Envío total (opcional, sin IVA)"
           value={envio}
           onChange={setEnvio}
           placeholder="0,00"
-          labelClassName={labelClass}
-          cajaClassName="mt-1.5 flex items-center gap-2 border border-border bg-surface px-3 focus-within:border-primary"
+          hint="Lo que pagaste por el envío de esta factura."
         />
-        <p className="mt-1 text-[14px] leading-snug text-text-muted">
-          Lo que pagaste por el envío de esta factura. Se reparte entre las
-          líneas según la cantidad de unidades.
-        </p>
-      </div>
+      </SeccionForm>
 
-      <FotoFacturaCampos
-        foto={foto}
-        error={fotoError}
-        onChange={(nuevoFoto, nuevoError) => {
-          setFoto(nuevoFoto);
-          setFotoError(nuevoError);
-        }}
-      />
+      <MasDatos abierto={nota.trim() !== "" || foto !== null || fotoError !== null}>
+        <Campo id="factura-nota" etiqueta="Proveedor / nota" opcional>
+          <Entrada
+            type="text"
+            value={nota}
+            onChange={(event) => setNota(event.target.value)}
+            placeholder="Ej. Imprenta Ejemplo S.A. — factura 0003-00012345"
+          />
+        </Campo>
 
-      <section className="flex flex-col gap-2 border-t-2 border-primary pt-4" aria-live="polite">
-        <h2 className="font-display text-[24px] leading-[1.15] text-text">Revisá la factura</h2>
-        {hayLineasIncompletas && (calculo || hayLineasConError) && (
-          <p className="text-[14px] leading-snug text-accent">
-            {numerosLineasFuera.length === 1
-              ? `La línea ${numerosLineasFuera[0]} está incompleta o tiene un error: no está en la cuenta de abajo.`
-              : `Las líneas ${numerosLineasFuera.slice(0, -1).join(", ")} y ${numerosLineasFuera.at(-1)} están incompletas o tienen errores: no están en la cuenta de abajo.`}
-          </p>
-        )}
-        {calculo ? (
-          <>
+        <FotoFacturaCampos
+          foto={foto}
+          error={fotoError}
+          onChange={(nuevoFoto, nuevoError) => {
+            setFoto(nuevoFoto);
+            setFotoError(nuevoError);
+          }}
+        />
+      </MasDatos>
+
+      <div aria-live="polite">
+        <SeccionForm titulo="Revisá la factura">
+          {hayLineasIncompletas && (calculo || hayLineasConError) && (
+            <p className="text-[14px] leading-snug text-accent">
+              {numerosLineasFuera.length === 1
+                ? `La línea ${numerosLineasFuera[0]} está incompleta o tiene un error: no está en la cuenta de abajo.`
+                : `Las líneas ${numerosLineasFuera.slice(0, -1).join(", ")} y ${numerosLineasFuera.at(-1)} están incompletas o tienen errores: no están en la cuenta de abajo.`}
+            </p>
+          )}
+          {calculo ? (
             <RevisionFactura
               calculo={calculo}
               nombres={nombresRevision}
@@ -365,45 +334,41 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
               preciosSinIva={preciosSinIva}
               ivaPct={ivaPctNum ?? 0}
             />
-          </>
-        ) : (
-          <p className="text-[14px] leading-[1.5] text-text-muted">
-            {!ivaValido
-              ? "Revisá el porcentaje de IVA para ver la cuenta."
-              : !envioValido
-                ? "Revisá el monto del envío para ver la cuenta."
-                : "Completá al menos una línea (insumo, cantidad y precio) para ver la cuenta."}
-          </p>
-        )}
-      </section>
+          ) : (
+            <p className="text-[14px] leading-snug text-text-muted">
+              {!ivaValido
+                ? "Revisá el porcentaje de IVA para ver la cuenta."
+                : !envioValido
+                  ? "Revisá el monto del envío para ver la cuenta."
+                  : "Completá al menos una línea (insumo, cantidad y precio) para ver la cuenta."}
+            </p>
+          )}
+        </SeccionForm>
+      </div>
 
       {!vendedorLoading && vendedor && (
         <p className="text-[14px] text-text-muted">
-          Registrando como <span className="font-medium">{vendedor.nombre}</span>
+          Registrando como <span className="font-semibold text-text">{vendedor.nombre}</span>
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-[14px] text-accent">
-          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de
-          alta desde el dashboard de Supabase.
-        </p>
+        <MensajeError>
+          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+          dashboard de Supabase.
+        </MensajeError>
       )}
 
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && <MensajeError>{error}</MensajeError>}
 
-      <BotonAccion
-        type="submit"
+      <AccionesForm
+        etiqueta={
+          calculo ? `Confirmar compra · ${formatCentavos(calculo.totalPagadoCentavos)}` : "Confirmar compra"
+        }
         cargando={saving}
-        textoCargando="Guardando…"
         disabled={!calculo}
-        className={`${BOTON_PRIMARIO} px-4`}
-      >
-        {calculo ? `Confirmar · ${formatCentavos(calculo.totalPagadoCentavos)}` : "Confirmar"}
-      </BotonAccion>
+        cancelarHref="/stock/insumos"
+        fija
+      />
     </form>
   );
 }

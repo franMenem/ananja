@@ -8,7 +8,6 @@ export default function AjusteInsumoPage() {
       backHref="/stock/insumos"
       backLabel="Volver a insumos"
       pregunta="¿Cuánto hay realmente de cada insumo?"
-      tarjeta
       pb
     >
       <AjusteInsumoForm />

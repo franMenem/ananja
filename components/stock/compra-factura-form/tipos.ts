@@ -34,7 +34,3 @@ export const ERRORES: Record<string, string> = {
 export function mensajeErrorFactura(codigo: string | undefined): string {
   return traducirErrorRpc(codigo, ERRORES, "No se pudo guardar la factura. Probá de nuevo: no se guardó nada.");
 }
-
-export const inputClass =
-  "mt-1.5 min-h-12 w-full border border-border bg-surface px-3 text-base text-text focus:border-primary";
-export const labelClass = "text-[13px] text-text-muted";

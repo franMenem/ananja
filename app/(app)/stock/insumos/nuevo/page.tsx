@@ -8,7 +8,6 @@ export default function NuevoInsumoPage() {
       backHref="/stock/insumos"
       backLabel="Volver a insumos"
       pregunta="¿Qué insumo nuevo vas a usar para producir?"
-      tarjeta
       pb
     >
       <NuevoInsumoForm />

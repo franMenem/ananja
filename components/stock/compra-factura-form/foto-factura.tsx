@@ -3,6 +3,7 @@
 import { useRef } from "react";
 
 import { IconExpense } from "@/components/icons";
+import { CLASE_ETIQUETA, MensajeError } from "@/components/ui/campo";
 import { validarFotoCompra } from "@/lib/foto-compra";
 
 type FotoFacturaCamposProps = {
@@ -35,28 +36,28 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
   }
 
   return (
-    <div>
-      <span className="text-[14px] text-text-muted">
-        Foto de la factura (opcional)
+    <div className="flex flex-col gap-1.5">
+      <span className={CLASE_ETIQUETA}>
+        Foto de la factura <span className="font-normal text-text-muted">(opcional)</span>
       </span>
-      <div className="mt-1.5 flex min-h-[120px] flex-col items-center justify-center gap-2 border border-border bg-surface-raised px-4 text-center rounded-xl">
+      <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-xl border border-[#d0cec8] bg-surface-raised px-4 text-center">
         <IconExpense className="h-[30px] w-[30px] text-text-muted" />
         <span className="max-w-full break-words text-[14px] text-text-muted">
           {foto ? foto.name : "Ningún comprobante elegido"}
         </span>
       </div>
-      <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#d0cec8] bg-border">
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[14px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[14px] font-medium text-primary"
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
         >
           Subir archivo
         </button>
@@ -78,11 +79,7 @@ export function FotoFacturaCampos({ foto, error, onChange }: FotoFacturaCamposPr
         onChange={handleFotoChange}
         className="sr-only"
       />
-      {error && (
-        <p role="alert" className="mt-1 text-[16px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && <MensajeError>{error}</MensajeError>}
     </div>
   );
 }

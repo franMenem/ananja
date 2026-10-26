@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { MontoInput } from "@/components/monto-input";
+import { CLASE_CAJA_MONTO, CLASE_INPUT_EN_CAJA } from "@/components/ui/campo";
 import { textoInicialCampoNumerico } from "@/lib/dominio/campo-numerico";
 import { formatNumeroInsumo } from "@/lib/dominio/insumos";
 import { actualizarUmbralInsumo } from "@/lib/insumos";
@@ -74,13 +75,13 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
             value={input}
             onChange={setInput}
             className="w-44"
-            cajaClassName="flex items-center border border-border bg-surface px-1.5 focus-within:border-primary"
-            inputClassName="min-h-12 w-full min-w-0 bg-transparent text-right text-base text-text tabular-nums focus:outline-none"
+            cajaClassName={CLASE_CAJA_MONTO.replace("mt-1.5 ", "")}
+            inputClassName={`${CLASE_INPUT_EN_CAJA} text-right`}
           />
           <BotonAccion
             onClick={guardar}
             cargando={saving}
-            className={`${BOTON_PRIMARIO} px-2`}
+            className={`${BOTON_PRIMARIO} px-4`}
           >
             Ok
           </BotonAccion>
@@ -91,7 +92,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
               setInput(textoInicial);
               setError(null);
             }}
-            className="min-h-11 px-1 text-[14px] text-text-muted"
+            className="min-h-12 px-3 text-[15px] font-semibold text-text-muted"
           >
             Cancelar
           </button>
@@ -103,7 +104,7 @@ export function InsumoUmbral({ insumoId, umbralMinimo }: InsumoUmbralProps) {
             setInput(textoInicial);
             setEditing(true);
           }}
-          className="border-b border-dotted border-text-muted text-text tabular-nums"
+          className="inline-flex min-h-11 items-center border-b border-dotted border-text-muted px-1 text-text tabular-nums"
         >
           {formatNumeroInsumo(umbralMinimo)}
         </button>

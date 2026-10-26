@@ -1,10 +1,11 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { BotonAccion } from "@/components/boton-accion";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
 import {
   formasProveedor,
   mensajeErrorProveedor,
@@ -69,60 +70,46 @@ export function ProveedorForm({ nombreInicial }: ProveedorFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div>
-        <label
-          htmlFor="proveedor-nombre"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Nombre del proveedor
-        </label>
-        <input
+      <SeccionForm titulo="¿Cómo se llama?">
+        <Campo
           id="proveedor-nombre"
-          type="text"
-          value={nombre}
-          maxLength={PROVEEDOR_NOMBRE_MAX}
-          autoComplete="off"
-          onChange={(event) => {
-            setNombre(event.target.value);
-            setExito(null);
-          }}
-          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-        <p className="mt-1.5 text-[14px] leading-[1.5] text-text-muted">
-          Si lo dejás vacío, la app dice «el proveedor».
-        </p>
-      </div>
+          etiqueta="Nombre del proveedor"
+          ayuda="Si lo dejás vacío, la app dice «el proveedor»."
+        >
+          <Entrada
+            type="text"
+            value={nombre}
+            maxLength={PROVEEDOR_NOMBRE_MAX}
+            autoComplete="off"
+            onChange={(event) => {
+              setNombre(event.target.value);
+              setExito(null);
+            }}
+          />
+        </Campo>
 
-      <div className="flex flex-col gap-1 border-l-2 border-border bg-surface-raised p-4">
-        <span className="text-[14px] text-text-muted">
-          Así se va a ver
-        </span>
-        <p className="text-[16px] leading-[1.5] text-text">
-          &ldquo;+ Pedido {vistaPrevia.a}&rdquo; · &ldquo;{vistaPrevia.sujeto} te cobra los
-          envases sin IVA&rdquo;
-        </p>
-      </div>
+        <div className="flex flex-col gap-1 rounded-xl bg-background p-3">
+          <span className="text-[14px] font-semibold text-text-muted">Así se va a ver</span>
+          <p className="text-[16px] leading-snug text-text">
+            &ldquo;+ Pedido {vistaPrevia.a}&rdquo; · &ldquo;{vistaPrevia.sujeto} te cobra los
+            envases sin IVA&rdquo;
+          </p>
+        </div>
+      </SeccionForm>
 
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && <MensajeError>{error}</MensajeError>}
       {exito && (
-        <p role="status" className="text-[14px] text-secondary">
+        <p role="status" className="text-[15px] font-semibold text-secondary">
           {exito}
         </p>
       )}
 
-      <BotonAccion
+      <AccionesForm
+        etiqueta="Guardar nombre"
         cargando={saving}
-        textoCargando="Guardando…"
-        type="submit"
         disabled={sinCambios}
-        className={`${BOTON_PRIMARIO} px-4`}
-      >
-        Guardar
-      </BotonAccion>
+        cancelarHref="/stock"
+      />
     </form>
   );
 }

@@ -1,15 +1,17 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
 import { listarInsumosActivos } from "@/lib/data/insumos";
 import { UNIDAD_INSUMO_LABELS, type Insumo } from "@/lib/dominio/insumos";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { ajustarInsumo } from "@/lib/insumos";
 import { MontoInput } from "@/components/monto-input";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { AreaTexto, Campo, MensajeError, Selector } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
+import { Segmentos } from "@/components/ui/segmentos";
 import { useProveedor } from "@/components/stock/proveedor-context";
 import { parseCantidadInput } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
@@ -111,62 +113,36 @@ export function AjusteInsumoForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div>
-        <label
-          htmlFor="insumo"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Insumo
-        </label>
-        <select
-          id="insumo"
-          required
-          disabled={insumosLoading}
-          value={insumoId}
-          onChange={(event) => setInsumoId(event.target.value)}
-          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60 rounded-xl"
-        >
-          <option value="" disabled>
-            {insumosLoading ? "Cargando…" : "Seleccioná un insumo"}
-          </option>
-          {insumos.map((insumo) => (
-            <option key={insumo.id} value={insumo.id}>
-              {insumo.nombre}
+      <SeccionForm titulo="¿Qué insumo y cuánto cambia?">
+        <Campo id="insumo" etiqueta="Insumo">
+          <Selector
+            required
+            disabled={insumosLoading}
+            value={insumoId}
+            onChange={(event) => setInsumoId(event.target.value)}
+            className="disabled:opacity-60"
+          >
+            <option value="" disabled>
+              {insumosLoading ? "Cargando…" : "Seleccioná un insumo"}
             </option>
-          ))}
-        </select>
-      </div>
+            {insumos.map((insumo) => (
+              <option key={insumo.id} value={insumo.id}>
+                {insumo.nombre}
+              </option>
+            ))}
+          </Selector>
+        </Campo>
 
-      <div>
-        <span className="text-[14px] text-text-muted">
-          Tipo de ajuste
-        </span>
-        <div className="mt-1.5 flex gap-px overflow-hidden rounded-xl border border-border bg-border">
-          {(
-            [
-              { value: "suma", label: "Sumar" },
-              { value: "resta", label: "Restar" },
-            ] as const
-          ).map((opcion) => {
-            const selected = signo === opcion.value;
-            return (
-              <button
-                key={opcion.value}
-                type="button"
-                onClick={() => setSigno(opcion.value)}
-                aria-pressed={selected}
-                className={`min-h-11 flex-1 px-3 text-[16px] font-semibold transition-colors ${
-                  selected ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
-                }`}
-              >
-                {opcion.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+        <Segmentos
+          etiqueta="Tipo de ajuste"
+          opciones={[
+            { value: "suma", label: "Sumar" },
+            { value: "resta", label: "Restar" },
+          ]}
+          valor={signo}
+          onChange={setSigno}
+        />
 
-      <div>
         <MontoInput
           id="cantidad"
           tipo="cantidad"
@@ -182,55 +158,36 @@ export function AjusteInsumoForm() {
           onChange={setCantidad}
           required
           placeholder="0"
-          cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
-          inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
         />
-      </div>
+      </SeccionForm>
+
+      <SeccionForm titulo="¿Por qué?">
+        <Campo id="nota" etiqueta="Nota (obligatoria)">
+          <AreaTexto
+            required
+            value={nota}
+            onChange={(event) => setNota(event.target.value)}
+            rows={2}
+            placeholder={`Ej. conteo ${proveedor.loDe}, rotura de 3 envases`}
+          />
+        </Campo>
+      </SeccionForm>
 
       {!vendedorLoading && vendedor && (
         <p className="text-[14px] text-text-muted">
-          Registrando como <span className="font-medium">{vendedor.nombre}</span>
+          Registrando como <span className="font-semibold text-text">{vendedor.nombre}</span>
         </p>
       )}
       {!vendedorLoading && !vendedor && (
-        <p role="alert" className="text-[14px] text-accent">
-          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de
-          alta desde el dashboard de Supabase.
-        </p>
+        <MensajeError>
+          Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+          dashboard de Supabase.
+        </MensajeError>
       )}
 
-      <div>
-        <label
-          htmlFor="nota"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Nota (obligatoria)
-        </label>
-        <textarea
-          id="nota"
-          required
-          value={nota}
-          onChange={(event) => setNota(event.target.value)}
-          rows={2}
-          placeholder={`Ej. conteo ${proveedor.loDe}, rotura de 3 envases`}
-          className="mt-1.5 min-h-24 w-full border border-[#d0cec8] bg-surface px-3 py-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-        />
-      </div>
+      {error && <MensajeError>{error}</MensajeError>}
 
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
-
-      <BotonAccion
-        cargando={saving}
-        textoCargando="Guardando…"
-        type="submit"
-        className={`${BOTON_PRIMARIO} px-4`}
-      >
-        Guardar ajuste
-      </BotonAccion>
+      <AccionesForm etiqueta="Guardar ajuste" cargando={saving} cancelarHref="/stock/insumos" />
     </form>
   );
 }

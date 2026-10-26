@@ -17,16 +17,12 @@ export default async function CargarCompraPage({
 
   return (
     <FormPage
-      title="Cargar compra"
+      title="Cargar una compra de insumos"
       backHref="/stock/insumos"
       backLabel="Volver a insumos"
-      pregunta="¿Qué compraste y cuánto pagaste?"
-      tarjeta
+      pregunta="¿Qué compraste y cuánto pagaste? Sirve para una factura con varios renglones o una compra suelta."
       pb
     >
-      <p className="text-[14px] leading-snug text-text-muted">
-        Una factura con varios renglones, o una compra suelta de un solo insumo.
-      </p>
       <CompraFacturaForm insumoInicial={insumoParam} />
     </FormPage>
   );

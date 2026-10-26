@@ -14,7 +14,6 @@ export default async function ProveedorPage() {
       backHref="/stock"
       backLabel="Volver a botellas"
       pregunta="¿Cómo se llama quien nos vende el aceite?"
-      tarjeta
       pb
     >
       <ProveedorForm nombreInicial={nombre} />

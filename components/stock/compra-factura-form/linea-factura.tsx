@@ -1,10 +1,11 @@
 "use client";
 
 import { MontoInput } from "@/components/monto-input";
+import { CLASE_CAJA_MONTO, CLASE_CAJA_MONTO_ERROR, Campo, Selector } from "@/components/ui/campo";
 import type { EstadoLineaFactura } from "@/lib/dominio/factura-insumos";
 import { UNIDAD_INSUMO_LABELS, type Insumo } from "@/lib/dominio/insumos";
 
-import { inputClass, labelClass, type LineaEditable } from "@/components/stock/compra-factura-form/tipos";
+import type { LineaEditable } from "@/components/stock/compra-factura-form/tipos";
 
 type LineaFacturaCamposProps = {
   linea: LineaEditable;
@@ -41,34 +42,29 @@ export function LineaFacturaCampos({
     <div
       role="group"
       aria-label={`Línea ${indice + 1}`}
-      className="flex flex-col gap-3 border border-border bg-surface-raised p-4 rounded-2xl"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-background p-3"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[14px] text-text-muted">
-          Línea {indice + 1}
-        </span>
+        <h3 className="text-[15px] font-semibold text-text">Línea {indice + 1}</h3>
         {mostrarQuitar && (
           <button
             type="button"
             onClick={onQuitar}
-            className="min-h-11 px-2 text-[14px] text-accent"
+            aria-label={`Quitar la línea ${indice + 1}`}
+            className="min-h-11 px-2 text-[15px] font-semibold text-accent"
           >
             Quitar
           </button>
         )}
       </div>
 
-      <div>
-        <label htmlFor={`linea-${linea.key}-insumo`} className={labelClass}>
-          Insumo
-        </label>
-        <select
-          id={`linea-${linea.key}-insumo`}
+      <Campo id={`linea-${linea.key}-insumo`} etiqueta="Insumo">
+        <Selector
           required
           disabled={insumosLoading}
           value={linea.insumoId}
           onChange={(event) => onCambiar({ insumoId: event.target.value })}
-          className={`${inputClass} disabled:opacity-60`}
+          className="disabled:opacity-60"
         >
           <option value="" disabled>
             {insumosLoading ? "Cargando…" : "Seleccioná un insumo"}
@@ -78,10 +74,10 @@ export function LineaFacturaCampos({
               {i.nombre}
             </option>
           ))}
-        </select>
-      </div>
+        </Selector>
+      </Campo>
 
-      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
         {/* Errores de la línea (evaluarLineaFactura) van por `error`: el
             campo muestra el suyo en `${id}-error` y no suma avisos propios.
             `exigirExacto`: "12,345" no se redondea en silencio al salir. */}
@@ -95,11 +91,7 @@ export function LineaFacturaCampos({
           placeholder="0"
           exigirExacto
           error={estado.errorCantidad}
-          labelClassName={labelClass}
-          cajaClassName={`mt-1.5 flex border bg-surface px-3 focus-within:border-primary ${
-            estado.errorCantidad ? "border-accent" : "border-border"
-          }`}
-          inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
+          cajaClassName={estado.errorCantidad ? `${CLASE_CAJA_MONTO_ERROR}` : CLASE_CAJA_MONTO}
         />
         <MontoInput
           id={`linea-${linea.key}-precio`}
@@ -110,11 +102,7 @@ export function LineaFacturaCampos({
           placeholder="0,00"
           exigirExacto
           error={estado.errorPrecio}
-          labelClassName={labelClass}
-          cajaClassName={`mt-1.5 flex items-center gap-2 border bg-surface px-3 focus-within:border-primary ${
-            estado.errorPrecio ? "border-accent" : "border-border"
-          }`}
-          inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text tabular-nums focus:outline-none"
+          cajaClassName={estado.errorPrecio ? `${CLASE_CAJA_MONTO_ERROR}` : CLASE_CAJA_MONTO}
         />
       </div>
     </div>

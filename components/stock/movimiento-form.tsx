@@ -1,6 +1,5 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -8,7 +7,11 @@ import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BotonAccion } from "@/components/boton-accion";
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { SelectorLote, type FilaLote } from "@/components/lotes/selector-lote";
-import { Tarjeta } from "@/components/ui/tarjeta";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Aviso } from "@/components/ui/aviso";
+import { CLASE_ETIQUETA, Campo, Entrada, MensajeError, Selector } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
+import { Segmentos } from "@/components/ui/segmentos";
 import { SetFormHeader } from "@/components/page-header-context";
 import { obtenerStockActualProducto } from "@/lib/data/stock";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
@@ -42,7 +45,7 @@ type MovimientoFormProps = {
   motivoInicial?: MotivoEgreso;
 };
 
-const TITULO = "Egreso manual";
+const TITULO = "Sacar botellas del depósito";
 
 /**
  * Formulario de egreso manual de stock: producto, cantidad y nota
@@ -184,117 +187,74 @@ export function MovimientoForm({
       <FormHeaderDesktop />
       <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas salieron del depósito y por qué?</p>
 
-      <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <span className="text-[14px] text-text-muted">
-            Producto
-          </span>
-          <div className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
-            {productos.map((producto) => (
-              <button
-                key={producto.id}
-                type="button"
-                onClick={() => elegirProducto(producto.id)}
-                className={`min-h-[52px] px-3 text-[16px] font-medium transition-colors ${
-                  productoId === producto.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-surface-raised text-text"
-                }`}
-              >
-                {producto.nombre}
-              </button>
-            ))}
-          </div>
-        </div>
+        <SeccionForm titulo="¿Qué botellas salieron?">
+          <Segmentos
+            etiqueta="Tamaño"
+            opciones={productos.map((p) => ({ value: p.id, label: p.nombre }))}
+            valor={productoId || null}
+            onChange={elegirProducto}
+            columnas={Math.min(Math.max(productos.length, 1), 2)}
+          />
 
-        <div>
-          <span className="text-[14px] text-text-muted">
-            Cantidad
-          </span>
-          <div className="mt-1.5">
-            <CantidadStepper
-              value={cantidad}
-              onChange={setCantidad}
-              min={1}
-              disableAtMin={false}
-            />
+          <div className="flex flex-col gap-1.5">
+            <span className={CLASE_ETIQUETA}>Cantidad</span>
+            <CantidadStepper value={cantidad} onChange={setCantidad} min={1} disableAtMin={false} />
           </div>
           {productoId && (
-            <div className="mt-2.5">
-              <SelectorLote
-                key={productoId}
-                cantidad={cantidad}
-                lotes={lotesDeProducto(lotesConStock, productoId)}
-                onChange={setFilasLote}
-              />
-            </div>
+            <SelectorLote
+              key={productoId}
+              cantidad={cantidad}
+              lotes={lotesDeProducto(lotesConStock, productoId)}
+              onChange={setFilasLote}
+            />
           )}
-        </div>
+        </SeccionForm>
 
-        <div>
-          <label
-            htmlFor="motivo"
-            className="block text-[15px] font-semibold text-text"
-          >
-            Motivo
-          </label>
-          <select
-            id="motivo"
-            value={motivo}
-            onChange={(event) => setMotivo(event.target.value as MotivoEgreso)}
-            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          >
-            {MOTIVOS_EGRESO_MANUAL.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SeccionForm titulo="¿Por qué salieron?">
+          <Campo id="motivo" etiqueta="Motivo">
+            <Selector value={motivo} onChange={(event) => setMotivo(event.target.value as MotivoEgreso)}>
+              {MOTIVOS_EGRESO_MANUAL.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </Selector>
+          </Campo>
+
+          <Campo id="nota" etiqueta="Nota" opcional>
+            <Entrada
+              type="text"
+              value={nota}
+              onChange={(event) => setNota(event.target.value)}
+              placeholder="Ej. rotura"
+            />
+          </Campo>
+        </SeccionForm>
 
         {!vendedorLoading && vendedor && (
           <p className="text-[14px] text-text-muted">
-            Registrando como{" "}
-            <span className="font-medium">{vendedor.nombre}</span>
+            Registrando como <span className="font-semibold text-text">{vendedor.nombre}</span>
           </p>
         )}
         {!vendedorLoading && !vendedor && (
-          <p role="alert" className="text-[14px] text-accent">
-            Tu usuario no está vinculado a un vendedor. Pedile al dueño que
-            te dé de alta desde el dashboard de Supabase.
-          </p>
+          <MensajeError>
+            Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta desde el
+            dashboard de Supabase.
+          </MensajeError>
         )}
 
-        <div>
-          <label
-            htmlFor="nota"
-            className="block text-[15px] font-semibold text-text"
-          >
-            Nota (opcional)
-          </label>
-          <input
-            id="nota"
-            type="text"
-            value={nota}
-            onChange={(event) => setNota(event.target.value)}
-            placeholder="Ej. rotura"
-            className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
-          />
-        </div>
-
         {advertencia && (
-          <div className="flex flex-col gap-3 border-t-2 border-accent pt-3 text-[16px]">
-            <p className="text-[16px] text-accent">
+          <Aviso role="alert">
+            <p className="text-[15px]">
               Este egreso deja el stock de {productoSeleccionado?.nombre} en{" "}
-              {advertencia.stockResultante} (stock actual:{" "}
-              {advertencia.stockActual}).
+              {advertencia.stockResultante} (stock actual: {advertencia.stockActual}).
             </p>
-            <div className="flex gap-2">
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setAdvertencia(null)}
-                className="min-h-12 flex-1 border border-primary px-3 text-[16px] font-medium text-primary rounded-xl"
+                className="min-h-12 flex-1 rounded-xl border border-primary bg-surface px-3 text-[16px] font-semibold text-primary"
               >
                 Corregir cantidad
               </button>
@@ -302,31 +262,24 @@ export function MovimientoForm({
                 onClick={guardarMovimiento}
                 cargando={saving}
                 textoCargando="Guardando…"
-                className="min-h-12 flex-1 bg-accent px-3 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
+                className="min-h-12 flex-1 rounded-xl bg-accent px-3 text-[16px] font-semibold text-primary-foreground disabled:opacity-45"
               >
                 Guardar igual
               </BotonAccion>
             </div>
-          </div>
+          </Aviso>
         )}
 
-        {error && (
-          <p role="alert" className="text-[14px] text-accent">
-            {error}
-          </p>
-        )}
+        {error && <MensajeError>{error}</MensajeError>}
 
-        <BotonAccion
+        <AccionesForm
+          etiqueta="Guardar egreso"
           cargando={saving}
-          textoCargando="Guardando…"
-          type="submit"
           disabled={!!advertencia}
-          className={`${BOTON_PRIMARIO} px-4`}
-        >
-          Guardar
-        </BotonAccion>
+          cancelarHref="/stock"
+          fija
+        />
       </form>
-      </Tarjeta>
     </div>
   );
 }

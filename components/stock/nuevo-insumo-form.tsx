@@ -1,10 +1,8 @@
 "use client";
 
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BotonAccion } from "@/components/boton-accion";
 import {
   TIPO_INSUMO_LABELS,
   UNIDAD_INSUMO_LABELS,
@@ -14,6 +12,10 @@ import {
 import { crearInsumo } from "@/lib/insumos";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { MontoInput } from "@/components/monto-input";
+import { AccionesForm } from "@/components/ui/acciones-form";
+import { Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { SeccionForm } from "@/components/ui/seccion-form";
+import { Segmentos } from "@/components/ui/segmentos";
 import { parseCantidadInput } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 
@@ -92,92 +94,46 @@ export function NuevoInsumoForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div>
-        <label
-          htmlFor="nombre"
-          className="block text-[15px] font-semibold text-text"
-        >
-          Nombre
-        </label>
-        <input
-          id="nombre"
-          type="text"
-          required
-          value={nombre}
-          onChange={(event) => setNombre(event.target.value)}
-          placeholder="Ej. Tapa metálica"
-          className="mt-1.5 min-h-12 w-full border border-[#d0cec8] bg-surface px-3 text-[16px] text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-xl"
+      <SeccionForm titulo="¿Qué insumo es?">
+        <Campo id="nombre" etiqueta="Nombre">
+          <Entrada
+            type="text"
+            required
+            value={nombre}
+            onChange={(event) => setNombre(event.target.value)}
+            placeholder="Ej. Tapa metálica"
+          />
+        </Campo>
+
+        <Segmentos
+          etiqueta="Tipo"
+          opciones={TIPOS.map((t) => ({ value: t, label: TIPO_INSUMO_LABELS[t] }))}
+          valor={tipo}
+          onChange={setTipo}
         />
-      </div>
 
-      <div>
-        <span className="text-[14px] text-text-muted">
-          Tipo
-        </span>
-        <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
-          {TIPOS.map((opcion) => (
-            <button
-              key={opcion}
-              type="button"
-              onClick={() => setTipo(opcion)}
-              aria-pressed={tipo === opcion}
-              className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
-                tipo === opcion ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
-              }`}
-            >
-              {TIPO_INSUMO_LABELS[opcion]}
-            </button>
-          ))}
-        </div>
-      </div>
+        <Segmentos
+          etiqueta="Unidad"
+          opciones={UNIDADES.map((u) => ({ value: u, label: UNIDAD_INSUMO_LABELS[u] }))}
+          valor={unidad}
+          onChange={setUnidad}
+        />
+      </SeccionForm>
 
-      <div>
-        <span className="text-[14px] text-text-muted">
-          Unidad
-        </span>
-        <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border bg-border">
-          {UNIDADES.map((opcion) => (
-            <button
-              key={opcion}
-              type="button"
-              onClick={() => setUnidad(opcion)}
-              aria-pressed={unidad === opcion}
-              className={`min-h-[46px] px-2 text-[14px] font-medium transition-colors ${
-                unidad === opcion ? "bg-primary text-primary-foreground" : "bg-surface-raised text-text"
-              }`}
-            >
-              {UNIDAD_INSUMO_LABELS[opcion]}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
+      <SeccionForm titulo="¿Cuándo te aviso que queda poco?">
         <MontoInput
           id="umbral"
           tipo="cantidad"
           label="Umbral mínimo (opcional)"
           value={umbral}
           onChange={setUmbral}
-          cajaClassName="mt-1.5 flex border border-border bg-surface px-3 focus-within:border-primary"
-          inputClassName="min-h-12 w-full min-w-0 bg-transparent text-base text-text focus:outline-none"
+          hint="Si queda esta cantidad o menos, aparece como “Queda poco”."
         />
-      </div>
+      </SeccionForm>
 
-      {error && (
-        <p role="alert" className="text-[14px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && <MensajeError>{error}</MensajeError>}
 
-      <BotonAccion
-        cargando={saving}
-        textoCargando="Guardando…"
-        type="submit"
-        className={`${BOTON_PRIMARIO} px-4`}
-      >
-        Guardar insumo
-      </BotonAccion>
+      <AccionesForm etiqueta="Guardar insumo" cargando={saving} cancelarHref="/stock/insumos" />
     </form>
   );
 }
