@@ -69,11 +69,11 @@ export function RevisionEntrega({
                 </span>
               </div>
               <span className="text-[13px] text-text-muted">
-                {lote ? `Lote del ${formatFecha(lote.fecha)}` : "Sin lote elegido"}
+                {lote ? `Pedido del ${formatFecha(lote.fecha)}` : "Sin pedido elegido"}
               </span>
 
               <div className="flex items-baseline justify-between gap-3 text-[16px]">
-                <span className="text-text-muted">Costo {NEGOCIO.nombre} (lote)</span>
+                <span className="text-text-muted">Costo {NEGOCIO.nombre} (pedido)</span>
                 <span className="shrink-0 tabular-nums text-text">
                   {fila.costoLote !== null ? formatCentavos(fila.costoLote) : "Sin costo cargado"}
                 </span>
@@ -108,8 +108,8 @@ export function RevisionEntrega({
               {fila.sinCostosDelLote && (
                 <p className="text-[13px] text-accent">
                   {lote
-                    ? "Este lote todavía no tiene costos cargados: completá a mano cuánto le cobrás."
-                    : "Sin lote no hay costo para precargar: completá a mano cuánto le cobrás."}
+                    ? "Este pedido todavía no tiene costos cargados: completá a mano cuánto le cobrás."
+                    : "Sin pedido no hay costo para precargar: completá a mano cuánto le cobrás."}
                 </p>
               )}
               {costo !== null && sugerido !== null && sugerido < costo && (

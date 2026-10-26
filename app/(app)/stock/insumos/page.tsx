@@ -1,141 +1,93 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
+import { FilaInsumo } from "@/components/stock/insumos/fila-insumo";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { listarStockInsumos } from "@/lib/data/insumos";
-import { agruparPorTipo, formatCantidadConUnidad } from "@/lib/dominio/insumos";
+import { obtenerRecetasYPresentaciones } from "@/lib/data/stock";
+import { alcancePorPresentacion } from "@/lib/dominio/botellas";
+import { agruparPorTipo } from "@/lib/dominio/insumos";
 import { createClient } from "@/lib/supabase/server";
 
 // Datos en vivo: nunca cachear el stock de insumos (debe reflejar el
 // último movimiento), mismo criterio que /stock.
 export const dynamic = "force-dynamic";
 
+/**
+ * "Insumos": responde "¿qué tengo para producir?". Una tarjeta por tipo
+ * (materia prima, envases, etiquetas) con lo que queda de cada insumo; para la
+ * materia prima, para cuántas botellas alcanza (las recetas, igual que "Para
+ * producir" de `/stock`).
+ */
 export default async function InsumosPage() {
   const supabase = await createClient();
-  const { data: stock, error } = await listarStockInsumos(supabase);
+  const [{ data: stock, error }, { recetas, productos }] = await Promise.all([
+    listarStockInsumos(supabase),
+    obtenerRecetasYPresentaciones(supabase),
+  ]);
   const grupos = agruparPorTipo(stock);
-  const bajoUmbral = stock.filter((s) => s.bajo_umbral);
+
+  const stockPorInsumo = new Map(stock.map((s) => [s.insumo_id ?? "", s.stock ?? 0]));
+  const alcanceMateriaPrima = alcancePorPresentacion({
+    productos,
+    recetas: recetas.map((r) => ({
+      producto_id: r.producto_id,
+      insumo_id: r.insumo_id,
+      cantidad: r.cantidad,
+      tipoInsumo: r.insumos?.tipo ?? null,
+    })),
+    stockPorInsumo,
+    tipo: "materia_prima",
+  });
 
   return (
-    <div className="flex flex-col pb-8">
-      {bajoUmbral.length > 0 && (
-        <div className="-mx-5 -mt-4 flex items-center gap-2.5 border-b border-warning/30 bg-warning-tint px-5 py-[11px] text-warning lg:-mx-[var(--page-px)] lg:-mt-[34px] lg:px-[var(--page-px)]">
-          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 bg-warning" />
-          <span className="text-[14px]">
-            {bajoUmbral.length === 1
-              ? "1 insumo está bajo el mínimo."
-              : `${bajoUmbral.length} insumos están bajo el mínimo.`}
-          </span>
-        </div>
-      )}
+    <div className="flex w-full min-w-0 flex-col gap-6 pb-8">
+      <EncabezadoPantalla titulo="Insumos" pregunta="¿Qué tengo para producir?" />
 
-      <div className="hidden items-center justify-between py-6 md:flex">
-        <h1 className="font-display text-[28px] leading-[1.05] text-text">
-          Insumos
-        </h1>
+      <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 md:max-w-[480px]">
+        <Link href="/stock/insumos/factura" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          Cargar compra
+        </Link>
+        <Link href="/stock/insumos/ajuste" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          Ajuste
+        </Link>
       </div>
 
       {error && (
-        <p role="alert" className="mt-4 text-[16px] text-accent">
+        <p role="alert" className="text-[16px] text-accent">
           {error}
         </p>
       )}
 
       {!error && grupos.length === 0 && (
-        <p className="py-6 text-[16px] text-text-muted">
-          Todavía no cargaste ningún insumo.
-        </p>
+        <p className="text-[16px] text-text-muted">Todavía no cargaste ningún insumo.</p>
       )}
 
       {grupos.map((grupo) => (
-        <div key={grupo.tipo} className="flex flex-col">
-          <div className="flex items-center gap-2.5 pt-6 pb-2">
-            <span className="text-[13px] text-text-muted">
-              {grupo.nombre}
-            </span>
-            <span
-              className="h-px flex-1"
-              style={{
-                background:
-                  "linear-gradient(to right, var(--color-border), transparent)",
-              }}
-            />
+        <Tarjeta key={grupo.tipo} como="section" aria-labelledby={`insumos-${grupo.tipo}`} className="flex flex-col gap-1">
+          <h2 id={`insumos-${grupo.tipo}`} className="text-[20px] leading-tight font-semibold text-text">
+            {grupo.nombre}
+          </h2>
+          <div className="flex flex-col divide-y divide-line">
+            {grupo.insumos.map((insumo) => (
+              <FilaInsumo
+                key={insumo.insumo_id}
+                id={insumo.insumo_id ?? ""}
+                nombre={insumo.nombre ?? ""}
+                stock={insumo.stock ?? 0}
+                unidad={insumo.unidad ?? "unidad"}
+                bajoUmbral={insumo.bajo_umbral ?? false}
+                alcance={grupo.tipo === "materia_prima" ? alcanceMateriaPrima : undefined}
+              />
+            ))}
           </div>
-          <div className="flex flex-col gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
-            {grupo.insumos.map((insumo) => {
-              // Sin stock (0 o menos) es un caso distinto de "bajo el
-              // mínimo": con umbral_minimo = 0 (los insumos recién dados de
-              // alta después de un vaciado de datos), bajo_umbral nunca es
-              // true aunque el stock esté literalmente en cero — ver
-              // v_stock_insumos (supabase/migrations/0017_insumos.sql). Acá
-              // se prioriza el hint de "sin stock" sobre "bajo el mínimo"
-              // cuando los dos aplicarían a la vez.
-              const sinStock = (insumo.stock ?? 0) <= 0;
-              return (
-                <div
-                  key={insumo.insumo_id}
-                  className={`flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-[18px] ${
-                    sinStock
-                      ? "border-l-[3px] border-mark"
-                      : insumo.bajo_umbral
-                        ? "border-l-[3px] border-accent"
-                        : "border-l-[3px] border-secondary"
-                  }`}
-                >
-                  <Link
-                    href={`/stock/insumos/${insumo.insumo_id}`}
-                    className="text-[16px] text-text"
-                  >
-                    {insumo.nombre}
-                  </Link>
-                  <span className="flex flex-col items-end gap-1">
-                    <Link
-                      href={`/stock/insumos/${insumo.insumo_id}`}
-                      className="font-display text-[20px] whitespace-nowrap text-text tabular-nums"
-                    >
-                      {formatCantidadConUnidad(
-                        insumo.stock ?? 0,
-                        insumo.unidad ?? "unidad",
-                      )}
-                    </Link>
-                    {sinStock ? (
-                      <Link
-                        href={`/stock/insumos/factura?insumo=${insumo.insumo_id}`}
-                        className="text-[13px] text-mark underline underline-offset-2"
-                      >
-                        Sin stock — registrá la compra
-                      </Link>
-                    ) : (
-                      insumo.bajo_umbral && (
-                        <span className="text-[13px] text-accent">
-                          Bajo el mínimo
-                        </span>
-                      )
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        </Tarjeta>
       ))}
 
-      <div className="flex flex-col gap-2 pt-8 sm:flex-row">
-        <Link
-          href="/stock/insumos/factura"
-          className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
-        >
-          + Cargar compra
-        </Link>
-        <Link
-          href="/stock/insumos/ajuste"
-          className="flex min-h-[52px] flex-1 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
-        >
-          Ajustar
-        </Link>
-      </div>
       <Link
         href="/stock/insumos/nuevo"
-        className="mt-2 self-start text-[14px] font-medium text-text-muted underline decoration-mark underline-offset-4"
+        className="inline-flex min-h-11 w-fit items-center text-[15px] font-semibold text-text-muted underline decoration-[#d0cec8] underline-offset-4"
       >
         Nuevo insumo
       </Link>

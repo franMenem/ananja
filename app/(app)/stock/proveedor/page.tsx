@@ -9,7 +9,14 @@ export default async function ProveedorPage() {
   const nombre = await leerProveedorNombre();
 
   return (
-    <FormPage title="Proveedor" backHref="/stock" backLabel="Volver a stock">
+    <FormPage
+      title="Proveedor"
+      backHref="/stock"
+      backLabel="Volver a botellas"
+      pregunta="¿Cómo se llama quien nos vende el aceite?"
+      tarjeta
+      pb
+    >
       <ProveedorForm nombreInicial={nombre} />
     </FormPage>
   );

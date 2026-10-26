@@ -8,6 +8,7 @@ import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { CantidadStepper } from "@/components/cantidad-stepper";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
 import {
   CostosLoteCampos,
@@ -335,7 +336,7 @@ export function LoteForm({
       return;
     }
     if (!fecha) {
-      setError("Ingresá la fecha del lote.");
+      setError("Ingresá la fecha del pedido.");
       return;
     }
 
@@ -374,11 +375,12 @@ export function LoteForm({
   return (
     <div className="flex flex-col gap-5 pb-8">
       <SetFormHeader
-        title="Nuevo lote de producción"
-        backHref="/stock"
-        backLabel="Volver a stock"
+        title="Nuevo pedido de producción"
+        backHref="/stock/lotes"
+        backLabel="Volver a pedidos"
       />
       <FormHeaderDesktop />
+      <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas se produjeron y cuánto costó?</p>
 
       {revisando && (
         <RevisionPedido
@@ -398,13 +400,14 @@ export function LoteForm({
         />
       )}
 
+      <Tarjeta hidden={revisando}>
       <form onSubmit={handleSubmit} hidden={revisando} className="flex flex-col gap-5">
         <div>
           <label
             htmlFor="fecha"
             className="text-[13px] text-text-muted"
           >
-            Fecha del lote
+            Fecha del pedido
           </label>
           <input
             id="fecha"
@@ -442,7 +445,7 @@ export function LoteForm({
           ))}
           <p className="pt-2 text-[13px] leading-[1.5] text-text-muted">
             Se puede cargar el costo del pedido acá abajo, o completarlo
-            después desde el detalle del lote.
+            después desde el detalle del pedido.
           </p>
           {consumo.length > 0 && (
             <p className="pt-1 text-[13px] leading-[1.5] text-text">
@@ -529,6 +532,7 @@ export function LoteForm({
           Guardar
         </BotonAccion>
       </form>
+      </Tarjeta>
 
       <BottomSheet
         open={insumoAlert !== null}
@@ -550,7 +554,7 @@ export function LoteForm({
               </span>
               <p className="mt-3 font-display text-[20px] leading-[1.3] text-text">
                 Hay {formatCantidadConUnidad(insumoAlert.disponible, unidad)}{" "}
-                de {insumoAlert.insumo}. Este lote necesita{" "}
+                de {insumoAlert.insumo}. Este pedido necesita{" "}
                 {formatCantidadConUnidad(consumoInsumo, unidad)}. Si guardás
                 igual, queda en{" "}
                 <span className={resultante < 0 ? "text-accent" : undefined}>

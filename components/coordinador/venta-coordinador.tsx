@@ -309,13 +309,13 @@ function VentaCoordinadorSheet({
 
           {lotes.length === 0 ? (
             <p className="mt-4 text-[16px] text-text-muted">
-              No hay botellas de este producto en el depósito{esAdmin ? " (o sus lotes todavía no tienen costos cargados)" : ""}.
+              No hay botellas de este producto en el depósito{esAdmin ? " (o sus pedidos todavía no tienen costos cargados)" : ""}.
             </p>
           ) : (
             <>
               <div className="mt-4">
                 <label htmlFor="lote-venta-coordinador" className={ROTULO}>
-                  Lote
+                  Pedido
                 </label>
                 {lotes.length === 1 ? (
                   <p className="mt-1.5 text-[16px] text-text">{rotuloLoteVenta(lotes[0])}</p>
@@ -336,7 +336,7 @@ function VentaCoordinadorSheet({
               </div>
 
               <div className="mt-4">
-                <span className={ROTULO}>Cantidad (quedan {lote?.quedan ?? 0} en el lote)</span>
+                <span className={ROTULO}>Cantidad (quedan {lote?.quedan ?? 0} en el pedido)</span>
                 <div className="mt-1.5">
                   <CantidadStepper
                     value={cantidadEfectiva}

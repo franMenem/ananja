@@ -19,8 +19,8 @@ import type { Tables } from "@/lib/types";
 const ERRORES_RPC: Record<string, string> = {
   REVENDEDOR_INVALIDO: "Este vendedor ya no es revendedor.",
   NO_AUTORIZADO: "No tenés permiso para esto.",
-  LOTE_INVALIDO: "Hubo un problema con el lote elegido. Revisá el split por lote y probá de nuevo.",
-  ITEM_DUPLICADO: "Hubo un problema con el lote elegido. Revisá el split por lote y probá de nuevo.",
+  LOTE_INVALIDO: "Hubo un problema con el pedido elegido. Revisá el reparto por pedido y probá de nuevo.",
+  ITEM_DUPLICADO: "Hubo un problema con el pedido elegido. Revisá el reparto por pedido y probá de nuevo.",
   COSTO_INVALIDO: `Revisá cuánto le cobrás por ${envase(1)}: tiene que ser mayor a cero.`,
   PRECIO_SUGERIDO_INVALIDO: "Revisá el precio de venta sugerido: tiene que ser mayor a cero.",
 };
@@ -102,7 +102,7 @@ export function useEntregaForm({
     const productoDescuadrado = productoConLotesDescuadrados();
     if (productoDescuadrado) {
       setError(
-        `Revisá de qué lote sale ${productoDescuadrado.nombre}: las cantidades por lote no suman ${cantidades[productoDescuadrado.id] ?? 0}.`,
+        `Revisá de qué pedido sale ${productoDescuadrado.nombre}: las cantidades por pedido no suman ${cantidades[productoDescuadrado.id] ?? 0}.`,
       );
       return null;
     }

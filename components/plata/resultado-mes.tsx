@@ -62,7 +62,7 @@ export function FilasResultado({
       {nota && <p className="pt-1 text-[14px] text-text-muted">{nota}</p>}
       {desglose.algunCostoEstimado && (
         <p className="pt-1 text-[14px] text-text-muted">
-          Algunas ventas no tienen lote asignado, el costo es estimado.
+          Algunas ventas no tienen pedido asignado, el costo es estimado.
         </p>
       )}
     </div>

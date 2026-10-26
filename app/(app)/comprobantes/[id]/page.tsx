@@ -119,7 +119,7 @@ export default async function ComprobanteDetailPage({
                 // así queda claro de dónde salió cada una.
                 const base = `${item.cantidad}×${formatPresentacion(item.productos?.presentacion_ml)}`;
                 const lote = item.lotes_produccion?.fecha
-                  ? ` (lote ${formatFechaSinAnio(item.lotes_produccion.fecha)})`
+                  ? ` (pedido ${formatFechaSinAnio(item.lotes_produccion.fecha)})`
                   : "";
                 return `${base}${lote}`;
               })

@@ -87,7 +87,7 @@ export function FormularioEntrega({
 
       {tipo === "devolucion" && (
         <p className="text-[14px] text-accent">
-          Elegí siempre el lote del que salieron esas {envase(2)}. Por defecto aparece el de la
+          Elegí siempre el pedido del que salieron esas {envase(2)}. Por defecto aparece el de la
           última entrega a {vendedorNombre}.
         </p>
       )}

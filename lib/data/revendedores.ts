@@ -343,7 +343,7 @@ export async function listarFechasDeLotes(
   for (const { data, error } of respuestas) {
     if (error) {
       console.error("listarFechasDeLotes", error);
-      return { data: [], error: "No se pudo cargar la fecha de los lotes." };
+      return { data: [], error: "No se pudo cargar la fecha de los pedidos." };
     }
     filas.push(...(data ?? []));
   }

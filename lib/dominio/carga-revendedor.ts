@@ -478,7 +478,7 @@ export function validarCarga(
             seccion: "ventas",
             productoId: r.productoId,
             mensaje: `${nombre(r.productoId)}: ${
-              r.loteId !== null ? "en ese lote " : ""
+              r.loteId !== null ? "en ese pedido " : ""
             }va a tener ${disponibleEnPool} y cargaste ${total} vendidas.`,
           });
         } else if (r.entregaPosterior !== null) {
@@ -637,10 +637,10 @@ const MENSAJES_SECCION: Record<Exclude<SeccionCarga, "general">, Record<string, 
     COSTO_FALTANTE: "Falta cuánto le cobrás por cada una.",
     COSTO_INVALIDO: "Lo que le cobrás por cada una tiene que ser mayor a cero.",
     PRECIO_SUGERIDO_INVALIDO: "Revisá el precio de venta sugerido: tiene que ser mayor a cero.",
-    LOTE_INVALIDO: "El lote elegido no tiene esa presentación. Elegí otro lote.",
+    LOTE_INVALIDO: "El pedido elegido no tiene esa presentación. Elegí otro pedido.",
     ITEM_DUPLICADO: "Hay una presentación repetida en la entrega.",
     STOCK_INSUFICIENTE: "No hay tantas en el depósito.",
-    STOCK_LOTE_INSUFICIENTE: "No quedan tantas en ese lote.",
+    STOCK_LOTE_INSUFICIENTE: "No quedan tantas en ese pedido.",
     REVENDEDOR_INVALIDO: "Esta persona ya no es revendedora.",
     NO_AUTORIZADO: "No tenés permiso para esto.",
   },
@@ -651,12 +651,12 @@ const MENSAJES_SECCION: Record<Exclude<SeccionCarga, "general">, Record<string, 
       "La fecha de las ventas es anterior a la entrega de donde salen. Cambiá la fecha.",
     SIN_ITEMS: "Las ventas no tienen cantidades.",
     STOCK_REVENDEDOR_INSUFICIENTE: "No va a tener tantas para vender.",
-    STOCK_INSUFICIENTE_LOTE: "No quedan tantas en ese lote.",
+    STOCK_INSUFICIENTE_LOTE: "No quedan tantas en ese pedido.",
     DEPOSITO_INSUFICIENTE: "No hay tantas en el depósito para cubrir lo que le falta.",
     GRUPO_INVALIDO: "No se pudo guardar. Recargá la página y probá de nuevo.",
     COSTO_FALTANTE:
-      "El lote del que saldrían todavía no tiene costos cargados. Cargalos en Stock y probá de nuevo.",
-    LOTE_INVALIDO: "No se pudo elegir de qué lote sacar lo que le falta. Probá de nuevo.",
+      "El pedido del que saldrían todavía no tiene costos cargados. Cargalos en Stock y probá de nuevo.",
+    LOTE_INVALIDO: "No se pudo elegir de qué pedido sacar lo que le falta. Probá de nuevo.",
     PRECIO_NO_ASIGNADO:
       "Esas botellas no tienen costo aprobado ni precio manual: no se sabe cuánto le debe a Ananja.",
     PRECIO_INVALIDO: "Revisá el precio de venta.",

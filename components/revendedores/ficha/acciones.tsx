@@ -14,11 +14,13 @@ export function hrefsAcciones(vendedorId: string) {
   };
 }
 
-const SECUNDARIO = `${BOTON_SECUNDARIO} flex px-2 text-[15px] leading-tight`;
+const SECUNDARIO = `${BOTON_SECUNDARIO} flex px-2 text-[15px] leading-tight whitespace-nowrap`;
 
 /**
  * Acciones de la ficha de una revendedora: "Entregar botellas" (principal,
- * ancho completo) y debajo "Registrar pago", "Registrar venta" y "Devolución".
+ * ancho completo); debajo, "Registrar pago" y "Registrar venta" en dos
+ * columnas (una sola si la pantalla es muy angosta, antes de partir el
+ * texto) y "Devolución" como tercer nivel: un link de texto.
  */
 export function AccionesFicha({ vendedorId }: { vendedorId: string }) {
   const href = hrefsAcciones(vendedorId);
@@ -27,17 +29,20 @@ export function AccionesFicha({ vendedorId }: { vendedorId: string }) {
       <Link href={href.entregar} className={`${BOTON_PRIMARIO} flex w-full px-4`}>
         Entregar botellas
       </Link>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 max-[339px]:grid-cols-1">
         <Link href={href.pago} className={SECUNDARIO}>
           Registrar pago
         </Link>
         <Link href={href.venta} className={SECUNDARIO}>
           Registrar venta
         </Link>
-        <Link href={href.devolucion} className={SECUNDARIO}>
-          Devolución
-        </Link>
       </div>
+      <Link
+        href={href.devolucion}
+        className="flex min-h-11 items-center justify-center text-[15px] font-semibold text-text-muted underline decoration-[#d0cec8] underline-offset-4 hover:text-text"
+      >
+        Devolución
+      </Link>
     </div>
   );
 }

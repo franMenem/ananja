@@ -172,7 +172,7 @@ export function SeccionVentas({
                       {lotesProductoVenta.length > 1 && (
                         <div>
                           <label htmlFor={`lote-venta-${l.id}`} className={ROTULO}>
-                            Lote
+                            Pedido
                           </label>
                           <select
                             id={`lote-venta-${l.id}`}
@@ -185,7 +185,7 @@ export function SeccionVentas({
                             <option value="">Automático (primero lo más viejo)</option>
                             {lotesProductoVenta.map((lo) => (
                               <option key={lo.loteId} value={lo.loteId}>
-                                Lote del {formatFecha(fechaLotePorId[lo.loteId] ?? lo.fecha)} · quedan{" "}
+                                Pedido del {formatFecha(fechaLotePorId[lo.loteId] ?? lo.fecha)} · quedan{" "}
                                 {lo.quedan}
                               </option>
                             ))}

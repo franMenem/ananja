@@ -8,6 +8,7 @@ import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BotonAccion } from "@/components/boton-accion";
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { SelectorLote, type FilaLote } from "@/components/lotes/selector-lote";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
 import { obtenerStockActualProducto } from "@/lib/data/stock";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
@@ -148,7 +149,7 @@ export function MovimientoForm({
       return;
     }
     if (filasLote.length > 0 && hayDescuadre(filasLote, cantidad)) {
-      setError("Revisá de qué lote sale: las cantidades por lote no suman el total.");
+      setError("Revisá de qué pedido sale: las cantidades por pedido no suman el total.");
       return;
     }
 
@@ -178,10 +179,12 @@ export function MovimientoForm({
       <SetFormHeader
         title={TITULO}
         backHref="/stock"
-        backLabel="Volver a stock"
+        backLabel="Volver a botellas"
       />
       <FormHeaderDesktop />
+      <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas salieron del depósito y por qué?</p>
 
+      <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
           <span className="text-[13px] text-text-muted">
@@ -323,6 +326,7 @@ export function MovimientoForm({
           Guardar
         </BotonAccion>
       </form>
+      </Tarjeta>
     </div>
   );
 }

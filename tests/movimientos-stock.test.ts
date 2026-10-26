@@ -66,13 +66,13 @@ describe("etiquetaMotivo", () => {
 describe("mensajeEliminarMovimientoStock", () => {
   it("dice qué se elimina, de qué lote, y que las botellas vuelven al depósito", () => {
     expect(mensajeEliminarMovimientoStock(2, "Botella 250 ml", "2026-08-15")).toBe(
-      "Vas a eliminar el egreso de 2 × Botella 250 ml del lote del 15/8. Esas botellas vuelven a figurar en el depósito.",
+      "Vas a eliminar el egreso de 2 × Botella 250 ml del pedido del 15/8. Esas botellas vuelven a figurar en el depósito.",
     );
   });
 
   it("en singular cuando es una sola botella", () => {
     expect(mensajeEliminarMovimientoStock(1, "Botella 500 ml", "2026-09-05")).toBe(
-      "Vas a eliminar el egreso de 1 × Botella 500 ml del lote del 5/9. Esa botella vuelve a figurar en el depósito.",
+      "Vas a eliminar el egreso de 1 × Botella 500 ml del pedido del 5/9. Esa botella vuelve a figurar en el depósito.",
     );
   });
 

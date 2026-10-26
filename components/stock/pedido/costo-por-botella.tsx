@@ -1,11 +1,12 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
-import { CifraHeroica } from "@/components/plata/cifra-heroica";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { construirLineasCostoBotellaDetallada } from "@/lib/dominio/costos-lote";
 import { formatFechaHora } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import { formatPresentacion, NEGOCIO } from "@/lib/negocio";
+import { variacionContraAnterior, type CostoHistorico } from "@/lib/dominio/pedidos-lote";
+import { formatPresentacion } from "@/lib/negocio";
 import type { Tables } from "@/lib/types";
 
 type DesgloseRow = Tables<"v_costo_lote_desglose">;
@@ -57,7 +58,6 @@ type ValoracionRow = {
 
 type CostoPorBotellaProps = {
   pedidoId: string;
-  tieneCostos: boolean;
   desglose: DesgloseRow[];
   costosFilas: CostosFilaRow[];
   ivaPct: number;
@@ -80,24 +80,22 @@ type CostoPorBotellaProps = {
   enDepositoTotal: number;
   /** Historial de actualizaciones de costo vigente, más reciente primero. */
   valoraciones: ValoracionRow[];
+  /** Costo original de todos los pedidos, para comparar contra el anterior. */
+  historialCostos: CostoHistorico[];
 };
 
 /**
- * Bloque "Costo por botella" del detalle de un pedido (bloque 1): una fila
- * heroica por presentación con el Costo Ananja y la producción real de
- * ese lote — el cálculo detallado (aceite, etiquetas, envase, transporte,
- * IVA, sugeridos) queda plegado en "Ver cálculo" para no competir con el
- * número que de verdad importa acá. El hero SIEMPRE es el costo ORIGINAL
- * del pedido (lo que costó producirlo) — si hubo una "actualización de
- * costos del depósito" (0052), el vigente aparece debajo como bloque
- * aparte, con la fecha y el original al lado, más el link para actualizar
- * de nuevo, el aviso si ya no queda nada en depósito, y el historial
- * simple de actualizaciones — todo esto solo existe cuando el pedido ya
- * tiene costos cargados (`tieneCostos`).
+ * Tarjeta "Costo por botella" del detalle de un pedido: por presentación, lo
+ * que costó producir una botella y el precio al que se la damos a las
+ * revendedoras (costo Ananja = costo real + ganancia). Debajo, en 14px, lo que
+ * cambió contra el pedido anterior y el costo calculado si hubo redondeo. El
+ * cálculo detallado (aceite, etiquetas, envase, transporte, IVA, sugeridos)
+ * queda plegado en "Ver cálculo". Si hubo una "actualización de costos del
+ * depósito" (0052), el costo vigente aparece aparte con el original al lado.
+ * Solo se muestra cuando el pedido ya tiene costos cargados.
  */
 export function CostoPorBotella({
   pedidoId,
-  tieneCostos,
   desglose,
   costosFilas,
   ivaPct,
@@ -107,129 +105,113 @@ export function CostoPorBotella({
   vigente,
   enDepositoTotal,
   valoraciones,
+  historialCostos,
 }: CostoPorBotellaProps) {
   const vigentePorProducto = new Map(vigente.map((v) => [v.producto_id, v]));
-  if (!tieneCostos) {
-    return (
-      <div className="flex flex-col gap-3 border-l-2 border-accent bg-surface-raised p-5">
-        <p className="text-[16px] leading-snug text-text">
-          Este pedido todavía no tiene costos cargados, así que todavía no
-          sabemos cuánto costó cada {NEGOCIO.envase.singular}.
-        </p>
-        <Link
-          href={`/stock/lotes/${pedidoId}/costos`}
-          className={`${BOTON_PRIMARIO} flex px-4`}
-        >
-          Completar costos de este pedido
-        </Link>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col gap-4">
-      {desglose.map((d) => {
-        const hayRedondeo =
-          d.tiene_costos &&
-          d.costo_ananja_centavos != null &&
-          d.costo_ananja_calculado_centavos != null &&
-          d.costo_ananja_centavos !== d.costo_ananja_calculado_centavos;
-        return (
-          <div key={d.producto_id} className="flex items-baseline justify-between gap-3">
-            <span className="text-[16px] text-text-muted">
-              {formatPresentacion(d.presentacion_ml)}
-              <span className="block text-[13px]">
-                producción {d.tiene_costos && d.costo_unitario_centavos != null ? formatCentavos(d.costo_unitario_centavos) : "—"}
-              </span>
-            </span>
-            <span className="flex flex-col items-end gap-0.5">
-              <span className="text-right font-display text-[28px] leading-none text-text">
-                {d.tiene_costos && d.costo_ananja_centavos != null ? (
-                  <CifraHeroica centavos={d.costo_ananja_centavos} />
-                ) : (
-                  <span className="text-[16px] text-text-muted">Sin costos</span>
-                )}
-              </span>
-              {hayRedondeo && (
-                <span className="text-[13px] text-text-muted tabular-nums">
-                  calculado {formatCentavos(d.costo_ananja_calculado_centavos!)}
-                </span>
-              )}
-            </span>
-          </div>
-        );
-      })}
+    <Tarjeta como="section" aria-labelledby="pedido-costo" className="flex flex-col gap-3">
+      <h2 id="pedido-costo" className="text-[20px] leading-tight font-semibold text-text">
+        Costo por botella
+      </h2>
 
-      {/* Costo VIGENTE del depósito (0052): solo los productos que tuvieron
-          una "actualización de costos del depósito" — sin eso,
-          v_costo_lote_vigente es idéntica al original de arriba, no hay
-          nada nuevo que mostrar. Nunca reemplaza el hero: lo ya entregado o
-          vendido se quedó con el costo original, esto es "de acá en más". */}
-      {desglose.map((d) => {
-        const v = vigentePorProducto.get(d.producto_id);
-        if (!v?.actualizado_en) return null;
-        const hayRedondeo =
-          v.costo_ananja_centavos != null &&
-          v.costo_ananja_calculado_centavos != null &&
-          v.costo_ananja_centavos !== v.costo_ananja_calculado_centavos;
-        return (
-          <div
-            key={`vigente-${d.producto_id}`}
-            className="flex flex-col gap-1 border-l-2 border-mark bg-surface-raised p-3"
-          >
-            <p className="text-[16px] leading-snug text-text">
-              {desglose.length > 1 ? `${formatPresentacion(d.presentacion_ml)} — ` : ""}
-              Costo Ananja vigente del depósito{" "}
-              <strong className="font-medium text-primary tabular-nums">
-                {formatCentavos(v.costo_ananja_centavos ?? 0)}
-              </strong>
-              {hayRedondeo && (
-                <span className="text-[13px] text-text-muted">
-                  {" "}
-                  (calculado {formatCentavos(v.costo_ananja_calculado_centavos!)})
-                </span>
+      <div className="flex flex-col divide-y divide-line">
+        {desglose.map((d) => {
+          const hayRedondeo =
+            d.tiene_costos &&
+            d.costo_ananja_centavos != null &&
+            d.costo_ananja_calculado_centavos != null &&
+            d.costo_ananja_centavos !== d.costo_ananja_calculado_centavos;
+          const v = vigentePorProducto.get(d.producto_id);
+          const actualizado = Boolean(v?.actualizado_en);
+          const variacion = d.producto_id && d.lote_id ? variacionContraAnterior(historialCostos, d.lote_id, d.producto_id) : null;
+          const hayRedondeoVigente =
+            actualizado &&
+            v!.costo_ananja_centavos != null &&
+            v!.costo_ananja_calculado_centavos != null &&
+            v!.costo_ananja_centavos !== v!.costo_ananja_calculado_centavos;
+          return (
+            <div key={d.producto_id} className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0">
+              <h3 className="text-[16px] font-semibold text-text">{formatPresentacion(d.presentacion_ml)}</h3>
+              {d.tiene_costos && d.costo_ananja_centavos != null ? (
+                <>
+                  <div className="flex items-baseline justify-between gap-3 text-[16px]">
+                    <span className="text-text">Costo de producir</span>
+                    <span className="font-semibold text-text tabular-nums">
+                      {d.costo_unitario_centavos != null ? formatCentavos(d.costo_unitario_centavos) : "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3 text-[16px]">
+                    <span className="text-text">Precio a revendedoras</span>
+                    <span className="font-semibold text-text tabular-nums">{formatCentavos(d.costo_ananja_centavos)}</span>
+                  </div>
+                  {variacion && (
+                    <p className={`text-[14px] ${variacion.subio ? "text-warning" : "text-secondary"}`}>
+                      {variacion.subio ? "+" : ""}
+                      {variacion.pctCambio}% de costo vs el pedido anterior
+                    </p>
+                  )}
+                  {hayRedondeo && (
+                    <p className="text-[14px] text-text-muted tabular-nums">
+                      calculado {formatCentavos(d.costo_ananja_calculado_centavos!)}
+                    </p>
+                  )}
+                  {actualizado && (
+                    <div className="mt-1 flex flex-col gap-1 rounded-xl bg-background p-3">
+                      <p className="text-[15px] leading-snug text-text">
+                        Precio vigente del depósito{" "}
+                        <strong className="font-semibold tabular-nums">{formatCentavos(v!.costo_ananja_centavos ?? 0)}</strong>
+                        {hayRedondeoVigente && (
+                          <span className="text-[14px] text-text-muted">
+                            {" "}
+                            (calculado {formatCentavos(v!.costo_ananja_calculado_centavos!)})
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[14px] leading-snug text-text-muted">
+                        Actualizado el {formatFechaHora(v!.actualizado_en!)}, original{" "}
+                        {formatCentavos(v!.costo_ananja_original_centavos ?? 0)}. Solo afecta a las botellas que siguen
+                        en el depósito; lo ya entregado o vendido conserva el costo original.
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-[14px] text-text-muted">Sin costos cargados.</p>
               )}
-            </p>
-            <p className="text-[13px] leading-snug text-text-muted">
-              Actualizado el {formatFechaHora(v.actualizado_en)} — original{" "}
-              {formatCentavos(v.costo_ananja_original_centavos ?? 0)}. Solo afecta a las botellas
-              que siguen en el depósito; lo ya entregado o vendido conserva el costo original.
-            </p>
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <Link href={`/stock/lotes/${pedidoId}/actualizar-costos`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+          Actualizar costos
+        </Link>
         <Link
           href={`/stock/lotes/${pedidoId}/costos`}
-          className="text-[16px] font-medium text-primary underline decoration-mark underline-offset-4"
+          className="inline-flex min-h-11 items-center text-[16px] font-semibold text-primary underline decoration-mark underline-offset-4"
         >
           Editar costos
         </Link>
-        <Link
-          href={`/stock/lotes/${pedidoId}/actualizar-costos`}
-          className="text-[16px] font-medium text-primary underline decoration-mark underline-offset-4"
-        >
-          Actualizar costos del depósito
-        </Link>
       </div>
       {enDepositoTotal === 0 && (
-        <p className="text-[13px] leading-snug text-text-muted">
-          Este pedido no tiene botellas en el depósito — actualizar el costo no cambiaría nada de lo
-          ya entregado o vendido.
+        <p className="text-[14px] leading-snug text-text-muted">
+          Este pedido no tiene botellas en el depósito: actualizar el costo no cambiaría nada de lo ya entregado o
+          vendido.
         </p>
       )}
       {valoraciones.length > 0 && (
         <details className="group border-t border-border pt-3">
-          <summary className="text-[14px] font-medium text-primary">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-[15px] font-semibold text-primary">
             Ver historial de actualizaciones
           </summary>
           <div className="mt-3 flex flex-col gap-1.5">
-            {valoraciones.map((v) => (
-              <p key={v.id} className="text-[14px] leading-snug text-text-muted">
-                {formatFechaHora(v.created_at)} · {v.vendedores?.nombre ?? "—"} · costo Ananja{" "}
-                {formatCentavos(v.costo_ananja_centavos)}
-                {v.nota ? ` · ${v.nota}` : ""}
+            {valoraciones.map((val) => (
+              <p key={val.id} className="text-[14px] leading-snug text-text-muted">
+                {formatFechaHora(val.created_at)} · {val.vendedores?.nombre ?? "—"} · precio a revendedoras{" "}
+                {formatCentavos(val.costo_ananja_centavos)}
+                {val.nota ? ` · ${val.nota}` : ""}
               </p>
             ))}
           </div>
@@ -237,7 +219,7 @@ export function CostoPorBotella({
       )}
 
       <details className="group border-t border-border pt-3">
-        <summary className="text-[14px] font-medium text-primary">
+        <summary className="inline-flex min-h-11 cursor-pointer items-center text-[15px] font-semibold text-primary">
           Ver cálculo
         </summary>
         <div className="mt-3 flex flex-col gap-5">
@@ -342,6 +324,6 @@ export function CostoPorBotella({
           )}
         </div>
       </details>
-    </div>
+    </Tarjeta>
   );
 }

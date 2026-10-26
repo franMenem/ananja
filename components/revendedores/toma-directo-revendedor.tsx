@@ -88,7 +88,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
         <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {habilitar
-            ? `${nombre} va a poder cargar ventas aunque no tenga botellas entregadas. Lo que le falte se saca del depósito (del lote más viejo con stock) y queda anotado como entrega automática.`
+            ? `${nombre} va a poder cargar ventas aunque no tenga botellas entregadas. Lo que le falte se saca del depósito (del pedido más viejo con stock) y queda anotado como entrega automática.`
             : `Desde ahora ${nombre} solo va a poder vender las botellas que tenga entregadas. Lo que ya se anotó no cambia.`}
         </p>
 

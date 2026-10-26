@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { BotonAccion } from "@/components/boton-accion";
 import { MontoInput } from "@/components/monto-input";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
 import { hoyISO } from "@/lib/fechas";
 import type { ConceptoPago } from "@/lib/dominio/gastos";
@@ -202,12 +203,12 @@ export function PagoLoteForm({
       <SetFormHeader
         title="Registrar pago"
         backHref={`/stock/lotes/${loteId}`}
-        backLabel="Volver al lote"
+        backLabel="Volver al pedido"
       />
       <div className="hidden items-center gap-3 lg:flex">
         <Link
           href={`/stock/lotes/${loteId}`}
-          aria-label="Volver al lote"
+          aria-label="Volver al pedido"
           className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-primary"
         >
           ←
@@ -215,8 +216,9 @@ export function PagoLoteForm({
         <h1 className="font-display text-[22px] text-text">Registrar pago</h1>
       </div>
 
-      <p className="text-[16px] text-text-muted">
-        Falta {formatCentavos(pendienteCentavos)} de este pedido.
+      <p className="-mt-2 text-[15px] text-text-muted">¿Cuánto pagaste de este pedido y cómo?</p>
+      <p className="text-[16px] text-text">
+        Falta pagar <strong className="font-semibold tabular-nums">{formatCentavos(pendienteCentavos)}</strong> de este pedido.
       </p>
 
       {pagadoSinConceptoCentavos > 0 && (
@@ -227,6 +229,7 @@ export function PagoLoteForm({
         </p>
       )}
 
+      <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
           {grupos.map((grupo) => {
@@ -344,6 +347,7 @@ export function PagoLoteForm({
           Registrar pago
         </BotonAccion>
       </form>
+      </Tarjeta>
     </div>
   );
 }

@@ -122,7 +122,7 @@ describe("errores del servidor", () => {
 
   it("COSTO_FALTANTE avisa que el lote todavía no tiene precio cargado", () => {
     expect(mensajeErrorVentaPropia("COSTO_FALTANTE", null)).toBe(
-      "Ese lote todavía no tiene precio cargado. Avisale a Ananja para que lo cargue.",
+      "Ese pedido todavía no tiene precio cargado. Avisale a Ananja para que lo cargue.",
     );
   });
 

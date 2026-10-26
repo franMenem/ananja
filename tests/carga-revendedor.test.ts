@@ -614,7 +614,7 @@ describe("errores generales y de la entrega", () => {
       seccion: "entrega",
       codigo: "STOCK_LOTE_INSUFICIENTE",
       productoId: "p250",
-      mensaje: "Entrega · Botella 250 ml: No quedan tantas en ese lote. Quedan 2.",
+      mensaje: "Entrega · Botella 250 ml: No quedan tantas en ese pedido. Quedan 2.",
       permiteGuardarIgual: true,
       disponible: 2,
     });
@@ -645,7 +645,7 @@ describe("errores generales y de la entrega", () => {
       seccion: "ventas",
       codigo: "STOCK_INSUFICIENTE_LOTE",
       productoId: "p500",
-      mensaje: "Ventas · Botella 500 ml: No quedan tantas en ese lote. Quedan 3.",
+      mensaje: "Ventas · Botella 500 ml: No quedan tantas en ese pedido. Quedan 3.",
       permiteGuardarIgual: false,
       disponible: 3,
     });
@@ -720,7 +720,7 @@ describe("elegir lote al vender (0062)", () => {
       {
         seccion: "ventas",
         productoId: "p500",
-        mensaje: "Botella 500 ml: en ese lote va a tener 8 y cargaste 9 vendidas.",
+        mensaje: "Botella 500 ml: en ese pedido va a tener 8 y cargaste 9 vendidas.",
       },
     ]);
   });
@@ -748,7 +748,7 @@ describe("elegir lote al vender (0062)", () => {
       {
         seccion: "ventas",
         productoId: "p500",
-        mensaje: "Botella 500 ml: en ese lote va a tener 8 y cargaste 9 vendidas.",
+        mensaje: "Botella 500 ml: en ese pedido va a tener 8 y cargaste 9 vendidas.",
       },
     ]);
   });

@@ -30,9 +30,9 @@ function DetalleMovimiento({
       {loteId && (
         <Link
           href={`/stock/lotes/${loteId}`}
-          className="underline decoration-border underline-offset-4 hover:text-primary"
+          className="inline-flex min-h-11 items-center underline decoration-border underline-offset-4 hover:text-primary"
         >
-          {fechaLote ? `Lote del ${formatFechaSinAnio(fechaLote)}` : "Lote"}
+          {fechaLote ? `Pedido del ${formatFechaSinAnio(fechaLote)}` : "Pedido"}
         </Link>
       )}
     </span>
@@ -48,7 +48,14 @@ export default async function StockMovimientosPage() {
   ]);
 
   return (
-    <FormPage title="Historial de movimientos" backHref="/stock" backLabel="Volver a stock" maxWidth="none" pb>
+    <FormPage
+      title="Movimientos"
+      backHref="/stock"
+      backLabel="Volver a botellas"
+      pregunta="¿Qué entró y qué salió de las botellas?"
+      maxWidth="none"
+      pb
+    >
       {error && (
         <p role="alert" className="text-[16px] text-accent">
           No se pudo cargar el historial.

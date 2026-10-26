@@ -79,6 +79,11 @@ export interface DetalleLoteDatos {
     | "costo_ananja_original_centavos"
     | "actualizado_en"
   >[];
+  /** Costo ORIGINAL de todos los pedidos (para comparar contra el anterior). */
+  historialCostos: Pick<
+    Tables<"v_costo_lote_desglose">,
+    "lote_id" | "producto_id" | "fecha" | "created_at" | "costo_unitario_centavos" | "tiene_costos"
+  >[];
   valoraciones: (Pick<
     Tables<"lote_valoraciones">,
     "id" | "producto_id" | "costo_unitario_centavos" | "costo_ananja_centavos" | "ganancia_pct" | "nota" | "created_at"
@@ -114,6 +119,7 @@ export async function obtenerDetalleLote(supabase: Supa, loteId: string): Promis
     { data: deudaAceite },
     { data: vigente },
     { data: valoraciones },
+    { data: historialCostos },
   ] = await Promise.all([
     supabase.from("v_costo_lote").select("*").eq("lote_id", loteId).maybeSingle(),
     supabase
@@ -166,6 +172,9 @@ export async function obtenerDetalleLote(supabase: Supa, loteId: string): Promis
       .select("id, producto_id, costo_unitario_centavos, costo_ananja_centavos, ganancia_pct, nota, created_at, vendedores(nombre)")
       .eq("lote_id", loteId)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("v_costo_lote_desglose")
+      .select("lote_id, producto_id, fecha, created_at, costo_unitario_centavos, tiene_costos"),
   ]);
 
   return {
@@ -185,6 +194,7 @@ export async function obtenerDetalleLote(supabase: Supa, loteId: string): Promis
     vendedores: vendedores ?? [],
     deudaAceite: deudaAceite ?? null,
     vigente: vigente ?? [],
+    historialCostos: historialCostos ?? [],
     valoraciones: valoraciones ?? [],
   };
 }

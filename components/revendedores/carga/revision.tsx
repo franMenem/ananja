@@ -75,8 +75,8 @@ export function Revision({
                 </span>
                 <span className="text-[14px] text-text-muted">
                   {f.loteId && fechaLotePorId[f.loteId]
-                    ? `Lote del ${formatFecha(fechaLotePorId[f.loteId])}`
-                    : "Sin lote"}
+                    ? `Pedido del ${formatFecha(fechaLotePorId[f.loteId])}`
+                    : "Sin pedido"}
                   {" · "}le cobrás {formatCentavos(f.costoCentavos ?? 0)} c/u
                   {f.sugeridoCentavos !== null
                     ? ` · sugerido ${formatCentavos(f.sugeridoCentavos)}`
@@ -116,7 +116,7 @@ export function Revision({
                     ? `la entrega que estás cargando (${formatFecha(t.fecha)})`
                     : `la entrega del ${formatFecha(t.fecha)}`}
                   {t.loteId && fechaLotePorId[t.loteId]
-                    ? `, lote del ${formatFecha(fechaLotePorId[t.loteId])}`
+                    ? `, pedido del ${formatFecha(fechaLotePorId[t.loteId])}`
                     : ""}
                   {t.costoUnitarioCentavos !== null
                     ? ` · le debe ${formatCentavos(t.costoUnitarioCentavos)} c/u`

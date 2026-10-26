@@ -47,7 +47,7 @@ export function SeccionEntrega({
       descripcion={
         activa
           ? `${botellasEntregadas} ${envase(botellasEntregadas)} · ${formatFecha(fecha || hoy)}`
-          : `Las ${envase(2)} que le diste y de qué lote`
+          : `Las ${envase(2)} que le diste y de qué pedido`
       }
     >
       <div>
@@ -89,7 +89,7 @@ export function SeccionEntrega({
               <>
                 <div>
                   <label htmlFor={`lote-${p.id}`} className={ROTULO}>
-                    Lote
+                    Pedido
                   </label>
                   <select
                     id={`lote-${p.id}`}
@@ -99,15 +99,15 @@ export function SeccionEntrega({
                   >
                     {lotesProducto.map((l) => (
                       <option key={l.loteId} value={l.loteId}>
-                        Lote del {formatFecha(l.fecha)} ·{" "}
+                        Pedido del {formatFecha(l.fecha)} ·{" "}
                         {l.quedan > 0 ? `quedan ${l.quedan}` : "sin stock ahora"}
                       </option>
                     ))}
-                    <option value="">Sin lote</option>
+                    <option value="">Sin pedido</option>
                   </select>
                 </div>
                 <div className="flex items-baseline justify-between gap-3 text-[16px]">
-                  <span className="text-text-muted">Costo {NEGOCIO.nombre} (lote)</span>
+                  <span className="text-text-muted">Costo {NEGOCIO.nombre} (pedido)</span>
                   <span className="shrink-0 tabular-nums text-text">
                     {costoLote !== null ? formatCentavos(costoLote) : "Sin costo cargado"}
                   </span>
@@ -140,19 +140,19 @@ export function SeccionEntrega({
                 {(!lote || lote.costoAnanjaCentavos === null) && (
                   <p className="text-[13px] text-accent">
                     {lote
-                      ? "Este lote todavía no tiene costos cargados: completá a mano cuánto le cobrás."
-                      : "Sin lote no hay costo para precargar: completá a mano cuánto le cobrás."}
+                      ? "Este pedido todavía no tiene costos cargados: completá a mano cuánto le cobrás."
+                      : "Sin pedido no hay costo para precargar: completá a mano cuánto le cobrás."}
                   </p>
                 )}
                 {lote && fecha && lote.fecha > fecha && (
                   <p className="text-[13px] text-accent">
-                    Ojo: este lote es del {formatFecha(lote.fecha)}, posterior a la fecha de la
+                    Ojo: este pedido es del {formatFecha(lote.fecha)}, posterior a la fecha de la
                     entrega.
                   </p>
                 )}
                 {lote && lote.quedan < f.cantidad && (
                   <p className="text-[13px] text-accent">
-                    En el sistema quedan {Math.max(lote.quedan, 0)} de este lote. Si igual se
+                    En el sistema quedan {Math.max(lote.quedan, 0)} de este pedido. Si igual se
                     las llevó, al confirmar te preguntamos.
                   </p>
                 )}

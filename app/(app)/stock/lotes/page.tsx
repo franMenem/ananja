@@ -1,11 +1,10 @@
-import { Pastilla, type VariantePastilla } from "@/components/ui/pastilla";
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
-import { FormPage } from "@/components/app/form-page";
-import { compararCostoUnitario, etiquetaSaldoPendiente } from "@/lib/dominio/costos-lote";
+import { FilaPedido } from "@/components/stock/pedido/fila-pedido";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { ListaTarjeta } from "@/components/ui/fila";
 import { obtenerListaLotes } from "@/lib/data/lotes";
-import { formatFechaCorta } from "@/lib/fechas";
 import { resumenStockLote, totalEnManosPorLoteProducto } from "@/lib/dominio/lote-en-manos";
 import {
   construirPedidosCards,
@@ -13,56 +12,26 @@ import {
   type DesgloseLoteProducto,
   type PedidoInput,
 } from "@/lib/dominio/pedidos-lote";
-import { formatCentavos } from "@/lib/money";
-import { formatPresentacion } from "@/lib/negocio";
 import { leerFormasProveedor } from "@/lib/proveedor-servidor";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-/** Pastilla de estado del pedido: "Falta pagar" en rojo (debe), "Sin costos"
- * en ámbar (aviso) y "Pagado" en verde — el único estado "todo bien". */
-const CHIP_VARIANTE: Record<"sin-costos" | "pagado" | "falta", VariantePastilla> = {
-  "sin-costos": "aviso",
-  falta: "debe",
-  pagado: "ok",
-};
-
-/** Info extra por lote+producto que no entra en la tarjeta simplificada
- * como "número grande" — queda de texto chico debajo del costo Ananja: si
- * este pedido tuvo una "actualización de costos del depósito" (0052,
- * con el costo ORIGINAL al lado) y, si no, cómo compara contra el pedido
- * anterior de la MISMA presentación; y cuánto queda sin vender (depósito +
- * en manos de revendedoras, commit 102ce3b). */
-type InfoVigente = {
-  actualizado: boolean;
-  costoAnanjaOriginalCentavos: number | null;
-  comparacion: ReturnType<typeof compararCostoUnitario>;
-  resumen: ReturnType<typeof resumenStockLote>;
-};
-
 /**
- * "Pedidos": responde "¿qué pedí,
- * cuánto costó y qué falta pagar?" — una tarjeta por pedido (lote), en
- * mobile y escritorio (lista, no tabla), con el costo Ananja VIGENTE de
- * cada presentación (`v_costo_lote_vigente`, 0052_costo_vigente_lote.sql)
- * y un único chip de estado (`lib/pedidos-lote.ts`).
- *
- * Lo que en la tabla vieja eran columnas propias queda de texto chico bajo
- * el costo Ananja de cada ítem: si el pedido tuvo una "actualización de
- * costos del depósito" (con el costo ORIGINAL al lado — corrección de la
- * revisión adversarial de 0052, nunca comparar contra el vigente, que
- * dejaría de significar "pedido más caro que el anterior") o, si no, el
- * "% vs pedido anterior" de la MISMA presentación (con costos ORIGINALES
- * de los dos lados, `v_costo_lote_desglose`), y cuánto queda sin vender.
- * Sugeridos y el desglose del cálculo quedan en el detalle del pedido
- * (`/stock/lotes/[id]`).
+ * "Pedidos": responde "¿qué le pedimos al proveedor y cuánto falta pagar?".
+ * Una fila por pedido, con UNA pastilla de estado (falta pagar / sin costos /
+ * pagado) calculada por `construirPedidosCards` (`lib/dominio/pedidos-lote.ts`)
+ * a partir del costo vigente (`v_costo_lote_vigente`, 0052) y del saldo
+ * (`v_saldo_lote`). Los costos por presentación, lo que cambió contra el
+ * pedido anterior y el cálculo viven en el detalle (`/stock/lotes/[id]`).
  */
 export default async function StockLotesPage() {
   const supabase = await createClient();
 
-  const [{ lotesRows, error, vigente, original, saldos, stockPorLote, enManosFilas }, proveedor] =
-    await Promise.all([obtenerListaLotes(supabase), leerFormasProveedor()]);
+  const [{ lotesRows, error, vigente, saldos, stockPorLote, enManosFilas }, proveedor] = await Promise.all([
+    obtenerListaLotes(supabase),
+    leerFormasProveedor(),
+  ]);
 
   const lotes: PedidoInput[] = (lotesRows ?? []).map((lote) => ({
     loteId: lote.lote_id ?? "",
@@ -85,68 +54,36 @@ export default async function StockLotesPage() {
     ]),
   );
   const saldoPorLote = new Map((saldos ?? []).map((s) => [s.lote_id ?? "", s.saldo_centavos ?? 0]));
-
   const pedidos = construirPedidosCards({ lotes, desglosePorLoteProducto, saldoPorLote });
 
-  // Historial cronológico (ascendente) por producto, con el costo
-  // ORIGINAL, para comparar cada lote contra el anterior de la MISMA
-  // presentación — no contra el lote inmediatamente anterior en la lista
-  // (que puede traer otra presentación).
-  const originalPorLoteProducto = new Map(
-    (original ?? []).map((d) => [`${d.lote_id}:${d.producto_id}`, d]),
-  );
-  const historialAscendentePorProducto = new Map<
-    string,
-    { loteId: string; costoUnitarioCentavos: number; tieneCostos: boolean }[]
-  >();
-  for (const lote of [...lotes].reverse()) {
-    for (const item of lote.items) {
-      const d = originalPorLoteProducto.get(`${lote.loteId}:${item.productoId}`);
-      const lista = historialAscendentePorProducto.get(item.productoId) ?? [];
-      lista.push({
-        loteId: lote.loteId,
-        costoUnitarioCentavos: d?.costo_unitario_centavos ?? 0,
-        tieneCostos: d?.tiene_costos ?? false,
-      });
-      historialAscendentePorProducto.set(item.productoId, lista);
-    }
-  }
-  function compararConAnterior(productoId: string, loteId: string) {
-    const historial = historialAscendentePorProducto.get(productoId) ?? [];
-    const idx = historial.findIndex((h) => h.loteId === loteId);
-    if (idx <= 0 || !historial[idx].tieneCostos) return null;
-    const anterior = historial[idx - 1];
-    if (!anterior.tieneCostos) return null;
-    return compararCostoUnitario(historial[idx].costoUnitarioCentavos, anterior.costoUnitarioCentavos);
-  }
-
+  // Cuánto queda sin vender de cada pedido: depósito + en manos de revendedoras.
   const enManosPorLoteProducto = totalEnManosPorLoteProducto(enManosFilas);
   const quedanPorLoteProducto = new Map(
     (stockPorLote ?? []).map((s) => [`${s.lote_id}:${s.producto_id}`, s.quedan ?? 0]),
   );
-  const vigentePorLoteProducto = new Map((vigente ?? []).map((d) => [`${d.lote_id}:${d.producto_id}`, d]));
-
-  function infoVigente(loteId: string, productoId: string): InfoVigente {
-    const v = vigentePorLoteProducto.get(`${loteId}:${productoId}`);
-    return {
-      actualizado: v?.actualizado_en != null,
-      costoAnanjaOriginalCentavos: v?.costo_ananja_original_centavos ?? null,
-      comparacion: compararConAnterior(productoId, loteId),
-      resumen: resumenStockLote(
+  function sinVenderDe(loteId: string, productoIds: string[]): number | null {
+    let total = 0;
+    for (const productoId of productoIds) {
+      const resumen = resumenStockLote(
         quedanPorLoteProducto.get(`${loteId}:${productoId}`) ?? null,
         enManosPorLoteProducto.get(`${loteId}:${productoId}`) ?? 0,
-      ),
-    };
+      );
+      total += resumen.totalSinVender ?? 0;
+    }
+    return total;
   }
 
   return (
-    <FormPage title="Pedidos" backHref="/stock" backLabel="Volver a stock" maxWidth="none" pb>
-      <Link
-        href="/stock/lotes/nuevo"
-        className={`${BOTON_PRIMARIO} flex px-4`}
-      >
-        + Pedido {proveedor.a}
-      </Link>
+    <div className="flex w-full min-w-0 flex-col gap-6 pb-8">
+      <EncabezadoPantalla
+        titulo="Pedidos"
+        pregunta={`¿Qué le pedimos ${proveedor.a} y cuánto falta pagar?`}
+        acciones={
+          <Link href="/stock/lotes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            + Nuevo pedido
+          </Link>
+        }
+      />
 
       {error && (
         <p role="alert" className="text-[16px] text-accent">
@@ -156,101 +93,27 @@ export default async function StockLotesPage() {
 
       {!error && pedidos.length === 0 && (
         <p className="text-[16px] text-text-muted">
-          Todavía no hay pedidos registrados. &ldquo;+ Pedido {proveedor.a}&rdquo;
-          crea el primero.
+          Todavía no hay pedidos registrados. &ldquo;+ Nuevo pedido&rdquo; crea el primero.
         </p>
       )}
 
-      <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-border bg-surface">
-        {pedidos.map((pedido) => {
-          const saldo = saldoPorLote.get(pedido.loteId) ?? 0;
-          const badgeSaldo = etiquetaSaldoPendiente(saldo);
-          const infos = pedido.items.map((item) => infoVigente(pedido.loteId, item.productoId));
-          const totalSinVender = infos.reduce((acc, info) => acc + (info.resumen.totalSinVender ?? 0), 0);
-          const totalEnRevendedoras = infos.reduce((acc, info) => acc + info.resumen.enRevendedoras, 0);
-
-          return (
-            <Link
+      {pedidos.length > 0 && (
+        <ListaTarjeta>
+          {pedidos.map((pedido) => (
+            <FilaPedido
               key={pedido.loteId}
-              href={`/stock/lotes/${pedido.loteId}`}
-              className="flex flex-col gap-1.5 bg-surface-raised p-4"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0 text-[16px] text-text">
-                  {formatFechaCorta(pedido.fecha)} ·{" "}
-                  {pedido.items
-                    .map((item) => `${item.cantidad} × ${formatPresentacion(item.presentacionMl)}`)
-                    .join(" + ")}
-                </span>
-                <Pastilla variante={CHIP_VARIANTE[pedido.estado.tipo]} className="shrink-0">
-                  {pedido.estado.label}
-                </Pastilla>
-              </div>
-
-              {pedido.estado.tipo === "sin-costos" ? (
-                <Pastilla variante="aviso" className="w-fit">Sin costos</Pastilla>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  {pedido.items.map((item, i) => {
-                    const info = infos[i];
-                    return (
-                      <div
-                        key={item.productoId}
-                        className="flex items-baseline justify-between gap-2 text-[16px] tabular-nums text-text-muted"
-                      >
-                        <span>
-                          {pedido.items.length > 1 ? formatPresentacion(item.presentacionMl) : "Costo Ananja"}
-                        </span>
-                        <span className="flex flex-col items-end">
-                          <span>
-                            {item.costoAnanjaCentavos != null ? formatCentavos(item.costoAnanjaCentavos) : "—"}
-                            {info.actualizado && (
-                              <span className="ml-1.5 text-[13px] text-mark">actualizado</span>
-                            )}
-                          </span>
-                          {!info.actualizado && info.comparacion && (
-                            <span
-                              className={`text-[13px] ${info.comparacion.subio ? "text-accent" : "text-secondary"}`}
-                            >
-                              {info.comparacion.subio ? "+" : ""}
-                              {info.comparacion.pctCambio}% vs anterior
-                            </span>
-                          )}
-                          {info.actualizado && info.costoAnanjaOriginalCentavos != null && (
-                            <span className="text-[13px] text-text-muted">
-                              original {formatCentavos(info.costoAnanjaOriginalCentavos)}
-                            </span>
-                          )}
-                          {item.costoAnanjaCentavos != null &&
-                            item.costoAnanjaCalculadoCentavos != null &&
-                            item.costoAnanjaCentavos !== item.costoAnanjaCalculadoCentavos && (
-                              <span className="text-[13px] text-text-muted">
-                                calculado {formatCentavos(item.costoAnanjaCalculadoCentavos)}
-                              </span>
-                            )}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+              loteId={pedido.loteId}
+              fecha={pedido.fecha}
+              items={pedido.items}
+              sinVender={sinVenderDe(
+                pedido.loteId,
+                pedido.items.map((i) => i.productoId),
               )}
-
-              {totalSinVender > 0 && (
-                <span className="text-[13px] text-text-muted">
-                  Sin vender {totalSinVender}
-                  {totalEnRevendedoras > 0 ? ` · ${totalEnRevendedoras} en revendedoras` : ""}
-                </span>
-              )}
-
-              {badgeSaldo && (
-                <Pastilla variante="debe" className="w-fit">
-                  {badgeSaldo}
-                </Pastilla>
-              )}
-            </Link>
-          );
-        })}
-      </div>
-    </FormPage>
+              estado={pedido.estado}
+            />
+          ))}
+        </ListaTarjeta>
+      )}
+    </div>
   );
 }

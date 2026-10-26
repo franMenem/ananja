@@ -31,6 +31,9 @@ export interface DepositoDatos {
   tanqueRows: TanqueAceite[];
   stockPorLote: StockPorLoteFila[];
   stockInsumos: StockInsumo[];
+  /** `v_stock_revendedor`: lo que tiene cada revendedora (para el total de
+   * botellas). `null` si no se pudo leer: la pantalla muestra solo el depósito. */
+  enManos: Pick<Tables<"v_stock_revendedor">, "producto_id" | "en_poder">[] | null;
 }
 
 /**
@@ -42,13 +45,20 @@ export interface DepositoDatos {
  * ninguna de las otras cuatro).
  */
 export async function obtenerDeposito(supabase: Supa): Promise<DepositoDatos> {
-  const [{ data: stockRows }, { data: recetasRows }, { data: tanqueRows }, { data: stockPorLote }, { data: stockInsumos }] =
-    await Promise.all([
+  const [
+    { data: stockRows },
+    { data: recetasRows },
+    { data: tanqueRows },
+    { data: stockPorLote },
+    { data: stockInsumos },
+    { data: enManos },
+  ] = await Promise.all([
       supabase.from("v_stock_actual").select("*").order("presentacion_ml", { ascending: true }),
       supabase.from("recetas").select("producto_id, insumo_id, cantidad, insumos(tipo)"),
       supabase.from("v_tanque_aceite").select("*"),
       supabase.from("v_stock_por_lote").select("lote_id, producto_id, fecha, quedan"),
       listarStockInsumos(supabase),
+      supabase.from("v_stock_revendedor").select("producto_id, en_poder"),
     ]);
 
   return {
@@ -57,6 +67,27 @@ export async function obtenerDeposito(supabase: Supa): Promise<DepositoDatos> {
     tanqueRows: tanqueRows ?? [],
     stockPorLote: stockPorLote ?? [],
     stockInsumos: stockInsumos ?? [],
+    enManos: enManos ?? null,
+  };
+}
+
+/**
+ * Recetas y presentaciones para "alcanza para N botellas" en `/stock/insumos`
+ * (el mismo cálculo que "Para producir" de `/stock`, `lib/dominio/botellas.ts`).
+ */
+export async function obtenerRecetasYPresentaciones(supabase: Supa): Promise<{
+  recetas: RecetaTipo[];
+  productos: { id: string; presentacion_ml: number }[];
+}> {
+  const [{ data: recetas }, { data: productos }] = await Promise.all([
+    supabase.from("recetas").select("producto_id, insumo_id, cantidad, insumos(tipo)"),
+    supabase.from("v_stock_actual").select("producto_id, presentacion_ml"),
+  ]);
+  return {
+    recetas: recetas ?? [],
+    productos: (productos ?? []).flatMap((p) =>
+      p.producto_id ? [{ id: p.producto_id, presentacion_ml: p.presentacion_ml ?? 0 }] : [],
+    ),
   };
 }
 

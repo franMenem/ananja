@@ -16,7 +16,14 @@ export default async function CargarCompraPage({
   const insumoParam = Array.isArray(params.insumo) ? params.insumo[0] : params.insumo;
 
   return (
-    <FormPage title="Cargar compra" backHref="/stock/insumos" backLabel="Volver a insumos">
+    <FormPage
+      title="Cargar compra"
+      backHref="/stock/insumos"
+      backLabel="Volver a insumos"
+      pregunta="¿Qué compraste y cuánto pagaste?"
+      tarjeta
+      pb
+    >
       <p className="text-[14px] leading-snug text-text-muted">
         Una factura con varios renglones, o una compra suelta de un solo insumo.
       </p>

@@ -3,7 +3,14 @@ import { NuevoInsumoForm } from "@/components/stock/nuevo-insumo-form";
 
 export default function NuevoInsumoPage() {
   return (
-    <FormPage title="Nuevo insumo" backHref="/stock/insumos" backLabel="Volver a insumos">
+    <FormPage
+      title="Nuevo insumo"
+      backHref="/stock/insumos"
+      backLabel="Volver a insumos"
+      pregunta="¿Qué insumo nuevo vas a usar para producir?"
+      tarjeta
+      pb
+    >
       <NuevoInsumoForm />
     </FormPage>
   );

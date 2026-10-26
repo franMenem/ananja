@@ -69,7 +69,7 @@ export default async function ActualizarCostoLotePage({
   const titulo =
     items.length > 0
       ? items.map((i) => `${i.cantidad} × ${formatPresentacion(i.presentacionMl)}`).join(" · ")
-      : "Lote";
+      : "Pedido";
 
   const valorInicial = ultimaValoracion
     ? prefillCostosLoteDesdeValoracion(ultimaValoracion.costosJsonb, {

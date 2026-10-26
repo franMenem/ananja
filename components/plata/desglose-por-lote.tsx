@@ -16,20 +16,20 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
   return (
     <Tarjeta como="section" aria-labelledby="desglose-lotes" className="flex flex-col gap-2">
       <h2 id="desglose-lotes" className="text-[20px] leading-tight font-semibold text-text">
-        De qué lote es
+        De qué pedido es
       </h2>
 
       <div className="flex flex-col divide-y divide-line">
         {lineas.map((l) => (
           <div key={l.loteId ?? "sin-lote"} className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px]">
             {l.loteId === null ? (
-              <span className="min-w-0 break-words text-text-muted">Sin lote asignado</span>
+              <span className="min-w-0 break-words text-text-muted">Sin pedido asignado</span>
             ) : (
               <Link
                 href={`/stock/lotes/${l.loteId}`}
                 className="min-w-0 break-words text-text underline decoration-border underline-offset-4 hover:text-primary"
               >
-                {l.fecha ? `Lote del ${formatFechaSinAnio(l.fecha)}` : "Lote"}
+                {l.fecha ? `Pedido del ${formatFechaSinAnio(l.fecha)}` : "Pedido"}
               </Link>
             )}
             <span className="shrink-0 tabular-nums text-text">{formatCentavos(l.pendienteCentavos)}</span>
@@ -47,7 +47,7 @@ export function DesgloseLotes({ desglose }: { desglose: DesglosePorLote }) {
       </div>
 
       <p className="text-[14px] leading-relaxed text-text-muted">
-        Lo que ya pasó a la cuenta se descuenta primero del lote más viejo.
+        Lo que ya pasó a la cuenta se descuenta primero del pedido más viejo.
       </p>
     </Tarjeta>
   );

@@ -21,7 +21,7 @@ type EliminarMovimientoStockAccionProps = {
 const ERRORES_ELIMINAR: Record<string, string> = {
   MOVIMIENTO_INVALIDO: "Este movimiento ya no existe.",
   MOVIMIENTO_NO_MANUAL:
-    "Este movimiento viene de una venta, una entrega o un lote: se corrige desde ahí, no se puede eliminar acá.",
+    "Este movimiento viene de una venta, una entrega o un pedido: se corrige desde ahí, no se puede eliminar acá.",
   NO_AUTORIZADO: "No tenés permiso para esto.",
 };
 

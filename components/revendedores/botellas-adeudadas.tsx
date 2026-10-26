@@ -83,13 +83,13 @@ function FilaDesglose({ encabezado, grupo }: { encabezado: ReactNode; grupo: Gru
 function ListaPorLote({ lotes }: { lotes: GrupoPorLote[] }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className={ROTULO}>Por lote</span>
+      <span className={ROTULO}>Por pedido</span>
       <ul className="flex flex-col">
         {lotes.map((l) => (
           <FilaDesglose
             key={l.loteId ?? "sin-lote"}
             encabezado={
-              l.loteId === null ? <span className="text-text-muted">Sin lote asignado</span> : <LoteLink loteId={l.loteId} fecha={l.fecha} />
+              l.loteId === null ? <span className="text-text-muted">Sin pedido asignado</span> : <LoteLink loteId={l.loteId} fecha={l.fecha} />
             }
             grupo={l}
           />
@@ -210,7 +210,7 @@ export function BotellasAdeudadas({ resumen, variante, mostrarPorPersona = false
             </p>
             <p className="text-[14px] text-text-muted">{textoProductos(resumen.productos)}</p>
             <p className="text-[14px] text-text-muted">{textoEstados(resumen.estados)}</p>
-            <Desglose resumen={resumen} mostrarPorPersona={false} titulo="Ver por lote" />
+            <Desglose resumen={resumen} mostrarPorPersona={false} titulo="Ver por pedido" />
           </>
         )}
       </Tarjeta>

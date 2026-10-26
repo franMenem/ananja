@@ -1,7 +1,7 @@
-import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import Link from "next/link";
 
-import { Separador } from "@/components/plata/separador";
+import { Pastilla } from "@/components/ui/pastilla";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFechaCorta } from "@/lib/fechas";
 import { etiquetaConceptoPago } from "@/lib/dominio/gastos";
@@ -26,10 +26,8 @@ type DeudaAceite = {
 } | null;
 
 type PagoPedidoProps = {
-  pedidoId: string;
   aPagarCentavos: number;
   pagadoCentavos: number;
-  pendienteCentavos: number;
   pagos: PagoRow[];
   conceptosPago: ConceptoPagoLote[];
   pagadoSinConceptoCentavos: number;
@@ -38,20 +36,15 @@ type PagoPedidoProps = {
 };
 
 /**
- * Bloque "Pago" del detalle de un pedido (bloque 2): a pagar/pagado arriba, el
- * estado en grande (Falta $Z o Pagado), la lista de pagos y, si este
- * pedido usó aceite, una fila con los litros usados (v_deuda_aceite_lote,
- * 0047) — si generó deuda automática con el proveedor se explica cuánto se
- * debe y, con saldo, un link para pagarla; si el aceite no se cargó en
- * dólares por litro se aclara por qué no hay deuda. El desglose por
- * concepto ("envasado", "transporte", "otros") queda plegado en "Ver por
- * concepto" — información útil pero secundaria frente a "cuánto falta".
+ * Tarjeta "Pagos" del detalle de un pedido: cuánto hay que pagar y cuánto se
+ * pagó por concepto (envasado, transporte, otros...), los pagos registrados
+ * y, si este pedido usó aceite, cuántos litros fueron y la deuda automática
+ * con el proveedor (`v_deuda_aceite_lote`, 0047). El botón para registrar un
+ * pago está en el héroe de la pantalla.
  */
 export function PagoPedido({
-  pedidoId,
   aPagarCentavos,
   pagadoCentavos,
-  pendienteCentavos,
   pagos,
   conceptosPago,
   pagadoSinConceptoCentavos,
@@ -62,61 +55,95 @@ export function PagoPedido({
   const restaAceite = deudaAceite?.saldo_usd_centavos ?? 0;
 
   return (
-    <div className="flex flex-col gap-3">
-      <Separador titulo="Pago" />
+    <Tarjeta como="section" aria-labelledby="pedido-pagos" className="flex flex-col gap-3">
+      <h2 id="pedido-pagos" className="text-[20px] leading-tight font-semibold text-text">
+        Pagos
+      </h2>
 
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[16px] text-text-muted tabular-nums">
-          A pagar {formatCentavos(aPagarCentavos)} · Pagado {formatCentavos(pagadoCentavos)}
-        </span>
-        <span
-          className={`text-[16px] font-medium tabular-nums ${pendienteCentavos > 0 ? "text-accent" : "text-secondary"}`}
-        >
-          {pendienteCentavos > 0 ? `Falta ${formatCentavos(pendienteCentavos)}` : "Pagado"}
-        </span>
+      <div className="flex flex-col gap-1 text-[16px]">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-text">A pagar</span>
+          <span className="font-semibold text-text tabular-nums">{formatCentavos(aPagarCentavos)}</span>
+        </div>
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-text">Pagado</span>
+          <span className="font-semibold text-text tabular-nums">{formatCentavos(pagadoCentavos)}</span>
+        </div>
       </div>
 
-      {pagos.length > 0 && (
-        <div className="flex flex-col">
-          {pagos.map((pago) => (
-            <Link
-              key={pago.id}
-              href={`/gastos/${pago.id}`}
-              className="flex items-baseline justify-between gap-2 border-b border-border py-2.5 text-[16px]"
-            >
-              <span className="min-w-0 text-text">
-                {etiquetaConceptoPago(pago.concepto_pago, pago.productos?.presentacion_ml) ?? "Pago"}
-                <span className="block text-[13px] text-text-muted">
-                  {formatFechaCorta(pago.fecha)} · {MEDIO_PAGO_LABELS[pago.medio_pago]}
-                  {!pago.concepto_pago && pago.nota ? ` · ${pago.nota}` : ""}
-                </span>
+      {(conceptosPago.length > 0 || pagadoSinConceptoCentavos > 0) && (
+        <div className="flex flex-col divide-y divide-line border-t border-line">
+          {conceptosPago.map((c) => (
+            <div key={c.clave} className="flex flex-col gap-0.5 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[16px] font-semibold text-text">{c.etiqueta}</span>
+                {c.pendienteCentavos > 0 ? (
+                  <Pastilla variante="debe">Falta {formatCentavos(c.pendienteCentavos)}</Pastilla>
+                ) : (
+                  <Pastilla variante="ok">Pagado</Pastilla>
+                )}
+              </div>
+              <span className="text-[14px] text-text-muted tabular-nums">
+                A pagar {formatCentavos(c.aPagarCentavos)} · Pagado {formatCentavos(c.pagadoCentavos)}
               </span>
-              <span className="font-medium text-text tabular-nums">
-                {formatCentavos(pago.monto_centavos)}
-              </span>
-            </Link>
+            </div>
           ))}
+          {pagadoSinConceptoCentavos > 0 && (
+            <div className="flex items-baseline justify-between gap-3 py-3">
+              <span className="text-[16px] text-text">
+                Pagos sin concepto
+                <span className="block text-[14px] text-text-muted">de antes de separar por concepto</span>
+              </span>
+              <span className="text-[16px] text-text-muted tabular-nums">{formatCentavos(pagadoSinConceptoCentavos)}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {aPagarCentavos > 0 && pagos.length === 0 && (
+        <p className="text-[14px] text-text-muted">Todavía no se registró ningún pago.</p>
+      )}
+
+      {pagos.length > 0 && (
+        <div className="flex flex-col border-t border-line">
+          <h3 className="pt-3 text-[15px] text-text-muted">Pagos registrados</h3>
+          <div className="flex flex-col divide-y divide-line">
+            {pagos.map((pago) => (
+              <Link
+                key={pago.id}
+                href={`/gastos/${pago.id}`}
+                className="flex min-h-14 items-center justify-between gap-3 py-2 text-[16px]"
+              >
+                <span className="min-w-0 text-text">
+                  {etiquetaConceptoPago(pago.concepto_pago, pago.productos?.presentacion_ml) ?? "Pago"}
+                  <span className="block text-[14px] text-text-muted">
+                    {formatFechaCorta(pago.fecha)} · {MEDIO_PAGO_LABELS[pago.medio_pago]}
+                    {!pago.concepto_pago && pago.nota ? ` · ${pago.nota}` : ""}
+                  </span>
+                </span>
+                <span className="shrink-0 font-semibold text-text tabular-nums">
+                  {formatCentavos(pago.monto_centavos)}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
       {litrosAceite > 0 && (
-        <div className="flex flex-col gap-2 border-l-2 border-mark bg-surface-raised px-4 py-3">
+        <div className="flex flex-col gap-2 rounded-xl bg-background p-3">
           <span className="text-[16px] text-text">
             Se usaron {formatCantidadConUnidad(litrosAceite, "litro")} de este pedido.
           </span>
           {deudaAceite ? (
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <span className="text-[16px] text-text">
                 {restaAceite > 0 ? (
                   <>
                     Le debés al proveedor{" "}
-                    <strong className="font-medium text-primary tabular-nums">
-                      {formatMonto("USD", debeAceite)}
-                    </strong>
+                    <strong className="font-semibold tabular-nums">{formatMonto("USD", debeAceite)}</strong>
                     {" · Resta "}
-                    <strong className="font-medium text-accent tabular-nums">
-                      {formatMonto("USD", restaAceite)}
-                    </strong>
+                    <strong className="font-semibold text-accent tabular-nums">{formatMonto("USD", restaAceite)}</strong>
                   </>
                 ) : (
                   "El aceite de este pedido ya está pagado."
@@ -125,7 +152,7 @@ export function PagoPedido({
               {restaAceite > 0 && deudaAceite.deuda_id && (
                 <Link
                   href={`/plata/deudas/${deudaAceite.deuda_id}/pago`}
-                  className="shrink-0 text-[13px] font-medium text-primary underline decoration-mark underline-offset-4"
+                  className="inline-flex min-h-11 items-center text-[15px] font-semibold text-primary underline decoration-mark underline-offset-4"
                 >
                   Pagar
                 </Link>
@@ -133,58 +160,12 @@ export function PagoPedido({
             </div>
           ) : (
             <span className="text-[14px] leading-snug text-text-muted">
-              Este pedido no generó una deuda automática con el proveedor: el
-              precio del aceite no se cargó en dólares por litro (se usó un
-              precio en pesos o el promedio del depósito).
+              Este pedido no generó una deuda automática con el proveedor: el precio del aceite no se cargó en dólares por
+              litro (se usó un precio en pesos o el promedio del depósito).
             </span>
           )}
         </div>
       )}
-
-      {pendienteCentavos > 0 && (
-        <Link
-          href={`/stock/lotes/${pedidoId}/pago`}
-          className={`${BOTON_PRIMARIO} flex px-4`}
-        >
-          Registrar pago
-        </Link>
-      )}
-
-      {conceptosPago.length > 0 && (
-        <details className="group border-t border-border pt-3">
-          <summary className="text-[14px] font-medium text-primary">
-            Ver por concepto
-          </summary>
-          <div className="mt-3 flex flex-col">
-            {conceptosPago.map((c) => (
-              <div key={c.clave} className="flex flex-col gap-0.5 border-b border-border py-2.5">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[16px] text-text">{c.etiqueta}</span>
-                  <span
-                    className={`text-[16px] tabular-nums ${c.pendienteCentavos > 0 ? "font-medium text-accent" : "text-text-muted"}`}
-                  >
-                    {c.pendienteCentavos > 0 ? `Pendiente ${formatCentavos(c.pendienteCentavos)}` : "Pagado"}
-                  </span>
-                </div>
-                <span className="text-[13px] text-text-muted tabular-nums">
-                  A pagar {formatCentavos(c.aPagarCentavos)} · Pagado {formatCentavos(c.pagadoCentavos)}
-                </span>
-              </div>
-            ))}
-            {pagadoSinConceptoCentavos > 0 && (
-              <div className="flex items-baseline justify-between gap-2 border-b border-border py-2.5">
-                <span className="text-[16px] text-text">
-                  Pagos sin concepto
-                  <span className="text-[13px] text-text-muted"> · anteriores</span>
-                </span>
-                <span className="text-[16px] text-text-muted tabular-nums">
-                  Pagado {formatCentavos(pagadoSinConceptoCentavos)}
-                </span>
-              </div>
-            )}
-          </div>
-        </details>
-      )}
-    </div>
+    </Tarjeta>
   );
 }

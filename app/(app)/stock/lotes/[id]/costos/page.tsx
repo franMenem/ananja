@@ -83,7 +83,7 @@ export default async function StockLoteCostosPage({
   const titulo =
     itemsForm.length > 0
       ? itemsForm.map((i) => `${i.cantidad} × ${formatPresentacion(i.presentacionMl)}`).join(" · ")
-      : "Lote";
+      : "Pedido";
 
   return (
     <div className="mx-auto w-full max-w-[720px]">

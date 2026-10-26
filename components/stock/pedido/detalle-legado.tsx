@@ -38,14 +38,14 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
   if (perdidasPorMotivo.length === 0 && gastosLegacy.length === 0) return null;
 
   return (
-    <details className="group border-t border-border pt-3">
-      <summary className="text-[14px] font-medium text-primary">
+    <details className="group">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center text-[15px] font-semibold text-primary">
         Ver pérdidas por motivo y gastos anteriores
       </summary>
       <div className="mt-3 flex flex-col gap-5">
         {perdidasPorMotivo.length > 0 && (
           <div className="flex flex-col gap-2.5">
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[14px] text-text-muted">
               Pérdidas por motivo
             </span>
             <div className="flex flex-col">
@@ -66,7 +66,7 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
 
         {gastosLegacy.length > 0 && (
           <div className="flex flex-col gap-2.5">
-            <span className="text-[13px] text-text-muted">
+            <span className="text-[14px] text-text-muted">
               Gastos asignados antes de esta actualización
             </span>
             <div className="flex flex-col">
@@ -79,7 +79,7 @@ export function DetalleLegado({ perdidasPorMotivo, gastosLegacy }: DetalleLegado
                   <span className="text-text">
                     {gasto.categorias_gasto?.nombre ?? "Sin categoría"}
                     {gasto.nota ? ` · ${gasto.nota}` : ""}
-                    <span className="ml-2 text-[13px] text-text-muted">
+                    <span className="ml-2 text-[14px] text-text-muted">
                       {gasto.producto_id && gasto.productos
                         ? formatPresentacion(gasto.productos.presentacion_ml)
                         : "Compartido"}

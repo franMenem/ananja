@@ -134,8 +134,8 @@ export function SelectorLote({
     return (
       <p className="text-[13px] text-text-muted">
         {modoPreferido
-          ? `Vuelve al lote del ${formatFechaSinAnio(unico.fecha)}`
-          : `Del lote del ${formatFechaSinAnio(unico.fecha)} (quedan ${unico.quedan})`}
+          ? `Vuelve al pedido del ${formatFechaSinAnio(unico.fecha)}`
+          : `Del pedido del ${formatFechaSinAnio(unico.fecha)} (quedan ${unico.quedan})`}
       </p>
     );
   }
@@ -164,12 +164,12 @@ export function SelectorLote({
   return (
     <div className="flex flex-col gap-2 border-t border-border pt-2.5">
       <span className="text-[13px] text-text-muted">
-        De qué lote
+        De qué pedido
       </span>
       {ordenados.map((lote) => (
         <div key={lote.loteId} className="flex items-start justify-between gap-3">
           <span className="min-w-0 flex-1 text-[14px] text-text">
-            Lote del {formatFechaSinAnio(lote.fecha)}
+            Pedido del {formatFechaSinAnio(lote.fecha)}
             {!modoPreferido && <> · quedan {lote.quedan}</>}
             {!modoPreferido && lote.costoUnitarioCentavos != null && (
               <> · costo {formatCentavos(lote.costoUnitarioCentavos)}</>
@@ -181,7 +181,7 @@ export function SelectorLote({
               onChange={(value) => actualizarFila(lote.loteId, value)}
               size="sm"
               disableAtMin={false}
-              ariaLabelSufijo={` del lote del ${formatFechaSinAnio(lote.fecha)}${ariaLabelSufijo}`}
+              ariaLabelSufijo={` del pedido del ${formatFechaSinAnio(lote.fecha)}${ariaLabelSufijo}`}
             />
           </div>
         </div>
@@ -189,7 +189,7 @@ export function SelectorLote({
       {incluirSinLote && (
         <div className="flex items-start justify-between gap-3">
           <span className="min-w-0 flex-1 text-[14px] text-text-muted">
-            Sin lote (se descuenta del más viejo)
+            Sin pedido (se descuenta del más viejo)
           </span>
           <div className="shrink-0">
             <CantidadStepper
@@ -197,7 +197,7 @@ export function SelectorLote({
               onChange={(value) => actualizarFila(null, value)}
               size="sm"
               disableAtMin={false}
-              ariaLabelSufijo={` sin lote${ariaLabelSufijo}`}
+              ariaLabelSufijo={` sin pedido${ariaLabelSufijo}`}
             />
           </div>
         </div>

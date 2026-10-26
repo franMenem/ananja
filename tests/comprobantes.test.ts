@@ -316,7 +316,7 @@ describe("validarComprobanteForm", () => {
     });
   });
 
-  it("bloquea si el split por lote de un producto está descuadrado", () => {
+  it("bloquea si el reparto por pedido de un producto está descuadrado", () => {
     const resultado = validarComprobanteForm(
       inputValido({
         cantidades: { "prod-a": 5 },
@@ -325,7 +325,7 @@ describe("validarComprobanteForm", () => {
     );
     expect(resultado).toEqual({
       ok: false,
-      error: "Revisá de qué lote sale Botella 750ml: las cantidades por lote no suman 5.",
+      error: "Revisá de qué pedido sale Botella 750ml: las cantidades por pedido no suman 5.",
     });
   });
 

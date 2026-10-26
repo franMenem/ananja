@@ -1122,7 +1122,7 @@ export function mensajeErrorLote(
     return "Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta.";
   }
   if (codigo === "LOTE_NO_ENCONTRADO") {
-    return "Este lote ya no existe.";
+    return "Este pedido ya no existe.";
   }
   if (codigo === "SIN_ITEMS") {
     return "Cargá al menos una cantidad.";
@@ -1139,7 +1139,7 @@ export function mensajeErrorLote(
   if (codigo === "PAGO_INVALIDO") {
     const concepto = conceptoDelDetalle(detalle);
     return concepto
-      ? `Este pedido no tiene nada para pagar ${deConcepto(concepto)}. Volvé al lote y revisá los costos.`
+      ? `Este pedido no tiene nada para pagar ${deConcepto(concepto)}. Volvé al pedido y revisá los costos.`
       : "Revisá los montos cargados.";
   }
   if (codigo === "PAGO_EXCEDE_SALDO") {
@@ -1163,7 +1163,7 @@ export function mensajeErrorLote(
     return "Revisá el precio de envase cargado.";
   }
   if (codigo === "PRODUCTO_NO_EN_LOTE") {
-    return "Esa presentación no forma parte de este lote.";
+    return "Esa presentación no forma parte de este pedido.";
   }
   if (codigo === "COSTOS_MENORES_A_PAGADO") {
     const info = detalleCostosMenoresAPagado(detalle);

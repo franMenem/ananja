@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
 import { useProveedor } from "@/components/stock/proveedor-context";
 import {
@@ -119,9 +120,10 @@ export function ActualizarCostoLoteForm({
       <SetFormHeader
         title={`Actualizar costos — ${titulo}`}
         backHref={`/stock/lotes/${loteId}`}
-        backLabel="Volver al lote"
+        backLabel="Volver al pedido"
       />
       <FormHeaderDesktop />
+      <p className="-mt-2 text-[15px] text-text-muted">¿A qué costo valuamos lo que queda en el depósito?</p>
 
       <div className="flex flex-col gap-1.5 border-l-2 border-accent bg-surface-raised p-4">
         {enDeposito > 0 ? (
@@ -131,8 +133,8 @@ export function ActualizarCostoLoteForm({
           </p>
         ) : (
           <p className="text-[16px] leading-[1.5] text-text">
-            Este lote no tiene {NEGOCIO.envase.plural} en el depósito — actualizar el costo no cambia
-            nada de lo ya entregado o vendido, que es todo lo que tiene este lote hoy.
+            Este pedido no tiene {NEGOCIO.envase.plural} en el depósito — actualizar el costo no cambia
+            nada de lo ya entregado o vendido, que es todo lo que tiene este pedido hoy.
           </p>
         )}
       </div>
@@ -143,6 +145,7 @@ export function ActualizarCostoLoteForm({
         </p>
       )}
 
+      <Tarjeta>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <CostosLoteCampos
           items={items}
@@ -168,6 +171,7 @@ export function ActualizarCostoLoteForm({
           {saving ? "Guardando…" : "Actualizar costo vigente"}
         </button>
       </form>
+      </Tarjeta>
     </div>
   );
 }

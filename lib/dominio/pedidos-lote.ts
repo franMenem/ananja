@@ -6,6 +6,7 @@
  * la tabla comparativa vieja (con "% vs anterior" y "sugeridos").
  */
 
+import { compararCostoUnitario } from "@/lib/dominio/costos-lote";
 import { formatCentavos } from "@/lib/money";
 import type { Tables } from "@/lib/types";
 
@@ -201,4 +202,43 @@ export function agruparPerdidasPorMotivo(filas: FilaPerdidaLote[]): PerdidaPorMo
     porMotivo.set(fila.motivo, actual);
   }
   return Array.from(porMotivo.values());
+}
+
+// ============================================================
+// Comparación contra el pedido anterior (detalle de un pedido).
+// ============================================================
+
+export interface CostoHistorico {
+  loteId: string | null;
+  productoId: string | null;
+  fecha: string | null;
+  createdAt: string | null;
+  costoUnitarioCentavos: number | null;
+  tieneCostos: boolean | null;
+}
+
+/**
+ * Cuánto cambió el costo de producción de una presentación contra el pedido
+ * anterior de ESA MISMA presentación (no contra el pedido anterior de la
+ * lista, que puede traer otro tamaño). Compara siempre costos ORIGINALES de
+ * los dos lados — nunca contra el vigente de una actualización de costos —.
+ * `null` si no hay anterior, si alguno no tiene costos o si no cambió.
+ */
+export function variacionContraAnterior(
+  historial: CostoHistorico[],
+  loteId: string,
+  productoId: string,
+): { pctCambio: number; subio: boolean } | null {
+  const delProducto = historial
+    .filter((h) => h.productoId === productoId)
+    .sort((a, b) => {
+      const fa = `${a.fecha ?? ""}|${a.createdAt ?? ""}`;
+      const fb = `${b.fecha ?? ""}|${b.createdAt ?? ""}`;
+      return fa < fb ? -1 : fa > fb ? 1 : 0;
+    });
+  const idx = delProducto.findIndex((h) => h.loteId === loteId);
+  if (idx <= 0 || !delProducto[idx].tieneCostos) return null;
+  const anterior = delProducto[idx - 1];
+  if (!anterior.tieneCostos) return null;
+  return compararCostoUnitario(delProducto[idx].costoUnitarioCentavos ?? 0, anterior.costoUnitarioCentavos ?? 0);
 }

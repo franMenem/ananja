@@ -55,8 +55,8 @@ describe("EntregasCoordinadora", () => {
     expect(html).toContain("6 botellas");
     expect(html).toContain('href="/revendedores/rev-1"');
     expect(html).toContain('href="/stock/lotes/lote-1"');
-    expect(html).toContain("Lote del 15/8");
-    expect(html).toContain("sin lote");
+    expect(html).toContain("Pedido del 15/8");
+    expect(html).toContain("sin pedido");
     expect(html).toContain("la cargó Admin 1");
     expect(html.match(/la cargó/g)).toHaveLength(1);
     expect(html).not.toContain("<details");

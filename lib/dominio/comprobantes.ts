@@ -317,7 +317,7 @@ export function validarComprobanteForm<P extends { id: string; nombre: string }>
   if (productoDescuadrado) {
     return {
       ok: false,
-      error: `Revisá de qué lote sale ${productoDescuadrado.nombre}: las cantidades por lote no suman ${cantidades[productoDescuadrado.id] ?? 0}.`,
+      error: `Revisá de qué pedido sale ${productoDescuadrado.nombre}: las cantidades por pedido no suman ${cantidades[productoDescuadrado.id] ?? 0}.`,
     };
   }
 
@@ -426,7 +426,7 @@ export function interpretarErrorComprobante<P extends { id: string; nombre: stri
     return {
       tipo: "error",
       mensaje:
-        "Hubo un problema con el lote elegido. Revisá el split por lote de cada producto y probá de nuevo.",
+        "Hubo un problema con el pedido elegido. Revisá el reparto por pedido de cada producto y probá de nuevo.",
     };
   }
 

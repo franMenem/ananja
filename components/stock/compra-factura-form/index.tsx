@@ -226,7 +226,7 @@ export function CompraFacturaForm({ insumoInicial }: CompraFacturaFormProps) {
   const unidadesRevision = lineasValidas.map((l) => insumosPorId[l.insumoId]?.unidad ?? "unidad");
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <p className="text-[14px] leading-[1.5] text-text-muted">
         Para una factura con varios insumos. Cargá cada línea con el precio
         unitario tal cual figura en la factura: el IVA (Ananja no lo recupera,

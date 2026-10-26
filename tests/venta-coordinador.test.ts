@@ -67,7 +67,7 @@ describe("lotesParaVentaCoordinador", () => {
   });
 
   it("el rótulo dice la fecha del lote y lo que queda", () => {
-    expect(rotuloLoteVenta(lote({ loteId: "a", fecha: "2026-09-05", quedan: 12 }))).toBe("Lote del 5/9 · quedan 12");
+    expect(rotuloLoteVenta(lote({ loteId: "a", fecha: "2026-09-05", quedan: 12 }))).toBe("Pedido del 5/9 · quedan 12");
   });
 });
 
@@ -121,10 +121,10 @@ describe("cantidad y montos", () => {
 describe("errores", () => {
   it("DEPOSITO_INSUFICIENTE dice cuántas quedan en el lote", () => {
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", JSON.stringify({ disponible: 3, lote_id: "x" }))).toBe(
-      "En el depósito hay 3 disponibles para vender en ese lote. Cargá hasta esa cantidad.",
+      "En el depósito hay 3 disponibles para vender en ese pedido. Cargá hasta esa cantidad.",
     );
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", '{"disponible":0}')).toBe(
-      "En el depósito hay 0 disponibles para vender en ese lote. Cargá hasta esa cantidad.",
+      "En el depósito hay 0 disponibles para vender en ese pedido. Cargá hasta esa cantidad.",
     );
     expect(mensajeErrorVentaCoordinador("DEPOSITO_INSUFICIENTE", "roto")).toContain("no hay tantas");
   });
@@ -179,7 +179,7 @@ describe("agruparVentasPropias", () => {
       loteFecha: "2026-08-03",
       montoCentavos: 2_400_000,
     });
-    expect(descripcionVentaPropia(v)).toBe("3 × Botella 500 ml · Lote del 3/8");
+    expect(descripcionVentaPropia(v)).toBe("3 × Botella 500 ml · Pedido del 3/8");
   });
 
   it("suma las filas del mismo grupo (una venta partida) y deja el id de la primera", () => {
@@ -211,7 +211,7 @@ describe("agruparVentasPropias", () => {
   it("producto o lote desconocido no rompe", () => {
     const [v] = agruparVentasPropias([venta({ id: "1", producto_id: "x", lote_id: "l-raro" })], productos, lotes);
     expect(v.productoNombre).toBe("?");
-    expect(descripcionVentaPropia(v)).toBe("3 × ? · Lote");
+    expect(descripcionVentaPropia(v)).toBe("3 × ? · Pedido");
     const [sinLote] = agruparVentasPropias([venta({ id: "2", lote_id: null })], productos, lotes);
     expect(descripcionVentaPropia(sinLote)).toBe("3 × Botella 500 ml");
   });

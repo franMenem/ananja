@@ -91,7 +91,7 @@ export function NuevoInsumoForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 pb-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
         <label
           htmlFor="nombre"

@@ -1,13 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SetFormHeader } from "@/components/page-header-context";
+import { HeroePedido } from "@/components/stock/pedido/heroe-pedido";
+import { tituloPedido } from "@/components/stock/pedido/fila-pedido";
+import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { VolverLink } from "@/components/volver-link";
 import { BotellasPedido } from "@/components/stock/pedido/botellas-pedido";
 import { CostoPorBotella } from "@/components/stock/pedido/costo-por-botella";
 import { DetalleLegado } from "@/components/stock/pedido/detalle-legado";
 import { PagoPedido } from "@/components/stock/pedido/pago-pedido";
 import { obtenerDetalleLote } from "@/lib/data/lotes";
-import { formatFecha } from "@/lib/fechas";
 import { enManosDeLote } from "@/lib/dominio/lote-en-manos";
 import { conceptosPagoLote } from "@/lib/dominio/lotes";
 import { agruparPerdidasPorMotivo, itemsDeLote, sumarCobranzaLote } from "@/lib/dominio/pedidos-lote";
@@ -47,6 +48,7 @@ export default async function StockLoteDetallePage({
     vendedores,
     deudaAceite,
     vigente,
+    historialCostos,
     valoraciones,
   } = await obtenerDetalleLote(supabase, id);
 
@@ -55,7 +57,7 @@ export default async function StockLoteDetallePage({
   }
 
   const items = itemsDeLote(lote);
-  const titulo = lote.fecha ? `Pedido del ${formatFecha(lote.fecha)}` : "Pedido";
+  const titulo = tituloPedido(lote.fecha);
 
   const tieneCostos = (desglose ?? []).some((d) => d.tiene_costos);
 
@@ -122,25 +124,29 @@ export default async function StockLoteDetallePage({
   );
 
   return (
-    <div className="mx-auto w-full max-w-[760px]">
-      <div className="flex flex-col gap-6 pb-8">
-        <SetFormHeader title={titulo} backHref="/stock/lotes" backLabel="Volver a pedidos" />
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            href="/stock/lotes"
-            aria-label="Volver a pedidos"
-            className="flex min-h-11 min-w-11 items-center justify-center text-[22px] leading-none text-primary"
-          >
-            ←
-          </Link>
-          <h1 className="font-display text-[22px] text-text">{titulo}</h1>
-        </div>
+    <div className="mx-auto flex w-full max-w-[760px] min-w-0 flex-col gap-6 pb-8">
+      <VolverLink href="/stock/lotes" label="pedidos" corto />
 
-        {lote.nota && <p className="text-[16px] text-text-muted">{lote.nota}</p>}
+      <EncabezadoPantalla
+        titulo={titulo}
+        pregunta="¿Cuánto costó, cuánto falta pagar y dónde están sus botellas?"
+      />
 
+      {lote.nota && <p className="text-[16px] text-text-muted">{lote.nota}</p>}
+
+      <HeroePedido pedidoId={id} tieneCostos={tieneCostos} pendienteCentavos={pendiente} />
+
+      {enManosError && (
+        <p role="alert" className="text-[16px] text-accent">
+          {enManosError}
+        </p>
+      )}
+
+      <BotellasPedido cobranza={cobranza} personasEnManos={enManos.personas} totalEnManos={enManos.total} />
+
+      {tieneCostos && (
         <CostoPorBotella
           pedidoId={id}
-          tieneCostos={tieneCostos}
           desglose={desglose ?? []}
           costosFilas={costosFilas ?? []}
           ivaPct={ivaPct}
@@ -150,34 +156,28 @@ export default async function StockLoteDetallePage({
           vigente={vigente ?? []}
           enDepositoTotal={enDepositoTotal}
           valoraciones={valoraciones ?? []}
+          historialCostos={(historialCostos ?? []).map((h) => ({
+            loteId: h.lote_id,
+            productoId: h.producto_id,
+            fecha: h.fecha,
+            createdAt: h.created_at,
+            costoUnitarioCentavos: h.costo_unitario_centavos,
+            tieneCostos: h.tiene_costos,
+          }))}
         />
+      )}
 
-        <PagoPedido
-          pedidoId={id}
-          aPagarCentavos={aPagar}
-          pagadoCentavos={pagado}
-          pendienteCentavos={pendiente}
-          pagos={pagos ?? []}
-          conceptosPago={conceptosPago}
-          pagadoSinConceptoCentavos={pagadoSinConcepto}
-          deudaAceite={deudaAceite}
-          litrosAceite={litrosAceite}
-        />
+      <PagoPedido
+        aPagarCentavos={aPagar}
+        pagadoCentavos={pagado}
+        pagos={pagos ?? []}
+        conceptosPago={conceptosPago}
+        pagadoSinConceptoCentavos={pagadoSinConcepto}
+        deudaAceite={deudaAceite}
+        litrosAceite={litrosAceite}
+      />
 
-        {enManosError && (
-          <p role="alert" className="text-[16px] text-accent">
-            {enManosError}
-          </p>
-        )}
-
-        <BotellasPedido
-          cobranza={cobranza}
-          personasEnManos={enManos.personas}
-          totalEnManos={enManos.total}
-        />
-
-        <DetalleLegado perdidasPorMotivo={perdidasPorMotivo} gastosLegacy={gastosLegacy ?? []} />
-      </div>
+      <DetalleLegado perdidasPorMotivo={perdidasPorMotivo} gastosLegacy={gastosLegacy ?? []} />
     </div>
   );
 }

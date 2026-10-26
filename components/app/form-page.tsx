@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { SetFormHeader } from "@/components/page-header-context";
+import { Tarjeta } from "@/components/ui/tarjeta";
 
 type MaxWidth = 720 | 760 | "none";
 type Gap = 5 | 6 | 8;
@@ -30,6 +31,10 @@ type FormPageProps = {
   gap?: Gap;
   /** `true` agrega `pb-8` (algunas páginas lo tenían, otras no). */
   pb?: boolean;
+  /** La pregunta que responde la pantalla (15px, gris), debajo del título. */
+  pregunta?: ReactNode;
+  /** `true` pone el contenido (formulario) dentro de una `Tarjeta`. */
+  tarjeta?: boolean;
   children: ReactNode;
 };
 
@@ -52,13 +57,16 @@ export function FormPage({
   maxWidth = 720,
   gap = 5,
   pb = false,
+  pregunta,
+  tarjeta = false,
   children,
 }: FormPageProps) {
   const inner = (
     <div className={`flex flex-col ${GAP_CLASS[gap]}${pb ? " pb-8" : ""}`}>
       <SetFormHeader title={title} backHref={backHref} backLabel={backLabel} />
       <FormHeaderDesktop />
-      {children}
+      {pregunta && <p className="-mt-2 text-[15px] text-text-muted">{pregunta}</p>}
+      {tarjeta ? <Tarjeta className="flex flex-col gap-5">{children}</Tarjeta> : children}
     </div>
   );
 

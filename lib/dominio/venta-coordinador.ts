@@ -50,7 +50,7 @@ export function loteInicialVentaCoordinador(lotes: LoteVentaCoordinador[]): Lote
 
 /** Rótulo de un lote: "Lote del 5/9 · quedan 12". */
 export function rotuloLoteVenta(lote: LoteVentaCoordinador): string {
-  return `Lote del ${formatFechaSinAnio(lote.fecha)} · quedan ${lote.quedan}`;
+  return `Pedido del ${formatFechaSinAnio(lote.fecha)} · quedan ${lote.quedan}`;
 }
 
 /** Cantidad válida: entera, de 1 hasta lo que queda del lote elegido. */
@@ -110,9 +110,9 @@ export function textoVentaPropiaGuardada(montoCentavos: number | null): string {
 const ERRORES_VENTA_COORDINADOR: Record<string, string> = {
   ...ERRORES_RPC_COMUNES,
   COORDINADOR_INVALIDO: "Esa persona ya no es coordinadora.",
-  LOTE_INVALIDO: "Elegí de qué lote sale.",
+  LOTE_INVALIDO: "Elegí de qué pedido sale.",
   GRUPO_INVALIDO: "No se pudo guardar. Cerrá y volvé a intentar.",
-  COSTO_FALTANTE: `Ese lote todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
+  COSTO_FALTANTE: `Ese pedido todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
   CANTIDAD_INVALIDA: "Revisá la cantidad.",
   FECHA_INVALIDA: "Revisá la fecha.",
   FECHA_FUTURA: "La fecha no puede ser posterior a hoy.",
@@ -127,9 +127,9 @@ export function mensajeErrorVentaCoordinador(
     const d = leerDetalleError(detalleCrudo).disponible;
     const disponible = typeof d === "number" && Number.isFinite(d) ? Math.max(0, Math.floor(d)) : null;
     if (disponible === null) {
-      return `En el depósito no hay tantas ${NEGOCIO.envase.plural} disponibles para vender en ese lote. Cargá menos.`;
+      return `En el depósito no hay tantas ${NEGOCIO.envase.plural} disponibles para vender en ese pedido. Cargá menos.`;
     }
-    return `En el depósito hay ${disponible} disponibles para vender en ese lote. Cargá hasta esa cantidad.`;
+    return `En el depósito hay ${disponible} disponibles para vender en ese pedido. Cargá hasta esa cantidad.`;
   }
   return traducirErrorRpc(codigo, ERRORES_VENTA_COORDINADOR, "No se pudo guardar. Probá de nuevo.");
 }
@@ -217,7 +217,7 @@ export function agruparVentasPropias(
 
 /** "3 × Botella 500 ml · Lote del 5/9" (sin el lote si no se conoce). */
 export function descripcionVentaPropia(fila: Pick<VentaPropiaFila, "cantidad" | "productoNombre" | "loteFecha" | "loteId">): string {
-  const lote = fila.loteFecha ? ` · Lote del ${formatFechaSinAnio(fila.loteFecha)}` : fila.loteId ? " · Lote" : "";
+  const lote = fila.loteFecha ? ` · Pedido del ${formatFechaSinAnio(fila.loteFecha)}` : fila.loteId ? " · Pedido" : "";
   return `${fila.cantidad} × ${fila.productoNombre}${lote}`;
 }
 

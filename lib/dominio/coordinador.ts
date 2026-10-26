@@ -164,7 +164,7 @@ export function armarItemsEntregaCoordinador(
 export const ERRORES_ENTREGA_COORDINADOR: Record<string, string> = {
   NO_AUTORIZADO: "No tenés permiso para esto.",
   REVENDEDOR_INVALIDO: "Esta persona ya no es una revendedora tuya.",
-  COSTO_FALTANTE: "Ese lote todavía no tiene el costo cargado. Avisale a un admin.",
+  COSTO_FALTANTE: "Ese pedido todavía no tiene el costo cargado. Avisale a un admin.",
   LOTE_INVALIDO: "El stock cambió justo ahora. Probá de nuevo.",
   STOCK_LOTE_INSUFICIENTE: "El stock cambió justo ahora. Probá de nuevo.",
   STOCK_INSUFICIENTE: "No hay stock suficiente en el depósito. Avisale a un admin.",

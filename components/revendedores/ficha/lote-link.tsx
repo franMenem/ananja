@@ -9,13 +9,13 @@ import { formatFechaSinAnio } from "@/lib/fechas";
  * la fecha, dice "Lote" a secas pero el link se mantiene.
  */
 export function LoteLink({ loteId, fecha }: { loteId: string | null; fecha: string | null }) {
-  if (loteId === null) return <span className="text-text-muted">sin lote</span>;
+  if (loteId === null) return <span className="text-text-muted">sin pedido</span>;
   return (
     <Link
       href={`/stock/lotes/${loteId}`}
-      className="text-text underline decoration-border underline-offset-4 hover:text-primary"
+      className="inline-flex min-h-11 items-center text-text underline decoration-border underline-offset-4 hover:text-primary"
     >
-      {fecha ? `Lote del ${formatFechaSinAnio(fecha)}` : "Lote"}
+      {fecha ? `Pedido del ${formatFechaSinAnio(fecha)}` : "Pedido"}
     </Link>
   );
 }

@@ -136,7 +136,7 @@ const ERRORES_VENTA_PROPIA: Record<string, string> = {
   FECHA_FUTURA: "La fecha de la venta no puede ser posterior a hoy.",
   FECHA_ANTERIOR_A_ENTREGA:
     "La fecha de la venta es anterior a la entrega de esas botellas. Revisá la fecha.",
-  COSTO_FALTANTE: `Ese lote todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
+  COSTO_FALTANTE: `Ese pedido todavía no tiene precio cargado. Avisale a ${NEGOCIO.nombre} para que lo cargue.`,
   GRUPO_INVALIDO: "No se pudo guardar. Cerrá y volvé a intentar.",
   LOTE_INVALIDO: `No se pudo elegir de dónde sacar las botellas. Avisale a ${NEGOCIO.nombre}.`,
 };

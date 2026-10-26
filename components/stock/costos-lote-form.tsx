@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
+import { Tarjeta } from "@/components/ui/tarjeta";
 import { SetFormHeader } from "@/components/page-header-context";
 import {
   CostosLoteCampos,
@@ -171,9 +172,10 @@ export function CostosLoteForm({
       <SetFormHeader
         title={`Costos — ${titulo}`}
         backHref={`/stock/lotes/${loteId}`}
-        backLabel="Volver al lote"
+        backLabel="Volver al pedido"
       />
       <FormHeaderDesktop />
+      <p className="-mt-2 text-[15px] text-text-muted">¿Cuánto costó cada cosa de este pedido?</p>
 
       {revisando ? (
         <RevisionPedido
@@ -190,6 +192,7 @@ export function CostosLoteForm({
           onConfirmar={(redondeos) => void guardar(redondeos)}
         />
       ) : (
+        <Tarjeta>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <CostosLoteCampos
             items={items}
@@ -216,6 +219,7 @@ export function CostosLoteForm({
             Guardar costos
           </button>
         </form>
+        </Tarjeta>
       )}
     </div>
   );

@@ -72,7 +72,7 @@ export function mensajeEliminarMovimientoStock(
   producto: string,
   fechaLote: string | null,
 ): string {
-  const del = fechaLote ? ` del lote del ${formatFechaSinAnio(fechaLote)}` : "";
+  const del = fechaLote ? ` del pedido del ${formatFechaSinAnio(fechaLote)}` : "";
   const vuelve =
     cantidad === 1
       ? "Esa botella vuelve a figurar en el depósito."
