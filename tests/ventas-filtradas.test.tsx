@@ -25,24 +25,23 @@ const venta = (id: string, medioPago: "efectivo" | "banco" | null) => ({
 });
 
 describe("VentasFiltradas", () => {
-  it("muestra los dos grupos de chips y todas las ventas por defecto", () => {
+  it("muestra el renglón del filtro activo, la tarjeta resumen y todas las ventas; la hoja está cerrada", () => {
     const meses: MesVentasMi[] = [{ periodo: "2026-10", ventas: [venta("a", "efectivo"), venta("b", "banco")] }];
     const html = renderToStaticMarkup(<VentasFiltradas meses={meses} hoy="2026-10-20" />);
-    expect(html).toContain('aria-label="Filtrar por período"');
-    expect(html).toContain('aria-label="Filtrar por medio de pago"');
+    expect(html).toContain("Todo el tiempo · Todos los medios");
+    expect(html).toContain("Filtrar");
+    expect(html).toContain("4 botellas");
+    expect(html).toContain("4 × Aceite");
     expect(html).toContain("/mi/ventas/a");
     expect(html).toContain("/mi/ventas/b");
+    expect(html).not.toContain('role="dialog"');
+    expect(html).not.toContain("Aplicar");
     expect(html).not.toContain("Sin cargar");
-  });
-
-  it("ofrece 'Sin cargar' solo si hay ventas sin medio", () => {
-    const meses: MesVentasMi[] = [{ periodo: "2026-10", ventas: [venta("a", null)] }];
-    expect(renderToStaticMarkup(<VentasFiltradas meses={meses} hoy="2026-10-20" />)).toContain("Sin cargar");
   });
 
   it("sin ventas muestra el mensaje y no los chips", () => {
     const html = renderToStaticMarkup(<VentasFiltradas meses={[]} hoy="2026-10-20" />);
     expect(html).toContain("Todavía no cargaste ventas.");
-    expect(html).not.toContain("Filtrar por");
+    expect(html).not.toContain("Filtrar");
   });
 });
