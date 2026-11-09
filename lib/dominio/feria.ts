@@ -159,6 +159,11 @@ export const ERRORES_FERIA: Record<string, string> = {
   REVENDEDOR_INVALIDO: "Esta persona no puede participar de una feria.",
   STOCK_REVENDEDOR_INSUFICIENTE:
     "Esa persona no tiene tantas botellas en su poder. Revisá las cantidades.",
+  STOCK_LOTE_INSUFICIENTE: "No hay stock suficiente para esa degustación.",
+  STOCK_INSUFICIENTE: "No hay stock suficiente para esa degustación.",
+  SIN_ITEMS: "Elegí al menos un producto y una cantidad.",
+  LOTE_INVALIDO: "Ese pedido no tiene ese producto.",
+  ITEM_DUPLICADO: "Hay un producto repetido. Juntá las cantidades.",
 };
 
 /** Códigos de feria que además se muestran en las pantallas de venta propia

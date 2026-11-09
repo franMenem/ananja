@@ -16,7 +16,11 @@ export type ProductoFeriaMi = {
   /** Pendiente: ventas normales ya cargadas. Cerrada: todo lo vendido. */
   vendidas: number;
   devueltas: number;
+  /** Total: la que cargó el admin de antemano + la del cierre. */
   degustadas: number;
+  /** Cargada de antemano por el admin, a cargo de Ananja (no es suya ni suma deuda). */
+  degustadasCarga: number;
+  degustadasCierre: number;
   precioFeriaCentavos: number | null;
 };
 

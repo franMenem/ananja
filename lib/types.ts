@@ -1136,6 +1136,7 @@ export type Database = {
           cantidad: number
           feria_id: string
           movimiento_ids: string[]
+          origen: string
           producto_id: string
           vendedor_id: string
         }
@@ -1143,6 +1144,7 @@ export type Database = {
           cantidad: number
           feria_id: string
           movimiento_ids?: string[]
+          origen: string
           producto_id: string
           vendedor_id: string
         }
@@ -1150,6 +1152,7 @@ export type Database = {
           cantidad?: number
           feria_id?: string
           movimiento_ids?: string[]
+          origen?: string
           producto_id?: string
           vendedor_id?: string
         }
@@ -4601,6 +4604,8 @@ export type Database = {
       v_feria_participante_productos: {
         Row: {
           degustadas: number | null
+          degustadas_carga: number | null
+          degustadas_cierre: number | null
           devueltas: number | null
           entregadas: number | null
           feria_id: string | null
@@ -4618,6 +4623,8 @@ export type Database = {
           cerrada_at: string | null
           costo_centavos: number | null
           degustadas: number | null
+          degustadas_carga: number | null
+          degustadas_cierre: number | null
           devueltas: number | null
           efectivo_centavos: number | null
           entregadas: number | null
@@ -5589,6 +5596,16 @@ export type Database = {
         Args: { p_feria_id: string; p_vendedor_id: string }
         Returns: Json
       }
+      feria_cargar_degustacion: {
+        Args: {
+          p_feria_id: string
+          p_fecha: string
+          p_items: Json
+          p_nota: string
+          p_vendedor_id: string
+        }
+        Returns: Json
+      }
       feria_cerrar: { Args: { p_feria_id: string }; Returns: Json }
       feria_cerrar_participacion: {
         Args: {
@@ -5624,6 +5641,10 @@ export type Database = {
           p_nota: string
           p_precios: Json
         }
+        Returns: Json
+      }
+      feria_quitar_degustacion: {
+        Args: { p_feria_id: string; p_producto_id: string; p_vendedor_id: string }
         Returns: Json
       }
       feria_quitar_participante: {

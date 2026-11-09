@@ -37,6 +37,8 @@ export async function cargarFeriaMi(
             vendidas: Number(f.vendidas ?? 0),
             devueltas: Number(f.devueltas ?? 0),
             degustadas: Number(f.degustadas ?? 0),
+            degustadasCarga: Number(f.degustadas_carga ?? 0),
+            degustadasCierre: Number(f.degustadas_cierre ?? 0),
             precioFeriaCentavos: f.precio_feria_centavos,
           })),
         totalVendidoCentavos: Number(p.total_vendido_centavos ?? 0),

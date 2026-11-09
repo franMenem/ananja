@@ -34,6 +34,8 @@ const part = (o: Record<string, unknown>) => ({
   entregadas: 0,
   devueltas: 0,
   degustadas: 0,
+  degustadas_carga: 0,
+  degustadas_cierre: 0,
   vendidas: 0,
   faltan: 0,
   total_vendido_centavos: 0,
@@ -123,7 +125,7 @@ describe("pantallas de ferias", () => {
           part({ entregadas: 10, vendidas: 0, faltan: 10 }),
           part({ vendedor_id: "v2", vendedor_nombre: "Beba", estado: "cerrada", entregadas: 4, vendidas: 4, total_vendido_centavos: 400000, efectivo_centavos: 400000 }),
         ]}
-        productosPorPersona={{ v1: [{ feria_id: "f1", vendedor_id: "v1", producto_id: "p1", producto_nombre: "500 ml", entregadas: 10, vendidas: 0, devueltas: 0, degustadas: 0, precio_feria_centavos: 1000 }] }}
+        productosPorPersona={{ v1: [{ feria_id: "f1", vendedor_id: "v1", producto_id: "p1", producto_nombre: "500 ml", entregadas: 10, vendidas: 0, devueltas: 0, degustadas: 0, degustadas_carga: 0, degustadas_cierre: 0, precio_feria_centavos: 1000 }] }}
         revendedoras={[{ id: "v1", nombre: "Ana" }, { id: "v2", nombre: "Beba" }, { id: "v3", nombre: "Cata" }]}
       />,
     );

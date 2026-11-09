@@ -28,8 +28,8 @@ const pendiente: FeriaMiDatos = {
   lugar: "Plaza Italia",
   cerrada: false,
   productos: [
-    { productoId: "a", nombre: "Aceite 250", entregadas: 10, vendidas: 2, devueltas: 0, degustadas: 0, precioFeriaCentavos: 1500000 },
-    { productoId: "b", nombre: "Aceite 500", entregadas: 4, vendidas: 0, devueltas: 0, degustadas: 0, precioFeriaCentavos: 2800000 },
+    { productoId: "a", nombre: "Aceite 250", entregadas: 10, vendidas: 2, devueltas: 0, degustadas: 0, degustadasCarga: 0, degustadasCierre: 0, precioFeriaCentavos: 1500000 },
+    { productoId: "b", nombre: "Aceite 500", entregadas: 4, vendidas: 0, devueltas: 0, degustadas: 0, degustadasCarga: 0, degustadasCierre: 0, precioFeriaCentavos: 2800000 },
   ],
   totalVendidoCentavos: 0,
   efectivoCentavos: 0,
@@ -60,7 +60,7 @@ describe("FeriaMiVista", () => {
           ...pendiente,
           cerrada: true,
           productos: [
-            { productoId: "a", nombre: "Aceite 250", entregadas: 10, vendidas: 7, devueltas: 2, degustadas: 1, precioFeriaCentavos: 1500000 },
+            { productoId: "a", nombre: "Aceite 250", entregadas: 10, vendidas: 7, devueltas: 2, degustadas: 1, degustadasCarga: 0, degustadasCierre: 1, precioFeriaCentavos: 1500000 },
           ],
           totalVendidoCentavos: 10500000,
           efectivoCentavos: 10000000,

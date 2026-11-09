@@ -68,6 +68,51 @@ export async function feriaAgregarParticipante(supabase: Supa, feriaId: string, 
   return supabase.rpc("feria_agregar_participante", { p_feria_id: feriaId, p_vendedor_id: vendedorId });
 }
 
+export type CargaDegustacionArgs = {
+  feriaId: string;
+  vendedorId: string;
+  /** `loteId` opcional: sin él se elige solo, del lote más viejo al más nuevo. */
+  items: { productoId: string; cantidad: number; loteId?: string | null }[];
+  fecha: string;
+  nota: string | null;
+};
+
+/** Respuesta de `feria_cargar_degustacion`. */
+export type ResultadoCargaDegustacion = { movimiento_ids: string[]; cantidad_total: number };
+
+/** Solo admin, feria abierta y participante pendiente. Saca botellas del stock
+ * del pedido como degustación a cargo de Ananja (no son entrega ni deuda). */
+export async function feriaCargarDegustacion(supabase: Supa, args: CargaDegustacionArgs) {
+  return supabase.rpc("feria_cargar_degustacion", {
+    p_feria_id: args.feriaId,
+    p_vendedor_id: args.vendedorId,
+    p_items: args.items
+      .filter((i) => i.cantidad > 0)
+      .map((i) => ({
+        producto_id: i.productoId,
+        cantidad: i.cantidad,
+        ...(i.loteId ? { lote_id: i.loteId } : {}),
+      })),
+    p_fecha: args.fecha,
+    p_nota: sinValor(args.nota),
+  });
+}
+
+/** Solo admin, feria abierta y participante pendiente. Devuelve la degustación
+ * cargada de un producto (archiva y borra sus egresos). -> `{ ok, cantidad }`. */
+export async function feriaQuitarDegustacion(
+  supabase: Supa,
+  feriaId: string,
+  vendedorId: string,
+  productoId: string,
+) {
+  return supabase.rpc("feria_quitar_degustacion", {
+    p_feria_id: feriaId,
+    p_vendedor_id: vendedorId,
+    p_producto_id: productoId,
+  });
+}
+
 export async function feriaQuitarParticipante(supabase: Supa, feriaId: string, vendedorId: string) {
   return supabase.rpc("feria_quitar_participante", { p_feria_id: feriaId, p_vendedor_id: vendedorId });
 }
