@@ -1,9 +1,10 @@
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { EntregaForm } from "@/components/revendedores/entrega-form";
 import { VolverLink } from "@/components/volver-link";
-import { listarProductos, listarUltimaEntregaPorProducto, obtenerVendedorPorId } from "@/lib/data/revendedores";
+import { listarProductos, obtenerVendedorPorId } from "@/lib/data/revendedores";
 import { obtenerLotesConStock } from "@/lib/data/lotes";
-import { ultimoLotePorProducto } from "@/lib/dominio/lotes-disponibles";
+import { pedidosEnPoderPorProducto } from "@/lib/dominio/devolucion";
+import { listarStockEnPoderDeVendedor } from "@/lib/data/stock";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -20,14 +21,13 @@ export default async function DevolucionRevendedorPage({
   const { id } = await params;
 
   const supabase = await createClient();
-  const [revendedor, { data: productos }, lotesConStock, { data: entregasConLote }] = await Promise.all([
+  const [revendedor, { data: productos }, lotesConStock, { data: enPoder }] = await Promise.all([
     obtenerVendedorPorId(supabase, id),
     listarProductos(supabase),
     obtenerLotesConStock(supabase),
-    // Última entrega (no devolución) de cada producto a ESTE revendedor,
-    // con su lote — default de "a qué lote vuelve" una devolución (ver
-    // `lib/lotes-disponibles.ts` § ultimoLotePorProducto).
-    listarUltimaEntregaPorProducto(supabase, id),
+    // Lo que ESTA revendedora tiene en poder por pedido: la devolución solo
+    // ofrece esos pedidos (antes ofrecía todos y podía quedar en uno ajeno).
+    listarStockEnPoderDeVendedor(supabase, id),
   ]);
 
   if (!revendedor) {
@@ -39,7 +39,8 @@ export default async function DevolucionRevendedorPage({
     );
   }
 
-  const ultimoLotePorProductoEntregado = ultimoLotePorProducto(entregasConLote ?? []);
+  const fechaPorLote = new Map(lotesConStock.map((l) => [l.loteId, l.fecha]));
+  const pedidosEnPoder = pedidosEnPoderPorProducto(enPoder, id, fechaPorLote);
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
@@ -48,7 +49,7 @@ export default async function DevolucionRevendedorPage({
             "Devolución"/"Revisá la entrega") con su propio SetFormHeader —
             mismo criterio que /revendedores/[id]/carga. */}
         <FormHeaderDesktop />
-        <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas devolvió {revendedor.nombre} y de qué pedido?</p>
+        <p className="-mt-2 text-[15px] text-text-muted">¿Qué botellas devolvió {revendedor.nombre}? Solo aparecen los pedidos de los que tiene botellas.</p>
         <EntregaForm
           vendedorId={id}
           vendedorNombre={revendedor.nombre}
@@ -56,7 +57,7 @@ export default async function DevolucionRevendedorPage({
           tipoInicial="devolucion"
           soloDevolucion
           lotesConStock={lotesConStock}
-          ultimoLotePorProducto={ultimoLotePorProductoEntregado}
+          pedidosEnPoder={pedidosEnPoder}
         />
       </div>
     </div>

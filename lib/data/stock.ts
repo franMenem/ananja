@@ -356,3 +356,62 @@ export async function listarStockRevendedorasPorLote(
 
   return { data: stockRevendedorasPorLote(items, ventas), error: null };
 }
+
+/**
+ * Lo que UNA revendedora tiene en poder por pedido y producto (misma cuenta
+ * que `listarStockRevendedorasPorLote`, pero solo de ella) — insumo de la
+ * pantalla de devolución, que solo ofrece pedidos de los que tiene botellas.
+ */
+export async function listarStockEnPoderDeVendedor(
+  supabase: Supa,
+  vendedorId: string,
+): Promise<{ data: EnManosFila[]; error: string | null }> {
+  const [itemsRes, ventasRes] = await Promise.all([
+    leerTodasLasPaginas((desde, hasta) =>
+      supabase
+        .from("entrega_items")
+        .select(
+          "id, entrega_id, producto_id, lote_id, cantidad, costo_ananja_unitario_centavos, precio_sugerido_centavos, entregas_revendedor!inner(vendedor_id, tipo, fecha, created_at)",
+        )
+        .eq("entregas_revendedor.vendedor_id", vendedorId)
+        .order("id")
+        .range(desde, hasta),
+    ),
+    leerTodasLasPaginas((desde, hasta) =>
+      supabase
+        .from("ventas_revendedor")
+        .select("id, vendedor_id, producto_id, cantidad, entrega_item_id")
+        .eq("vendedor_id", vendedorId)
+        .order("id")
+        .range(desde, hasta),
+    ),
+  ]);
+
+  if (itemsRes.error || ventasRes.error) {
+    console.error("listarStockEnPoderDeVendedor", itemsRes.error ?? ventasRes.error);
+    return { data: [], error: "No se pudo cargar lo que tiene en poder." };
+  }
+
+  const items: EntregaItemVendedor[] = itemsRes.data.map((i) => ({
+    id: i.id,
+    vendedorId: i.entregas_revendedor.vendedor_id,
+    entregaId: i.entrega_id,
+    tipo: i.entregas_revendedor.tipo === "devolucion" ? "devolucion" : "entrega",
+    fecha: i.entregas_revendedor.fecha,
+    createdAt: i.entregas_revendedor.created_at,
+    productoId: i.producto_id,
+    loteId: i.lote_id,
+    cantidad: i.cantidad,
+    costoAnanjaUnitarioCentavos: i.costo_ananja_unitario_centavos,
+    precioSugeridoCentavos: i.precio_sugerido_centavos,
+  }));
+
+  const ventas = ventasRes.data.map((v) => ({
+    vendedorId: v.vendedor_id,
+    productoId: v.producto_id,
+    cantidad: v.cantidad,
+    entregaItemId: v.entrega_item_id,
+  }));
+
+  return { data: stockRevendedorasPorLote(items, ventas), error: null };
+}

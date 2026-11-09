@@ -5,6 +5,7 @@ import { AlertaStockEntrega } from "@/components/revendedores/entrega/alerta-sto
 import { FormularioEntrega } from "@/components/revendedores/entrega/formulario-entrega";
 import { RevisionEntrega } from "@/components/revendedores/entrega/revision-entrega";
 import { useEntregaForm } from "@/components/revendedores/entrega/use-entrega-form";
+import type { PedidoEnPoder } from "@/lib/dominio/devolucion";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import type { Tables } from "@/lib/types";
 
@@ -27,7 +28,11 @@ type EntregaFormProps = {
   /** `productoId -> lote_id` de la última entrega (no devolución) de ese
    * producto a este revendedor — default de "a qué lote vuelve" una
    * devolución (ver `SelectorLote` § `loteIdPreferido`). */
-  ultimoLotePorProducto: Record<string, string>;
+  ultimoLotePorProducto?: Record<string, string>;
+  /** Devolución: pedidos de los que la revendedora tiene botellas en poder,
+   * por producto. Con esto la devolución solo ofrece esos pedidos, con
+   * "Devolver todo", y manda siempre el `lote_id`. */
+  pedidosEnPoder?: Record<string, PedidoEnPoder[]>;
 };
 
 /**
@@ -63,7 +68,8 @@ export function EntregaForm({
   tipoInicial,
   soloDevolucion = false,
   lotesConStock,
-  ultimoLotePorProducto,
+  ultimoLotePorProducto = {},
+  pedidosEnPoder,
 }: EntregaFormProps) {
   const f = useEntregaForm({
     vendedorId,
@@ -71,6 +77,7 @@ export function EntregaForm({
     tipoInicial,
     soloDevolucion,
     lotesConStock,
+    pedidosEnPoder,
   });
   const revisando = f.revision !== null;
 
@@ -97,6 +104,11 @@ export function EntregaForm({
         productos={productos}
         cantidades={f.cantidades}
         onCambiarCantidad={f.setCantidad}
+        pedidosEnPoder={pedidosEnPoder}
+        devolucion={f.devolucion}
+        onCambiarDevolucion={f.setCantidadDevolucion}
+        onDevolverTodo={f.handleDevolverTodo}
+        onDevolverTodoDeProducto={f.handleDevolverTodoDeProducto}
         lotesConStock={lotesConStock}
         ultimoLotePorProducto={ultimoLotePorProducto}
         onLotesChange={f.handleLotesChange}

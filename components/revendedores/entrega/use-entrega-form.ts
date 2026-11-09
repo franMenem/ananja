@@ -7,8 +7,15 @@ import { useCargasParecidas } from "@/components/revendedores/aviso-carga-repeti
 import type { FilaLote } from "@/components/lotes/selector-lote";
 import type { FilaRevision, ItemEntrega, StockAlert } from "@/components/revendedores/entrega/tipos";
 import { busquedaDeEntrega } from "@/lib/dominio/cargas-parecidas";
+import {
+  devolverTodo,
+  devolverTodoDeProducto,
+  itemsDeDevolucion,
+  primerExceso,
+  type PedidoEnPoder,
+} from "@/lib/dominio/devolucion";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
-import { hoyISO } from "@/lib/fechas";
+import { formatFechaSinAnio, hoyISO } from "@/lib/fechas";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { fusionarFilasDuplicadas, hayDescuadre } from "@/lib/dominio/lotes-split";
 import { formatMontoDisplay, parseMontoInput } from "@/lib/money";
@@ -38,18 +45,25 @@ export function useEntregaForm({
   tipoInicial,
   soloDevolucion = false,
   lotesConStock,
+  pedidosEnPoder,
 }: {
   vendedorId: string;
   productos: Tables<"productos">[];
   tipoInicial: "entrega" | "devolucion";
   soloDevolucion?: boolean;
   lotesConStock: LoteConStockDeProducto[];
+  /** Devolución: pedidos con botellas en poder de la revendedora, por
+   * producto. Si viene, la devolución se arma por pedido (siempre con
+   * `lote_id`) y no con el reparto libre de `SelectorLote`. */
+  pedidosEnPoder?: Record<string, PedidoEnPoder[]>;
 }) {
   const router = useRouter();
   const [tipo, setTipo] = useState<"entrega" | "devolucion">(soloDevolucion ? "devolucion" : tipoInicial);
   const [cantidades, setCantidades] = useState<Record<string, number>>(() =>
     Object.fromEntries(productos.map((p) => [p.id, 0])),
   );
+  // Devolución por pedido: `${productoId}:${loteId}` -> cantidad a devolver.
+  const [devolucion, setDevolucion] = useState<Record<string, number>>({});
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
@@ -76,6 +90,19 @@ export function useEntregaForm({
     setCantidades((prev) => ({ ...prev, [productoId]: value }));
   }
 
+  function setCantidadDevolucion(clave: string, value: number) {
+    setDevolucion((prev) => ({ ...prev, [clave]: value }));
+  }
+
+  function handleDevolverTodo() {
+    if (pedidosEnPoder) setDevolucion(devolverTodo(pedidosEnPoder));
+  }
+
+  function handleDevolverTodoDeProducto(productoId: string) {
+    if (!pedidosEnPoder) return;
+    setDevolucion((prev) => devolverTodoDeProducto(prev, productoId, pedidosEnPoder[productoId] ?? []));
+  }
+
   function handleLotesChange(productoId: string, filas: FilaLote[]) {
     setLotesPorProducto((prev) => ({ ...prev, [productoId]: filas }));
   }
@@ -92,6 +119,23 @@ export function useEntregaForm({
   /** Cantidades + split por lote → filas para el RPC (sin precios). `null`
    * si hay algo para corregir (deja el error en pantalla). */
   function armarItemsBase(): ItemEntrega[] | null {
+    if (tipo === "devolucion" && pedidosEnPoder) {
+      const exceso = primerExceso(devolucion, pedidosEnPoder);
+      if (exceso) {
+        const nombre = nombrePorProducto.get(exceso.productoId) ?? "un producto";
+        setError(
+          `De ${nombre} del pedido del ${formatFechaSinAnio(exceso.pedido.fecha)} solo tiene ${exceso.pedido.enPoder} en poder: no se pueden devolver ${exceso.cantidad}.`,
+        );
+        return null;
+      }
+      const itemsDevolucion = itemsDeDevolucion(devolucion, pedidosEnPoder);
+      if (itemsDevolucion.length === 0) {
+        setError("Cargá al menos una cantidad.");
+        return null;
+      }
+      return itemsDevolucion;
+    }
+
     const productosConCantidad = productos.filter((p) => (cantidades[p.id] ?? 0) > 0);
 
     if (productosConCantidad.length === 0) {
@@ -280,6 +324,10 @@ export function useEntregaForm({
     setTipo,
     cantidades,
     setCantidad,
+    devolucion,
+    setCantidadDevolucion,
+    handleDevolverTodo,
+    handleDevolverTodoDeProducto,
     fecha,
     setFecha,
     nota,
