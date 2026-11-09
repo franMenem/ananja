@@ -14,6 +14,8 @@ import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
 import { LinkBoton } from "@/components/ui/link-boton";
+import { FeriaInicioTarjeta } from "@/components/mi/feria-inicio-tarjeta";
+import type { FeriaInicio } from "@/lib/dominio/feria-mi";
 
 /** Una entrega de la que todavía le quedan botellas de un producto. */
 export type TramoStockMi = {
@@ -49,6 +51,8 @@ type MiInicioVistaProps = {
   ventas: VentaGanancia[];
   /** Mes de "Este mes ganaste" ("yyyy-mm"); por defecto, el de hoy. */
   periodoActual?: string;
+  /** Feria abierta donde participa (tarjeta destacada arriba), o `null`. */
+  feria?: FeriaInicio | null;
 };
 
 function Chevron() {
@@ -90,6 +94,7 @@ export function MiInicioVista({
   movimientos,
   ventas,
   periodoActual,
+  feria = null,
 }: MiInicioVistaProps) {
   const destinoPago = encargadoNombre ?? NEGOCIO.nombre;
   const totalBotellas = stock.reduce((acc, p) => acc + p.enPoder, 0);
@@ -105,6 +110,12 @@ export function MiInicioVista({
         <h1 className="font-display text-[28px] leading-[1.1] font-bold break-words text-text @3xl:col-span-2">
           Hola{nombre ? `, ${nombre}` : ""}
         </h1>
+
+        {feria && (
+          <div className="@3xl:col-span-2">
+            <FeriaInicioTarjeta feria={feria} />
+          </div>
+        )}
 
         <div className="flex flex-col gap-5">
           {nombre !== null && (

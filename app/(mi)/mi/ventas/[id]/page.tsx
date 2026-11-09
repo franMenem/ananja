@@ -73,7 +73,9 @@ export default async function VentaDetallePage({
     miVendedorId: revendedor?.id ?? "",
     vendedorId: venta.vendedor_id,
     registradaPor: venta.registrada_por,
+    feriaId: venta.feria_id,
   };
+  const esDeFeria = venta.feria_id !== null;
 
   const fila = (etiqueta: string, valor: React.ReactNode, clase = "text-text") => (
     <div className="flex min-h-12 items-center justify-between gap-3 py-2">
@@ -86,7 +88,11 @@ export default async function VentaDetallePage({
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5 pb-8">
       <VolverLink href="/mi/ventas" label="ventas" hover={false} corto />
 
-      <EncabezadoPantalla titulo={`${cantidad} × ${producto ?? "?"}`} pregunta="¿Cómo fue esta venta?" />
+      <EncabezadoPantalla
+        titulo={`${cantidad} × ${producto ?? "?"}`}
+        pregunta="¿Cómo fue esta venta?"
+        acciones={esDeFeria ? <Pastilla variante="neutra">Feria</Pastilla> : undefined}
+      />
 
       <Tarjeta className="flex flex-col divide-y divide-line">
         {fila("Fecha", formatFecha(venta.fecha))}
@@ -148,7 +154,9 @@ export default async function VentaDetallePage({
         <EliminarVentaButton ventaId={venta.id} />
       ) : (
         <p className="text-[14px] text-text-muted">
-          Si hay algún error en esta venta, pedile a un admin que la corrija.
+          {esDeFeria
+            ? "Esta venta es de una feria. Si hay que corregirla, pedile a un admin que reabra tu participación."
+            : "Si hay algún error en esta venta, pedile a un admin que la corrija."}
         </p>
       )}
     </div>

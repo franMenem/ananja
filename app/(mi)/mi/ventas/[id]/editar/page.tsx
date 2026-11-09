@@ -42,6 +42,7 @@ export default async function EditarVentaPage({ params }: PageProps<"/mi/ventas/
       miVendedorId: revendedor.id,
       vendedorId: venta.vendedor_id,
       registradaPor: venta.registrada_por,
+      feriaId: venta.feria_id,
     })
   ) {
     redirect(`/mi/ventas/${id}`);

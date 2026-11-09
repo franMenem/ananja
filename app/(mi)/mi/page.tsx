@@ -9,6 +9,8 @@ import {
   obtenerMiPlataEnMano,
 } from "@/lib/data/mi";
 import { obtenerDeudaVendedor } from "@/lib/data/revendedores";
+import { feriaAbiertaDe } from "@/lib/data/ferias";
+import { accionFeriaInicio, type FeriaInicio } from "@/lib/dominio/feria-mi";
 import { hoyISO } from "@/lib/fechas";
 import {
   calcularDeudaConPendientes,
@@ -93,6 +95,7 @@ export default async function MiPage() {
     { data: valorStock },
     tieneCoordinadorConMargen,
     encargado,
+    feriaAbierta,
   ] = await Promise.all([
     listarProductosPublicos(supabase),
     revendedor ? listarStockRevendedor(supabase, revendedor.id) : vacio,
@@ -114,7 +117,23 @@ export default async function MiPage() {
     // es admin (0074_fotos_costo_entrega_solo_admin.sql).
     revendedor ? leerStockCobradoConMargen(supabase, revendedor.id) : Promise.resolve(false),
     revendedor ? obtenerMiEncargado(supabase) : Promise.resolve(null),
+    // Feria abierta donde participa (0078); si falla la lectura, Inicio sigue sin la tarjeta.
+    revendedor ? feriaAbiertaDe(supabase, revendedor.id) : Promise.resolve({ data: null, error: null }),
   ]);
+
+  const feriaData = feriaAbierta.data;
+  const feria: FeriaInicio | null =
+    feriaData && feriaData.participante
+      ? {
+          nombre: feriaData.feria.nombre,
+          fecha: feriaData.feria.fecha,
+          lugar: feriaData.feria.lugar,
+          accion: accionFeriaInicio(feriaData.participante.estado, feriaData.feria.fecha, hoyISO()),
+          llevadas: Number(feriaData.participante.entregadas ?? 0),
+          vendidas: Number(feriaData.participante.vendidas ?? 0),
+          devueltas: Number(feriaData.participante.devueltas ?? 0),
+        }
+      : null;
 
   // "Valor en poder" total y a quién se lo debe (0059): si lo que le
   // cobraron (valor_en_poder_centavos) es distinto de lo que cuesta
@@ -200,6 +219,7 @@ export default async function MiPage() {
       valorEnPoderCentavos={valorEnPoderCentavos}
       valorEnPoderDestino={tieneCoordinadorConMargen ? (encargado?.nombre ?? null) : null}
       stock={catalogo}
+      feria={feria}
       movimientos={movimientos}
       ventas={ventas.map((v) => ({
         fecha: v.fecha,

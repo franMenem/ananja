@@ -13,6 +13,9 @@ export interface VentaParaBorrar {
   vendedorId: string;
   /** Quién la cargó (`ventas_revendedor.registrada_por`, `null` = la dueña). */
   registradaPor: string | null;
+  /** `ventas_revendedor.feria_id`: una venta del cierre de una feria (0078) solo
+   * la corrige un admin reabriendo la participación. `null`/ausente = venta normal. */
+  feriaId?: string | null;
 }
 
 /**
@@ -22,6 +25,7 @@ export interface VentaParaBorrar {
  */
 export function puedeBorrarVentaRevendedor(venta: VentaParaBorrar): boolean {
   if (venta.esAdmin) return true;
+  if (venta.feriaId) return false;
   if (venta.vendedorId !== venta.miVendedorId) return false;
   return venta.registradaPor === null || venta.registradaPor === venta.miVendedorId;
 }
