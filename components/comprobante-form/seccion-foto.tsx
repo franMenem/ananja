@@ -1,5 +1,6 @@
 "use client";
 
+import { BotonAccion } from "@/components/boton-accion";
 import { IconReceipt } from "@/components/icons";
 import { MensajeError } from "@/components/ui/campo";
 import { SeccionForm } from "@/components/ui/seccion-form";
@@ -107,13 +108,13 @@ export function SeccionFoto({
       {uploadError && (
         <div className="flex items-center justify-between gap-2">
           <MensajeError>{uploadError}</MensajeError>
-          <button
-            type="button"
+          <BotonAccion
             onClick={onRetryUpload}
+            cargando={uploading}
             className="min-h-11 shrink-0 rounded-xl border border-[#d0cec8] px-3 text-[15px] font-semibold text-text"
           >
             Reintentar
-          </button>
+          </BotonAccion>
         </div>
       )}
     </SeccionForm>

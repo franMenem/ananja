@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { guardarPasswordNueva } from "@/app/(auth)/cambiar-password/actions";
+import { BotonAccion } from "@/components/boton-accion";
 import { PASSWORD_MIN_LENGTH, validarPassword } from "@/lib/dominio/invitaciones";
 import { resetVendedorActualCache } from "@/lib/vendedor-actual";
 
@@ -158,13 +159,14 @@ export function PasswordForm({ etiqueta, textoBoton, destino, pedirPasswordActua
         </p>
       )}
 
-      <button
+      <BotonAccion
         type="submit"
-        disabled={loading}
+        cargando={loading}
+        textoCargando="Guardando…"
         className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
       >
-        {loading ? "Guardando…" : textoBoton}
-      </button>
+        {textoBoton}
+      </BotonAccion>
     </form>
   );
 }

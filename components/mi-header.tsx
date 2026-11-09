@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
+import { BotonAccion } from "@/components/boton-accion";
+import { useCerrarSesion } from "@/components/auth/usar-cerrar-sesion";
 import { useFormHeader } from "@/components/page-header-context";
 import { NEGOCIO } from "@/lib/negocio";
-import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
-import { olvidarReenlacePush } from "@/lib/push-client";
 
 /**
  * Cabecera móvil (`< lg`) del shell de revendedor (`components/mi/mi-shell.tsx`)
@@ -27,17 +26,10 @@ import { olvidarReenlacePush } from "@/lib/push-client";
  * verdad" (`rol = 'revendedor'`) no tiene shell de admin al que volver.
  */
 export function MiHeader() {
-  const router = useRouter();
   const { vendedor } = useVendedorActual();
   const formHeader = useFormHeader();
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    olvidarReenlacePush();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
+  const { cerrarSesion, saliendo } = useCerrarSesion();
 
   if (formHeader) {
     return (
@@ -76,13 +68,14 @@ export function MiHeader() {
               Ver como admin
             </Link>
           )}
-          <button
-            type="button"
-            onClick={handleSignOut}
+          <BotonAccion
+            onClick={cerrarSesion}
+            cargando={saliendo}
+            textoCargando="Cerrando sesión…"
             className="min-h-11 text-[14px] text-text-muted"
           >
             Cerrar sesión
-          </button>
+          </BotonAccion>
         </div>
       </div>
     </header>

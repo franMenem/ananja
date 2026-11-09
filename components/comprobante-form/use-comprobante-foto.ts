@@ -76,9 +76,11 @@ export function useComprobanteFoto(
 
   async function uploadFile(file: File) {
     setUploading(true);
-    setUploadError(null);
+    // El error anterior queda a la vista mientras se reintenta: así el
+    // botón "Reintentar" sigue en pantalla mostrando su loader.
     try {
       const path = await subirComprobante(file);
+      setUploadError(null);
       setImagenPath(path);
     } catch (err) {
       setImagenPath(null);
@@ -99,6 +101,7 @@ export function useComprobanteFoto(
     currentFileRef.current = file;
     setFileName(file.name);
     setImagenPath(null);
+    setUploadError(null);
 
     const isPdf = file.type === "application/pdf";
     setPreviewIsPdf(isPdf);

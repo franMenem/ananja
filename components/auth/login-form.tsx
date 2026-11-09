@@ -9,6 +9,7 @@ import {
   normalizarEmail,
   resolverUrlSitio,
 } from "@/lib/dominio/invitaciones";
+import { BotonAccion } from "@/components/boton-accion";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
 
@@ -136,9 +137,9 @@ export function LoginForm({ aviso }: LoginFormProps) {
                 {error}
               </p>
             )}
-            <button type="submit" disabled={loading} className={submitClass}>
-              {loading ? "Enviando…" : "Mandarme el link"}
-            </button>
+            <BotonAccion type="submit" cargando={loading} textoCargando="Enviando…" className={submitClass}>
+              Mandarme el link
+            </BotonAccion>
           </>
         )}
 
@@ -190,9 +191,9 @@ export function LoginForm({ aviso }: LoginFormProps) {
         </p>
       )}
 
-      <button type="submit" disabled={loading} className={submitClass}>
-        {loading ? "Ingresando…" : "Ingresar"}
-      </button>
+      <BotonAccion type="submit" cargando={loading} textoCargando="Ingresando…" className={submitClass}>
+        Ingresar
+      </BotonAccion>
 
       <button
         type="button"

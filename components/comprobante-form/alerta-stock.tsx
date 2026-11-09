@@ -1,5 +1,6 @@
 "use client";
 
+import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import type { StockAlert } from "@/components/comprobante-form/use-guardar-comprobante";
 
@@ -8,6 +9,9 @@ type AlertaStockProps = {
   cantidadVendiendo: number;
   onRevisar: () => void;
   onGuardarIgual: () => void;
+  /** `true` mientras se guarda: la hoja queda a la vista con el loader en
+   * "Guardar igual" y se cierra sola cuando el guardado termina. */
+  guardando: boolean;
 };
 
 /** Hoja "Stock insuficiente" — con "Revisar cantidades" o "Guardar igual"
@@ -17,6 +21,7 @@ export function AlertaStock({
   cantidadVendiendo,
   onRevisar,
   onGuardarIgual,
+  guardando,
 }: AlertaStockProps) {
   return (
     <BottomSheet open={stockAlert !== null} ariaLabel="Stock insuficiente" variant="accent">
@@ -47,17 +52,18 @@ export function AlertaStock({
             <button
               type="button"
               onClick={onRevisar}
-              className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary rounded-xl"
+              disabled={guardando}
+              className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"
             >
               Revisar cantidades
             </button>
-            <button
-              type="button"
+            <BotonAccion
               onClick={onGuardarIgual}
+              cargando={guardando}
               className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground"
             >
               Guardar igual
-            </button>
+            </BotonAccion>
           </div>
         </>
       )}

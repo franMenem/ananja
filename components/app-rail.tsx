@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
 import { useCargar } from "@/components/cargar/cargar-provider";
+import { useCerrarSesion } from "@/components/auth/usar-cerrar-sesion";
+import { Spinner } from "@/components/spinner";
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { IconLogout, IconMas, IconRailToggle } from "@/components/icons";
 import { useTareasPendientes } from "@/components/tareas-badge";
@@ -16,8 +18,6 @@ import {
   leerSidebarColapsado,
   suscribirseSidebarColapsado,
 } from "@/lib/sidebar-colapsado";
-import { createClient } from "@/lib/supabase/client";
-import { olvidarReenlacePush } from "@/lib/push-client";
 
 /** `getServerSnapshot` de `useSyncExternalStore` — no hay `localStorage` en
  * el servidor, así que el SSR siempre asume expandido. */
@@ -69,7 +69,6 @@ function itemClassName(active: boolean, colapsado: boolean): string {
  */
 export function AppRail() {
   const pathname = usePathname();
-  const router = useRouter();
   const cantidadTareas = useTareasPendientes();
   const { abrir } = useCargar();
   const ubicacion = resolverNavegacion(pathname);
@@ -84,13 +83,7 @@ export function AppRail() {
     guardarSidebarColapsado(!colapsado);
   }
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    olvidarReenlacePush();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
+  const { cerrarSesion, saliendo } = useCerrarSesion();
 
   return (
     <nav
@@ -201,14 +194,20 @@ export function AppRail() {
         <VerComoRevendedor variante="rail" colapsado={colapsado} />
         <button
           type="button"
-          onClick={handleSignOut}
+          onClick={cerrarSesion}
+          disabled={saliendo}
+          aria-busy={saliendo || undefined}
           aria-label={colapsado ? "Cerrar sesión" : undefined}
           title={colapsado ? "Cerrar sesión" : undefined}
           className={`flex min-h-11 w-full items-center border-l-2 border-transparent py-3 text-left text-[14px] text-text-muted ${
             colapsado ? "justify-center px-0" : "gap-3 px-6"
           }`}
         >
-          <IconLogout className="h-[19px] w-[19px] shrink-0" />
+          {saliendo ? (
+            <Spinner className="text-[19px]" />
+          ) : (
+            <IconLogout className="h-[19px] w-[19px] shrink-0" />
+          )}
           {!colapsado && <span>Cerrar sesión</span>}
         </button>
       </div>

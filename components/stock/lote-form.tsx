@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { BotonAccion } from "@/components/boton-accion";
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { AccionesForm } from "@/components/ui/acciones-form";
 import { Campo, Entrada, MensajeError } from "@/components/ui/campo";
@@ -272,7 +273,9 @@ export function LoteForm({
 
   async function guardarLote(permitirNegativo: boolean) {
     permitirNegativoRef.current = permitirNegativo;
-    setError(null);
+    // El error de conexión queda a la vista mientras se reintenta, para que
+    // el botón "Reintentar" siga en pantalla mostrando su loader.
+    setError((prev) => (prev?.startsWith("No se pudo conectar") ? prev : null));
     setSaving(true);
 
     try {
@@ -313,6 +316,7 @@ export function LoteForm({
           }
           return;
         }
+        setInsumoAlert(null);
         setError(mensajeErrorLote(rpcError.message, rpcError.details));
         return;
       }
@@ -320,10 +324,12 @@ export function LoteForm({
       // Al detalle del lote recién creado (no a /stock) para que el dueño
       // vea de una el costo de la botella si cargó "Costos del pedido", o
       // el aviso "Completar costos de este pedido" si no.
+      setInsumoAlert(null);
       const loteId = (rpcData as { lote_id?: string } | null)?.lote_id;
       router.push(loteId ? `/stock/lotes/${loteId}` : "/stock");
       router.refresh();
     } catch {
+      setInsumoAlert(null);
       setError("No se pudo conectar. Revisá la conexión e intentá de nuevo.");
     } finally {
       setSaving(false);
@@ -497,13 +503,13 @@ export function LoteForm({
           <div className="flex flex-col gap-2">
             <MensajeError>{error}</MensajeError>
             {showRetry && (
-              <button
-                type="button"
+              <BotonAccion
                 onClick={() => void guardarLote(permitirNegativoRef.current)}
+                cargando={saving}
                 className="min-h-12 self-start rounded-xl border border-accent px-4 text-[15px] font-semibold text-accent"
               >
                 Reintentar
-              </button>
+              </BotonAccion>
             )}
           </div>
         )}
@@ -556,16 +562,13 @@ export function LoteForm({
                 >
                   Revisar cantidades
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setInsumoAlert(null);
-                    void guardarLote(true);
-                  }}
+                <BotonAccion
+                  onClick={() => void guardarLote(true)}
+                  cargando={saving}
                   className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground"
                 >
                   Guardar igual
-                </button>
+                </BotonAccion>
               </div>
             </>
           );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { BotonAccion } from "@/components/boton-accion";
 import { ListaTarjeta } from "@/components/ui/fila";
 import { Pastilla } from "@/components/ui/pastilla";
 import type { Material } from "@/lib/data/material";
@@ -28,7 +29,7 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
 
   async function handleMover(id: string, direccion: "subir" | "bajar") {
     if (moviendo !== null) return;
-    setMoviendo(id);
+    setMoviendo(`${id}:${direccion}`);
     setError(null);
 
     const supabase = createClient();
@@ -63,24 +64,24 @@ export function MaterialLista({ materiales }: MaterialListaProps) {
               </Pastilla>
             </Link>
             <div className="flex shrink-0 gap-1">
-              <button
-                type="button"
+              <BotonAccion
                 onClick={() => handleMover(material.id, "subir")}
+                cargando={moviendo === `${material.id}:subir`}
                 disabled={index === 0 || moviendo !== null}
                 aria-label={`Subir "${material.titulo}"`}
                 className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#d0cec8] bg-surface text-[18px] text-text disabled:opacity-30"
               >
                 ↑
-              </button>
-              <button
-                type="button"
+              </BotonAccion>
+              <BotonAccion
                 onClick={() => handleMover(material.id, "bajar")}
+                cargando={moviendo === `${material.id}:bajar`}
                 disabled={index === materiales.length - 1 || moviendo !== null}
                 aria-label={`Bajar "${material.titulo}"`}
                 className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#d0cec8] bg-surface text-[18px] text-text disabled:opacity-30"
               >
                 ↓
-              </button>
+              </BotonAccion>
             </div>
           </div>
         ))}

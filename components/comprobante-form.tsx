@@ -200,10 +200,8 @@ export function ComprobanteForm({
         stockAlert={stockAlert}
         cantidadVendiendo={cantidadVendiendoAlerta}
         onRevisar={() => guardar.setStockAlert(null)}
-        onGuardarIgual={() => {
-          guardar.setStockAlert(null);
-          void guardar.handleSubmit(true);
-        }}
+        onGuardarIgual={() => void guardar.handleSubmit(true)}
+        guardando={guardar.submitting}
       />
     </form>
   );

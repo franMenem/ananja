@@ -1,5 +1,6 @@
 "use client";
 
+import { BotonAccion } from "@/components/boton-accion";
 import { useActionState, useState, useTransition } from "react";
 
 import {
@@ -137,18 +138,14 @@ export function AltaForm({ coordinadores }: { coordinadores: Admin[] }) {
           )}
 
           {estado.estado === "ya_invitado" && estado.userId && !reintentoActual && (
-            <button
-              type="button"
+            <BotonAccion
               onClick={reintentar}
-              disabled={reintentando}
+              cargando={reintentando}
+              textoCargando="Un momento…"
               className="flex min-h-12 items-center self-start rounded-xl border border-primary px-4 text-[15px] font-semibold text-primary disabled:opacity-45"
             >
-              {reintentando
-                ? "Un momento…"
-                : estado.reintento === "nueva_temporal"
-                  ? "Generar otra contraseña temporal"
-                  : "Reenviar invitación"}
-            </button>
+              {estado.reintento === "nueva_temporal" ? "Generar otra contraseña temporal" : "Reenviar invitación"}
+            </BotonAccion>
           )}
 
           {reintentoActual && !reintentoActual.credenciales && (

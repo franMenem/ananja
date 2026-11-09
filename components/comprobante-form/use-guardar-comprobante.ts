@@ -52,6 +52,12 @@ export type UseGuardarComprobanteResult = {
   showRetry: boolean;
 };
 
+const PREFIJO_ERROR_CONEXION = "No se pudo guardar por un problema de conexión";
+
+function esErrorDeConexion(mensaje: string | null): boolean {
+  return mensaje !== null && mensaje.startsWith(PREFIJO_ERROR_CONEXION);
+}
+
 /**
  * Validación, guardado (`crear_comprobante`/`actualizar_comprobante`) y
  * traducción de errores de `ComprobanteForm` — extraído de
@@ -72,12 +78,15 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     if (resultado.tipo === "stock") {
       setStockAlert(resultado.alerta);
     } else {
+      setStockAlert(null);
       setFormError(resultado.mensaje);
     }
   }
 
   async function handleSubmit(permitirNegativo: boolean) {
-    setFormError(null);
+    // El error de conexión queda a la vista mientras se reintenta, para que
+    // el botón "Reintentar" siga en pantalla mostrando su loader.
+    setFormError((prev) => (esErrorDeConexion(prev) ? prev : null));
     permitirNegativoRef.current = permitirNegativo;
 
     const validacion = validarComprobanteForm({
@@ -94,6 +103,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     });
 
     if (!validacion.ok) {
+      setStockAlert(null);
       setFormError(validacion.error);
       return;
     }
@@ -155,6 +165,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
       // hallazgo #3 de la auditoría de seguridad): acá solo se resuelve el
       // id del producto que originó cada alerta ("stock_bajo:Nombre") contra
       // la lista de productos ya cargada en este formulario.
+      setStockAlert(null);
       const alertas = (data as { alertas?: string[] } | null)?.alertas ?? [];
       for (const alerta of alertas) {
         const nombreAlerta = alerta.replace(/^stock_bajo:/, "");
@@ -167,6 +178,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
       router.push(args.volverA ?? "/comprobantes");
       router.refresh();
     } catch {
+      setStockAlert(null);
       setFormError(
         "No se pudo guardar por un problema de conexión. Los datos quedaron cargados: revisá tu conexión e intentá de nuevo.",
       );
@@ -180,9 +192,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     void handleSubmit(false);
   }
 
-  const showRetry =
-    formError !== null &&
-    formError.startsWith("No se pudo guardar por un problema de conexión");
+  const showRetry = esErrorDeConexion(formError);
 
   return {
     submitting,

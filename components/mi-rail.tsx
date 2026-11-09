@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
+import { useCerrarSesion } from "@/components/auth/usar-cerrar-sesion";
+import { Spinner } from "@/components/spinner";
 import { IconHome, IconLogout, IconRailToggle } from "@/components/icons";
 import { NEGOCIO } from "@/lib/negocio";
 import { tabActivaMi, tabsParaRol } from "@/lib/navegacion-mi";
@@ -12,9 +14,7 @@ import {
   leerSidebarColapsado,
   suscribirseSidebarColapsado,
 } from "@/lib/sidebar-colapsado";
-import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
-import { olvidarReenlacePush } from "@/lib/push-client";
 
 /** SSR: no hay `localStorage`, se asume expandido (ver `components/app-rail.tsx`). */
 function leerSidebarColapsadoServer(): boolean {
@@ -46,7 +46,6 @@ function itemClassName(active: boolean, colapsado: boolean): string {
  */
 export function MiRail() {
   const pathname = usePathname();
-  const router = useRouter();
   const { vendedor } = useVendedorActual();
   const tabs = tabsParaRol(vendedor?.rol);
   const activa = tabActivaMi(pathname, tabs);
@@ -57,13 +56,7 @@ export function MiRail() {
     leerSidebarColapsadoServer,
   );
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    olvidarReenlacePush();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
+  const { cerrarSesion, saliendo } = useCerrarSesion();
 
   return (
     <nav
@@ -133,12 +126,18 @@ export function MiRail() {
         )}
         <button
           type="button"
-          onClick={handleSignOut}
+          onClick={cerrarSesion}
+          disabled={saliendo}
+          aria-busy={saliendo || undefined}
           aria-label={colapsado ? "Cerrar sesión" : undefined}
           title={colapsado ? "Cerrar sesión" : undefined}
           className={itemClassName(false, colapsado)}
         >
-          <IconLogout className="h-[19px] w-[19px] shrink-0" />
+          {saliendo ? (
+            <Spinner className="text-[19px]" />
+          ) : (
+            <IconLogout className="h-[19px] w-[19px] shrink-0" />
+          )}
           {!colapsado && <span>Cerrar sesión</span>}
         </button>
       </div>

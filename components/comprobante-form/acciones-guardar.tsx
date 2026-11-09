@@ -1,5 +1,6 @@
 "use client";
 
+import { BotonAccion } from "@/components/boton-accion";
 import { AccionesForm } from "@/components/ui/acciones-form";
 import { MensajeError } from "@/components/ui/campo";
 
@@ -34,13 +35,13 @@ export function AccionesGuardar({
         <div className="flex flex-col gap-2">
           <MensajeError>{formError}</MensajeError>
           {showRetry && (
-            <button
-              type="button"
+            <BotonAccion
               onClick={onRetry}
+              cargando={submitting}
               className="min-h-12 self-start rounded-xl border border-accent px-4 text-[15px] font-semibold text-accent"
             >
               Reintentar
-            </button>
+            </BotonAccion>
           )}
         </div>
       )}

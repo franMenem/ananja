@@ -311,10 +311,12 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
 
   async function subir(file: File) {
     setUploading(true);
-    setUploadError(null);
+    // El error anterior queda a la vista mientras se reintenta: así el
+    // botón "Reintentar" sigue en pantalla mostrando su loader.
     try {
       const path = await subirFotoCompra(file);
       setUploading(false);
+      setUploadError(null);
       onSubida(path);
     } catch (err) {
       setUploading(false);
@@ -394,13 +396,13 @@ function SubirFacturaGasto({ onSubida, onCancelar, guardando }: SubirFacturaGast
           <p role="alert" className="text-[14px] text-accent">
             {uploadError}
           </p>
-          <button
-            type="button"
+          <BotonAccion
             onClick={handleRetry}
+            cargando={uploading}
             className="min-h-12 shrink-0 rounded-xl border border-[#d0cec8] px-3 text-[15px] font-semibold text-text"
           >
             Reintentar
-          </button>
+          </BotonAccion>
         </div>
       )}
 
