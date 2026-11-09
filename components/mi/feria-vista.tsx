@@ -5,6 +5,7 @@ import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { diferenciaPlata } from "@/lib/dominio/feria";
+import { textoDegustacionMi } from "@/lib/dominio/feria-mi";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { envase } from "@/lib/negocio";
@@ -54,10 +55,11 @@ export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
     );
   }
 
-  const productos = feria.productos.filter((p) => p.entregadas > 0 || p.vendidas > 0);
+  const productos = feria.productos.filter((p) => p.entregadas > 0 || p.vendidas > 0 || p.degustadasCarga > 0);
   const totalLlevadas = productos.reduce((a, p) => a + p.entregadas, 0);
   const totalDevueltas = productos.reduce((a, p) => a + p.devueltas, 0);
-  const totalDegustadas = productos.reduce((a, p) => a + p.degustadas, 0);
+  const totalDegustadasCarga = productos.reduce((a, p) => a + p.degustadasCarga, 0);
+  const totalDegustadasCierre = productos.reduce((a, p) => a + p.degustadasCierre, 0);
   const totalVendidas = productos.reduce((a, p) => a + p.vendidas, 0);
   const juntado = feria.efectivoCentavos + feria.mercadoPagoCentavos + feria.bancoCentavos;
   const subtitulo = [formatFecha(feria.fecha), feria.lugar].filter(Boolean).join(" · ");
@@ -96,9 +98,14 @@ export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
                             Ya vendiste {p.vendidas}
                           </span>
                         )}
+                        {p.degustadasCarga > 0 && (
+                          <span className="block">
+                            {p.degustadasCarga} para degustación (a cargo de Ananja)
+                          </span>
+                        )}
                       </>
                     }
-                    valor={p.entregadas}
+                    valor={`${p.entregadas} para vender`}
                   />
                 ))}
               </div>
@@ -119,7 +126,7 @@ export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
                 <Fila
                   key={p.productoId}
                   titulo={p.nombre}
-                  detalle={`Te llevaste ${p.entregadas} · devolviste ${p.devueltas} · degustación ${p.degustadas}`}
+                  detalle={`Te llevaste ${p.entregadas} · devolviste ${p.devueltas} · degustación ${textoDegustacionMi(p.degustadasCarga, p.degustadasCierre)}`}
                   valor={`Vendiste ${p.vendidas}`}
                 />
               ))}
@@ -130,7 +137,8 @@ export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
                 <span className="font-semibold tabular-nums">{formatCentavos(feria.totalVendidoCentavos)}</span>.
               </p>
               <p className="text-text-muted">
-                Devolviste {totalDevueltas} · degustación {totalDegustadas} (de {totalLlevadas} que te llevaste).
+                Devolviste {totalDevueltas} de las {totalLlevadas} que te llevaste · degustación{" "}
+                {textoDegustacionMi(totalDegustadasCarga, totalDegustadasCierre)}.
               </p>
             </div>
           </Tarjeta>

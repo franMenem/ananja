@@ -1,7 +1,7 @@
 import { CantidadStepper } from "@/components/cantidad-stepper";
 import { AccionesForm } from "@/components/ui/acciones-form";
 import { Aviso } from "@/components/ui/aviso";
-import { AreaTexto, Campo, Entrada, MensajeError } from "@/components/ui/campo";
+import { AreaTexto, CLASE_ETIQUETA, Campo, Entrada, MensajeError } from "@/components/ui/campo";
 import { SeccionForm } from "@/components/ui/seccion-form";
 import { Segmentos } from "@/components/ui/segmentos";
 import { DevolucionProductos } from "@/components/revendedores/entrega/devolucion-productos";
@@ -11,6 +11,7 @@ import {
   lotesDeProducto,
   type LoteConStockDeProducto,
 } from "@/lib/dominio/lotes-disponibles";
+import { textoParaVenderYDegustar } from "@/lib/dominio/feria-admin";
 import { envase } from "@/lib/negocio";
 import type { Tables } from "@/lib/types";
 
@@ -27,6 +28,8 @@ export function FormularioEntrega({
   productos,
   cantidades,
   onCambiarCantidad,
+  degustacion,
+  onCambiarDegustacion,
   pedidosEnPoder,
   devolucion,
   onCambiarDevolucion,
@@ -54,6 +57,10 @@ export function FormularioEntrega({
   productos: Tables<"productos">[];
   cantidades: Record<string, number>;
   onCambiarCantidad: (productoId: string, value: number) => void;
+  /** Solo en feria: botellas "para degustación" por producto (a cargo de
+   * Ananja). Sin `onCambiarDegustacion`, el campo no se muestra. */
+  degustacion?: Record<string, number>;
+  onCambiarDegustacion?: (productoId: string, value: number) => void;
   /** Devolución por pedido (ver `DevolucionProductos`); sin esto, el flujo de siempre. */
   pedidosEnPoder?: Record<string, PedidoEnPoder[]>;
   devolucion: Record<string, number>;
@@ -164,6 +171,25 @@ export function FormularioEntrega({
                       }
                       ariaLabelSufijo={` de ${producto.nombre}`}
                     />
+                  )}
+                  {onCambiarDegustacion && tipo === "entrega" && (
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className={CLASE_ETIQUETA}>Para degustación</span>
+                        <CantidadStepper
+                          size="sm"
+                          value={degustacion?.[producto.id] ?? 0}
+                          onChange={(value) => onCambiarDegustacion(producto.id, value)}
+                          ariaLabelSufijo={` de ${producto.nombre} para degustación`}
+                          disableAtMin={false}
+                        />
+                      </div>
+                      {(cantidad > 0 || (degustacion?.[producto.id] ?? 0) > 0) && (
+                        <p className="text-[14px] text-text-muted">
+                          {textoParaVenderYDegustar(cantidad, degustacion?.[producto.id] ?? 0)}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               );

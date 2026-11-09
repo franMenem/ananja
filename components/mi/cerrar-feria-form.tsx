@@ -34,7 +34,11 @@ import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money
 import { envase } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
 
-export type ProductoCierreForm = Omit<ProductoCierreFeria, "yaVendidas"> & { yaVendidas: number };
+export type ProductoCierreForm = Omit<ProductoCierreFeria, "yaVendidas"> & {
+  yaVendidas: number;
+  /** Degustación que el admin ya le cargó (a cargo de Ananja). No se descuenta de lo que se llevó. */
+  degustadasCarga?: number;
+};
 
 function montoAProcesar(texto: string): number | null {
   return texto.trim() === "" ? 0 : parseMontoInput(texto);
@@ -158,6 +162,7 @@ export function CerrarFeriaForm({
                     <span className="text-[17px] font-semibold text-text">{f.nombre}</span>
                     <span className="text-[14px] text-text-muted">
                       Te llevaste {p.entregadas}
+                      {(p.degustadasCarga ?? 0) > 0 && ` · ya tenés ${p.degustadasCarga} para degustación`}
                       {p.yaVendidas > 0 && ` · ya vendiste ${p.yaVendidas}`}
                     </span>
                   </div>
@@ -176,7 +181,9 @@ export function CerrarFeriaForm({
                       </div>
                     </div>
                     <div>
-                      <span className={CLASE_ETIQUETA}>Degustación</span>
+                      <span className={CLASE_ETIQUETA}>
+                        {(p.degustadasCarga ?? 0) > 0 ? "Degustación extra" : "Degustación"}
+                      </span>
                       <div className="mt-1.5">
                         <CantidadStepper
                           size="sm"

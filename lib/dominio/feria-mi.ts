@@ -28,4 +28,16 @@ export type FeriaInicio = {
   llevadas: number;
   vendidas: number;
   devueltas: number;
+  /** Botellas que el admin le cargó para degustación (a cargo de Ananja). */
+  degustadasCarga?: number;
 };
+
+/**
+ * Degustación de un producto vista por la revendedora: "0", "1 de Ananja",
+ * "3" (todas del cierre) o "4 (3 de Ananja · 1 en el cierre)".
+ */
+export function textoDegustacionMi(carga: number, cierre: number): string {
+  if (carga > 0 && cierre > 0) return `${carga + cierre} (${carga} de Ananja · ${cierre} en el cierre)`;
+  if (carga > 0) return `${carga} de Ananja`;
+  return String(cierre);
+}

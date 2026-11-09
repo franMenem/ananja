@@ -18,12 +18,13 @@ export default async function CerrarFeriaPage() {
   if (!data || data.datos.cerrada) redirect("/mi/feria");
 
   const productos = data.datos.productos
-    .filter((p) => p.entregadas > 0)
+    .filter((p) => p.entregadas > 0 || p.degustadasCarga > 0)
     .map((p) => ({
       productoId: p.productoId,
       nombre: p.nombre,
       entregadas: p.entregadas,
       yaVendidas: p.vendidas,
+      degustadasCarga: p.degustadasCarga,
       precioCentavos: p.precioFeriaCentavos,
     }));
 

@@ -1,14 +1,18 @@
 import { DetalleFeria } from "@/components/ferias/detalle-feria";
 import { VolverLink } from "@/components/volver-link";
 import { listarProductosDeParticipante, obtenerFeria, type ProductoParticipanteRow } from "@/lib/data/ferias";
-import { listarRevendedorasActivas } from "@/lib/data/revendedores";
+import { listarProductos, listarRevendedorasActivas } from "@/lib/data/revendedores";
+import { mensajeErrorFeria } from "@/lib/dominio/feria";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 /** `/ferias/[id]` — una feria: totales, participantes y sus acciones. */
-export default async function FeriaPage({ params }: PageProps<"/ferias/[id]">) {
+export default async function FeriaPage({ params, searchParams }: PageProps<"/ferias/[id]">) {
   const { id } = await params;
+  const sp = await searchParams;
+  // `?errorDegustacion=CODIGO`: la entrega se guardó pero la degustación no (EntregaForm).
+  const codigoErrorDegustacion = typeof sp.errorDegustacion === "string" ? sp.errorDegustacion : null;
   const supabase = await createClient();
   const { data: completa, error } = await obtenerFeria(supabase, id);
 
@@ -21,8 +25,9 @@ export default async function FeriaPage({ params }: PageProps<"/ferias/[id]">) {
     );
   }
 
-  const [revendedoras, porPersona] = await Promise.all([
+  const [revendedoras, productos, porPersona] = await Promise.all([
     listarRevendedorasActivas(supabase),
+    listarProductos(supabase),
     Promise.all(
       completa.participantes
         .filter((p) => p.vendedor_id)
@@ -39,6 +44,12 @@ export default async function FeriaPage({ params }: PageProps<"/ferias/[id]">) {
         participantes={completa.participantes}
         productosPorPersona={productosPorPersona}
         revendedoras={revendedoras.data}
+        productosActivos={productos.data.map((p) => ({ id: p.id, nombre: p.nombre }))}
+        avisoDegustacion={
+          codigoErrorDegustacion
+            ? `Las botellas se cargaron, pero la degustación no: ${mensajeErrorFeria(codigoErrorDegustacion)} Cargala desde la ficha de la feria.`
+            : null
+        }
       />
     </div>
   );

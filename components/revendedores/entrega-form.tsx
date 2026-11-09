@@ -121,6 +121,8 @@ export function EntregaForm({
         productos={productos}
         cantidades={f.cantidades}
         onCambiarCantidad={f.setCantidad}
+        degustacion={f.degustacion}
+        onCambiarDegustacion={feriaId !== undefined ? f.setCantidadDegustacion : undefined}
         pedidosEnPoder={pedidosEnPoder}
         devolucion={f.devolucion}
         onCambiarDevolucion={f.setCantidadDevolucion}

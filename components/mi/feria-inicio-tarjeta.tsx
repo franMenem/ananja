@@ -22,7 +22,8 @@ export function FeriaInicioTarjeta({ feria }: { feria: FeriaInicio }) {
           </p>
         ) : (
           <p className="text-[16px] text-text">
-            Te llevaste {feria.llevadas} {envase(feria.llevadas)}.
+            Te llevaste {feria.llevadas} {envase(feria.llevadas)}
+            {(feria.degustadasCarga ?? 0) > 0 && <> · {feria.degustadasCarga} para degustación</>}.
           </p>
         )}
       </div>

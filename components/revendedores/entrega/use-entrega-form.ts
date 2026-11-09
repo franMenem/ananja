@@ -15,7 +15,9 @@ import {
   type PedidoEnPoder,
 } from "@/lib/dominio/devolucion";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
-import { ERRORES_FERIA_EN_VENTA_PROPIA } from "@/lib/dominio/feria";
+import { ERRORES_FERIA_EN_VENTA_PROPIA, mensajeErrorFeria } from "@/lib/dominio/feria";
+import { itemsDegustacionFeria, totalDegustacion } from "@/lib/dominio/feria-admin";
+import { feriaCargarDegustacion } from "@/lib/ferias";
 import { formatFechaSinAnio, hoyISO } from "@/lib/fechas";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { fusionarFilasDuplicadas, hayDescuadre } from "@/lib/dominio/lotes-split";
@@ -71,6 +73,9 @@ export function useEntregaForm({
   const [cantidades, setCantidades] = useState<Record<string, number>>(() =>
     Object.fromEntries(productos.map((p) => [p.id, 0])),
   );
+  // Feria: botellas "para degustación" por producto (a cargo de Ananja, no
+  // son entrega ni deuda de la revendedora). Solo se usa con `feriaId`.
+  const [degustacion, setDegustacion] = useState<Record<string, number>>({});
   // Devolución por pedido: `${productoId}:${loteId}` -> cantidad a devolver.
   const [devolucion, setDevolucion] = useState<Record<string, number>>({});
   const [fecha, setFecha] = useState(hoyISO());
@@ -97,6 +102,10 @@ export function useEntregaForm({
 
   function setCantidad(productoId: string, value: number) {
     setCantidades((prev) => ({ ...prev, [productoId]: value }));
+  }
+
+  function setCantidadDegustacion(productoId: string, value: number) {
+    setDegustacion((prev) => ({ ...prev, [productoId]: value }));
   }
 
   function setCantidadDevolucion(clave: string, value: number) {
@@ -186,6 +195,20 @@ export function useEntregaForm({
 
   function handleContinuar() {
     setError(null);
+
+    // Feria con SOLO degustación (ningún producto para vender): no hay
+    // entrega que revisar ni registrar, se carga directo la degustación.
+    if (
+      feriaId &&
+      tipo === "entrega" &&
+      totalDegustacion(degustacion) > 0 &&
+      productos.every((p) => (cantidades[p.id] ?? 0) === 0)
+    ) {
+      setItemsPendientes([]);
+      void guardar([], false);
+      return;
+    }
+
     const items = armarItemsBase();
     if (!items) return;
 
@@ -269,10 +292,39 @@ export function useEntregaForm({
     await guardar(items, false);
   }
 
+  /** Carga la degustación de feria (si hay) con el pedido de la entrega.
+   * Devuelve el código del error, o `null` si salió bien / no había nada. */
+  async function cargarDegustacionDeFeria(items: ItemEntrega[]): Promise<string | null> {
+    if (!feriaId || tipo !== "entrega") return null;
+    const itemsDeg = itemsDegustacionFeria(degustacion, items);
+    if (itemsDeg.length === 0) return null;
+    const { error: degError } = await feriaCargarDegustacion(createClient(), {
+      feriaId,
+      vendedorId,
+      items: itemsDeg,
+      fecha,
+      nota: nota.trim() || null,
+    });
+    return degError ? degError.message : null;
+  }
+
   async function guardar(items: ItemEntrega[], permitirNegativo: boolean) {
     setSaving(true);
     setError(null);
     setAlerta(null);
+
+    // Sin botellas para vender (solo degustación de feria): se salta la entrega.
+    if (items.length === 0) {
+      const codigoDeg = await cargarDegustacionDeFeria(items);
+      setSaving(false);
+      if (codigoDeg) {
+        setError(`No se pudo cargar la degustación: ${mensajeErrorFeria(codigoDeg)}`);
+        return;
+      }
+      router.push(volverHref ?? `/revendedores/${vendedorId}`);
+      router.refresh();
+      return;
+    }
 
     const supabase = createClient();
     const { error: rpcError } = await supabase.rpc("registrar_entrega_revendedor", {
@@ -321,8 +373,12 @@ export function useEntregaForm({
       return;
     }
 
+    // La entrega ya está guardada. Si la degustación falla, se vuelve igual
+    // a la feria y el aviso del error se muestra ahí (`?errorDegustacion=`).
+    const codigoDeg = await cargarDegustacionDeFeria(items);
     setSaving(false);
-    router.push(volverHref ?? `/revendedores/${vendedorId}`);
+    const destino = volverHref ?? `/revendedores/${vendedorId}`;
+    router.push(codigoDeg ? `${destino}?errorDegustacion=${encodeURIComponent(codigoDeg)}` : destino);
     router.refresh();
   }
 
@@ -334,6 +390,8 @@ export function useEntregaForm({
     setTipo,
     cantidades,
     setCantidad,
+    degustacion,
+    setCantidadDegustacion,
     devolucion,
     setCantidadDevolucion,
     handleDevolverTodo,

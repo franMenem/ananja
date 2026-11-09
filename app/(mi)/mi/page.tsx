@@ -132,6 +132,7 @@ export default async function MiPage() {
           llevadas: Number(feriaData.participante.entregadas ?? 0),
           vendidas: Number(feriaData.participante.vendidas ?? 0),
           devueltas: Number(feriaData.participante.devueltas ?? 0),
+          degustadasCarga: Number(feriaData.participante.degustadas_carga ?? 0),
         }
       : null;
 

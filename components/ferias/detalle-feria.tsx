@@ -6,6 +6,7 @@ import { useState } from "react";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { ParticipanteFeria } from "@/components/ferias/participante-feria";
+import { Aviso } from "@/components/ui/aviso";
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { MensajeError } from "@/components/ui/campo";
 import { Dato } from "@/components/ui/dato";
@@ -27,10 +28,21 @@ type Props = {
   productosPorPersona: Record<string, ProductoParticipanteRow[]>;
   /** Revendedoras activas (de ahí salen las que se pueden sumar). */
   revendedoras: { id: string; nombre: string }[];
+  /** Productos activos (para "Cargar degustación"). */
+  productosActivos?: { id: string; nombre: string }[];
+  /** Aviso arriba de todo (p. ej. la degustación no se pudo cargar). */
+  avisoDegustacion?: string | null;
 };
 
 /** Detalle de una feria para el admin: totales, participantes y acciones. */
-export function DetalleFeria({ feria, participantes, productosPorPersona, revendedoras }: Props) {
+export function DetalleFeria({
+  feria,
+  participantes,
+  productosPorPersona,
+  revendedoras,
+  productosActivos = [],
+  avisoDegustacion = null,
+}: Props) {
   const router = useRouter();
   const abierta = feria.estado === "abierta";
   const totales = totalesFeria(participantes);
@@ -67,6 +79,8 @@ export function DetalleFeria({ feria, participantes, productosPorPersona, revend
         acciones={<Pastilla variante={abierta ? "ok" : "neutra"}>{abierta ? "Abierta" : "Cerrada"}</Pastilla>}
       />
 
+      {avisoDegustacion && <Aviso role="alert">{avisoDegustacion}</Aviso>}
+
       {feria.nota && <p className="text-[15px] text-text-muted">{feria.nota}</p>}
 
       <section aria-label="Totales de la feria" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -74,7 +88,7 @@ export function DetalleFeria({ feria, participantes, productosPorPersona, revend
         <Dato etiqueta="Vendidas" detalle={formatCentavos(totales.totalVendidoCentavos)}>
           {totales.vendidas}
         </Dato>
-        <Dato etiqueta="Devueltas" detalle={totales.degustadas > 0 ? `${totales.degustadas} degustadas` : undefined}>
+        <Dato etiqueta="Devueltas" detalle={totales.degustadas > 0 ? `${totales.degustadas} para degustación` : undefined}>
           {totales.devueltas}
         </Dato>
         <Dato etiqueta="Falta devolver">{totales.faltan}</Dato>
@@ -134,6 +148,7 @@ export function DetalleFeria({ feria, participantes, productosPorPersona, revend
               feriaAbierta={abierta}
               participante={p}
               productos={productosPorPersona[p.vendedor_id ?? ""] ?? []}
+              productosActivos={productosActivos}
             />
           ))}
         </section>
