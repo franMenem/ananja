@@ -5200,6 +5200,16 @@ export type Database = {
       eliminar_deposito_cuenta: { Args: { p_deposito_id: string }; Returns: Json }
       eliminar_movimiento_stock: { Args: { p_movimiento_id: string }; Returns: Json }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
+      editar_venta_revendedor: {
+        Args: {
+          p_fecha: string
+          p_grupo_id: string
+          p_medio_pago: Database["public"]["Enums"]["medio_pago"]
+          p_nota: string
+          p_precio_venta_centavos: number
+        }
+        Returns: Json
+      }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       entrega_items_costos: {
         Args: never

@@ -340,6 +340,31 @@ export async function fijarPrecioVentaRevendedor(
   });
 }
 
+/** Edita una venta ya cargada (todas las filas del grupo): medio de pago,
+ * precio por unidad, fecha y nota — RPC `editar_venta_revendedor` (0077).
+ * No cambia cantidad, producto ni lote. Devuelve el `{data, error}` crudo. */
+export async function editarVentaRevendedor(
+  supabase: SupabaseClient<Database>,
+  args: {
+    grupoId: string;
+    medioPago: MedioPago;
+    /** `null` solo para una venta que nunca tuvo precio. */
+    precioVentaCentavos: number | null;
+    fecha: string;
+    nota: string | null;
+  },
+) {
+  return supabase.rpc("editar_venta_revendedor", {
+    p_grupo_id: args.grupoId,
+    p_medio_pago: args.medioPago,
+    p_precio_venta_centavos: args.precioVentaCentavos as number,
+    p_fecha: args.fecha,
+    // `p_nota` no tiene default en la función: hay que mandar null explícito
+    // (omitirlo da PGRST202). El generador de tipos no modela esa nulabilidad.
+    p_nota: (args.nota?.trim() || null) as string,
+  });
+}
+
 export type RegistrarCargaArgs = {
   vendedorId: string;
   /** Uuid generado UNA vez por formulario: un reintento con la misma clave

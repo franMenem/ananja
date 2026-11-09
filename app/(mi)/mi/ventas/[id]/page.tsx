@@ -1,6 +1,8 @@
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { BOTON_SECUNDARIO } from "@/components/ui/boton";
+import { LinkBoton } from "@/components/ui/link-boton";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { VolverLink } from "@/components/volver-link";
@@ -14,7 +16,7 @@ import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 import { sesionActual } from "@/lib/sesion-actual";
-import { puedeBorrarVentaRevendedor } from "@/lib/dominio/ventas-revendedor";
+import { puedeBorrarVentaRevendedor, puedeEditarVentaRevendedor } from "@/lib/dominio/ventas-revendedor";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +67,13 @@ export default async function VentaDetallePage({
   const paraAnanja = filas.reduce((acc, f) => acc + f.cantidad * f.precio_costo_centavos, 0);
   const precio = venta.precio_venta_centavos;
   const total = precio !== null ? cantidad * precio : null;
+
+  const permisosVenta = {
+    esAdmin: revendedor?.rol === "admin",
+    miVendedorId: revendedor?.id ?? "",
+    vendedorId: venta.vendedor_id,
+    registradaPor: venta.registrada_por,
+  };
 
   const fila = (etiqueta: string, valor: React.ReactNode, clase = "text-text") => (
     <div className="flex min-h-12 items-center justify-between gap-3 py-2">
@@ -129,12 +138,13 @@ export default async function VentaDetallePage({
         </Tarjeta>
       )}
 
-      {puedeBorrarVentaRevendedor({
-        esAdmin: revendedor?.rol === "admin",
-        miVendedorId: revendedor?.id ?? "",
-        vendedorId: venta.vendedor_id,
-        registradaPor: venta.registrada_por,
-      }) ? (
+      {puedeEditarVentaRevendedor(permisosVenta) && (
+        <LinkBoton href={`/mi/ventas/${id}/editar`} className={`${BOTON_SECUNDARIO} flex w-full px-4 sm:w-auto sm:self-start`}>
+          Editar venta
+        </LinkBoton>
+      )}
+
+      {puedeBorrarVentaRevendedor(permisosVenta) ? (
         <EliminarVentaButton ventaId={venta.id} />
       ) : (
         <p className="text-[14px] text-text-muted">

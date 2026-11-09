@@ -26,6 +26,14 @@ export function puedeBorrarVentaRevendedor(venta: VentaParaBorrar): boolean {
   return venta.registradaPor === null || venta.registradaPor === venta.miVendedorId;
 }
 
+/**
+ * Misma regla que borrar (espejo de `editar_venta_revendedor`, 0077): un admin
+ * edita cualquier venta; la revendedora solo las suyas que cargó ella misma.
+ */
+export function puedeEditarVentaRevendedor(venta: VentaParaBorrar): boolean {
+  return puedeBorrarVentaRevendedor(venta);
+}
+
 /** Fila de `ventas_revendedor_borradas` (0045 § 1) con lo que muestra la ficha. */
 export interface FilaVentaBorrada {
   grupo_id: string;
