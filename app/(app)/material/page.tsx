@@ -1,10 +1,10 @@
-import Link from "next/link";
 
 import { MaterialLista } from "@/components/material/material-lista";
 import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { listarMaterialesAdmin } from "@/lib/data/material";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +27,9 @@ export default async function MaterialPage() {
         titulo="Material"
         pregunta="¿Qué les mostramos a las revendedoras?"
         acciones={
-          <Link prefetch={false} href="/material/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href="/material/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo material
-          </Link>
+          </LinkBoton>
         }
       />
 

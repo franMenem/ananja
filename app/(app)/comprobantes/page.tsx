@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { ComprobantesTabs } from "@/components/comprobantes/comprobantes-tabs";
 import { PagosTab } from "@/components/comprobantes/pagos-tab";
@@ -6,6 +5,7 @@ import { VentasTab } from "@/components/comprobantes/ventas-tab";
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { tabComprobantesDeParam } from "@/lib/dominio/comprobantes";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +27,12 @@ export default async function ComprobantesPage({ searchParams }: PageProps<"/com
         pregunta="¿Qué vendió Ananja directo y quién informó pagos?"
         acciones={
           <div className="hidden items-center gap-2.5 md:flex">
-            <Link prefetch={false} href="/clientes" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <LinkBoton prefetch={false} href="/clientes" className={`${BOTON_SECUNDARIO} flex px-4`}>
               Clientes
-            </Link>
-            <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex gap-2 px-5`}>
+            </LinkBoton>
+            <LinkBoton prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex gap-2 px-5`}>
               + Cargar
-            </Link>
+            </LinkBoton>
           </div>
         }
       />

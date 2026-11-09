@@ -1,5 +1,4 @@
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import Link from "next/link";
 
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { Fila } from "@/components/ui/fila";
@@ -11,6 +10,7 @@ import { listarDeudasConSaldo } from "@/lib/deudas";
 import { formatFecha } from "@/lib/fechas";
 import { formatMonto } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -29,9 +29,9 @@ export default async function DeudasPage() {
         titulo="Deudas"
         pregunta="¿Qué debe Ananja y cuánto falta pagar?"
         acciones={
-          <Link prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_PRIMARIO} flex gap-2 px-4`}>
+          <LinkBoton prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_PRIMARIO} flex gap-2 px-4`}>
             + Nueva deuda
-          </Link>
+          </LinkBoton>
         }
       />
 
@@ -102,9 +102,9 @@ export default async function DeudasPage() {
                       moneda={deuda.moneda}
                       montoCentavos={deuda.restanteCentavos}
                     />
-                    <Link prefetch={false} href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
+                    <LinkBoton prefetch={false} href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
                       Registrar pago
-                    </Link>
+                    </LinkBoton>
                   </div>
                 </div>
               );

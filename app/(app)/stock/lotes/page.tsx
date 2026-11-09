@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { FilaPedido } from "@/components/stock/pedido/fila-pedido";
 import { BOTON_SECUNDARIO } from "@/components/ui/boton";
@@ -14,6 +13,7 @@ import {
 } from "@/lib/dominio/pedidos-lote";
 import { leerFormasProveedor } from "@/lib/proveedor-servidor";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -79,9 +79,9 @@ export default async function StockLotesPage() {
         titulo="Pedidos"
         pregunta={`¿Qué le pedimos ${proveedor.a} y cuánto falta pagar?`}
         acciones={
-          <Link prefetch={false} href="/stock/lotes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href="/stock/lotes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo pedido
-          </Link>
+          </LinkBoton>
         }
       />
 

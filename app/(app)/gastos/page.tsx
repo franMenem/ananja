@@ -16,6 +16,7 @@ import { NOMBRES_MES_MAYUS, formatFecha } from "@/lib/fechas";
 import { agruparGastosPorMes, insumoDeMovimientos, rangoDeMes, resumenMesGastos, tituloGasto } from "@/lib/dominio/gastos";
 import { formatCentavos } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 /** Título del gasto por lo que realmente fue (insumo comprado, concepto
  * pagado del pedido) + la categoría como texto secundario — ver
@@ -122,9 +123,9 @@ export default function GastosPage() {
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               />
             </div>
-            <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex px-5`}>
+            <LinkBoton prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex px-5`}>
               + Registrar gasto
-            </Link>
+            </LinkBoton>
           </div>
         }
       />
@@ -180,9 +181,9 @@ export default function GastosPage() {
               Cuando registres el primero, acá vas a ver el monto, la categoría y quién lo cargó.
             </p>
           )}
-          <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} mt-2 flex px-6`}>
+          <LinkBoton prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} mt-2 flex px-6`}>
             + Registrar {hayFiltro ? "un gasto" : "el primero"}
-          </Link>
+          </LinkBoton>
         </Tarjeta>
       ) : (
         <>
@@ -265,9 +266,9 @@ export default function GastosPage() {
               </section>
             ))}
 
-            <Link prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex`}>
+            <LinkBoton prefetch={false} href="/gastos/nuevo" className={`${BOTON_PRIMARIO} flex`}>
               + Registrar gasto
-            </Link>
+            </LinkBoton>
           </div>
         </>
       )}

@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { AsignarRolButton } from "@/components/revendedores/asignar-rol-button";
 import { ListaRevendedores } from "@/components/personas/lista-revendedores";
@@ -27,6 +26,7 @@ import {
 import { formatFechaHora } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -166,9 +166,9 @@ export default async function RevendedoresPage() {
         titulo="Revendedores"
         pregunta="¿Quién tiene botellas y quién debe plata?"
         acciones={
-          <Link prefetch={false} href="/revendedores/invitar" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href="/revendedores/invitar" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Sumar persona
-          </Link>
+          </LinkBoton>
         }
       />
 

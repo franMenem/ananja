@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { ConfirmarDepositoRapido } from "@/components/tareas/confirmar-deposito-rapido";
 import { ConfirmarPagoRapido } from "@/components/tareas/confirmar-pago-rapido";
@@ -7,6 +6,7 @@ import { BOTON_ACCION_TAREA } from "@/components/ui/boton";
 import { Pastilla } from "@/components/ui/pastilla";
 import type { MedioPago } from "@/lib/dominio/caja";
 import type { Tarea } from "@/lib/dominio/tareas";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 /**
  * Una tarea: título (una oración corta, con "Urgente" al lado si lo es),
@@ -57,9 +57,9 @@ export function FilaTarea({ tarea, medioDeposito }: { tarea: Tarea; medioDeposit
         ) : accion?.tipo === "depositar" ? (
           <>
             {accion.tenedorNombre !== null && (
-              <Link prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
+              <LinkBoton prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
                 Ver
-              </Link>
+              </LinkBoton>
             )}
             <DepositarRapido
               tenedorId={accion.tenedorId}
@@ -69,9 +69,9 @@ export function FilaTarea({ tarea, medioDeposito }: { tarea: Tarea; medioDeposit
             />
           </>
         ) : (
-          <Link prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
+          <LinkBoton prefetch={false} href={tarea.href} className={BOTON_ACCION_TAREA}>
             Ver
-          </Link>
+          </LinkBoton>
         )}
       </div>
     </li>

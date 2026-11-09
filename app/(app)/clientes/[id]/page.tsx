@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ClienteBajaButton } from "@/components/cliente-baja-button";
@@ -23,6 +22,7 @@ import { formatCentavos } from "@/lib/money";
 import { formatCantidadesPorPresentacion } from "@/lib/negocio";
 import { ChevronFila, FilaLink } from "@/components/ui/estado-fila";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -115,9 +115,9 @@ export default async function ClienteDetailPage({
 
         <div className="flex flex-col gap-2">
           {ventasPendientes.length === 1 ? (
-            <Link prefetch={false} href={`/comprobantes/${ventasPendientes[0].id}/cobro`} className={`${BOTON_PRIMARIO} flex px-4`}>
+            <LinkBoton prefetch={false} href={`/comprobantes/${ventasPendientes[0].id}/cobro`} className={`${BOTON_PRIMARIO} flex px-4`}>
               Registrar cobro
-            </Link>
+            </LinkBoton>
           ) : ventasPendientes.length > 1 ? (
             <ClienteElegirVenta
               ventas={ventasPendientes.map((v) => ({
@@ -128,9 +128,9 @@ export default async function ClienteDetailPage({
             />
           ) : null}
           <div className="grid grid-cols-2 gap-2">
-            <Link prefetch={false} href={`/clientes/${id}/editar`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <LinkBoton prefetch={false} href={`/clientes/${id}/editar`} className={`${BOTON_SECUNDARIO} flex px-4`}>
               Editar
-            </Link>
+            </LinkBoton>
             <ClienteBajaButton clienteId={id} nombre={cliente.nombre} activo={cliente.activo} />
           </div>
         </div>

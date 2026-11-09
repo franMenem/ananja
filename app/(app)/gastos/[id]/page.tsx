@@ -275,18 +275,11 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             cargando={saving}
             type="submit"
             fija
-          />
-          <button
-            type="button"
-            onClick={() => {
+            onCancelar={() => {
               setEditing(false);
               setError(null);
             }}
-            disabled={saving}
-            className={`${BOTON_SECUNDARIO} -mt-2 flex w-full px-4 lg:w-auto lg:min-w-64 lg:self-start`}
-          >
-            Cancelar
-          </button>
+          />
         </form>
       ) : (
         <div className="flex flex-col gap-5">

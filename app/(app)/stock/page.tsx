@@ -11,6 +11,7 @@ import { alcancePorPresentacion, repartoPorTamano, totalBotellas } from "@/lib/d
 import { segmentosDeposito, type LoteConQuedan } from "@/lib/dominio/deposito-lotes";
 import { leerFormasProveedor } from "@/lib/proveedor-servidor";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 // Datos en vivo: nunca cachear el stock (debe reflejar el último movimiento).
 export const dynamic = "force-dynamic";
@@ -110,12 +111,12 @@ export default async function StockPage() {
           />
 
           <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
-            <Link prefetch={false} href="/stock/nuevo?tipo=egreso" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <LinkBoton prefetch={false} href="/stock/nuevo?tipo=egreso" className={`${BOTON_SECUNDARIO} flex px-4`}>
               − Egreso
-            </Link>
-            <Link prefetch={false} href="/stock/movimientos" className={`${BOTON_SECUNDARIO} flex px-4`}>
+            </LinkBoton>
+            <LinkBoton prefetch={false} href="/stock/movimientos" className={`${BOTON_SECUNDARIO} flex px-4`}>
               Ver movimientos
-            </Link>
+            </LinkBoton>
           </div>
         </div>
       </div>

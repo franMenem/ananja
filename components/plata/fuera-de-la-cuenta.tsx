@@ -9,6 +9,7 @@ import { totalAnanjaDebe } from "@/lib/dominio/inicio";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos, formatMonto } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 type PersonaEnManos = { tenedor_id: string; nombre: string; total_centavos: number };
 type Deudor = { vendedor_id: string; nombre: string; saldo_centavos: number };
@@ -129,13 +130,13 @@ export function FueraDeLaCuenta({
                   />
                 </FilaLink>
                 {!negativo && (
-                  <Link
+                  <LinkBoton
                     prefetch={false}
                     href={`/plata/depositar?tenedor=${p.tenedor_id}&monto=${p.total_centavos}`}
                     className={`${BOTON_ACCION_TAREA} sm:ml-auto`}
                   >
                     Pasar a la cuenta
-                  </Link>
+                  </LinkBoton>
                 )}
               </div>
             );
@@ -209,9 +210,9 @@ export function FueraDeLaCuenta({
                   valor={<Deuda centavos={p.saldoCentavos} texto={formatCentavos(p.saldoCentavos)} />}
                   className="px-1 sm:flex-1"
                 />
-                <Link prefetch={false} href={`/stock/lotes/${p.loteId}/pago`} className={BOTON_ACCION_TAREA}>
+                <LinkBoton prefetch={false} href={`/stock/lotes/${p.loteId}/pago`} className={BOTON_ACCION_TAREA}>
                   Pagar
-                </Link>
+                </LinkBoton>
               </div>
             ))}
             {deudaAnanja.deudasNegocio.map((d) => (
@@ -221,9 +222,9 @@ export function FueraDeLaCuenta({
                   valor={<Deuda centavos={d.restanteCentavos} texto={formatMonto(d.moneda, d.restanteCentavos)} />}
                   className="px-1 sm:flex-1"
                 />
-                <Link prefetch={false} href={`/plata/deudas/${d.id}/pago`} className={BOTON_ACCION_TAREA}>
+                <LinkBoton prefetch={false} href={`/plata/deudas/${d.id}/pago`} className={BOTON_ACCION_TAREA}>
                   Pagar
-                </Link>
+                </LinkBoton>
               </div>
             ))}
           </>
@@ -236,9 +237,9 @@ export function FueraDeLaCuenta({
           >
             Ver todas las deudas
           </Link>
-          <Link prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href="/plata/deudas/nueva" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nueva deuda
-          </Link>
+          </LinkBoton>
         </div>
       </Grupo>
     </Tarjeta>

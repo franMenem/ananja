@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { ClientesList } from "@/components/clientes-list";
 import { BOTON_SECUNDARIO } from "@/components/ui/boton";
@@ -10,6 +9,7 @@ import {
   listarDeudaClientes,
 } from "@/lib/data/clientes";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -39,9 +39,9 @@ export default async function ClientesPage() {
         titulo="Clientes"
         pregunta="¿Quién nos compra y quién debe?"
         acciones={
-          <Link prefetch={false} href="/clientes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href="/clientes/nuevo" className={`${BOTON_SECUNDARIO} flex px-4`}>
             + Nuevo cliente
-          </Link>
+          </LinkBoton>
         }
       />
 

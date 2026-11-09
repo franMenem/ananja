@@ -1,5 +1,4 @@
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { FormPage } from "@/components/app/form-page";
@@ -16,6 +15,7 @@ import { armarDesglose } from "@/lib/dominio/plata-por-lote";
 import { NEGOCIO } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/server";
 import { fechaPlataEnManoMasVieja } from "@/lib/dominio/tareas";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -105,9 +105,9 @@ export default async function EnManosPage({ params }: PageProps<"/plata/en-manos
                 : "No tiene plata en mano."}
         </p>
         {total > 0 && (
-          <Link prefetch={false} href={`/plata/depositar?tenedor=${id}&monto=${total}`} className={`${BOTON_PRIMARIO} flex px-4`}>
+          <LinkBoton prefetch={false} href={`/plata/depositar?tenedor=${id}&monto=${total}`} className={`${BOTON_PRIMARIO} flex px-4`}>
             Pasar a la cuenta
-          </Link>
+          </LinkBoton>
         )}
       </Tarjeta>
 

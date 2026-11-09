@@ -8,6 +8,7 @@ import { formatCentavos } from "@/lib/money";
 import { variacionContraAnterior, type CostoHistorico } from "@/lib/dominio/pedidos-lote";
 import { formatPresentacion } from "@/lib/negocio";
 import type { Tables } from "@/lib/types";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 type DesgloseRow = Tables<"v_costo_lote_desglose">;
 
@@ -185,9 +186,9 @@ export function CostoPorBotella({
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/actualizar-costos`} className={`${BOTON_SECUNDARIO} flex px-4`}>
+        <LinkBoton prefetch={false} href={`/stock/lotes/${pedidoId}/actualizar-costos`} className={`${BOTON_SECUNDARIO} flex px-4`}>
           Actualizar costos
-        </Link>
+        </LinkBoton>
         <Link
           prefetch={false}
           href={`/stock/lotes/${pedidoId}/costos`}

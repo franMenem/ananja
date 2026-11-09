@@ -18,6 +18,7 @@ import { formatCentavos } from "@/lib/money";
 import { formatPresentacion } from "@/lib/negocio";
 import { getSignedUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
 
@@ -181,13 +182,13 @@ export default async function ComprobanteDetailPage({
         </div>
 
         <div className="flex gap-2.5">
-          <Link
+          <LinkBoton
             prefetch={false}
             href={`/comprobantes/${id}/editar`}
             className={`${BOTON_PRIMARIO} flex flex-1 px-4`}
           >
             Editar
-          </Link>
+          </LinkBoton>
           <ComprobanteDeleteButton
             comprobanteId={id}
             cobradoAlMomentoCentavos={comprobante.cobrado_centavos}

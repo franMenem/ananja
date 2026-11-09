@@ -14,6 +14,7 @@ import { hoyISO, labelDeMes } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
 import { PALETA_GRAFICOS } from "@/lib/paleta-graficos";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 type MiGananciaVistaProps = {
   ventas: VentaGanancia[];
@@ -126,9 +127,9 @@ export function MiGananciaVista({ ventas, debeCentavos, pendienteCentavos, movim
                 </Pastilla>
               )}
             </div>
-            <Link prefetch={false} href="/mi/pagar" className={`${BOTON_SECUNDARIO} flex w-full px-4`}>
+            <LinkBoton prefetch={false} href="/mi/pagar" className={`${BOTON_SECUNDARIO} flex w-full px-4`}>
               Pagar
-            </Link>
+            </LinkBoton>
           </Tarjeta>
 
           <Tarjeta como="section" className="flex flex-col gap-1">

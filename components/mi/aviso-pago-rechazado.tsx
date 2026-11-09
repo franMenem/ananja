@@ -1,10 +1,10 @@
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
-import Link from "next/link";
 
 import { Pastilla } from "@/components/ui/pastilla";
 
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 type AvisoPagoRechazadoProps = {
   montoCentavos: number;
@@ -33,13 +33,13 @@ export function AvisoPagoRechazado({ montoCentavos, fecha, motivo }: AvisoPagoRe
           </span>
           {motivo && <span className="text-[14px] break-words text-text-muted">Motivo: {motivo}</span>}
         </div>
-        <Link
+        <LinkBoton
           prefetch={false}
           href="/mi/pagar"
           className={`${BOTON_PRIMARIO} flex w-full shrink-0 px-4 sm:w-auto`}
         >
           Volver a pagar
-        </Link>
+        </LinkBoton>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import { estadoDeudaHero } from "@/lib/dominio/deuda-hero";
 import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO, envase } from "@/lib/negocio";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 /** Una entrega de la que todavía le quedan botellas de un producto. */
 export type TramoStockMi = {
@@ -132,9 +133,9 @@ export function MiInicioVista({
               {deuda.tipo === "parcial" && (
                 <p className="text-[14px] text-text-muted">Te queda pagar {formatCentavos(deuda.quedaCentavos)}</p>
               )}
-              <Link prefetch={false} href="/mi/pagar" className={`${todoPagado ? BOTON_SECUNDARIO : BOTON_PRIMARIO} flex w-full px-4`}>
+              <LinkBoton prefetch={false} href="/mi/pagar" className={`${todoPagado ? BOTON_SECUNDARIO : BOTON_PRIMARIO} flex w-full px-4`}>
                 Pagarle a {destinoPago}
-              </Link>
+              </LinkBoton>
               <p className="text-[14px] text-text-muted">
                 {encargadoNombre
                   ? `Tu encargado es ${encargadoNombre}: le pagás a ${encargadoNombre} y ${encargadoNombre} lo pasa a la cuenta de ${NEGOCIO.nombre}.`
@@ -143,10 +144,10 @@ export function MiInicioVista({
             </Tarjeta>
           )}
 
-          <Link prefetch={false} href="/mi/ventas/nueva" className={`${BOTON_SECUNDARIO} flex w-full gap-2 px-4`}>
+          <LinkBoton prefetch={false} href="/mi/ventas/nueva" className={`${BOTON_SECUNDARIO} flex w-full gap-2 px-4`}>
             <IconMas className="h-5 w-5" />
             Registré una venta
-          </Link>
+          </LinkBoton>
 
           <Tarjeta como="section" className="flex flex-col gap-1">
             <h2 className="font-display text-[20px] leading-tight font-bold text-text">

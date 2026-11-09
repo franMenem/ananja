@@ -13,6 +13,7 @@ import { etiquetaMedioPago, type MedioPago } from "@/lib/etiquetas/medio-pago";
 import { formatFechaCorta, hoyISO, rotuloGrupoFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 export type ComprobanteRow = {
   id: string;
@@ -98,9 +99,9 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
           Cuando registres la primera, acá vas a ver el monto, {NEGOCIO.envase.plural} y quién la
           cargó. Sacale una foto al comprobante y el monto se lee solo.
         </p>
-        <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}>
+        <LinkBoton prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} mt-6 flex w-full max-w-xs px-6`}>
           + Cargar la primera
-        </Link>
+        </LinkBoton>
       </Tarjeta>
     );
   }
@@ -166,9 +167,9 @@ export function ComprobantesList({ rows }: { rows: ComprobanteRow[] }) {
               </section>
             ))}
 
-            <Link prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex`}>
+            <LinkBoton prefetch={false} href="/comprobantes/nuevo" className={`${BOTON_PRIMARIO} flex`}>
               + Cargar comprobante
-            </Link>
+            </LinkBoton>
           </div>
 
           {/* Tabla — escritorio */}

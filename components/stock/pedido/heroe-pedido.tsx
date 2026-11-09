@@ -1,10 +1,10 @@
-import Link from "next/link";
 
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { NumeroGrande } from "@/components/ui/numero-grande";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { formatCentavos } from "@/lib/money";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 /**
  * Héroe del detalle de un pedido: "Falta pagar" con el número grande (rojo
@@ -29,9 +29,9 @@ export function HeroePedido({
           Sin costos
         </Pastilla>
         <p className="text-[16px] text-text">Todavía no sabemos cuánto costó ni cuánto hay que pagar.</p>
-        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/costos`} className={`${BOTON_PRIMARIO} flex px-4`}>
+        <LinkBoton prefetch={false} href={`/stock/lotes/${pedidoId}/costos`} className={`${BOTON_PRIMARIO} flex px-4`}>
           Completar costos
-        </Link>
+        </LinkBoton>
       </Tarjeta>
     );
   }
@@ -43,9 +43,9 @@ export function HeroePedido({
         {formatCentavos(Math.max(pendienteCentavos, 0))}
       </NumeroGrande>
       {debe ? (
-        <Link prefetch={false} href={`/stock/lotes/${pedidoId}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
+        <LinkBoton prefetch={false} href={`/stock/lotes/${pedidoId}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
           Registrar pago
-        </Link>
+        </LinkBoton>
       ) : (
         <Pastilla variante="ok" className="w-fit">
           Pagado

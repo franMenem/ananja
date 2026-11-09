@@ -9,6 +9,7 @@ import { obtenerRecetasYPresentaciones } from "@/lib/data/stock";
 import { alcancePorPresentacion } from "@/lib/dominio/botellas";
 import { agruparPorTipo } from "@/lib/dominio/insumos";
 import { createClient } from "@/lib/supabase/server";
+import { LinkBoton } from "@/components/ui/link-boton";
 
 // Datos en vivo: nunca cachear el stock de insumos (debe reflejar el
 // último movimiento), mismo criterio que /stock.
@@ -46,12 +47,12 @@ export default async function InsumosPage() {
       <EncabezadoPantalla titulo="Insumos" pregunta="¿Qué tengo para producir?" />
 
       <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 md:max-w-[480px]">
-        <Link prefetch={false} href="/stock/insumos/factura" className={`${BOTON_SECUNDARIO} flex px-4`}>
+        <LinkBoton prefetch={false} href="/stock/insumos/factura" className={`${BOTON_SECUNDARIO} flex px-4`}>
           Cargar compra
-        </Link>
-        <Link prefetch={false} href="/stock/insumos/ajuste" className={`${BOTON_SECUNDARIO} flex px-4`}>
+        </LinkBoton>
+        <LinkBoton prefetch={false} href="/stock/insumos/ajuste" className={`${BOTON_SECUNDARIO} flex px-4`}>
           Ajuste
-        </Link>
+        </LinkBoton>
       </div>
 
       {error && (
