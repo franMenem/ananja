@@ -15,6 +15,7 @@ import {
   type PedidoEnPoder,
 } from "@/lib/dominio/devolucion";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
+import { ERRORES_FERIA_EN_VENTA_PROPIA } from "@/lib/dominio/feria";
 import { formatFechaSinAnio, hoyISO } from "@/lib/fechas";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { fusionarFilasDuplicadas, hayDescuadre } from "@/lib/dominio/lotes-split";
@@ -30,6 +31,7 @@ const ERRORES_RPC: Record<string, string> = {
   ITEM_DUPLICADO: "Hubo un problema con el pedido elegido. Revisá el reparto por pedido y probá de nuevo.",
   COSTO_INVALIDO: `Revisá cuánto le cobrás por ${envase(1)}: tiene que ser mayor a cero.`,
   PRECIO_SUGERIDO_INVALIDO: "Revisá el precio de venta sugerido: tiene que ser mayor a cero.",
+  ...ERRORES_FERIA_EN_VENTA_PROPIA,
 };
 
 /**

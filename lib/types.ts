@@ -1020,6 +1020,7 @@ export type Database = {
           automatica: boolean
           created_at: string
           fecha: string
+          feria_id: string | null
           id: string
           nota: string | null
           tipo: string
@@ -1031,6 +1032,7 @@ export type Database = {
           automatica?: boolean
           created_at?: string
           fecha?: string
+          feria_id?: string | null
           id?: string
           nota?: string | null
           tipo: string
@@ -1042,6 +1044,7 @@ export type Database = {
           automatica?: boolean
           created_at?: string
           fecha?: string
+          feria_id?: string | null
           id?: string
           nota?: string | null
           tipo?: string
@@ -1085,6 +1088,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "entregas_revendedor_feria_id_fkey"
+            columns: ["feria_id"]
+            isOneToOne: false
+            referencedRelation: "feria_revendedoras"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "entregas_revendedor_vendedor_id_fkey"
             columns: ["vendedor_id"]
             isOneToOne: false
@@ -1117,6 +1127,157 @@ export type Database = {
             columns: ["vendedor_id"]
             isOneToOne: false
             referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feria_degustaciones: {
+        Row: {
+          cantidad: number
+          feria_id: string
+          movimiento_ids: string[]
+          producto_id: string
+          vendedor_id: string
+        }
+        Insert: {
+          cantidad: number
+          feria_id: string
+          movimiento_ids?: string[]
+          producto_id: string
+          vendedor_id: string
+        }
+        Update: {
+          cantidad?: number
+          feria_id?: string
+          movimiento_ids?: string[]
+          producto_id?: string
+          vendedor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feria_degustaciones_feria_id_vendedor_id_fkey"
+            columns: ["feria_id", "vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "feria_participantes"
+            referencedColumns: ["feria_id", "vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_degustaciones_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feria_participantes: {
+        Row: {
+          banco_centavos: number
+          cerrada_at: string | null
+          created_at: string
+          efectivo_centavos: number
+          estado: string
+          feria_id: string
+          mercado_pago_centavos: number
+          nota: string | null
+          vendedor_id: string
+        }
+        Insert: {
+          banco_centavos?: number
+          cerrada_at?: string | null
+          created_at?: string
+          efectivo_centavos?: number
+          estado?: string
+          feria_id: string
+          mercado_pago_centavos?: number
+          nota?: string | null
+          vendedor_id: string
+        }
+        Update: {
+          banco_centavos?: number
+          cerrada_at?: string | null
+          created_at?: string
+          efectivo_centavos?: number
+          estado?: string
+          feria_id?: string
+          mercado_pago_centavos?: number
+          nota?: string | null
+          vendedor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feria_participantes_feria_id_fkey"
+            columns: ["feria_id"]
+            isOneToOne: false
+            referencedRelation: "feria_revendedoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_encargados"
+            referencedColumns: ["encargado_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_vendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_plata_en_manos"
+            referencedColumns: ["tenedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_resumen_revendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feria_precios: {
+        Row: {
+          feria_id: string
+          precio_centavos: number
+          producto_id: string
+        }
+        Insert: {
+          feria_id: string
+          precio_centavos: number
+          producto_id: string
+        }
+        Update: {
+          feria_id?: string
+          precio_centavos?: number
+          producto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feria_precios_feria_id_fkey"
+            columns: ["feria_id"]
+            isOneToOne: false
+            referencedRelation: "feria_revendedoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feria_precios_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
             referencedColumns: ["id"]
           },
         ]
@@ -1188,6 +1349,75 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_stock_actual"
             referencedColumns: ["producto_id"]
+          },
+        ]
+      }
+      feria_revendedoras: {
+        Row: {
+          admin_id: string | null
+          created_at: string
+          estado: string
+          fecha: string
+          id: string
+          lugar: string | null
+          nombre: string
+          nota: string | null
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string
+          estado?: string
+          fecha: string
+          id?: string
+          lugar?: string | null
+          nombre: string
+          nota?: string | null
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string
+          estado?: string
+          fecha?: string
+          id?: string
+          lugar?: string | null
+          nombre?: string
+          nota?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feria_revendedoras_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_encargados"
+            referencedColumns: ["encargado_id"]
+          },
+          {
+            foreignKeyName: "feria_revendedoras_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_vendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_revendedoras_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "v_plata_en_manos"
+            referencedColumns: ["tenedor_id"]
+          },
+          {
+            foreignKeyName: "feria_revendedoras_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "v_resumen_revendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_revendedoras_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -3295,6 +3525,7 @@ export type Database = {
           created_at: string
           entrega_item_id: string | null
           fecha: string
+          feria_id: string | null
           grupo_id: string
           id: string
           lote_id: string | null
@@ -3311,6 +3542,7 @@ export type Database = {
           created_at?: string
           entrega_item_id?: string | null
           fecha?: string
+          feria_id?: string | null
           grupo_id?: string
           id?: string
           lote_id?: string | null
@@ -3327,6 +3559,7 @@ export type Database = {
           created_at?: string
           entrega_item_id?: string | null
           fecha?: string
+          feria_id?: string | null
           grupo_id?: string
           id?: string
           lote_id?: string | null
@@ -3344,6 +3577,13 @@ export type Database = {
             columns: ["entrega_item_id"]
             isOneToOne: false
             referencedRelation: "entrega_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ventas_revendedor_feria_id_fkey"
+            columns: ["feria_id"]
+            isOneToOne: false
+            referencedRelation: "feria_revendedoras"
             referencedColumns: ["id"]
           },
           {
@@ -3468,6 +3708,7 @@ export type Database = {
           created_at: string
           entrega_item_id: string | null
           fecha: string
+          feria_id: string | null
           grupo_id: string
           id: string
           lote_id: string | null
@@ -3487,6 +3728,7 @@ export type Database = {
           created_at: string
           entrega_item_id?: string | null
           fecha: string
+          feria_id?: string | null
           grupo_id: string
           id?: string
           lote_id?: string | null
@@ -3506,6 +3748,7 @@ export type Database = {
           created_at?: string
           entrega_item_id?: string | null
           fecha?: string
+          feria_id?: string | null
           grupo_id?: string
           id?: string
           lote_id?: string | null
@@ -4319,6 +4562,40 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      v_feria_participante_productos: {
+        Row: {
+          degustadas: number | null
+          devueltas: number | null
+          entregadas: number | null
+          feria_id: string | null
+          precio_feria_centavos: number | null
+          producto_id: string | null
+          producto_nombre: string | null
+          vendedor_id: string | null
+          vendidas: number | null
+        }
+        Relationships: []
+      }
+      v_feria_participantes: {
+        Row: {
+          banco_centavos: number | null
+          cerrada_at: string | null
+          costo_centavos: number | null
+          degustadas: number | null
+          devueltas: number | null
+          efectivo_centavos: number | null
+          entregadas: number | null
+          estado: string | null
+          faltan: number | null
+          feria_id: string | null
+          mercado_pago_centavos: number | null
+          total_vendido_centavos: number | null
+          vendedor_id: string | null
+          vendedor_nombre: string | null
+          vendidas: number | null
+        }
+        Relationships: []
       }
       v_feria_stock: {
         Row: {
@@ -5230,6 +5507,56 @@ export type Database = {
       es_coordinador_de: { Args: { p_vendedor_id: string }; Returns: boolean }
       es_revendedor: { Args: never; Returns: boolean }
       es_vendedor: { Args: never; Returns: boolean }
+      feria_agregar_participante: {
+        Args: { p_feria_id: string; p_vendedor_id: string }
+        Returns: Json
+      }
+      feria_cerrar: { Args: { p_feria_id: string }; Returns: Json }
+      feria_cerrar_participacion: {
+        Args: {
+          p_banco_centavos: number
+          p_degustadas: Json
+          p_devueltas: Json
+          p_efectivo_centavos: number
+          p_fecha: string
+          p_feria_id: string
+          p_mercado_pago_centavos: number
+          p_nota: string
+          p_precios: Json
+          p_vendedor_id: string
+        }
+        Returns: Json
+      }
+      feria_crear: {
+        Args: {
+          p_fecha: string
+          p_lugar: string
+          p_nombre: string
+          p_nota: string
+          p_precios: Json
+        }
+        Returns: Json
+      }
+      feria_editar: {
+        Args: {
+          p_fecha: string
+          p_feria_id: string
+          p_lugar: string
+          p_nombre: string
+          p_nota: string
+          p_precios: Json
+        }
+        Returns: Json
+      }
+      feria_quitar_participante: {
+        Args: { p_feria_id: string; p_vendedor_id: string }
+        Returns: Json
+      }
+      feria_reabrir: { Args: { p_feria_id: string }; Returns: Json }
+      feria_reabrir_participacion: {
+        Args: { p_feria_id: string; p_vendedor_id: string }
+        Returns: Json
+      }
       fijar_costos_lote: {
         Args: { p_costos: Json; p_lote_id: string }
         Returns: Json
@@ -5291,6 +5618,7 @@ export type Database = {
         Args: {
           p_cantidad: number
           p_fecha: string
+          p_feria_id?: string
           p_grupo_id: string
           p_lote_id?: string
           p_medio_pago: Database["public"]["Enums"]["medio_pago"]
@@ -5403,6 +5731,7 @@ export type Database = {
       registrar_entrega_revendedor: {
         Args: {
           p_fecha: string
+          p_feria_id?: string
           p_items?: Json
           p_nota?: string
           p_permitir_negativo?: boolean

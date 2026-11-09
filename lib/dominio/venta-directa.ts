@@ -26,6 +26,7 @@ import {
   type AtribucionVenta,
 } from "@/lib/dominio/revendedor-stock";
 import { ERRORES_RPC_COMUNES, traducirErrorRpc } from "@/lib/dominio/errores-rpc";
+import { ERRORES_FERIA_EN_VENTA_PROPIA } from "@/lib/dominio/feria";
 import { NEGOCIO } from "@/lib/negocio";
 
 /** `true` si la cantidad pedida es una venta posible: entera, de al menos
@@ -143,6 +144,7 @@ const ERRORES_VENTA_PROPIA: Record<string, string> = {
   VENTA_NO_ENCONTRADA: "No encontramos esa venta.",
   GRUPO_INVALIDO: "No se pudo guardar. Cerrá y volvé a intentar.",
   LOTE_INVALIDO: `No se pudo elegir de dónde sacar las botellas. Avisale a ${NEGOCIO.nombre}.`,
+  ...ERRORES_FERIA_EN_VENTA_PROPIA,
 };
 
 /** Mensaje para el error de una venta cargada por la propia persona (todos

@@ -118,6 +118,50 @@ export async function informarPagoRevendedor(
   });
 }
 
+export type ItemEntregaRevendedor = {
+  productoId: string;
+  cantidad: number;
+  loteId?: string | null;
+  costoAnanjaUnitarioCentavos?: number | null;
+  precioSugeridoCentavos?: number | null;
+};
+
+export type RegistrarEntregaRevendedorArgs = {
+  vendedorId: string;
+  tipo: "entrega" | "devolucion";
+  fecha: string;
+  nota: string | null;
+  items: ItemEntregaRevendedor[];
+  permitirNegativo?: boolean;
+  /** Feria de revendedoras (0078): solo tipo `entrega`, solo admin. La suma
+   * como participante si no lo era. */
+  feriaId?: string;
+};
+
+/** `registrar_entrega_revendedor` — entrega o devolución a una revendedora;
+ * con `feriaId`, la entrega queda marcada "de la feria". Devuelve el
+ * `{data, error}` crudo. */
+export async function registrarEntregaRevendedor(
+  supabase: SupabaseClient<Database>,
+  args: RegistrarEntregaRevendedorArgs,
+) {
+  return supabase.rpc("registrar_entrega_revendedor", {
+    p_vendedor_id: args.vendedorId,
+    p_tipo: args.tipo,
+    p_fecha: args.fecha,
+    p_nota: args.nota ?? undefined,
+    p_items: args.items.map((i) => ({
+      producto_id: i.productoId,
+      cantidad: i.cantidad,
+      lote_id: i.loteId ?? undefined,
+      costo_ananja_unitario_centavos: i.costoAnanjaUnitarioCentavos ?? undefined,
+      precio_sugerido_centavos: i.precioSugeridoCentavos ?? undefined,
+    })),
+    p_permitir_negativo: args.permitirNegativo ?? false,
+    p_feria_id: args.feriaId,
+  });
+}
+
 export type Revendedor = Tables<"vendedores">;
 export type StockRevendedor = Tables<"v_stock_revendedor">;
 export type PrecioRevendedor = Tables<"revendedor_precios">;
