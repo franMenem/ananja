@@ -33,7 +33,7 @@ export function BotonAccion({
   return (
     <button {...rest} type={type} disabled={disabled || cargando} aria-busy={cargando || undefined}>
       <span className="inline-grid items-center justify-items-center">
-        <span className={`col-start-1 row-start-1 ${cargando ? "invisible" : ""}`}>{children}</span>
+        <span className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 ${cargando ? "invisible" : ""}`}>{children}</span>
         <span
           className={`col-start-1 row-start-1 inline-flex items-center gap-2 ${cargando ? "" : "invisible"}`}
         >

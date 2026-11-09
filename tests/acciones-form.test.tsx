@@ -41,4 +41,16 @@ describe("LinkBoton", () => {
     expect(html).toContain("<svg");
     expect(html).not.toContain("aria-busy");
   });
+
+  it("con ícono y texto de hijos los deja en una sola línea (flex en línea con gap)", () => {
+    const html = renderToStaticMarkup(
+      <LinkBoton href="/destino" className="clase-boton">
+        <svg data-icono="mas" />
+        Registré una venta
+      </LinkBoton>,
+    );
+    expect(html).toMatch(
+      /<span class="col-start-1 row-start-1 inline-flex items-center justify-center gap-2 ">\s*<svg data-icono="mas"/,
+    );
+  });
 });

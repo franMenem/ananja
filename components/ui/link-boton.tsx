@@ -24,7 +24,7 @@ function Contenido({
   }, [pending, alCambiar]);
   return (
     <span className="inline-grid items-center justify-items-center">
-      <span className={`col-start-1 row-start-1 ${pending ? "invisible" : ""}`}>{children}</span>
+      <span className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 ${pending ? "invisible" : ""}`}>{children}</span>
       <span className={`col-start-1 row-start-1 inline-flex items-center gap-2 ${pending ? "" : "invisible"}`}>
         <Spinner />
       </span>
