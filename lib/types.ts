@@ -5598,8 +5598,8 @@ export type Database = {
       }
       feria_cargar_degustacion: {
         Args: {
-          p_feria_id: string
           p_fecha: string
+          p_feria_id: string
           p_items: Json
           p_nota: string
           p_vendedor_id: string
@@ -5644,7 +5644,11 @@ export type Database = {
         Returns: Json
       }
       feria_quitar_degustacion: {
-        Args: { p_feria_id: string; p_producto_id: string; p_vendedor_id: string }
+        Args: {
+          p_feria_id: string
+          p_producto_id: string
+          p_vendedor_id: string
+        }
         Returns: Json
       }
       feria_quitar_participante: {
