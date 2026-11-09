@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -5195,11 +5195,6 @@ export type Database = {
         Args: { p_ajuste_id: string; p_fecha: string; p_nota: string }
         Returns: Json
       }
-      eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
-      eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
-      eliminar_deposito_cuenta: { Args: { p_deposito_id: string }; Returns: Json }
-      eliminar_movimiento_stock: { Args: { p_movimiento_id: string }; Returns: Json }
-      eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       editar_venta_revendedor: {
         Args: {
           p_fecha: string
@@ -5210,6 +5205,17 @@ export type Database = {
         }
         Returns: Json
       }
+      eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
+      eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
+      eliminar_deposito_cuenta: {
+        Args: { p_deposito_id: string }
+        Returns: Json
+      }
+      eliminar_movimiento_stock: {
+        Args: { p_movimiento_id: string }
+        Returns: Json
+      }
+      eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       entrega_items_costos: {
         Args: never
