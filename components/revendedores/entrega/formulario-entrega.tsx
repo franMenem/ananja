@@ -21,6 +21,7 @@ export function FormularioEntrega({
   revisando,
   vendedorNombre,
   soloDevolucion,
+  soloEntrega = false,
   tipo,
   onCambiarTipo,
   productos,
@@ -46,6 +47,8 @@ export function FormularioEntrega({
   revisando: boolean;
   vendedorNombre: string;
   soloDevolucion: boolean;
+  /** Oculta el chip Entrega/Devolución (entrega de feria: tipo fijo). */
+  soloEntrega?: boolean;
   tipo: "entrega" | "devolucion";
   onCambiarTipo: (tipo: "entrega" | "devolucion") => void;
   productos: Tables<"productos">[];
@@ -82,7 +85,7 @@ export function FormularioEntrega({
       }}
       className="flex flex-col gap-5"
     >
-      {!soloDevolucion && (
+      {!soloDevolucion && !soloEntrega && (
         <Segmentos
           opciones={[
             { value: "entrega", label: "Entrega" },

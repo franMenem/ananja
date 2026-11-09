@@ -16,6 +16,8 @@ const CASOS: [string, string, string][] = [
   ["/stock/insumos/factura", "botellas", "insumos"],
   ["/revendedores", "personas", "revendedores"],
   ["/revendedores/x/carga", "personas", "revendedores"],
+  ["/ferias", "personas", "ferias"],
+  ["/ferias/x/entregar/y", "personas", "ferias"],
   ["/clientes", "personas", "clientes"],
   ["/clientes/x", "personas", "clientes"],
   ["/clientes/x/editar", "personas", "clientes"],

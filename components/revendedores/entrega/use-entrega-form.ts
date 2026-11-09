@@ -48,6 +48,8 @@ export function useEntregaForm({
   soloDevolucion = false,
   lotesConStock,
   pedidosEnPoder,
+  feriaId,
+  volverHref,
 }: {
   vendedorId: string;
   productos: Tables<"productos">[];
@@ -58,6 +60,11 @@ export function useEntregaForm({
    * producto. Si viene, la devolución se arma por pedido (siempre con
    * `lote_id`) y no con el reparto libre de `SelectorLote`. */
   pedidosEnPoder?: Record<string, PedidoEnPoder[]>;
+  /** Feria de revendedoras (0078): la entrega queda marcada "de la feria" y
+   * suma a la persona como participante. Sin esto, todo igual que siempre. */
+  feriaId?: string;
+  /** A dónde se vuelve al guardar; por defecto, la ficha de la revendedora. */
+  volverHref?: string;
 }) {
   const router = useRouter();
   const [tipo, setTipo] = useState<"entrega" | "devolucion">(soloDevolucion ? "devolucion" : tipoInicial);
@@ -275,6 +282,7 @@ export function useEntregaForm({
       p_nota: nota.trim() || undefined,
       p_items: items,
       p_permitir_negativo: permitirNegativo,
+      ...(feriaId ? { p_feria_id: feriaId } : {}),
     });
 
     if (rpcError) {
@@ -314,7 +322,7 @@ export function useEntregaForm({
     }
 
     setSaving(false);
-    router.push(`/revendedores/${vendedorId}`);
+    router.push(volverHref ?? `/revendedores/${vendedorId}`);
     router.refresh();
   }
 

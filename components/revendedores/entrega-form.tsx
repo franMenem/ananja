@@ -33,6 +33,14 @@ type EntregaFormProps = {
    * por producto. Con esto la devolución solo ofrece esos pedidos, con
    * "Devolver todo", y manda siempre el `lote_id`. */
   pedidosEnPoder?: Record<string, PedidoEnPoder[]>;
+  /** Entrega para una feria (0078): tipo fijo en "entrega", la entrega queda
+   * marcada "de la feria". */
+  feriaId?: string;
+  /** Título de la pantalla (por defecto, el de entrega/devolución de siempre). */
+  titulo?: string;
+  /** A dónde vuelven "Guardar" y "Cancelar" (por defecto, la ficha de la revendedora). */
+  volverHref?: string;
+  volverLabel?: string;
 };
 
 /**
@@ -70,6 +78,10 @@ export function EntregaForm({
   lotesConStock,
   ultimoLotePorProducto = {},
   pedidosEnPoder,
+  feriaId,
+  titulo,
+  volverHref,
+  volverLabel,
 }: EntregaFormProps) {
   const f = useEntregaForm({
     vendedorId,
@@ -78,6 +90,8 @@ export function EntregaForm({
     soloDevolucion,
     lotesConStock,
     pedidosEnPoder,
+    feriaId,
+    volverHref,
   });
   const revisando = f.revision !== null;
 
@@ -87,18 +101,21 @@ export function EntregaForm({
         title={
           revisando
             ? "Revisá la entrega"
-            : f.tipo === "entrega"
+            : titulo
+              ? titulo
+              : f.tipo === "entrega"
               ? `Entregar botellas a ${vendedorNombre}`
               : `Registrar devolución de ${vendedorNombre}`
         }
-        backHref={`/revendedores/${vendedorId}`}
-        backLabel="Volver al revendedor"
+        backHref={volverHref ?? `/revendedores/${vendedorId}`}
+        backLabel={volverLabel ?? "Volver al revendedor"}
       />
 
       <FormularioEntrega
         revisando={revisando}
         vendedorNombre={vendedorNombre}
         soloDevolucion={soloDevolucion}
+        soloEntrega={feriaId !== undefined}
         tipo={f.tipo}
         onCambiarTipo={f.setTipo}
         productos={productos}
@@ -119,7 +136,7 @@ export function EntregaForm({
         error={f.error}
         saving={f.saving}
         onSubmit={f.handleContinuar}
-        cancelarHref={`/revendedores/${vendedorId}`}
+        cancelarHref={volverHref ?? `/revendedores/${vendedorId}`}
       />
 
       {f.revision && (

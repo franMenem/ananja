@@ -84,6 +84,7 @@ export const SECTORES: readonly Sector[] = [
         href: "/revendedores",
         Icon: IconRevendedores,
       },
+      { id: "ferias", label: "Ferias", href: "/ferias", Icon: IconRevendedores },
       { id: "clientes", label: "Clientes", href: "/clientes", Icon: IconPersonas },
       { id: "material", label: "Material", href: "/material", Icon: IconMaterial },
     ],
