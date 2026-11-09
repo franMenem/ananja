@@ -1162,11 +1162,32 @@ export type Database = {
             referencedColumns: ["feria_id", "vendedor_id"]
           },
           {
+            foreignKeyName: "feria_degustaciones_feria_id_vendedor_id_fkey"
+            columns: ["feria_id", "vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_feria_participantes"
+            referencedColumns: ["feria_id", "vendedor_id"]
+          },
+          {
             foreignKeyName: "feria_degustaciones_producto_id_fkey"
             columns: ["producto_id"]
             isOneToOne: false
             referencedRelation: "productos"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feria_degustaciones_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_costo_producto"
+            referencedColumns: ["producto_id"]
+          },
+          {
+            foreignKeyName: "feria_degustaciones_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_stock_actual"
+            referencedColumns: ["producto_id"]
           },
         ]
       }
@@ -1279,6 +1300,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "productos"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feria_precios_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_costo_producto"
+            referencedColumns: ["producto_id"]
+          },
+          {
+            foreignKeyName: "feria_precios_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "v_stock_actual"
+            referencedColumns: ["producto_id"]
           },
         ]
       }
@@ -4595,7 +4630,50 @@ export type Database = {
           vendedor_nombre: string | null
           vendidas: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feria_participantes_feria_id_fkey"
+            columns: ["feria_id"]
+            isOneToOne: false
+            referencedRelation: "feria_revendedoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_encargados"
+            referencedColumns: ["encargado_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_deuda_vendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_plata_en_manos"
+            referencedColumns: ["tenedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_resumen_revendedor"
+            referencedColumns: ["vendedor_id"]
+          },
+          {
+            foreignKeyName: "feria_participantes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       v_feria_stock: {
         Row: {
