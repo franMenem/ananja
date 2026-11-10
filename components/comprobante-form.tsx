@@ -29,16 +29,6 @@ type ComprobanteFormProps = {
   mode: "crear" | "editar";
   comprobanteId?: string;
   initial?: ComprobanteFormInitial;
-  /**
-   * `comprobantes.feria_id` ya guardado (solo `mode: "editar"`) — sin UI de
-   * Ferias, este componente nunca la asigna ni la muestra, pero
-   * `actualizar_comprobante` rechaza con `FERIA_NO_MODIFICABLE` cualquier
-   * update que no mande de vuelta el mismo valor que ya tiene la fila (ver
-   * supabase/migrations/0031_margen_ventas.sql). Un comprobante viejo de
-   * cuando existía Ferias necesita este passthrough invisible para poder
-   * seguir editándose.
-   */
-  feriaIdActual?: string | null;
   /** A dónde volver tras guardar. Default `/comprobantes`. */
   volverA?: string;
 };
@@ -57,7 +47,6 @@ export function ComprobanteForm({
   mode,
   comprobanteId,
   initial,
-  feriaIdActual,
   volverA,
 }: ComprobanteFormProps) {
   const { vendedor, loading: vendedorLoading } = useVendedorActual();
@@ -99,7 +88,6 @@ export function ComprobanteForm({
   const guardar = useGuardarComprobante({
     mode,
     comprobanteId,
-    feriaIdActual,
     volverA,
     uploading: foto.uploading,
     montoInput: ocr.montoInput,

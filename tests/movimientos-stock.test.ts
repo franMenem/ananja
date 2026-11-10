@@ -9,10 +9,11 @@ import {
 
 /**
  * Espejo de `eliminar_movimiento_stock` (supabase/migrations/0072): solo se
- * borra un egreso sin comprobante, sin entrega y sin feria.
+ * borra un egreso sin comprobante y sin entrega (sin la condición de feria
+ * desde la 0094: la feria vieja se retiró).
  */
 describe("esMovimientoStockBorrable", () => {
-  const base = { tipo: "egreso", comprobante_id: null, entrega_id: null, feria_id: null };
+  const base = { tipo: "egreso", comprobante_id: null, entrega_id: null };
 
   it("un egreso cargado a mano se puede borrar", () => {
     expect(esMovimientoStockBorrable(base)).toBe(true);
@@ -24,10 +25,6 @@ describe("esMovimientoStockBorrable", () => {
 
   it("un egreso de entrega a una revendedora no", () => {
     expect(esMovimientoStockBorrable({ ...base, entrega_id: "e-1" })).toBe(false);
-  });
-
-  it("un egreso de feria no", () => {
-    expect(esMovimientoStockBorrable({ ...base, feria_id: "f-1" })).toBe(false);
   });
 
   it("ningún ingreso se puede borrar (producción, devolución o suelto)", () => {

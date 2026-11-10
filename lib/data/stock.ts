@@ -101,7 +101,6 @@ export type MovimientoStockRow = {
   motivo: string | null;
   comprobante_id: string | null;
   entrega_id: string | null;
-  feria_id: string | null;
   lote_id: string | null;
   /** Fecha ("yyyy-mm-dd") del lote del movimiento; `null` sin lote o si no se pudo leer. */
   fecha_lote: string | null;
@@ -133,7 +132,7 @@ export async function listarMovimientosStock(
   const { data, error } = await supabase
     .from("movimientos_stock")
     .select(
-      "id, tipo, cantidad, created_at, nota, motivo, comprobante_id, entrega_id, feria_id, lote_id, productos(nombre, presentacion_ml), vendedores(nombre)",
+      "id, tipo, cantidad, created_at, nota, motivo, comprobante_id, entrega_id, lote_id, productos(nombre, presentacion_ml), vendedores(nombre)",
     )
     .order("created_at", { ascending: false })
     .limit(200);

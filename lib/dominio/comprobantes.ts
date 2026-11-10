@@ -404,20 +404,6 @@ export function interpretarErrorComprobante<P extends { id: string; nombre: stri
     return { tipo: "error", mensaje: "El monto no puede ser menor a lo ya cobrado." };
   }
 
-  if (message === "FERIA_CERRADA") {
-    return {
-      tipo: "error",
-      mensaje: "Esta venta pertenece a una feria que ya cerró y no se puede editar.",
-    };
-  }
-
-  if (message === "FERIA_NO_ENCONTRADA" || message === "FERIA_NO_MODIFICABLE") {
-    return {
-      tipo: "error",
-      mensaje: "No se pudo guardar: esta venta quedó asociada a una feria de forma inconsistente.",
-    };
-  }
-
   if (message === "PRECIO_UNITARIO_INVALIDO") {
     return { tipo: "error", mensaje: "El precio por botella tiene que ser mayor a $ 0." };
   }

@@ -175,41 +175,9 @@ describe.skipIf(!tieneCredenciales)(
     });
 
     // Invariante 5 (v_feria_totales) retirado junto con la feria vieja (migración 0083).
-
-    it("invariante 6: todo comprobante/gasto/movimiento_stock con feria_id apunta a una feria existente", async () => {
-      const { data: ferias, error: errF } = await supabase
-        .from("ferias")
-        .select("id");
-      expect(errF).toBeNull();
-      const idsFerias = new Set((ferias ?? []).map((f) => f.id));
-
-      const { data: comprobantes, error: errC } = await supabase
-        .from("comprobantes")
-        .select("feria_id")
-        .not("feria_id", "is", null);
-      expect(errC).toBeNull();
-      for (const c of comprobantes ?? []) {
-        expect(idsFerias.has(c.feria_id as string)).toBe(true);
-      }
-
-      const { data: gastos, error: errG } = await supabase
-        .from("gastos")
-        .select("feria_id")
-        .not("feria_id", "is", null);
-      expect(errG).toBeNull();
-      for (const g of gastos ?? []) {
-        expect(idsFerias.has(g.feria_id as string)).toBe(true);
-      }
-
-      const { data: movimientos, error: errM } = await supabase
-        .from("movimientos_stock")
-        .select("feria_id")
-        .not("feria_id", "is", null);
-      expect(errM).toBeNull();
-      for (const m of movimientos ?? []) {
-        expect(idsFerias.has(m.feria_id as string)).toBe(true);
-      }
-    });
+    // Invariante 6 (todo feria_id apunta a una feria existente) retirado con las
+    // columnas `feria_id` de comprobantes/gastos/movimientos_stock y la tabla
+    // `ferias` (migraciones 0094 y 0095).
 
     it("invariante 7: v_costo_lote_item ↔ v_costo_lote.total_gastos_centavos, y gastos.producto_id siempre existe en lote_items", async () => {
       const { data: lotes, error: errL } = await supabase
@@ -665,7 +633,6 @@ describe.skipIf(!tieneCredencialesRevendedor)(
       "v_stock_actual",
       "insumos",
       "clientes",
-      "ferias",
     ] as const)("%s devuelve 0 filas o error de permiso", async (tabla) => {
       await esperarVacioOSinPermiso(supabase.from(tabla).select("*"), tabla);
     });

@@ -46,7 +46,6 @@ export interface DemandaSinLoteInput {
   productoId: string;
   cantidad: number;
   vendedorId: string;
-  feriaId: string | null;
   precioUnitarioVentaCentavos: number | null;
   /** Solo origen 'revendedor': ventas_revendedor.precio_costo_centavos. */
   precioCostoRealCentavos: number | null;
@@ -61,7 +60,6 @@ export interface AtribucionFifoResultado {
    * estimar ningún lote para este remanente. */
   loteId: string | null;
   vendedorId: string;
-  feriaId: string | null;
   cantidad: number;
   precioUnitarioVentaCentavos: number | null;
   precioCostoRealCentavos: number | null;
@@ -140,7 +138,6 @@ export function atribuirCostoFifo(
           productoId: d.productoId,
           loteId: lote.loteId,
           vendedorId: d.vendedorId,
-          feriaId: d.feriaId,
           cantidad: consumo,
           precioUnitarioVentaCentavos: d.precioUnitarioVentaCentavos,
           precioCostoRealCentavos: d.precioCostoRealCentavos,
@@ -161,7 +158,6 @@ export function atribuirCostoFifo(
           productoId: d.productoId,
           loteId: null,
           vendedorId: d.vendedorId,
-          feriaId: d.feriaId,
           cantidad: restante,
           precioUnitarioVentaCentavos: d.precioUnitarioVentaCentavos,
           precioCostoRealCentavos: d.precioCostoRealCentavos,
@@ -217,7 +213,6 @@ export interface FilaMargenInput {
   documentoId: string;
   fecha: string;
   vendedorId: string;
-  feriaId: string | null;
   productoId: string;
   loteId: string | null;
   cantidad: number;
@@ -271,7 +266,6 @@ export interface FilaMargen {
   documentoId: string;
   fecha: string;
   vendedorId: string;
-  feriaId: string | null;
   productoId: string;
   loteId: string | null;
   cantidad: number;
@@ -379,7 +373,6 @@ export function calcularFilaMargen(input: FilaMargenInput, costo: CostoLotePorPr
     documentoId: input.documentoId,
     fecha: input.fecha,
     vendedorId: input.vendedorId,
-    feriaId: input.feriaId,
     productoId: input.productoId,
     loteId: input.loteId,
     cantidad: input.cantidad,

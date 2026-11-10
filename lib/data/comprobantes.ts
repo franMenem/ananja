@@ -164,7 +164,6 @@ export type ComprobanteEditarRow = Pick<
   | "fecha"
   | "nota"
   | "cliente_id"
-  | "feria_id"
 > & {
   comprobante_items: {
     producto_id: string;
@@ -175,7 +174,7 @@ export type ComprobanteEditarRow = Pick<
 };
 
 const COLUMNAS_COMPROBANTE_EDITAR =
-  "id, monto_centavos, cobrado_centavos, medio_pago, imagen_path, fecha, nota, cliente_id, feria_id, comprobante_items(producto_id, cantidad, lote_id, precio_unitario_centavos)";
+  "id, monto_centavos, cobrado_centavos, medio_pago, imagen_path, fecha, nota, cliente_id, comprobante_items(producto_id, cantidad, lote_id, precio_unitario_centavos)";
 
 /** Un comprobante por id, con los campos que necesita el formulario de
  * edición — usado por `/comprobantes/[id]/editar`. `null` si no existe o

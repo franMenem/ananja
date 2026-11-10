@@ -22,7 +22,6 @@ export type StockAlert = StockAlertComprobante;
 export type UseGuardarComprobanteArgs = {
   mode: "crear" | "editar";
   comprobanteId?: string;
-  feriaIdActual?: string | null;
   volverA?: string;
   uploading: boolean;
   montoInput: string;
@@ -143,7 +142,6 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
         // `cobradoCentavos` ya se validó no-null arriba: llega siempre como
         // número, a diferencia de `clienteId`, que sí puede faltar.
         p_cobrado_centavos: cobradoCentavos,
-        p_feria_id: args.feriaIdActual ?? undefined,
       };
 
       const { data, error } =

@@ -43,20 +43,20 @@ export interface MovimientoStockParaBorrar {
   tipo: string;
   comprobante_id: string | null;
   entrega_id: string | null;
-  feria_id: string | null;
 }
 
 /**
  * ¿Es un movimiento MANUAL que se puede eliminar? Espejo exacto de la regla
- * de `eliminar_movimiento_stock` (0072): un egreso sin comprobante (venta),
- * sin entrega (revendedora) y sin feria. Ninguna RPC genera un egreso así,
- * así que solo puede venir del formulario de egreso manual.
+ * de `eliminar_movimiento_stock` (0072, sin la condición de feria desde la
+ * 0094): un egreso sin comprobante (venta) y sin entrega (revendedora).
+ * Ninguna RPC genera un egreso así, así que solo puede venir del formulario
+ * de egreso manual.
  *
  * Los ingresos nunca se pueden borrar desde acá: no se distinguen con
  * certeza de los de producción (ver la cabecera de 0072).
  */
 export function esMovimientoStockBorrable(m: MovimientoStockParaBorrar): boolean {
-  return m.tipo === "egreso" && m.comprobante_id === null && m.entrega_id === null && m.feria_id === null;
+  return m.tipo === "egreso" && m.comprobante_id === null && m.entrega_id === null;
 }
 
 /**

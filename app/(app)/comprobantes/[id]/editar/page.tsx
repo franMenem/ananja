@@ -43,7 +43,6 @@ export default async function EditarComprobantePage({
           })),
           clienteId: comprobante.cliente_id,
         }}
-        feriaIdActual={comprobante.feria_id}
       />
     </FormPage>
   );
