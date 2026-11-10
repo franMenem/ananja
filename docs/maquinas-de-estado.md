@@ -103,7 +103,7 @@ Formato de cada ficha: qué es, dónde está la verdad en TS (`archivo` + `símb
 ## Carga de un gasto
 
 - TS: `components/gasto-form.tsx` (alta con la RPC `crear_gasto`), `lib/dominio/gastos.ts` (nombres y `ConceptoPago`), `components/gastos/factura-gasto-seccion.tsx` (adjuntar o quitar la factura; el modo de la sección es una sola unión `Estado` con `fase`: ver, subir, elegir y quitar, con el error dentro de la fase que lo produjo, sin flags sueltos).
-- Base: `crear_gasto` (`0022_rpcs_solo_admin.sql`), `adjuntar_comprobante_gasto` (`0067_comprobante_en_gastos.sql`) y `quitar_comprobante_gasto` (`0067_comprobante_en_gastos.sql`).
+- Base: `crear_gasto` (`0094_retirar_feria_vieja_rpc_vista.sql`), `adjuntar_comprobante_gasto` (`0067_comprobante_en_gastos.sql`) y `quitar_comprobante_gasto` (`0067_comprobante_en_gastos.sql`).
 
 ## Hojas de la feria del admin (una sola hoja abierta)
 
