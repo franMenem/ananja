@@ -1,0 +1,75 @@
+-- 0087_revocar_escrituras_directas.sql
+--
+-- MIGRACIÓN B. Revoca los permisos de escritura directa (REST) del rol
+-- `authenticated` (y `anon`, que no tiene ninguno) sobre las tablas que
+-- quedaron sin ningún uso directo en la app, porque ahora se escriben solo por
+-- las RPC de la 0086.
+--
+-- ORDEN DE DESPLIEGUE (obligatorio):
+--   1) aplicar 0086 (aditiva);
+--   2) desplegar el código que llama a esas RPC (commit "RPC de escrituras");
+--   3) recién ENTONCES aplicar esta 0087. Si se aplica antes de que el código
+--      nuevo esté en producción, el código viejo (que escribe por REST) falla
+--      con "permission denied" en: marcar deuda saldada / alta de deuda,
+--      egreso manual de stock, editar y eliminar gasto, eliminar comprobante
+--      y umbral de insumo.
+--
+-- Qué se revoca (cada uno verificado contra grants de producción y contra un
+-- grep de `.from("<tabla>").insert|update|upsert|delete(` en app/, components/
+-- y lib/; el service role no depende de estos grants):
+--   deudas             insert, update   -> crear_deuda, marcar_deuda_saldada
+--   movimientos_stock  insert           -> registrar_egreso_manual
+--   gastos             update, delete   -> editar_gasto, eliminar_gasto
+--   comprobantes       delete           -> eliminar_comprobante
+--   comprobante_items  delete           -> sin uso directo (cae por ON DELETE
+--                                          CASCADE, que no necesita el grant)
+--   insumos            update           -> actualizar_umbral_insumo (nombre y
+--                                          activo no los escribe ninguna
+--                                          pantalla por REST)
+--
+-- Un `revoke ... on table` también quita los permisos por columna de esa
+-- tabla. `select` NO se toca (las vistas security_invoker y las lecturas lo
+-- necesitan). Las policies de escritura se dejan: sin grant no se evalúan.
+--
+-- Qué NO se revoca, porque todavía tiene escritura directa en uso:
+--   categorias_gasto (insert)   app/(app)/gastos/categoria-select.tsx
+--   clientes (insert/update)    components/cliente-select.tsx, cliente-form.tsx,
+--                               cliente-baja-button.tsx
+--   materiales_venta (i/u/d)    lib/material.ts
+--   productos (update umbral_minimo)  components/stock/umbral-editable.tsx
+--   push_subscriptions (insert/delete)  app/api/push/subscribe/route.ts y
+--                               send/route.ts (con la sesión del usuario)
+-- Sin uso directo pero fuera de este alcance (candidatas a una próxima tanda):
+--   cajas update(saldo_inicial_centavos), productos update(costo_centavos),
+--   vendedores update(nombre).
+--
+-- ── Verificación posterior (solo lectura) ────────────────────────────────
+--   select c.relname,
+--          has_table_privilege('authenticated', c.oid, 'INSERT') as i,
+--          has_table_privilege('authenticated', c.oid, 'UPDATE') as u,
+--          has_table_privilege('authenticated', c.oid, 'DELETE') as d
+--     from pg_class c
+--    where c.relnamespace = 'public'::regnamespace
+--      and c.relname in ('deudas','movimientos_stock','gastos','comprobantes',
+--                        'comprobante_items','insumos');
+--   -- esperado: todo false.
+--   select table_name, privilege_type, column_name
+--     from information_schema.column_privileges
+--    where table_schema = 'public' and grantee in ('authenticated','anon')
+--      and privilege_type in ('INSERT','UPDATE')
+--      and table_name in ('deudas','movimientos_stock','gastos','insumos');
+--   -- esperado: 0 filas.
+--
+-- ── Rollback ─────────────────────────────────────────────────────────────
+--   grant insert, update on public.deudas to authenticated;
+--   grant insert on public.movimientos_stock to authenticated;
+--   grant update, delete on public.gastos to authenticated;
+--   grant delete on public.comprobantes, public.comprobante_items to authenticated;
+--   grant update (nombre, umbral_minimo, activo) on public.insumos to authenticated;
+
+revoke insert, update on public.deudas from authenticated, anon;
+revoke insert on public.movimientos_stock from authenticated, anon;
+revoke update, delete on public.gastos from authenticated, anon;
+revoke delete on public.comprobantes from authenticated, anon;
+revoke delete on public.comprobante_items from authenticated, anon;
+revoke update on public.insumos from authenticated, anon;
