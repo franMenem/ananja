@@ -5473,6 +5473,10 @@ export type Database = {
         Returns: Json
       }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
+      eliminar_rendicion_revendedor: {
+        Args: { p_rendicion_id: string }
+        Returns: Json
+      }
       eliminar_transferencia_caja: {
         Args: { p_transferencia_id: string }
         Returns: Json
