@@ -35,7 +35,10 @@ export function UmbralEditable({ productoId, umbralMinimo }: { productoId: strin
     setGuardando(true);
     setError(null);
     const supabase = createClient();
-    const { error: updateError } = await supabase.from("productos").update({ umbral_minimo: umbral }).eq("id", productoId);
+    const { error: updateError } = await supabase.rpc("actualizar_umbral_producto", {
+      p_producto_id: productoId,
+      p_umbral_minimo: umbral,
+    });
     setGuardando(false);
 
     if (updateError) {

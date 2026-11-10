@@ -62,13 +62,21 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
 
     const { data, error } =
       mode === "crear"
-        ? await supabase.from("clientes").insert(payload).select("id").single()
-        : await supabase
-            .from("clientes")
-            .update(payload)
-            .eq("id", clienteId!)
-            .select("id")
-            .single();
+        ? await supabase.rpc("crear_cliente", {
+            p_nombre: payload.nombre,
+            p_telefono: payload.telefono ?? undefined,
+            p_direccion: payload.direccion ?? undefined,
+            p_email: payload.email ?? undefined,
+            p_nota: payload.nota ?? undefined,
+          })
+        : await supabase.rpc("editar_cliente", {
+            p_cliente_id: clienteId!,
+            p_nombre: payload.nombre,
+            p_telefono: payload.telefono ?? undefined,
+            p_direccion: payload.direccion ?? undefined,
+            p_email: payload.email ?? undefined,
+            p_nota: payload.nota ?? undefined,
+          });
 
     setSubmitting(false);
 
@@ -77,7 +85,8 @@ export function ClienteForm({ mode, clienteId, initial }: ClienteFormProps) {
       return;
     }
 
-    router.push(`/clientes/${data.id}`);
+    // crear_cliente devuelve la fila y editar_cliente `{ id }`: ambas traen `id`.
+    router.push(`/clientes/${(data as { id: string }).id}`);
     router.refresh();
   }
 

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  esFuncionPushSinMigrar,
   filtrarSuscripcionesDeAdmins,
   tieneColumnaDueno,
 } from "@/lib/push-suscripciones";
@@ -10,21 +9,6 @@ import {
  * Lógica pura de las suscripciones de push con dueño (hallazgo F7,
  * `supabase/migrations/0076_push_subscriptions_dueno.sql`).
  */
-describe("esFuncionPushSinMigrar", () => {
-  it("reconoce función inexistente en PostgREST y en Postgres", () => {
-    expect(esFuncionPushSinMigrar({ code: "PGRST202" })).toBe(true);
-    expect(esFuncionPushSinMigrar({ code: "42883" })).toBe(true);
-  });
-
-  it("no confunde otros errores con base sin migrar", () => {
-    expect(esFuncionPushSinMigrar({ code: "P0001" })).toBe(false);
-    expect(esFuncionPushSinMigrar({ code: "23505" })).toBe(false);
-    expect(esFuncionPushSinMigrar({})).toBe(false);
-    expect(esFuncionPushSinMigrar(null)).toBe(false);
-    expect(esFuncionPushSinMigrar(undefined)).toBe(false);
-  });
-});
-
 describe("tieneColumnaDueno", () => {
   it("es true si alguna fila trae la clave, aunque sea null", () => {
     expect(tieneColumnaDueno([{ endpoint: "a", vendedor_id: null }])).toBe(true);

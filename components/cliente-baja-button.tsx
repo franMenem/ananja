@@ -32,10 +32,10 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
     setError(null);
 
     const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("clientes")
-      .update({ activo: !activo })
-      .eq("id", clienteId);
+    const { error: updateError } = await supabase.rpc("cambiar_estado_cliente", {
+      p_cliente_id: clienteId,
+      p_activo: !activo,
+    });
 
     setSaving(false);
 

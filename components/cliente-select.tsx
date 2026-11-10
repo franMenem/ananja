@@ -98,11 +98,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
     setCreatingError(null);
 
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from("clientes")
-      .insert({ nombre })
-      .select("*")
-      .single();
+    const { data, error } = await supabase.rpc("crear_cliente", { p_nombre: nombre });
 
     setSavingNuevo(false);
 

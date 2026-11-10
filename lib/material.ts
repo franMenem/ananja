@@ -16,24 +16,20 @@ export type CrearMaterialArgs = {
   publicado: boolean;
 };
 
-/** Alta — devuelve el `{data, error}` crudo de supabase-js (mismo
- * criterio que `registrarVentaRevendedor` de `lib/revendedores.ts`) para
- * que el caller traduzca el error. Sin RPC: `insert` directo, cerrado por
- * la policy `materiales_venta_insert` (`es_admin()`). */
+/** Alta vía RPC `crear_material` (solo admin) — devuelve el `{data, error}`
+ * crudo de supabase-js (mismo criterio que `registrarVentaRevendedor` de
+ * `lib/revendedores.ts`) para que el caller traduzca el error. `data` es
+ * `{ id }`. */
 export async function crearMaterial(
   supabase: SupabaseClient<Database>,
   args: CrearMaterialArgs,
 ) {
-  return supabase
-    .from("materiales_venta")
-    .insert({
-      titulo: args.titulo,
-      cuerpo: args.cuerpo,
-      orden: args.orden,
-      publicado: args.publicado,
-    })
-    .select()
-    .single();
+  return supabase.rpc("crear_material", {
+    p_titulo: args.titulo,
+    p_cuerpo: args.cuerpo,
+    p_orden: args.orden,
+    p_publicado: args.publicado,
+  });
 }
 
 export type ActualizarMaterialArgs = {
@@ -42,41 +38,34 @@ export type ActualizarMaterialArgs = {
   publicado: boolean;
 };
 
-/** Edición — no toca `orden` (solo cambia vía `moverMaterial`). */
+/** Edición vía RPC `actualizar_material` — no toca `orden` (solo cambia vía
+ * `moverMaterial`). */
 export async function actualizarMaterial(
   supabase: SupabaseClient<Database>,
   id: string,
   args: ActualizarMaterialArgs,
 ) {
-  return supabase
-    .from("materiales_venta")
-    .update({
-      titulo: args.titulo,
-      cuerpo: args.cuerpo,
-      publicado: args.publicado,
-    })
-    .eq("id", id);
+  return supabase.rpc("actualizar_material", {
+    p_material_id: id,
+    p_titulo: args.titulo,
+    p_cuerpo: args.cuerpo,
+    p_publicado: args.publicado,
+  });
 }
 
+/** Baja vía RPC `eliminar_material` (idempotente). */
 export async function eliminarMaterial(supabase: SupabaseClient<Database>, id: string) {
-  return supabase.from("materiales_venta").delete().eq("id", id);
+  return supabase.rpc("eliminar_material", { p_material_id: id });
 }
 
 /**
  * Intercambia el `orden` de la fila `id` con el de su vecino inmediato en
  * `materiales` (ya ordenada con `ordenarMateriales`/`listarMaterialesAdmin`)
- * en la dirección pedida, usando `intercambiarOrden` — dos `update`
- * secuenciales, sin RPC (ver spec § Alternativas descartadas: RLS +
- * `es_admin()` alcanza sola para este CRUD). Sin-op si la fila ya está en
- * el extremo correspondiente. Devuelve `null` si no hizo falta ningún
- * cambio, o el `{error}` del primer update que falle (si alguno falla)
- * para que el caller lo traduzca.
- *
- * Los dos `update` NO son transaccionales (sin RPC no hay forma de
- * atarlos): si el segundo falla después de que el primero ya se aplicó,
- * dos filas pueden quedar con el mismo `orden` (el mismo caso que corrige
- * `intercambiarOrden`). Es recuperable: otro movimiento sobre cualquiera
- * de esas dos filas vuelve a desempatarlas.
+ * en la dirección pedida, usando `intercambiarOrden`, y aplica los dos
+ * cambios JUNTOS con la RPC `reordenar_materiales` (una sola transacción:
+ * o se aplican los dos o ninguno). Sin-op si la fila ya está en el extremo
+ * correspondiente. Devuelve `null` si no hizo falta ningún cambio, o
+ * `{error}` si la RPC falla, para que el caller lo muestre.
  */
 export async function moverMaterial(
   supabase: SupabaseClient<Database>,
@@ -91,14 +80,10 @@ export async function moverMaterial(
   const updates = intercambiarOrden(ordenados, index, direccion);
   if (updates === null) return null;
 
-  const [{ error: errorActual }, { error: errorVecino }] = await Promise.all(
-    updates.map(({ id: filaId, orden }) =>
-      supabase.from("materiales_venta").update({ orden }).eq("id", filaId),
-    ),
-  );
+  const { error } = await supabase.rpc("reordenar_materiales", { p_items: updates });
 
-  if (errorActual || errorVecino) {
-    console.error("moverMaterial", errorActual ?? errorVecino);
+  if (error) {
+    console.error("moverMaterial", error);
     return { error: "No se pudo reordenar el material." };
   }
 

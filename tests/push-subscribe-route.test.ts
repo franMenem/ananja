@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * `POST /api/push/subscribe` (`app/api/push/subscribe/route.ts`) con un
  * cliente de Supabase simulado — hallazgo F7 (migración 0076): la
- * suscripción queda atada a su dueño por `guardar_suscripcion_push`, y el
- * código sigue andando si la función todavía no existe en la base.
+ * suscripción queda atada a su dueño por `guardar_suscripcion_push`.
  */
 
 type Respuesta = { error: { code?: string; message?: string } | null };
@@ -87,42 +86,18 @@ describe("POST /api/push/subscribe", () => {
     expect(mocks.from).not.toHaveBeenCalled();
   });
 
-  it("función inexistente: vuelve al insert de siempre, sin dueño", async () => {
+  it("función inexistente: 500, sin escribir la tabla directo (ya no hay camino de respaldo)", async () => {
     mocks.rpc.mockResolvedValue(FUNCION_INEXISTENTE);
 
     const res = await pedir({ endpoint: ENDPOINT, keys: KEYS });
 
-    expect(res.status).toBe(201);
-    expect(mocks.from).toHaveBeenCalledWith("push_subscriptions");
-    expect(mocks.insert).toHaveBeenCalledTimes(1);
-    expect(mocks.insert).toHaveBeenCalledWith({ endpoint: ENDPOINT, keys: KEYS });
-  });
-
-  it("función inexistente (42883) y endpoint duplicado: borra y reinserta como antes", async () => {
-    mocks.rpc.mockResolvedValue({ error: { code: "42883" } });
-    mocks.insert
-      .mockResolvedValueOnce({ error: { code: "23505" } })
-      .mockResolvedValueOnce({ error: null });
-    mocks.delete.mockResolvedValue({ error: null });
-
-    const res = await pedir({ endpoint: ENDPOINT, keys: KEYS });
-
-    expect(res.status).toBe(201);
-    expect(mocks.delete).toHaveBeenCalledWith("endpoint", ENDPOINT);
-    expect(mocks.insert).toHaveBeenCalledTimes(2);
-  });
-
-  it("función inexistente + reenlazar: 200 sin escrituras", async () => {
-    mocks.rpc.mockResolvedValue(FUNCION_INEXISTENTE);
-
-    const res = await pedir({ endpoint: ENDPOINT, keys: KEYS, reenlazar: true });
-
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(res.status).toBe(500);
     expect(mocks.from).not.toHaveBeenCalled();
+    expect(mocks.insert).not.toHaveBeenCalled();
+    expect(mocks.delete).not.toHaveBeenCalled();
   });
 
-  it("NO_AUTORIZADO de la función: 403, sin caer al insert viejo", async () => {
+  it("NO_AUTORIZADO de la función: 403, sin tocar la tabla", async () => {
     mocks.rpc.mockResolvedValue({ error: { code: "P0001", message: "NO_AUTORIZADO" } });
 
     const res = await pedir({ endpoint: ENDPOINT, keys: KEYS });
@@ -131,7 +106,7 @@ describe("POST /api/push/subscribe", () => {
     expect(mocks.from).not.toHaveBeenCalled();
   });
 
-  it("SUSCRIPCION_INVALIDA de la función: 400, sin caer al insert viejo", async () => {
+  it("SUSCRIPCION_INVALIDA de la función: 400, sin tocar la tabla", async () => {
     mocks.rpc.mockResolvedValue({ error: { code: "P0001", message: "SUSCRIPCION_INVALIDA" } });
 
     const res = await pedir({ endpoint: ENDPOINT, keys: KEYS });
@@ -140,7 +115,7 @@ describe("POST /api/push/subscribe", () => {
     expect(mocks.from).not.toHaveBeenCalled();
   });
 
-  it("otro error de la función: 500, sin caer al insert viejo ni siquiera con reenlazar", async () => {
+  it("otro error de la función: 500, sin tocar la tabla ni siquiera con reenlazar", async () => {
     mocks.rpc.mockResolvedValue({ error: { code: "XX000", message: "boom" } });
 
     const res = await pedir({ endpoint: ENDPOINT, keys: KEYS, reenlazar: true });

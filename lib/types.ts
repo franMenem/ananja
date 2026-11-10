@@ -5221,8 +5221,21 @@ export type Database = {
         Args: { p_costos: Json; p_lote_id: string; p_nota?: string }
         Returns: Json
       }
+      actualizar_material: {
+        Args: {
+          p_cuerpo: string
+          p_material_id: string
+          p_publicado: boolean
+          p_titulo: string
+        }
+        Returns: Json
+      }
       actualizar_umbral_insumo: {
         Args: { p_insumo_id: string; p_umbral_minimo: number }
+        Returns: Json
+      }
+      actualizar_umbral_producto: {
+        Args: { p_producto_id: string; p_umbral_minimo: number }
         Returns: Json
       }
       adjuntar_comprobante_gasto: {
@@ -5272,6 +5285,10 @@ export type Database = {
           total_centavos: number
         }[]
       }
+      cambiar_estado_cliente: {
+        Args: { p_activo: boolean; p_cliente_id: string }
+        Returns: Json
+      }
       confirmar_deposito_informado: {
         Args: { p_deposito_informado_id: string }
         Returns: Json
@@ -5285,6 +5302,35 @@ export type Database = {
           p_nota: string
         }
         Returns: Json
+      }
+      crear_categoria_gasto: {
+        Args: { p_nombre: string }
+        Returns: {
+          activa: boolean
+          es_costo_produccion: boolean
+          id: string
+          nombre: string
+        }
+      }
+      crear_cliente: {
+        Args: {
+          p_direccion?: string
+          p_email?: string
+          p_nombre: string
+          p_nota?: string
+          p_telefono?: string
+        }
+        Returns: {
+          activo: boolean
+          created_at: string
+          direccion: string | null
+          email: string | null
+          id: string
+          nombre: string
+          nota: string | null
+          telefono: string | null
+          updated_at: string
+        }
       }
       crear_comprobante: {
         Args: {
@@ -5346,6 +5392,15 @@ export type Database = {
         }
         Returns: Json
       }
+      crear_material: {
+        Args: {
+          p_cuerpo: string
+          p_orden: number
+          p_publicado: boolean
+          p_titulo: string
+        }
+        Returns: Json
+      }
       crear_version_precio: {
         Args: {
           p_dolar_centavos: number
@@ -5362,6 +5417,17 @@ export type Database = {
       }
       editar_ajuste_caja: {
         Args: { p_ajuste_id: string; p_fecha: string; p_nota: string }
+        Returns: Json
+      }
+      editar_cliente: {
+        Args: {
+          p_cliente_id: string
+          p_direccion?: string
+          p_email?: string
+          p_nombre: string
+          p_nota?: string
+          p_telefono?: string
+        }
         Returns: Json
       }
       editar_gasto: {
@@ -5396,6 +5462,10 @@ export type Database = {
         Returns: Json
       }
       eliminar_gasto: { Args: { p_gasto_id: string }; Returns: Json }
+      eliminar_material: {
+        Args: { p_material_id: string }
+        Returns: Json
+      }
       eliminar_movimiento_stock: {
         Args: { p_movimiento_id: string }
         Returns: Json
@@ -5775,6 +5845,10 @@ export type Database = {
           monto_ananja_centavos: number
           rendicion_id: string
         }[]
+      }
+      reordenar_materiales: {
+        Args: { p_items: Json }
+        Returns: Json
       }
       repartir_resto_mayor: {
         Args: { p_pesos: number[]; p_total: number }

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { esEndpointPushPermitido } from "@/lib/push-endpoint";
-import { esFuncionPushSinMigrar } from "@/lib/push-suscripciones";
 import { esAdminAutenticado } from "@/lib/rol-vendedor";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,8 +14,10 @@ import { createClient } from "@/lib/supabase/server";
  * silencioso del shell de admin (`lib/push-client.ts`): vuelve a atar una
  * suscripción que ya existía.
  *
- * Código desplegado antes de la migración (la función no existe todavía):
- * se inserta como hasta ahora, sin dueño; y un reenlace no toca la tabla.
+ * Es la ÚNICA escritura de `push_subscriptions` con sesión de usuario (la
+ * 0089 revoca insert/delete directos): ya no hay camino de respaldo con
+ * insert/delete si la función no existe. El borrado de suscripciones
+ * vencidas lo hace `/api/push/send` con la service role.
  */
 export const runtime = "nodejs";
 
@@ -71,65 +72,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true }, { status: 201 });
   }
 
-  if (!esFuncionPushSinMigrar(rpcError)) {
-    if (rpcError.message?.includes("NO_AUTORIZADO")) {
-      return NextResponse.json({ error: "NO_AUTORIZADO" }, { status: 403 });
-    }
-    if (rpcError.message?.includes("SUSCRIPCION_INVALIDA")) {
-      return NextResponse.json({ error: "Suscripción inválida." }, { status: 400 });
-    }
-    return NextResponse.json(
-      { error: "No se pudo guardar la suscripción." },
-      { status: 500 },
-    );
+  if (rpcError.message?.includes("NO_AUTORIZADO")) {
+    return NextResponse.json({ error: "NO_AUTORIZADO" }, { status: 403 });
   }
-
-  // La migración 0076 todavía no se aplicó: no hay dueño que atar. El
-  // reenlace silencioso no tiene nada que hacer (evita un 500 en cada
-  // apertura de la app); el alta normal sigue como antes de 0076.
-  if (body?.reenlazar === true) {
-    return NextResponse.json({ ok: true }, { status: 200 });
+  if (rpcError.message?.includes("SUSCRIPCION_INVALIDA")) {
+    return NextResponse.json({ error: "Suscripción inválida." }, { status: 400 });
   }
-
-  const { error: insertError } = await supabase
-    .from("push_subscriptions")
-    .insert({ endpoint, keys: { p256dh, auth } });
-
-  if (insertError) {
-    // "Upsert por endpoint" (contracts/database.md): `push_subscriptions`
-    // solo otorga insert/delete al cliente autenticado, sin grant de
-    // update — así que si el endpoint ya existe (claves rotadas) se
-    // reemplaza borrando la fila anterior y reinsertando.
-    if (insertError.code === "23505") {
-      const { error: deleteError } = await supabase
-        .from("push_subscriptions")
-        .delete()
-        .eq("endpoint", endpoint);
-
-      if (deleteError) {
-        return NextResponse.json(
-          { error: "No se pudo actualizar la suscripción." },
-          { status: 500 },
-        );
-      }
-
-      const { error: reinsertError } = await supabase
-        .from("push_subscriptions")
-        .insert({ endpoint, keys: { p256dh, auth } });
-
-      if (reinsertError) {
-        return NextResponse.json(
-          { error: "No se pudo guardar la suscripción." },
-          { status: 500 },
-        );
-      }
-    } else {
-      return NextResponse.json(
-        { error: "No se pudo guardar la suscripción." },
-        { status: 500 },
-      );
-    }
-  }
-
-  return NextResponse.json({ ok: true }, { status: 201 });
+  return NextResponse.json(
+    { error: "No se pudo guardar la suscripción." },
+    { status: 500 },
+  );
 }

@@ -7,20 +7,9 @@
  * se le quitó el rol seguía recibiendo los avisos internos. Ahora cada fila
  * tiene `vendedor_id` y el envío se filtra a los admins activos.
  *
- * El código se despliega ANTES que la migración, así que todo esto tiene que
- * tolerar la base sin migrar (sin la columna y sin la función).
+ * `filtrarSuscripcionesDeAdmins` tolera filas sin la columna `vendedor_id`
+ * (base anterior a la 0076).
  */
-
-/** Códigos de PostgREST/Postgres cuando `guardar_suscripcion_push` todavía
- * no existe en la base (la migración 0076 no se aplicó): `PGRST202` =
- * función no encontrada en el schema cache, `42883` = undefined_function. */
-const CODIGOS_FUNCION_SIN_MIGRAR = new Set(["PGRST202", "42883"]);
-
-export function esFuncionPushSinMigrar(
-  error: { code?: string | null } | null | undefined,
-): boolean {
-  return !!error?.code && CODIGOS_FUNCION_SIN_MIGRAR.has(error.code);
-}
 
 type FilaConDueno = { vendedor_id?: string | null };
 

@@ -77,11 +77,7 @@ export function CategoriaSelect({
     setError(null);
 
     const supabase = createClient();
-    const { data, error: insertError } = await supabase
-      .from("categorias_gasto")
-      .insert({ nombre })
-      .select()
-      .single();
+    const { data, error: insertError } = await supabase.rpc("crear_categoria_gasto", { p_nombre: nombre });
 
     setSaving(false);
 
