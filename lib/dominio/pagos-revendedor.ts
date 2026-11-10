@@ -10,6 +10,16 @@ import { NEGOCIO } from "@/lib/negocio";
 import type { Enums } from "@/lib/types";
 
 export type MedioPago = Enums<"medio_pago">;
+/**
+ * Estado de un pago informado (`pagos_revendedor.estado`, CHECK + CHECK
+ * `pagos_revendedor_estado_coherente` en 0040_revendedores_pagos_precios.sql):
+ *   pendiente --confirmar_pago_revendedor--> confirmado (crea la rendición, `rendicion_id`)
+ *   pendiente --rechazar_pago_revendedor-->  rechazado  (exige motivo)
+ * Ambos son terminales. `informar_pago_revendedor` crea la fila `pendiente`.
+ * Definiciones vigentes: 0055_coordinador.sql (confirmar/rechazar) y
+ * 0075_informar_pago_revendedor_path_seguro.sql (informar). Presentación:
+ * {@link ESTADO_PAGO_LABELS} / {@link ESTADO_PAGO_VARIANTE} más abajo.
+ */
 export type EstadoPago = "pendiente" | "confirmado" | "rechazado";
 
 export interface PagoMonto {

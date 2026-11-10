@@ -4,9 +4,28 @@
  * participante. Los cálculos del cierre están en `lib/dominio/feria.ts`.
  */
 
-/** `feria_revendedoras.estado` (0078_feria_revendedoras.sql, CHECK). */
+/**
+ * MÁQUINAS DE ESTADO DE LA FERIA (descripción canónica; la valida la base en
+ * `supabase/migrations/0078_feria_revendedoras.sql` y `0079_feria_degustacion_carga.sql`).
+ *
+ * Feria (`feria_revendedoras.estado`, CHECK):
+ *   abierta --feria_cerrar--> cerrada     (solo si ninguna participación está `pendiente`)
+ *   cerrada --feria_reabrir--> abierta
+ * Participación (`feria_participantes.estado`, CHECK):
+ *   pendiente --feria_cerrar_participacion--> cerrada   (exige feria `abierta`)
+ *   cerrada   --feria_reabrir_participacion--> pendiente (exige feria `abierta`; borra las ventas del cierre)
+ *   `feria_quitar_participante` borra la fila (no es un estado): solo si no tiene movimientos.
+ * Las RPC exigen `es_admin()` salvo `feria_cerrar_participacion`, que también
+ * puede llamar la propia revendedora (`puede_revender()`) o su coordinadora
+ * (`es_coordinador_de`).
+ *
+ * PENDIENTE (hueco conocido de la base): no hay CHECK que ate `estado` con
+ * `cerrada_at` en `feria_participantes`.
+ *
+ * Para preguntar el estado en TS usar {@link feriaAbierta} /
+ * {@link participacionCerrada}; no comparar strings a mano.
+ */
 export type EstadoFeria = "abierta" | "cerrada";
-/** `feria_participantes.estado` (0078_feria_revendedoras.sql, CHECK). */
 export type EstadoParticipacion = "pendiente" | "cerrada";
 
 /** Valor de `feria_revendedoras.estado` de una feria abierta (para `.eq(...)`). */
