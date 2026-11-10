@@ -24,6 +24,7 @@ import {
   type FilaMovimiento,
   type MedioCuenta,
 } from "@/lib/dominio/movimientos-plata";
+import { lugarEnPalabras } from "@/lib/dominio/eliminar-movimientos";
 import { parsearViaRendicion } from "@/lib/dominio/plata";
 import { agruparPedidosPorPagar, type PedidoPorPagar } from "@/lib/dominio/tareas";
 import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
@@ -427,7 +428,7 @@ export async function cargarMovimientosPlata(
       leer((desde, hasta) => {
         let q = supabase
           .from("pagos_deuda")
-          .select("id, monto_caja_centavos, medio_pago, fecha, created_at, vendedor_id, deudas(descripcion)");
+          .select("id, monto_centavos, monto_caja_centavos, medio_pago, fecha, created_at, vendedor_id, deudas(descripcion, moneda)");
         if (medio) q = q.eq("medio_pago", medio);
         if (personas) q = q.in("vendedor_id", personas);
         return q.order("created_at", { ascending: false }).order("id").range(desde, hasta);
@@ -526,6 +527,8 @@ export async function cargarMovimientosPlata(
     ajuste: null as FilaMovimiento["ajuste"],
     deposito: null as FilaMovimiento["deposito"],
     comprobanteUrl: null as FilaMovimiento["comprobanteUrl"],
+    eliminar: null as FilaMovimiento["eliminar"],
+    corregirEn: null as FilaMovimiento["corregirEn"],
   });
   const unir = (...partes: (string | null | undefined)[]) =>
     partes.filter((p): p is string => Boolean(p && p.trim())).join(" · ") || null;
@@ -542,12 +545,18 @@ export async function cargarMovimientosPlata(
       titulo: `Venta · ${MEDIO_PAGO_LABELS[c.medio_pago]}`,
       detalle: nombreDe(c.vendedor_id),
       href: `/comprobantes/${c.id}`,
+      corregirEn: { texto: "Editar o eliminar en el detalle", href: `/comprobantes/${c.id}` },
     })),
     ...cobros.data.map((c) => ({
       ...base("cobro", c),
       mov: { tipo: "cobro" as const, medioPago: c.medio_pago, vendedorId: c.vendedor_id, montoCentavos: c.monto_centavos },
       titulo: `${describirCobro(c.comprobantes?.clientes?.nombre ?? "—")} · ${MEDIO_PAGO_LABELS[c.medio_pago]}`,
       detalle: nombreDe(c.vendedor_id),
+      eliminar: {
+        tipo: "cobro" as const,
+        montoCentavos: c.monto_centavos,
+        lugar: lugarEnPalabras(c.medio_pago, nombreDe(c.vendedor_id)),
+      },
     })),
     ...gastos.data.map((g) => {
       const { titulo, categoria } = tituloGasto({
@@ -562,6 +571,7 @@ export async function cargarMovimientosPlata(
         titulo: `Gasto · ${titulo}`,
         detalle: unir(categoria, nombreDe(g.vendedor_id)),
         href: `/gastos/${g.id}`,
+        corregirEn: { texto: "Editar o eliminar en el detalle", href: `/gastos/${g.id}` },
       };
     }),
     ...pagosDeuda.data.map((p) => ({
@@ -574,6 +584,13 @@ export async function cargarMovimientosPlata(
       },
       titulo: describirPagoDeuda(p.deudas?.descripcion ?? "—"),
       detalle: nombreDe(p.vendedor_id),
+      eliminar: {
+        tipo: "pago_deuda" as const,
+        moneda: (p.deudas?.moneda === "USD" ? "USD" : "ARS") as "USD" | "ARS",
+        montoCentavos: p.monto_centavos,
+        montoCajaCentavos: p.monto_caja_centavos,
+        lugar: lugarEnPalabras(p.medio_pago, nombreDe(p.vendedor_id)),
+      },
     })),
     ...ajustes.data.map((a) => ({
       ...base("ajuste", a),
@@ -614,6 +631,9 @@ export async function cargarMovimientosPlata(
           ventaPropia: esVentaPropia(r.vendedor_id, r.tenedor_id),
         }),
         detalle: unir(via === "encargado" ? notaCobrado : MEDIO_PAGO_LABELS[r.medio_pago], r.nota),
+        corregirEn: r.vendedor_id
+          ? { texto: `Se corrige desde la ficha de ${nombreDe(r.vendedor_id)}`, href: `/revendedores/${r.vendedor_id}` }
+          : null,
       };
     }),
     ...transferencias.data.map((t) => ({
@@ -627,6 +647,12 @@ export async function cargarMovimientosPlata(
       },
       titulo: describirTransferencia(t.origen, t.destino),
       detalle: unir(t.nota, nombreDe(t.vendedor_id)),
+      eliminar: {
+        tipo: "transferencia" as const,
+        montoCentavos: t.monto_centavos,
+        origenLugar: lugarEnPalabras(t.origen, nombreDe(t.vendedor_id)),
+        destino: t.destino,
+      },
     })),
     ...depositos.data.map((d) => ({
       ...base("deposito", d),

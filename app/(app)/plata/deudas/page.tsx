@@ -3,14 +3,17 @@ import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { Fila } from "@/components/ui/fila";
 import { Tarjeta } from "@/components/ui/tarjeta";
+import { EliminarDeudaButton } from "@/components/caja/eliminar-deuda-button";
+import { ReabrirDeudaButton } from "@/components/caja/reabrir-deuda-button";
 import { MarcarSaldadaButton } from "@/components/caja/marcar-saldada-button";
 import { PagosDeudaList } from "@/components/deudas/pagos-deuda-list";
 import { VolverLink } from "@/components/volver-link";
 import { listarDeudasConSaldo } from "@/lib/deudas";
-import { deudaSigueDebiendose } from "@/lib/dominio/deudas";
+import { deudaSigueDebiendose, puedeEliminarDeuda, puedeReabrirDeuda } from "@/lib/dominio/deudas";
 import { formatFecha } from "@/lib/fechas";
 import { formatMonto } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { LinkBoton } from "@/components/ui/link-boton";
 
 export const dynamic = "force-dynamic";
@@ -96,13 +99,25 @@ export default async function DeudasPage() {
                     }))}
                   />
 
+                  {deuda.loteId && <CorregirDesdePedido loteId={deuda.loteId} />}
+
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <MarcarSaldadaButton
-                      deudaId={deuda.id}
-                      descripcion={deuda.descripcion}
-                      moneda={deuda.moneda}
-                      montoCentavos={deuda.restanteCentavos}
-                    />
+                    <div className="flex flex-wrap items-center gap-x-4">
+                      <MarcarSaldadaButton
+                        deudaId={deuda.id}
+                        descripcion={deuda.descripcion}
+                        moneda={deuda.moneda}
+                        montoCentavos={deuda.restanteCentavos}
+                      />
+                      {puedeEliminarDeuda(deuda) && (
+                        <EliminarDeudaButton
+                          deudaId={deuda.id}
+                          descripcion={deuda.descripcion}
+                          moneda={deuda.moneda}
+                          montoCentavos={deuda.montoCentavos}
+                        />
+                      )}
+                    </div>
                     <LinkBoton prefetch={false} href={`/plata/deudas/${deuda.id}/pago`} className={`${BOTON_PRIMARIO} flex px-4`}>
                       Registrar pago
                     </LinkBoton>
@@ -141,11 +156,47 @@ export default async function DeudasPage() {
                     nota: p.nota,
                   }))}
                 />
+
+                {deuda.loteId && <CorregirDesdePedido loteId={deuda.loteId} />}
+
+                {(puedeReabrirDeuda(deuda) || puedeEliminarDeuda(deuda)) && (
+                  <div className="flex flex-wrap items-center gap-x-4">
+                    {puedeReabrirDeuda(deuda) && (
+                      <ReabrirDeudaButton
+                        deudaId={deuda.id}
+                        descripcion={deuda.descripcion}
+                        moneda={deuda.moneda}
+                        restanteCentavos={deuda.restanteCentavos}
+                      />
+                    )}
+                    {puedeEliminarDeuda(deuda) && (
+                      <EliminarDeudaButton
+                        deudaId={deuda.id}
+                        descripcion={deuda.descripcion}
+                        moneda={deuda.moneda}
+                        montoCentavos={deuda.montoCentavos}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
       </Tarjeta>
     </div>
+  );
+}
+
+/** Indicación de las deudas que nacen de un pedido: no se tocan a mano. */
+function CorregirDesdePedido({ loteId }: { loteId: string }) {
+  return (
+    <Link
+      prefetch={false}
+      href={`/stock/lotes/${loteId}`}
+      className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-primary"
+    >
+      Sale de un pedido: se corrige desde el pedido
+    </Link>
   );
 }

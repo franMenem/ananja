@@ -25,6 +25,8 @@ export type DeudaConSaldo = {
   restanteCentavos: number;
   estado: EstadoDeuda;
   pagos: PagoDeuda[];
+  /** Pedido del que nace (deuda de aceite mantenida por `sincronizar_deuda_aceite_lote`); `null` si se cargó a mano. */
+  loteId: string | null;
 };
 
 /**
@@ -41,6 +43,7 @@ export async function listarDeudasConSaldo(
   const [
     { data: saldos, error: saldosError },
     { data: pagos, error: pagosError },
+    { data: lotes, error: lotesError },
   ] = await Promise.all([
     supabase
       .from("v_saldo_deuda")
@@ -52,13 +55,15 @@ export async function listarDeudasConSaldo(
       .select("*")
       .order("fecha", { ascending: false })
       .order("created_at", { ascending: false }),
+    supabase.from("deudas").select("id, lote_id").not("lote_id", "is", null),
   ]);
 
-  if (saldosError || pagosError) {
-    console.error("listarDeudasConSaldo", { saldosError, pagosError });
+  if (saldosError || pagosError || lotesError) {
+    console.error("listarDeudasConSaldo", { saldosError, pagosError, lotesError });
     return { data: [], error: "No se pudo cargar la lista de deudas." };
   }
 
+  const loteDeDeuda = new Map((lotes ?? []).map((d) => [d.id, d.lote_id]));
   const pagosPorDeuda = new Map<string, PagoDeuda[]>();
   for (const pago of pagos ?? []) {
     const lista = pagosPorDeuda.get(pago.deuda_id) ?? [];
@@ -84,6 +89,7 @@ export async function listarDeudasConSaldo(
         restanteCentavos: s.restante_centavos ?? 0,
         estado: calcularEstadoDeuda(saldadaEn, pagadoCentavos, s.restante_centavos ?? 0),
         pagos: pagosDeuda,
+        loteId: loteDeDeuda.get(s.deuda_id) ?? null,
       };
     });
 

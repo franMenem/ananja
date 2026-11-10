@@ -168,3 +168,27 @@ export function elegirUltimasComprasPorInsumo(
   }
   return resultado;
 }
+
+/**
+ * ¿Es un ajuste manual (`ajustar_insumo`) y por lo tanto se puede eliminar
+ * desde el historial? Los movimientos con `gasto_id` (compra) o `lote_id`
+ * (consumo de un pedido) se corrigen borrando el gasto o desde el pedido.
+ * Espejo de `MOVIMIENTO_NO_MANUAL` de `eliminar_ajuste_insumo` (0091).
+ */
+export function esAjusteInsumoEliminable(m: { gasto_id: string | null; lote_id: string | null }): boolean {
+  return m.gasto_id === null && m.lote_id === null;
+}
+
+/** Cartel de confirmación al eliminar un ajuste manual de insumo: dice cómo
+ * queda el stock. Un ingreso borrado lo baja; un egreso borrado lo sube. */
+export function mensajeEliminarAjusteInsumo(
+  tipo: "ingreso" | "egreso",
+  cantidad: number,
+  unidad: UnidadInsumo | string,
+  nombreInsumo: string,
+): string {
+  const monto = formatCantidadConUnidad(cantidad, unidad);
+  return tipo === "ingreso"
+    ? `Se va a borrar este ajuste de +${monto}: el stock de ${nombreInsumo} baja ${monto}.`
+    : `Se va a borrar este ajuste de −${monto}: el stock de ${nombreInsumo} sube ${monto}.`;
+}

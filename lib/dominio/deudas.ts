@@ -72,3 +72,28 @@ export function calcularEstadoDeuda(
   if (pagadoCentavos > 0) return "parcial";
   return "pendiente";
 }
+
+/**
+ * ¿Se puede eliminar la deuda a mano? (RPC `eliminar_deuda`, 0091.) No si
+ * nace de un pedido (`loteId`: la mantiene `sincronizar_deuda_aceite_lote`,
+ * se corrige desde el pedido) ni si ya tiene pagos (primero se eliminan sus
+ * pagos). Espejo de `DEUDA_DE_PEDIDO` / `DEUDA_CON_PAGOS`.
+ */
+export function puedeEliminarDeuda(d: { loteId: string | null; pagadoCentavos: number }): boolean {
+  return d.loteId === null && d.pagadoCentavos <= 0;
+}
+
+/**
+ * ¿Se puede deshacer "Marcar saldada sin pago"? (RPC `reabrir_deuda`,
+ * 0091.) Solo si está saldada, no nace de un pedido y los pagos NO cubren el
+ * monto (si lo cubren, "saldada" es consecuencia de los pagos). Espejo de
+ * `DEUDA_NO_SALDADA` / `DEUDA_DE_PEDIDO` / `DEUDA_PAGADA_COMPLETA`.
+ */
+export function puedeReabrirDeuda(d: {
+  loteId: string | null;
+  saldadaEn: string | null;
+  pagadoCentavos: number;
+  montoCentavos: number;
+}): boolean {
+  return d.loteId === null && d.saldadaEn !== null && d.pagadoCentavos < d.montoCentavos;
+}

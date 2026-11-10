@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AjusteCajaAcciones } from "@/components/caja/ajuste-caja-acciones";
 import { EliminarDepositoAccion } from "@/components/caja/eliminar-deposito-accion";
+import { EliminarMovimientoAccion } from "@/components/caja/eliminar-movimiento-accion";
 import { Fila } from "@/components/ui/fila";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
@@ -104,6 +105,24 @@ export function ListaMovimientos({
                   tenedor={fila.deposito.tenedor}
                   className="contents"
                 />
+              </div>
+            )}
+            {fila.eliminar && (
+              <EliminarMovimientoAccion
+                id={fila.id}
+                accion={fila.eliminar}
+                className="-mt-1 flex gap-3 pb-2"
+              />
+            )}
+            {fila.corregirEn && (
+              <div className="-mt-1 flex gap-3 pb-2">
+                <Link
+                  prefetch={false}
+                  href={fila.corregirEn.href}
+                  className="inline-flex min-h-11 items-center break-words text-[14px] text-text-muted hover:text-primary"
+                >
+                  {fila.corregirEn.texto}
+                </Link>
               </div>
             )}
           </div>

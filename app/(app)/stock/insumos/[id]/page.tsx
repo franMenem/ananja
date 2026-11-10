@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EliminarAjusteInsumoAccion } from "@/components/stock/eliminar-ajuste-insumo-accion";
 import { InsumoUmbral } from "@/components/stock/insumo-umbral";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { NumeroGrande } from "@/components/ui/numero-grande";
@@ -7,7 +8,7 @@ import { Tarjeta } from "@/components/ui/tarjeta";
 import { VolverLink } from "@/components/volver-link";
 import { obtenerInsumo } from "@/lib/data/insumos";
 import { formatFechaHoraSinAnio } from "@/lib/fechas";
-import { formatCantidadConUnidad } from "@/lib/dominio/insumos";
+import { esAjusteInsumoEliminable, formatCantidadConUnidad } from "@/lib/dominio/insumos";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -99,6 +100,15 @@ export default async function InsumoDetailPage({
                     <span className="text-[14px] text-text-muted">
                       {formatFechaHoraSinAnio(m.created_at)} · {m.vendedores?.nombre ?? "—"}
                     </span>
+                    {esAjusteInsumoEliminable(m) && (
+                      <EliminarAjusteInsumoAccion
+                        movimientoId={m.id}
+                        tipo={esIngreso ? "ingreso" : "egreso"}
+                        cantidad={m.cantidad}
+                        unidad={insumo.unidad}
+                        nombreInsumo={insumo.nombre}
+                      />
+                    )}
                   </span>
                   <span className="shrink-0 text-[16px] text-text-muted tabular-nums">
                     {formatCantidadConUnidad(m.cantidad, insumo.unidad)}

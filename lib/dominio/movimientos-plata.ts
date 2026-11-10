@@ -36,6 +36,7 @@
  */
 
 import type { MedioPago } from "@/lib/dominio/caja";
+import type { AccionEliminar, CorregirEn } from "@/lib/dominio/eliminar-movimientos";
 import type { ViaRendicion } from "@/lib/dominio/plata";
 import { etiquetaMedioPago } from "@/lib/etiquetas/medio-pago";
 import { diasEntre, fechaArgentinaDeTimestamp } from "@/lib/fechas";
@@ -315,6 +316,12 @@ export interface FilaMovimiento {
    * (0071): link firmado para abrirlo. `null` si no tiene o no se pudo
    * firmar (la fila sale sin link, no falla). */
   comprobanteUrl: string | null;
+  /** Solo cobros, pagos de deuda y transferencias: datos para "Eliminar"
+   * (`EliminarMovimientoAccion`; el id es `id`). */
+  eliminar: AccionEliminar | null;
+  /** Filas que NO se eliminan desde la lista (pago de revendedora, venta,
+   * gasto): dónde se corrigen. `null` si la fila ya tiene su acción. */
+  corregirEn: CorregirEn | null;
 }
 
 /** Cuántas filas más trae cada "Ver más" de la lista general de `/plata`. */
