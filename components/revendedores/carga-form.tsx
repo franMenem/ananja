@@ -155,7 +155,7 @@ export function CargaForm({
    * para esta revendedora (0045). Con la clave, un reintento de esta misma
    * carga no se avisa contra sí mismo. */
   async function confirmar() {
-    guardado.setError(null);
+    guardado.limpiarError();
     if (!(await aviso.puedeGuardar(busquedaDeCarga(input), clave))) return;
     await guardado.guardar(entrega.permitirNegativo);
   }

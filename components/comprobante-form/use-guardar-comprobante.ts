@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -9,7 +8,7 @@ import {
   type ItemComprobantePayload,
   type StockAlertComprobante,
 } from "@/lib/dominio/comprobantes";
-import { useEnvio } from "@/components/ui/use-envio";
+import { useGuardadoConAviso } from "@/components/ui/use-guardado-con-aviso";
 import { notificarPush } from "@/lib/push-client";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types";
@@ -45,19 +44,26 @@ export type UseGuardarComprobanteArgs = {
 export type UseGuardarComprobanteResult = {
   submitting: boolean;
   formError: string | null;
+  /** Aviso de stock a la vista (también mientras corre "Guardar igual"). */
   stockAlert: StockAlert | null;
-  setStockAlert: (alerta: StockAlert | null) => void;
-  permitirNegativoRef: React.RefObject<boolean>;
+  /** Cierra la hoja de aviso y vuelve a editar. */
+  descartarAviso: () => void;
   handleSubmit: (permitirNegativo: boolean) => Promise<void>;
   handleFormSubmit: (event: React.FormEvent) => void;
+  /** Hay un error de conexión: mostrar "Reintentar" (= `reintentar`). */
   showRetry: boolean;
+  /** Repite el último envío con el mismo permiso con el que falló. */
+  reintentar: () => void;
 };
 
-const PREFIJO_ERROR_CONEXION = "No se pudo guardar por un problema de conexión";
-
-function esErrorDeConexion(mensaje: string | null): boolean {
-  return mensaje !== null && mensaje.startsWith(PREFIJO_ERROR_CONEXION);
-}
+/**
+ * Mensaje de "problema de conexión". `interpretarErrorComprobante` devuelve
+ * este mismo texto para todo error de la RPC que no reconoce (por eso cuenta
+ * como error de conexión y ofrece "Reintentar");
+ * `tests/guardado-con-aviso-comprobante.test.tsx` fija que no se desfasen.
+ */
+export const MENSAJE_ERROR_DE_CONEXION =
+  "No se pudo guardar por un problema de conexión. Los datos quedaron cargados: revisá tu conexión e intentá de nuevo.";
 
 /**
  * Validación, guardado (`crear_comprobante`/`actualizar_comprobante`) y
@@ -69,28 +75,22 @@ function esErrorDeConexion(mensaje: string | null): boolean {
  */
 export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuardarComprobanteResult {
   const router = useRouter();
-  const envio = useEnvio();
-  const submitting = envio.ocupado;
-  const [formError, setFormError] = useState<string | null>(null);
-  const [stockAlert, setStockAlert] = useState<StockAlert | null>(null);
-  const permitirNegativoRef = useRef(false);
+  // Máquina quieto → enviando → (aviso | error{deConexion}) → enviado. El
+  // error de conexión queda a la vista mientras se reintenta, para que el
+  // botón "Reintentar" siga en pantalla mostrando su loader.
+  const guardado = useGuardadoConAviso<StockAlert>();
 
   function handleRpcError(error: { message?: string; details?: string }) {
     const resultado = interpretarErrorComprobante(error, args.productos);
     if (resultado.tipo === "stock") {
-      setStockAlert(resultado.alerta);
+      guardado.avisar(resultado.alerta);
     } else {
-      setStockAlert(null);
-      setFormError(resultado.mensaje);
+      guardado.fallar(resultado.mensaje, { deConexion: resultado.mensaje === MENSAJE_ERROR_DE_CONEXION });
     }
   }
 
   async function handleSubmit(permitirNegativo: boolean) {
-    if (!envio.empezar()) return;
-    // El error de conexión queda a la vista mientras se reintenta, para que
-    // el botón "Reintentar" siga en pantalla mostrando su loader.
-    setFormError((prev) => (esErrorDeConexion(prev) ? prev : null));
-    permitirNegativoRef.current = permitirNegativo;
+    if (!guardado.empezar(permitirNegativo)) return;
 
     const validacion = validarComprobanteForm({
       uploading: args.uploading,
@@ -106,9 +106,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     });
 
     if (!validacion.ok) {
-      setStockAlert(null);
-      setFormError(validacion.error);
-      envio.liberar();
+      guardado.fallar(validacion.error);
       return;
     }
 
@@ -167,7 +165,6 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
       // hallazgo #3 de la auditoría de seguridad): acá solo se resuelve el
       // id del producto que originó cada alerta ("stock_bajo:Nombre") contra
       // la lista de productos ya cargada en este formulario.
-      setStockAlert(null);
       const alertas = (data as { alertas?: string[] } | null)?.alertas ?? [];
       for (const alerta of alertas) {
         const nombreAlerta = alerta.replace(/^stock_bajo:/, "");
@@ -177,17 +174,14 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
         }
       }
 
-      envio.completar();
+      guardado.completar();
       router.push(args.volverA ?? "/comprobantes");
       router.refresh();
     } catch {
-      setStockAlert(null);
-      setFormError(
-        "No se pudo guardar por un problema de conexión. Los datos quedaron cargados: revisá tu conexión e intentá de nuevo.",
-      );
+      guardado.fallar(MENSAJE_ERROR_DE_CONEXION, { deConexion: true });
     } finally {
-      // No-op si ya se llamó a `completar()`: tras navegar el botón sigue ocupado.
-      envio.liberar();
+      // No-op si la máquina ya salió de `enviando` (aviso, error o `completar()`).
+      guardado.liberar();
     }
   }
 
@@ -196,16 +190,14 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     void handleSubmit(false);
   }
 
-  const showRetry = esErrorDeConexion(formError);
-
   return {
-    submitting,
-    formError,
-    stockAlert,
-    setStockAlert,
-    permitirNegativoRef,
+    submitting: guardado.ocupado,
+    formError: guardado.mensajeError,
+    stockAlert: guardado.avisoVisible,
+    descartarAviso: guardado.descartarAviso,
     handleSubmit,
     handleFormSubmit,
-    showRetry,
+    showRetry: guardado.reintento !== null,
+    reintentar: () => void handleSubmit(guardado.reintento?.conPermiso ?? false),
   };
 }

@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useCargasParecidas } from "@/components/revendedores/aviso-carga-repetida";
-import { useEnvio } from "@/components/ui/use-envio";
+import { MENSAJE_SIN_CONEXION } from "@/components/ui/use-confirmacion";
+import { useGuardadoConAviso } from "@/components/ui/use-guardado-con-aviso";
 import type { FilaLote } from "@/components/lotes/selector-lote";
 import type { FilaRevision, ItemEntrega, StockAlert } from "@/components/revendedores/entrega/tipos";
 import { busquedaDeEntrega } from "@/lib/dominio/cargas-parecidas";
@@ -84,10 +85,12 @@ export function useEntregaForm({
   const [devolucion, setDevolucion] = useState<Record<string, number>>({});
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const envio = useEnvio();
-  const saving = envio.ocupado;
-  const [error, setError] = useState<string | null>(null);
-  const [alerta, setAlerta] = useState<StockAlert | null>(null);
+  // Aviso de stock → "Guardar igual" (ver `use-guardado-con-aviso.ts`). La
+  // hoja se cierra al tocar "Guardar igual" (`aviso`, no `avisoVisible`).
+  const guardado = useGuardadoConAviso<StockAlert>();
+  const saving = guardado.ocupado;
+  const error = guardado.mensajeError;
+  const alerta = guardado.aviso;
   const [revision, setRevision] = useState<FilaRevision[] | null>(null);
   // Lo último que se intentó guardar — "Guardar igual" lo reenvía tal cual.
   const [itemsPendientes, setItemsPendientes] = useState<ItemEntrega[]>([]);
@@ -146,14 +149,14 @@ export function useEntregaForm({
       const exceso = primerExceso(devolucion, pedidosEnPoder);
       if (exceso) {
         const nombre = nombrePorProducto.get(exceso.productoId) ?? "un producto";
-        setError(
+        guardado.fallar(
           `De ${nombre} del pedido del ${formatFechaSinAnio(exceso.pedido.fecha)} solo tiene ${exceso.pedido.enPoder} en poder: no se pueden devolver ${exceso.cantidad}.`,
         );
         return null;
       }
       const itemsDevolucion = itemsDeDevolucion(devolucion, pedidosEnPoder);
       if (itemsDevolucion.length === 0) {
-        setError("Cargá al menos una cantidad.");
+        guardado.fallar("Cargá al menos una cantidad.");
         return null;
       }
       return itemsDevolucion;
@@ -162,13 +165,13 @@ export function useEntregaForm({
     const productosConCantidad = productos.filter((p) => (cantidades[p.id] ?? 0) > 0);
 
     if (productosConCantidad.length === 0) {
-      setError("Cargá al menos una cantidad.");
+      guardado.fallar("Cargá al menos una cantidad.");
       return null;
     }
 
     const productoDescuadrado = productoConLotesDescuadrados();
     if (productoDescuadrado) {
-      setError(
+      guardado.fallar(
         `Revisá de qué pedido sale ${productoDescuadrado.nombre}: las cantidades por pedido no suman ${cantidades[productoDescuadrado.id] ?? 0}.`,
       );
       return null;
@@ -199,7 +202,7 @@ export function useEntregaForm({
   }
 
   function handleContinuar() {
-    setError(null);
+    guardado.limpiarError();
 
     // Feria con SOLO degustación (ningún producto para vender): no hay
     // entrega que revisar ni registrar, se carga directo la degustación.
@@ -253,23 +256,23 @@ export function useEntregaForm({
 
   function handleConfirmarRevision() {
     if (!revision) return;
-    setError(null);
+    guardado.limpiarError();
 
     const items: ItemEntrega[] = [];
     for (const fila of revision) {
       const nombre = nombrePorProducto.get(fila.productoId) ?? "un producto";
       const costo = parseMontoInput(fila.costo);
       if (costo === null || costo <= 0) {
-        setError(`Completá cuánto le cobrás por ${envase(1)} en ${nombre}.`);
+        guardado.fallar(`Completá cuánto le cobrás por ${envase(1)} en ${nombre}.`);
         return;
       }
       const sugerido = fila.sugerido.trim() === "" ? null : parseMontoInput(fila.sugerido);
       if (sugerido !== null && sugerido <= 0) {
-        setError(`Revisá el precio de venta sugerido de ${nombre}.`);
+        guardado.fallar(`Revisá el precio de venta sugerido de ${nombre}.`);
         return;
       }
       if (fila.sugerido.trim() !== "" && sugerido === null) {
-        setError(`Revisá el precio de venta sugerido de ${nombre}.`);
+        guardado.fallar(`Revisá el precio de venta sugerido de ${nombre}.`);
         return;
       }
       items.push({
@@ -288,7 +291,7 @@ export function useEntregaForm({
   /** Antes de guardar la entrega, avisa si ya hay una muy parecida para esta
    * revendedora (misma fecha, producto, lote y cantidad — 0045). */
   async function confirmarEntrega(items: ItemEntrega[]) {
-    setError(null);
+    guardado.limpiarError();
     const busqueda = busquedaDeEntrega(
       fecha,
       items.map((i) => ({ productoId: i.producto_id, loteId: i.lote_id ?? null, cantidad: i.cantidad })),
@@ -314,78 +317,79 @@ export function useEntregaForm({
   }
 
   async function guardar(items: ItemEntrega[], permitirNegativo: boolean) {
-    if (!envio.empezar()) return;
-    setError(null);
-    setAlerta(null);
+    if (!guardado.empezar(permitirNegativo)) return;
+    try {
+      // Sin botellas para vender (solo degustación de feria): se salta la entrega.
+      if (items.length === 0) {
+        const codigoDeg = await cargarDegustacionDeFeria(items);
+        if (codigoDeg) {
+          guardado.fallar(`No se pudo cargar la degustación: ${mensajeErrorFeria(codigoDeg)}`);
+          return;
+        }
+        guardado.completar();
+        router.push(volverHref ?? `/revendedores/${vendedorId}`);
+        router.refresh();
+        return;
+      }
 
-    // Sin botellas para vender (solo degustación de feria): se salta la entrega.
-    if (items.length === 0) {
+      const supabase = createClient();
+      const { error: rpcError } = await supabase.rpc("registrar_entrega_revendedor", {
+        p_vendedor_id: vendedorId,
+        p_tipo: tipo,
+        p_fecha: fecha,
+        p_nota: nota.trim() || undefined,
+        p_items: items,
+        p_permitir_negativo: permitirNegativo,
+        ...(feriaId ? { p_feria_id: feriaId } : {}),
+      });
+
+      if (rpcError) {
+        if (rpcError.message === "STOCK_INSUFICIENTE" || rpcError.message === "STOCK_REVENDEDOR_INSUFICIENTE") {
+          let detalle: { producto?: string; disponible?: number } = {};
+          try {
+            detalle = JSON.parse((rpcError as { details?: string }).details ?? "{}");
+          } catch {
+            // sin detalle parseable, se muestra el mensaje genérico igual
+          }
+          guardado.avisar({
+            producto: detalle.producto ?? "un producto",
+            disponible: detalle.disponible ?? 0,
+          });
+          return;
+        }
+        // Mismo flujo "Guardar igual" que STOCK_INSUFICIENTE, a nivel de un
+        // lote puntual — el detalle trae `producto_id`, no el nombre.
+        if (rpcError.message === "STOCK_LOTE_INSUFICIENTE") {
+          let detalle: { producto_id?: string; disponible?: number } = {};
+          try {
+            detalle = JSON.parse((rpcError as { details?: string }).details ?? "{}");
+          } catch {
+            // sin detalle parseable, se muestra el mensaje genérico igual
+          }
+          guardado.avisar({
+            producto: nombrePorProducto.get(detalle.producto_id ?? "") ?? "un producto",
+            disponible: detalle.disponible ?? 0,
+          });
+          return;
+        }
+        guardado.fallar(traducirErrorRpc(rpcError.message, ERRORES_RPC, "No se pudo guardar. Probá de nuevo."));
+        return;
+      }
+
+      // La entrega ya está guardada. Si la degustación falla, se vuelve igual
+      // a la feria y el aviso del error se muestra ahí (`?errorDegustacion=`).
       const codigoDeg = await cargarDegustacionDeFeria(items);
-      if (codigoDeg) {
-        envio.liberar();
-        setError(`No se pudo cargar la degustación: ${mensajeErrorFeria(codigoDeg)}`);
-        return;
-      }
-      envio.completar();
-      router.push(volverHref ?? `/revendedores/${vendedorId}`);
+      guardado.completar();
+      const destino = volverHref ?? `/revendedores/${vendedorId}`;
+      router.push(codigoDeg ? `${destino}?errorDegustacion=${encodeURIComponent(codigoDeg)}` : destino);
       router.refresh();
-      return;
+    } catch {
+      // Una excepción inesperada (red caída) no puede dejar el botón ocupado.
+      guardado.fallar(MENSAJE_SIN_CONEXION, { deConexion: true });
+    } finally {
+      // No-op si la máquina ya salió de `enviando` (aviso, error o `completar()`).
+      guardado.liberar();
     }
-
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("registrar_entrega_revendedor", {
-      p_vendedor_id: vendedorId,
-      p_tipo: tipo,
-      p_fecha: fecha,
-      p_nota: nota.trim() || undefined,
-      p_items: items,
-      p_permitir_negativo: permitirNegativo,
-      ...(feriaId ? { p_feria_id: feriaId } : {}),
-    });
-
-    if (rpcError) {
-      if (rpcError.message === "STOCK_INSUFICIENTE" || rpcError.message === "STOCK_REVENDEDOR_INSUFICIENTE") {
-        let detalle: { producto?: string; disponible?: number } = {};
-        try {
-          detalle = JSON.parse((rpcError as { details?: string }).details ?? "{}");
-        } catch {
-          // sin detalle parseable, se muestra el mensaje genérico igual
-        }
-        setAlerta({
-          producto: detalle.producto ?? "un producto",
-          disponible: detalle.disponible ?? 0,
-        });
-        envio.liberar();
-        return;
-      }
-      // Mismo flujo "Guardar igual" que STOCK_INSUFICIENTE, a nivel de un
-      // lote puntual — el detalle trae `producto_id`, no el nombre.
-      if (rpcError.message === "STOCK_LOTE_INSUFICIENTE") {
-        let detalle: { producto_id?: string; disponible?: number } = {};
-        try {
-          detalle = JSON.parse((rpcError as { details?: string }).details ?? "{}");
-        } catch {
-          // sin detalle parseable, se muestra el mensaje genérico igual
-        }
-        setAlerta({
-          producto: nombrePorProducto.get(detalle.producto_id ?? "") ?? "un producto",
-          disponible: detalle.disponible ?? 0,
-        });
-        envio.liberar();
-        return;
-      }
-      setError(traducirErrorRpc(rpcError.message, ERRORES_RPC, "No se pudo guardar. Probá de nuevo."));
-      envio.liberar();
-      return;
-    }
-
-    // La entrega ya está guardada. Si la degustación falla, se vuelve igual
-    // a la feria y el aviso del error se muestra ahí (`?errorDegustacion=`).
-    const codigoDeg = await cargarDegustacionDeFeria(items);
-    envio.completar();
-    const destino = volverHref ?? `/revendedores/${vendedorId}`;
-    router.push(codigoDeg ? `${destino}?errorDegustacion=${encodeURIComponent(codigoDeg)}` : destino);
-    router.refresh();
   }
 
   const totalRevision =
@@ -408,9 +412,9 @@ export function useEntregaForm({
     setNota,
     saving,
     error,
-    setError,
+    limpiarError: guardado.limpiarError,
     alerta,
-    setAlerta,
+    descartarAviso: guardado.descartarAviso,
     revision,
     setRevision,
     itemsPendientes,

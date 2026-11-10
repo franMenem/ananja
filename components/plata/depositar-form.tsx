@@ -20,7 +20,8 @@ import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money
 import { createClient } from "@/lib/supabase/client";
 import { MEDIOS_DESTINO_TRANSFERENCIA } from "@/lib/dominio/transferencias";
 import { CLASE_CAJA_MONTO, CLASE_ETIQUETA, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
-import { useEnvio } from "@/components/ui/use-envio";
+import { MENSAJE_SIN_CONEXION } from "@/components/ui/use-confirmacion";
+import { useGuardadoConAviso } from "@/components/ui/use-guardado-con-aviso";
 
 type Persona = { id: string; nombre: string };
 
@@ -73,12 +74,13 @@ export function DepositarForm({
   });
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const envio = useEnvio();
-  const saving = envio.ocupado;
-  const [error, setError] = useState<string | null>(null);
-  const [saldoInsuficiente, setSaldoInsuficiente] = useState<{
-    disponibleCentavos: number;
-  } | null>(null);
+  // Aviso "saldo insuficiente" → "Guardar igual" (ver `use-guardado-con-aviso.ts`).
+  const guardado = useGuardadoConAviso<{ disponibleCentavos: number }>();
+  const saving = guardado.ocupado;
+  const error = guardado.mensajeError;
+  // La hoja sigue abierta mientras corre "Guardar igual": el loader se ve en
+  // el botón que se tocó.
+  const saldoInsuficiente = guardado.avisoVisible;
 
   function handlePersonaChange(id: string) {
     setTenedorId(id);
@@ -90,57 +92,63 @@ export function DepositarForm({
   async function enviar(montoCentavos: number, permitirNegativo: boolean) {
     if (!tenedorId || !medioPago) return;
 
-    if (!envio.empezar()) return;
-    setError(null);
+    if (!guardado.empezar(permitirNegativo)) return;
 
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("registrar_deposito_cuenta", {
-      p_tenedor_id: tenedorId,
-      p_medio_pago: medioPago,
-      p_monto_centavos: montoCentavos,
-      p_fecha: fecha,
-      p_nota: nota.trim() || undefined,
-      p_permitir_negativo: permitirNegativo,
-    });
+    try {
+      const supabase = createClient();
+      const { error: rpcError } = await supabase.rpc("registrar_deposito_cuenta", {
+        p_tenedor_id: tenedorId,
+        p_medio_pago: medioPago,
+        p_monto_centavos: montoCentavos,
+        p_fecha: fecha,
+        p_nota: nota.trim() || undefined,
+        p_permitir_negativo: permitirNegativo,
+      });
 
-    if (rpcError) {
-      if (rpcError.message === "SALDO_INSUFICIENTE") {
-        let disponibleCentavos = 0;
-        try {
-          const detalle = JSON.parse(rpcError.details ?? "{}") as { disponible?: number };
-          disponibleCentavos = detalle.disponible ?? 0;
-        } catch {
-          disponibleCentavos = 0;
+      if (rpcError) {
+        if (rpcError.message === "SALDO_INSUFICIENTE") {
+          let disponibleCentavos = 0;
+          try {
+            const detalle = JSON.parse(rpcError.details ?? "{}") as { disponible?: number };
+            disponibleCentavos = detalle.disponible ?? 0;
+          } catch {
+            disponibleCentavos = 0;
+          }
+          guardado.avisar({ disponibleCentavos });
+        } else {
+          guardado.fallar(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar el depósito. Probá de nuevo."));
         }
-        setSaldoInsuficiente({ disponibleCentavos });
-      } else {
-        setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar el depósito. Probá de nuevo."));
+        return;
       }
-      envio.liberar();
-      return;
-    }
 
-    envio.completar();
-    router.push("/plata");
-    router.refresh();
+      guardado.completar();
+      router.push("/plata");
+      router.refresh();
+    } catch {
+      // Una excepción inesperada (red caída) no puede dejar el botón ocupado.
+      guardado.fallar(MENSAJE_SIN_CONEXION, { deConexion: true });
+    } finally {
+      // No-op si la máquina ya salió de `enviando` (aviso, error o `completar()`).
+      guardado.liberar();
+    }
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setError(null);
+    guardado.limpiarError();
 
     if (!tenedorId) {
-      setError("Elegí de quién es la plata.");
+      guardado.fallar("Elegí de quién es la plata.");
       return;
     }
     if (!medioPago) {
-      setError("Elegí Mercado Pago o Banco.");
+      guardado.fallar("Elegí Mercado Pago o Banco.");
       return;
     }
 
     const montoCentavos = parseMontoInput(montoInput);
     if (montoCentavos === null || montoCentavos <= 0) {
-      setError("Revisá el monto.");
+      guardado.fallar("Revisá el monto.");
       return;
     }
 
@@ -150,7 +158,6 @@ export function DepositarForm({
   async function handleGuardarIgual() {
     const montoCentavos = parseMontoInput(montoInput);
     if (montoCentavos === null || montoCentavos <= 0) return;
-    setSaldoInsuficiente(null);
     await enviar(montoCentavos, true);
   }
 
@@ -219,6 +226,8 @@ export function DepositarForm({
         open={saldoInsuficiente !== null}
         ariaLabel="Saldo insuficiente"
         variant="accent"
+        onClose={guardado.descartarAviso}
+        bloqueada={saving}
       >
         <h2 className="font-display text-[24px] text-text">
           Tiene{" "}
@@ -238,7 +247,7 @@ export function DepositarForm({
           </BotonAccion>
           <button
             type="button"
-            onClick={() => !saving && setSaldoInsuficiente(null)}
+            onClick={() => !saving && guardado.descartarAviso()}
             disabled={saving}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >

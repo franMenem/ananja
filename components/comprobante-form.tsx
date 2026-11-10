@@ -190,7 +190,7 @@ export function ComprobanteForm({
         uploading={foto.uploading}
         formError={guardar.formError}
         showRetry={guardar.showRetry}
-        onRetry={() => void guardar.handleSubmit(guardar.permitirNegativoRef.current)}
+        onRetry={guardar.reintentar}
         resumenDescuento={items.resumenDescuento}
         etiqueta={mode === "crear" ? "Guardar venta" : "Guardar cambios"}
         cancelarHref={volverA ?? "/comprobantes"}
@@ -199,7 +199,7 @@ export function ComprobanteForm({
       <AlertaStock
         stockAlert={stockAlert}
         cantidadVendiendo={cantidadVendiendoAlerta}
-        onRevisar={() => guardar.setStockAlert(null)}
+        onRevisar={guardar.descartarAviso}
         onGuardarIgual={() => void guardar.handleSubmit(true)}
         guardando={guardar.submitting}
       />

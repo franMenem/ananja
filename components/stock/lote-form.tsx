@@ -40,7 +40,7 @@ import {
 import { crearLote } from "@/lib/lotes";
 import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
-import { useEnvio } from "@/components/ui/use-envio";
+import { useGuardadoConAviso } from "@/components/ui/use-guardado-con-aviso";
 import type { Tables } from "@/lib/types";
 
 type Producto = Pick<Tables<"productos">, "id" | "nombre" | "presentacion_ml">;
@@ -139,12 +139,16 @@ export function LoteForm({
   );
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const envio = useEnvio();
-  const saving = envio.ocupado;
-  const [error, setError] = useState<string | null>(null);
+  // Aviso "insumo insuficiente" → "Guardar igual" / error de conexión →
+  // "Reintentar" (ver `use-guardado-con-aviso.ts`).
+  const guardado = useGuardadoConAviso<InsumoAlert>();
+  const saving = guardado.ocupado;
+  const error = guardado.mensajeError;
   const [recetas, setRecetas] = useState<Receta[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
-  const [insumoAlert, setInsumoAlert] = useState<InsumoAlert | null>(null);
+  // La hoja sigue abierta mientras corre "Guardar igual": el loader se ve en
+  // el botón que se tocó.
+  const insumoAlert = guardado.avisoVisible;
   const [costos, setCostos] = useState<CostosLoteState>(() =>
     prefillCostosLote(
       ultimoLoteCostos,
@@ -162,7 +166,6 @@ export function LoteForm({
       },
     ),
   );
-  const permitirNegativoRef = useRef(false);
   // Montos reales confirmados en "Revisá el pedido" — se reusan al
   // "Guardar igual" (INSUMO_INSUFICIENTE) y al reintentar.
   const redondeosRef = useRef<RedondeoCosto[]>([]);
@@ -274,11 +277,9 @@ export function LoteForm({
   );
 
   async function guardarLote(permitirNegativo: boolean) {
-    if (!envio.empezar()) return;
-    permitirNegativoRef.current = permitirNegativo;
     // El error de conexión queda a la vista mientras se reintenta, para que
     // el botón "Reintentar" siga en pantalla mostrando su loader.
-    setError((prev) => (prev?.startsWith("No se pudo conectar") ? prev : null));
+    if (!guardado.empezar(permitirNegativo)) return;
     try {
       const supabase = createClient();
       const items = productos
@@ -307,48 +308,45 @@ export function LoteForm({
               insumo_id?: string;
               disponible?: number;
             };
-            setInsumoAlert({
+            guardado.avisar({
               insumo: detail.insumo ?? "un insumo",
               insumoId: detail.insumo_id ?? "",
               disponible: detail.disponible ?? 0,
             });
           } catch {
-            setInsumoAlert({ insumo: "un insumo", insumoId: "", disponible: 0 });
+            guardado.avisar({ insumo: "un insumo", insumoId: "", disponible: 0 });
           }
           return;
         }
-        setInsumoAlert(null);
-        setError(mensajeErrorLote(rpcError.message, rpcError.details));
+        guardado.fallar(mensajeErrorLote(rpcError.message, rpcError.details));
         return;
       }
 
       // Al detalle del lote recién creado (no a /stock) para que el dueño
       // vea de una el costo de la botella si cargó "Costos del pedido", o
       // el aviso "Completar costos de este pedido" si no.
-      setInsumoAlert(null);
       const loteId = (rpcData as { lote_id?: string } | null)?.lote_id;
-      envio.completar();
+      guardado.completar();
       router.push(loteId ? `/stock/lotes/${loteId}` : "/stock");
       router.refresh();
     } catch {
-      setInsumoAlert(null);
-      setError("No se pudo conectar. Revisá la conexión e intentá de nuevo.");
+      guardado.fallar("No se pudo conectar. Revisá la conexión e intentá de nuevo.", { deConexion: true });
     } finally {
-      // No-op si ya se llamó a `completar()`: tras navegar el botón sigue ocupado.
-      envio.liberar();
+      // No-op si la máquina ya salió de `enviando` (aviso, error o `completar()`).
+      guardado.liberar();
     }
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setError(null);
+    guardado.limpiarError();
 
     if (!hayAlMenosUno) {
-      setError("Cargá al menos una cantidad.");
+      guardado.fallar("Cargá al menos una cantidad.");
       return;
     }
     if (!fecha) {
-      setError("Ingresá la fecha del pedido.");
+      guardado.fallar("Ingresá la fecha del pedido.");
       return;
     }
 
@@ -360,7 +358,7 @@ export function LoteForm({
       etiquetaInsumos.map((e) => e.insumoId),
     );
     if (invalidos.length > 0) {
-      setError(mensajeCamposInvalidos(invalidos));
+      guardado.fallar(mensajeCamposInvalidos(invalidos));
       return;
     }
 
@@ -382,7 +380,7 @@ export function LoteForm({
     await guardarLote(false);
   }
 
-  const showRetry = error !== null && error.startsWith("No se pudo conectar");
+  const reintento = guardado.reintento;
 
   return (
     <div className="flex flex-col gap-5 pb-8">
@@ -402,7 +400,7 @@ export function LoteForm({
           saving={saving}
           error={error}
           onVolver={() => {
-            setError(null);
+            guardado.limpiarError();
             setRevisando(false);
           }}
           onConfirmar={(redondeos) => {
@@ -505,9 +503,9 @@ export function LoteForm({
         {error && (
           <div className="flex flex-col gap-2">
             <MensajeError>{error}</MensajeError>
-            {showRetry && (
+            {reintento && (
               <BotonAccion
-                onClick={() => void guardarLote(permitirNegativoRef.current)}
+                onClick={() => void guardarLote(reintento.conPermiso)}
                 cargando={saving}
                 className="min-h-12 self-start rounded-xl border border-accent px-4 text-[15px] font-semibold text-accent"
               >
@@ -529,6 +527,11 @@ export function LoteForm({
         open={insumoAlert !== null}
         ariaLabel="Insumo insuficiente"
         variant="accent"
+        onClose={() => {
+          guardado.descartarAviso();
+          setRevisando(false);
+        }}
+        bloqueada={saving}
       >
         {insumoAlert && (() => {
           const consumoInsumo =
@@ -558,7 +561,7 @@ export function LoteForm({
                   type="button"
                   disabled={saving}
                   onClick={() => {
-                    setInsumoAlert(null);
+                    guardado.descartarAviso();
                     setRevisando(false);
                   }}
                   className="min-h-11 flex-1 border border-primary px-4 text-[16px] font-medium text-primary disabled:opacity-45 rounded-xl"

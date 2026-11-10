@@ -165,7 +165,7 @@ export function EntregaForm({
           }}
           onConfirmar={f.handleConfirmarRevision}
           onVolverAEditar={() => {
-            f.setError(null);
+            f.limpiarError();
             f.setRevision(null);
           }}
         />
@@ -176,7 +176,7 @@ export function EntregaForm({
         saving={f.saving}
         onGuardarIgual={() => void f.guardar(f.itemsPendientes, true)}
         onCerrar={() => {
-          f.setAlerta(null);
+          f.descartarAviso();
           f.setRevision(null);
         }}
       />
