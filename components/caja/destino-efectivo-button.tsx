@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { createClient } from "@/lib/supabase/client";
@@ -26,48 +27,45 @@ const ERRORES: Record<string, string> = {
  */
 export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState<MedioPago | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
+  // Cuál de las cuentas muestra el spinner; solo se mira mientras `enviando`.
+  const [eligiendo, setEligiendo] = useState<MedioPago | null>(null);
 
-  async function handleElegir(medio: MedioPago) {
-    setSaving(medio);
-    setError(null);
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("fijar_destino_efectivo", {
-      p_medio_pago: medio,
-    });
-
-    if (rpcError) {
-      setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo cambiar la cuenta destino. Probá de nuevo."));
-      setSaving(null);
-      return;
-    }
-
-    setSaving(null);
-    setOpen(false);
-    router.refresh();
+  function handleElegir(medio: MedioPago) {
+    setEligiendo(medio);
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("fijar_destino_efectivo", {
+          p_medio_pago: medio,
+        });
+        return rpcError
+          ? traducirErrorRpc(rpcError.message, ERRORES, "No se pudo cambiar la cuenta destino. Probá de nuevo.")
+          : null;
+      },
+      { alExito: () => router.refresh() },
+    );
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={confirmacion.abrir}
         className={`${BOTON_SECUNDARIO} flex px-4`}
       >
         Cuenta destino del efectivo
       </button>
 
-      <BottomSheet open={open} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
+      <BottomSheet open={confirmacion.abierta} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
         <h2 className="font-display text-[24px] text-text">Cuenta destino del efectivo</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           A dónde se pasa el efectivo desde &quot;Tareas&quot;. Hoy: {MEDIO_PAGO_LABELS[destinoActual]}.
         </p>
 
-        {error && (
+        {confirmacion.error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">
-            {error}
+            {confirmacion.error}
           </p>
         )}
 
@@ -75,10 +73,10 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
           {MEDIOS_DESTINO_TRANSFERENCIA.map((medio) => (
             <BotonAccion
               key={medio}
-              onClick={() => handleElegir(medio)}
-              cargando={saving === medio}
+              onClick={() => void handleElegir(medio)}
+              cargando={confirmacion.enviando && eligiendo === medio}
               textoCargando="Guardando…"
-              disabled={saving !== null || medio === destinoActual}
+              disabled={confirmacion.ocupada || medio === destinoActual}
               className={`min-h-11 border px-4 text-[16px] font-medium disabled:opacity-45 ${
                 medio === destinoActual
                   ? "border-primary bg-primary text-primary-foreground"
@@ -90,8 +88,8 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
           ))}
           <button
             type="button"
-            onClick={() => !saving && setOpen(false)}
-            disabled={saving !== null}
+            onClick={confirmacion.cancelar}
+            disabled={confirmacion.ocupada}
             className={`${BOTON_SECUNDARIO} px-4`}
           >
             Cerrar

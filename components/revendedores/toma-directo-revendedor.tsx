@@ -2,11 +2,11 @@
 
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { Pastilla } from "@/components/ui/pastilla";
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { createClient } from "@/lib/supabase/client";
 
@@ -36,34 +36,25 @@ const ERRORES: Record<string, string> = {
  */
 export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaDirectoRevendedorProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
 
   const habilitar = !tomaDirecto;
   const titulo = habilitar
     ? `¿Dejar que ${nombre} agarre directo del depósito?`
     : `¿Dejar de permitirle a ${nombre} agarrar directo del depósito?`;
 
-  async function confirmar() {
-    setSaving(true);
-    setError(null);
-
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("fijar_toma_directo", {
-      p_vendedor_id: vendedorId,
-      p_habilitar: habilitar,
-    });
-
-    if (rpcError) {
-      setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar. Probá de nuevo."));
-      setSaving(false);
-      return;
-    }
-
-    setSaving(false);
-    setOpen(false);
-    router.refresh();
+  function confirmar() {
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("fijar_toma_directo", {
+          p_vendedor_id: vendedorId,
+          p_habilitar: habilitar,
+        });
+        return rpcError ? traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar. Probá de nuevo.") : null;
+      },
+      { alExito: () => router.refresh() },
+    );
   }
 
   return (
@@ -73,7 +64,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
         <Pastilla variante={tomaDirecto ? "ok" : "neutra"}>{tomaDirecto ? "Sí" : "No"}</Pastilla>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={confirmacion.abrir}
           className="inline-flex min-h-11 items-center px-1 text-[15px] font-semibold text-primary hover:underline"
         >
           {tomaDirecto ? "Apagar" : "Prender"}
@@ -84,7 +75,7 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
         queda anotado como entrega automática.
       </p>
 
-      <BottomSheet open={open} ariaLabel={titulo} variant="mark">
+      <BottomSheet open={confirmacion.abierta} ariaLabel={titulo} variant="mark">
         <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {habilitar
@@ -92,15 +83,15 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
             : `Desde ahora ${nombre} solo va a poder vender las botellas que tenga entregadas. Lo que ya se anotó no cambia.`}
         </p>
 
-        {error && (
+        {confirmacion.error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">
-            {error}
+            {confirmacion.error}
           </p>
         )}
 
         <div className="mt-5 flex gap-2">
           <BotonAccion
-            cargando={saving}
+            cargando={confirmacion.ocupada}
             textoCargando="Guardando…"
             onClick={() => void confirmar()}
             className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
@@ -109,8 +100,8 @@ export function TomaDirectoRevendedor({ vendedorId, nombre, tomaDirecto }: TomaD
           </BotonAccion>
           <button
             type="button"
-            onClick={() => !saving && setOpen(false)}
-            disabled={saving}
+            onClick={confirmacion.cancelar}
+            disabled={confirmacion.ocupada}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar

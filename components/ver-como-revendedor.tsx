@@ -3,10 +3,10 @@
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { IconRevendedores } from "@/components/icons";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { NEGOCIO } from "@/lib/negocio";
@@ -43,33 +43,37 @@ const ERRORES: Record<string, string> = {
 export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevendedorProps) {
   const router = useRouter();
   const { vendedor } = useVendedorActual();
-  const [abierto, setAbierto] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
 
   if (!vendedor || vendedor.rol !== "admin" || !vendedor.activo) {
     return null;
   }
 
-  async function handleActivar() {
+  function handleActivar() {
     if (!vendedor) return;
-    setSaving(true);
-    setError(null);
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("fijar_espacio_revendedor", {
-      p_vendedor_id: vendedor.id,
-      p_habilitar: true,
-    });
-    if (rpcError) {
-      setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo activar. Probá de nuevo."));
-      setSaving(false);
-      return;
-    }
-    resetVendedorActualCache();
-    setSaving(false);
-    setAbierto(false);
-    router.push("/mi");
-    router.refresh();
+    const vendedorId = vendedor.id;
+    // Navega a /mi: queda ocupado hasta que la navegación tome el relevo.
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("fijar_espacio_revendedor", {
+          p_vendedor_id: vendedorId,
+          p_habilitar: true,
+        });
+        if (rpcError) {
+          return traducirErrorRpc(rpcError.message, ERRORES, "No se pudo activar. Probá de nuevo.");
+        }
+        resetVendedorActualCache();
+        return null;
+      },
+      {
+        seguirOcupada: true,
+        alExito: () => {
+          router.push("/mi");
+          router.refresh();
+        },
+      },
+    );
   }
 
   const contenidoHeader = (
@@ -104,7 +108,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
   ) : (
     <button
       type="button"
-      onClick={() => setAbierto(true)}
+      onClick={confirmacion.abrir}
       aria-label={variante === "rail" && colapsado ? "Ver como revendedor" : undefined}
       title={variante === "rail" && colapsado ? "Ver como revendedor" : undefined}
       className={variante === "header" ? clasesHeader : clasesRail}
@@ -118,7 +122,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
       {disparador}
       {!vendedor.revende && (
         <BottomSheet
-          open={abierto}
+          open={confirmacion.abierta}
           ariaLabel="Activar tu espacio de revendedor"
           variant="mark"
         >
@@ -129,25 +133,25 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
             Vas a poder cargar tus propias ventas como revendedor, ver lo que le debés a{" "}
             {NEGOCIO.nombre} y tu ganancia. Para volver, tocá &quot;Ver como admin&quot;.
           </p>
-          {error && (
+          {confirmacion.error && (
             <p role="alert" className="mt-3 text-[16px] text-accent">
-              {error}
+              {confirmacion.error}
             </p>
           )}
           <div className="mt-5 flex gap-2">
             <BotonAccion
-              cargando={saving}
+              cargando={confirmacion.ocupada}
               textoCargando="Activando…"
               type="button"
-              onClick={handleActivar}
+              onClick={() => void handleActivar()}
               className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
             >
               Sí, activarlo
             </BotonAccion>
             <button
               type="button"
-              onClick={() => !saving && setAbierto(false)}
-              disabled={saving}
+              onClick={confirmacion.cancelar}
+              disabled={confirmacion.ocupada}
               className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Ahora no

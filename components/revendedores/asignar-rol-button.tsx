@@ -2,10 +2,10 @@
 
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { createClient } from "@/lib/supabase/client";
 
@@ -61,37 +61,28 @@ export function AsignarRolButton({
   className,
 }: AsignarRolButtonProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
   const titulo = `¿${label} a ${nombre}?`;
 
-  async function handleConfirmar() {
-    setSaving(true);
-    setError(null);
-
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("asignar_rol_revendedor", {
-      p_vendedor_id: vendedorId,
-      p_rol: rolDestino,
-    });
-
-    if (rpcError) {
-      setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo cambiar el rol. Probá de nuevo."));
-      setSaving(false);
-      return;
-    }
-
-    setSaving(false);
-    setOpen(false);
-    router.refresh();
+  function handleConfirmar() {
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("asignar_rol_revendedor", {
+          p_vendedor_id: vendedorId,
+          p_rol: rolDestino,
+        });
+        return rpcError ? traducirErrorRpc(rpcError.message, ERRORES, "No se pudo cambiar el rol. Probá de nuevo.") : null;
+      },
+      { alExito: () => router.refresh() },
+    );
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={confirmacion.abrir}
         className={
           className ??
           "flex min-h-11 items-center justify-center border border-primary px-4 text-[16px] font-medium text-primary"
@@ -100,30 +91,30 @@ export function AsignarRolButton({
         {label}
       </button>
 
-      <BottomSheet open={open} ariaLabel={titulo} variant="mark">
+      <BottomSheet open={confirmacion.abierta} ariaLabel={titulo} variant="mark">
         <h2 className="font-display text-[24px] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">{CUERPO[rolDestino]}</p>
 
-        {error && (
+        {confirmacion.error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">
-            {error}
+            {confirmacion.error}
           </p>
         )}
 
         <div className="mt-5 flex gap-2">
           <BotonAccion
-            cargando={saving}
+            cargando={confirmacion.ocupada}
             textoCargando="Guardando…"
             type="button"
-            onClick={handleConfirmar}
+            onClick={() => void handleConfirmar()}
             className={`${BOTON_PRIMARIO} flex-[1.6] px-4`}
           >
             {`Sí, ${label.toLowerCase()}`}
           </BotonAccion>
           <button
             type="button"
-            onClick={() => !saving && setOpen(false)}
-            disabled={saving}
+            onClick={confirmacion.cancelar}
+            disabled={confirmacion.ocupada}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar

@@ -1,11 +1,11 @@
 "use client";
 
 import { BOTON_SECUNDARIO } from "@/components/ui/boton";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { formatCentavos } from "@/lib/money";
 import { formatPresentacion } from "@/lib/negocio";
@@ -76,42 +76,41 @@ export function ComprobanteDeleteButton({
   items,
 }: ComprobanteDeleteButtonProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
 
-  async function handleDelete() {
-    setDeleting(true);
-    setError(null);
-
-    const supabase = createClient();
-    const { error: deleteError } = await supabase
-      .from("comprobantes")
-      .delete()
-      .eq("id", comprobanteId);
-
-    if (deleteError) {
-      setDeleting(false);
-      setError("No se pudo eliminar. Probá de nuevo.");
-      return;
-    }
-
-    router.push("/comprobantes");
-    router.refresh();
+  function handleDelete() {
+    // Navega afuera: queda ocupado hasta que la navegación tome el relevo.
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: deleteError } = await supabase
+          .from("comprobantes")
+          .delete()
+          .eq("id", comprobanteId);
+        return deleteError ? "No se pudo eliminar. Probá de nuevo." : null;
+      },
+      {
+        seguirOcupada: true,
+        alExito: () => {
+          router.push("/comprobantes");
+          router.refresh();
+        },
+      },
+    );
   }
 
   return (
     <div className="flex flex-1 flex-col gap-1">
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={confirmacion.abrir}
         className="min-h-11 w-full border border-accent px-4 text-[14px] font-medium text-accent rounded-xl"
       >
         Eliminar
       </button>
 
       <BottomSheet
-        open={open}
+        open={confirmacion.abierta}
         ariaLabel="Eliminar comprobante"
         variant="accent"
       >
@@ -125,26 +124,26 @@ export function ComprobanteDeleteButton({
 
         <p className="mt-2 text-[14px] text-text-muted">No se puede deshacer.</p>
 
-        {error && (
+        {confirmacion.error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">
-            {error}
+            {confirmacion.error}
           </p>
         )}
 
         <div className="mt-5 flex gap-2">
           <button
             type="button"
-            onClick={() => setOpen(false)}
-            disabled={deleting}
+            onClick={confirmacion.cancelar}
+            disabled={confirmacion.ocupada}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
           </button>
           <BotonAccion
-            cargando={deleting}
+            cargando={confirmacion.ocupada}
             textoCargando="Eliminando…"
             type="button"
-            onClick={handleDelete}
+            onClick={() => void handleDelete()}
             className="min-h-11 flex-1 bg-accent px-4 text-[16px] font-medium text-primary-foreground disabled:opacity-45"
           >
             Eliminar

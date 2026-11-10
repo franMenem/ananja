@@ -2,10 +2,10 @@
 
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { BotonAccion } from "@/components/boton-accion";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { formatMonto } from "@/lib/money";
 import { marcarDeudaSaldada } from "@/lib/precios";
 import { createClient } from "@/lib/supabase/client";
@@ -37,43 +37,32 @@ export function MarcarSaldadaButton({
   montoCentavos,
 }: MarcarSaldadaButtonProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const confirmacion = useConfirmacion();
 
   const montoLabel = formatMonto(moneda as "USD" | "ARS", montoCentavos);
 
-  async function handleConfirmar() {
-    setSaving(true);
-    setError(null);
-    try {
-      const supabase = createClient();
-      const { error: updateError } = await marcarDeudaSaldada(supabase, deudaId);
-      if (updateError) {
-        setError("No se pudo guardar. Probá de nuevo.");
-        setSaving(false);
-        return;
-      }
-      setSaving(false);
-      setOpen(false);
-      router.refresh();
-    } catch {
-      setSaving(false);
-      setError("No se pudo conectar. Verificá tu conexión e intentá de nuevo.");
-    }
+  function handleConfirmar() {
+    return confirmacion.confirmar(
+      async () => {
+        const supabase = createClient();
+        const { error: updateError } = await marcarDeudaSaldada(supabase, deudaId);
+        return updateError ? "No se pudo guardar. Probá de nuevo." : null;
+      },
+      { alExito: () => router.refresh() },
+    );
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={confirmacion.abrir}
         className="inline-flex min-h-11 items-center text-[14px] text-text-muted hover:text-primary"
       >
         Marcar saldada sin pago
       </button>
 
-      <BottomSheet open={open} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
+      <BottomSheet open={confirmacion.abierta} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
         <h2 className="font-display text-[26px] text-text">
           ¿Marcar saldada sin pago?
         </h2>
@@ -84,25 +73,25 @@ export function MarcarSaldadaButton({
           Esto marca la deuda como saldada SIN descontar plata de ninguna
           cuenta. Si la pagaste, usá «Registrar pago» para que se descuente.
         </p>
-        {error && (
+        {confirmacion.error && (
           <p role="alert" className="mt-3 text-[16px] text-accent">
-            {error}
+            {confirmacion.error}
           </p>
         )}
         <div className="mt-5 flex gap-2">
           <BotonAccion
-            cargando={saving}
+            cargando={confirmacion.ocupada}
             textoCargando="Guardando…"
             type="button"
-            onClick={handleConfirmar}
+            onClick={() => void handleConfirmar()}
             className={`${BOTON_PRIMARIO} flex-1 px-4`}
           >
             Confirmar
           </BotonAccion>
           <button
             type="button"
-            onClick={() => setOpen(false)}
-            disabled={saving}
+            onClick={confirmacion.cancelar}
+            disabled={confirmacion.ocupada}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
             Cancelar
