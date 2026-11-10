@@ -4,6 +4,9 @@ import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { CLASE_ENTRADA, CLASE_ETIQUETA, MensajeError } from "@/components/ui/campo";
 import { useEffect, useMemo, useState } from "react";
 
+import { AvisoCarga } from "@/components/ui/aviso-carga";
+import { useCarga } from "@/components/ui/use-carga";
+
 import { BotonAccion } from "@/components/boton-accion";
 import { listarClientesActivosCompletos, obtenerCliente, type Cliente } from "@/lib/data/clientes";
 import { createClient } from "@/lib/supabase/client";
@@ -24,8 +27,8 @@ type ClienteSelectProps = {
  */
 export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
   const [open, setOpen] = useState(false);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [loading, setLoading] = useState(false);
+  // Clientes dados de alta en esta sesión del selector (se suman a la lista cargada).
+  const [nuevos, setNuevos] = useState<Cliente[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Cliente | null>(null);
 
@@ -35,27 +38,17 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
   const [creatingError, setCreatingError] = useState<string | null>(null);
   const [savingNuevo, setSavingNuevo] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-
-      const supabase = createClient();
-      const { data } = await listarClientesActivosCompletos(supabase);
-
-      if (cancelled) return;
-      setClientes(data);
-      setLoading(false);
-    }
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+  // Se vuelve a pedir cada vez que se abre el selector. Un fallo no se
+  // confunde con "no hay clientes": avisa y deja reintentar.
+  const { estado: carga, reintentar } = useCarga(() => listarClientesActivosCompletos(createClient()), {
+    activo: open,
+  });
+  const loading = carga.tipo === "cargando";
+  const clientes = useMemo(() => {
+    if (carga.tipo !== "listo") return nuevos;
+    const ids = new Set(carga.datos.map((c) => c.id));
+    return [...carga.datos, ...nuevos.filter((c) => !ids.has(c.id))].sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }, [carga, nuevos]);
 
   // Al editar un comprobante que ya tiene cliente asignado, `value` llega
   // con un id pero todavía no tenemos el objeto para mostrar el nombre en
@@ -118,9 +111,7 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
       return;
     }
 
-    setClientes((prev) =>
-      [...prev, data].sort((a, b) => a.nombre.localeCompare(b.nombre)),
-    );
+    setNuevos((prev) => [...prev, data]);
     handleSelect(data);
   }
 
@@ -182,7 +173,11 @@ export function ClienteSelect({ value, onChange }: ClienteSelectProps) {
                 Sin cliente
               </button>
 
-              {loading ? (
+              {carga.tipo === "error" ? (
+                <div className="px-1 py-3">
+                  <AvisoCarga mensaje={carga.mensaje} onReintentar={reintentar} />
+                </div>
+              ) : loading ? (
                 <p className="px-1 py-3 text-[16px] text-text-muted">Cargando…</p>
               ) : filtered.length === 0 ? (
                 <p className="px-1 py-3 text-[16px] text-text-muted">

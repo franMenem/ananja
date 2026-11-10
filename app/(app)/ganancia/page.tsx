@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
+import { AvisoCarga } from "@/components/ui/aviso-carga";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
+import { useCarga } from "@/components/ui/use-carga";
 import { BotellasVendidas } from "@/components/ganancia/botellas-vendidas";
 import { GananciaHeader, type Periodo } from "@/components/ganancia/ganancia-header";
 import { GananciaVendedores } from "@/components/ganancia/ganancia-vendedores";
@@ -49,6 +51,22 @@ const DATOS_GRAFICOS_VACIOS: DatosGraficos = {
 
 type Vendedor = { id: string; nombre: string };
 
+type DatosGanancia = {
+  margenRows: FilaMargenPeriodo[];
+  gastosOperativos: GastoOperativo[];
+  vendedores: Vendedor[];
+  coordinadorIds: ReadonlySet<string>;
+  datosGraficos: DatosGraficos;
+};
+
+const DATOS_GANANCIA_VACIOS: DatosGanancia = {
+  margenRows: [],
+  gastosOperativos: [],
+  vendedores: [],
+  coordinadorIds: new Set(),
+  datosGraficos: DATOS_GRAFICOS_VACIOS,
+};
+
 function mesActualISO(): string {
   const hoy = new Date();
   return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
@@ -57,58 +75,36 @@ function mesActualISO(): string {
 export default function GananciaPage() {
   const [periodo, setPeriodo] = useState<Periodo>("anio");
 
-  const [margenRows, setMargenRows] = useState<FilaMargenPeriodo[]>([]);
-  const [gastosOperativos, setGastosOperativos] = useState<GastoOperativo[]>([]);
-  const [vendedores, setVendedores] = useState<Vendedor[]>([]);
-  const [coordinadorIds, setCoordinadorIds] = useState<ReadonlySet<string>>(new Set());
-  const [datosGraficos, setDatosGraficos] = useState<DatosGraficos>(DATOS_GRAFICOS_VACIOS);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Todo lo que trae la pantalla, en un solo estado: un fallo no se ve como
+  // "todavía no hay ventas ni gastos" (ver `useCarga`).
+  const { estado: carga, reintentar } = useCarga<DatosGanancia>(async () => {
+    const supabase = createClient();
+    const [margenRes, gastosRes, vendedoresRes, graficosRes, idsCoordinadoras] = await Promise.all([
+      listarMargenVentas(supabase),
+      listarGastosConCategoria(supabase),
+      listarVendedoresNombre(supabase),
+      cargarDatosGraficos(supabase),
+      listarCoordinadorIds(supabase),
+    ]);
 
-  useEffect(() => {
-    let cancelled = false;
+    if (graficosRes.error) console.error("ganancia: gráfico de líneas", graficosRes.error);
 
-    async function load() {
-      setLoading(true);
-      setError(null);
-
-      const supabase = createClient();
-      const [margenRes, gastosRes, vendedoresRes, graficosRes, idsCoordinadoras] = await Promise.all([
-        listarMargenVentas(supabase),
-        listarGastosConCategoria(supabase),
-        listarVendedoresNombre(supabase),
-        cargarDatosGraficos(supabase),
-        listarCoordinadorIds(supabase),
-      ]);
-
-      if (cancelled) return;
-
-      if (margenRes.error || gastosRes.error || vendedoresRes.error) {
-        setError("No se pudo cargar la información de ganancia.");
-        setLoading(false);
-        return;
-      }
-
-      setMargenRows(mapearFilasMargenVentas(margenRes.data));
-      setGastosOperativos(filtrarGastosOperativos(gastosRes.data));
-      setVendedores(vendedoresRes.data);
-      setCoordinadorIds(new Set(idsCoordinadoras));
-
-      if (graficosRes.error) {
-        console.error("ganancia: gráfico de líneas", graficosRes.error);
-      } else {
-        setDatosGraficos(graficosRes.data);
-      }
-
-      setLoading(false);
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
+    return {
+      data: {
+        margenRows: mapearFilasMargenVentas(margenRes.data),
+        gastosOperativos: filtrarGastosOperativos(gastosRes.data),
+        vendedores: vendedoresRes.data,
+        coordinadorIds: new Set(idsCoordinadoras),
+        // El gráfico es accesorio: si falla solo él, el resto se muestra.
+        datosGraficos: graficosRes.error ? DATOS_GRAFICOS_VACIOS : graficosRes.data,
+      },
+      error: margenRes.error || gastosRes.error || vendedoresRes.error ? "No se pudo cargar la información de ganancia." : null,
     };
-  }, []);
+  });
+  const loading = carga.tipo === "cargando";
+  const error = carga.tipo === "error" ? carga.mensaje : null;
+  const { margenRows, gastosOperativos, vendedores, coordinadorIds, datosGraficos } =
+    carga.tipo === "listo" ? carga.datos : DATOS_GANANCIA_VACIOS;
 
   const filasAnanjaPorMes = useMemo(
     () => calcularGananciaAnanjaPorPeriodo(margenRows, gastosOperativos, "mes"),
@@ -146,11 +142,7 @@ export default function GananciaPage() {
         desglose={!loading && !error && !vacio ? desglose : null}
       />
 
-      {error && (
-        <p role="alert" className="text-[16px] text-accent">
-          {error}
-        </p>
-      )}
+      {error && <AvisoCarga variante="pagina" mensaje={error} onReintentar={reintentar} />}
 
       {loading ? (
         <p className="py-6 text-[16px] text-text-muted">Cargando…</p>

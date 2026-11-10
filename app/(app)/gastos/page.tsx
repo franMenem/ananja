@@ -2,15 +2,19 @@
 
 import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { claseChip } from "@/components/ui/chip";
+import { AvisoCarga } from "@/components/ui/aviso-carga";
+import { useCarga } from "@/components/ui/use-carga";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { Fila, ListaTarjeta } from "@/components/ui/fila";
 import { NumeroGrande } from "@/components/ui/numero-grande";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
 
-import { listarCategorias, listarGastos, type CategoriaGasto, type GastoRow } from "@/lib/data/gastos";
+import { listarCategorias, listarGastos, type GastoRow } from "@/lib/data/gastos";
+import { categoriaVigente, parsearFiltroGastos, serializarFiltroGastos, type FiltroGastos } from "@/lib/dominio/filtro-gastos";
 import { etiquetaMedioPago } from "@/lib/etiquetas/medio-pago";
 import { NOMBRES_MES_MAYUS, formatFecha } from "@/lib/fechas";
 import { agruparGastosPorMes, insumoDeMovimientos, rangoDeMes, resumenMesGastos, tituloGasto } from "@/lib/dominio/gastos";
@@ -35,53 +39,56 @@ function todayYYYYMM(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+const SIN_GASTOS: GastoRow[] = [];
+
+/** `useSearchParams` pide un límite de Suspense para no cortar el prerenderizado. */
 export default function GastosPage() {
-  const [gastos, setGastos] = useState<GastoRow[]>([]);
-  const [categorias, setCategorias] = useState<CategoriaGasto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return (
+    <Suspense fallback={<p className="py-6 text-[16px] text-text-muted">Cargando…</p>}>
+      <GastosContenido />
+    </Suspense>
+  );
+}
 
-  const [categoriaFiltro, setCategoriaFiltro] = useState("");
-  const [mesFiltro, setMesFiltro] = useState("");
+/**
+ * Los filtros APLICADOS (categoría y mes) viven en la URL (`?c=&m=`), como el
+ * de `/mi/ventas`: así sobreviven a abrir un gasto y volver con "atrás". Se
+ * escriben con `window.history.replaceState` (Next lo integra con
+ * `useSearchParams`) sin pedirle la página al servidor; lo que sí cambia es
+ * la consulta de gastos, que se vuelve a hacer con el filtro nuevo.
+ */
+function GastosContenido() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const query = searchParams?.toString() ?? "";
+  const { categoriaId: categoriaDeLaUrl, mes: mesFiltro } = useMemo(
+    () => parsearFiltroGastos(new URLSearchParams(query)),
+    [query],
+  );
 
-  // Independiente del filtro de gastos: se carga una sola vez al montar
-  // (no hace falta repetirla cada vez que cambia categoría o mes).
-  useEffect(() => {
-    const supabase = createClient();
-    listarCategorias(supabase).then(({ data }) => setCategorias(data));
-  }, []);
+  function aplicarFiltro(nuevo: FiltroGastos) {
+    const qs = serializarFiltroGastos(nuevo);
+    window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
+  }
 
-  useEffect(() => {
-    let cancelled = false;
+  // Independiente del filtro de gastos: se carga una sola vez al montar.
+  const { estado: cargaCategorias, reintentar: reintentarCategorias } = useCarga(() => listarCategorias(createClient()));
+  const categorias = cargaCategorias.tipo === "listo" ? cargaCategorias.datos : [];
+  // Una categoría de la URL que no existe se ignora (solo si las categorías cargaron bien).
+  const categoriaFiltro = categoriaVigente(categoriaDeLaUrl, cargaCategorias.tipo === "listo" ? categorias : null);
+  // Con una categoría en la URL se espera a saber si existe antes de pedir los gastos.
+  const categoriasResueltas = !categoriaDeLaUrl || cargaCategorias.tipo !== "cargando";
 
-    async function load() {
-      setLoading(true);
-      setError(null);
-
-      const supabase = createClient();
-      const { data, error: fetchError } = await listarGastos(supabase, {
+  const { estado: carga, reintentar } = useCarga(
+    () =>
+      listarGastos(createClient(), {
         categoriaId: categoriaFiltro || undefined,
         rango: mesFiltro ? rangoDeMes(mesFiltro) : undefined,
-      });
-
-      if (cancelled) return;
-
-      if (fetchError) {
-        setError(fetchError);
-        setLoading(false);
-        return;
-      }
-
-      setGastos(data);
-      setLoading(false);
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [categoriaFiltro, mesFiltro]);
+      }),
+    { clave: `${categoriaFiltro}|${mesFiltro}`, activo: categoriasResueltas },
+  );
+  const loading = carga.tipo === "cargando";
+  const gastos = carga.tipo === "listo" ? carga.datos : SIN_GASTOS;
 
   const mesHeader = mesFiltro || todayYYYYMM();
 
@@ -119,7 +126,7 @@ export default function GastosPage() {
                 type="month"
                 aria-label="Filtrar por mes"
                 value={mesFiltro}
-                onChange={(event) => setMesFiltro(event.target.value)}
+                onChange={(event) => aplicarFiltro({ categoriaId: categoriaFiltro, mes: event.target.value })}
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               />
             </div>
@@ -130,6 +137,7 @@ export default function GastosPage() {
         }
       />
 
+      {carga.tipo !== "error" && (
       <Tarjeta className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-8">
         <NumeroGrande etiqueta={`Gastado en ${nombreMesHeader}`}>{formatCentavos(totalMesCentavos)}</NumeroGrande>
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -144,17 +152,18 @@ export default function GastosPage() {
           </span>
         </div>
       </Tarjeta>
+      )}
 
       {/* Chips de categoría */}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
-        <button type="button" onClick={() => setCategoriaFiltro("")} aria-pressed={categoriaFiltro === ""} className={claseChip(categoriaFiltro === "")}>
+        <button type="button" onClick={() => aplicarFiltro({ categoriaId: "", mes: mesFiltro })} aria-pressed={categoriaFiltro === ""} className={claseChip(categoriaFiltro === "")}>
           Todas
         </button>
         {categorias.map((categoria) => (
           <button
             key={categoria.id}
             type="button"
-            onClick={() => setCategoriaFiltro(categoria.id)}
+            onClick={() => aplicarFiltro({ categoriaId: categoria.id, mes: mesFiltro })}
             aria-pressed={categoriaFiltro === categoria.id}
             className={claseChip(categoriaFiltro === categoria.id)}
           >
@@ -163,13 +172,13 @@ export default function GastosPage() {
         ))}
       </div>
 
-      {error && (
-        <p role="alert" className="text-[16px] text-accent">
-          {error}
-        </p>
+      {cargaCategorias.tipo === "error" && (
+        <AvisoCarga mensaje={cargaCategorias.mensaje} onReintentar={reintentarCategorias} />
       )}
 
-      {loading ? (
+      {carga.tipo === "error" ? (
+        <AvisoCarga variante="pagina" mensaje={carga.mensaje} onReintentar={reintentar} />
+      ) : loading ? (
         <p className="py-6 text-[16px] text-text-muted">Cargando…</p>
       ) : gastos.length === 0 ? (
         <Tarjeta className="flex flex-col items-center gap-3 px-6 py-12 text-center">

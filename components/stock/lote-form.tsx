@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { BottomSheet } from "@/components/bottom-sheet";
@@ -40,6 +40,8 @@ import {
 import { crearLote } from "@/lib/lotes";
 import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { AvisoCarga } from "@/components/ui/aviso-carga";
+import { useCarga } from "@/components/ui/use-carga";
 import { useGuardadoConAviso } from "@/components/ui/use-guardado-con-aviso";
 import type { Tables } from "@/lib/types";
 
@@ -144,8 +146,20 @@ export function LoteForm({
   const guardado = useGuardadoConAviso<InsumoAlert>();
   const saving = guardado.ocupado;
   const error = guardado.mensajeError;
-  const [recetas, setRecetas] = useState<Receta[]>([]);
-  const [insumos, setInsumos] = useState<Insumo[]>([]);
+  // Catálogos para la vista previa de consumo y de costo de etiquetas. Si
+  // fallan NO se bloquea el guardado: el descuento real lo calcula
+  // `crear_lote` en la base (y avisa INSUMO_INSUFICIENTE); solo falta la
+  // vista previa. Por eso se avisa y se ofrece reintentar.
+  const { estado: catalogos, reintentar: reintentarCatalogos } = useCarga(async () => {
+    const supabase = createClient();
+    const [recetasResult, insumosResult] = await Promise.all([listarRecetas(supabase), listarInsumosActivos(supabase)]);
+    return {
+      data: { recetas: recetasResult.data, insumos: insumosResult.data },
+      error: recetasResult.error || insumosResult.error ? "No se pudo cargar el consumo de insumos." : null,
+    };
+  });
+  const recetas: Receta[] = useMemo(() => (catalogos.tipo === "listo" ? catalogos.datos.recetas : []), [catalogos]);
+  const insumos: Insumo[] = useMemo(() => (catalogos.tipo === "listo" ? catalogos.datos.insumos : []), [catalogos]);
   // La hoja sigue abierta mientras corre "Guardar igual": el loader se ve en
   // el botón que se tocó.
   const insumoAlert = guardado.avisoVisible;
@@ -170,21 +184,6 @@ export function LoteForm({
   // "Guardar igual" (INSUMO_INSUFICIENTE) y al reintentar.
   const redondeosRef = useRef<RedondeoCosto[]>([]);
   const [revisando, setRevisando] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const supabase = createClient();
-    Promise.all([listarRecetas(supabase), listarInsumosActivos(supabase)]).then(
-      ([recetasResult, insumosResult]) => {
-        if (cancelled) return;
-        setRecetas(recetasResult.data);
-        setInsumos(insumosResult.data);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const hayAlMenosUno = Object.values(cantidades).some((c) => c > 0);
 
@@ -434,6 +433,14 @@ export function LoteForm({
               </div>
             ))}
           </div>
+          {catalogos.tipo === "error" && (
+            <div className="flex flex-col gap-1">
+              <AvisoCarga mensaje={catalogos.mensaje} onReintentar={reintentarCatalogos} />
+              <p className="text-[14px] leading-snug text-text-muted">
+                Podés guardar igual, pero no vas a ver cuánto va a descontar ni el costo de las etiquetas hasta que cargue.
+              </p>
+            </div>
+          )}
           {consumo.length > 0 && (
             <p className="text-[14px] leading-snug text-text">
               Va a descontar:{" "}

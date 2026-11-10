@@ -1,10 +1,12 @@
 "use client";
 
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from "@/components/ui/boton";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { CLASE_ETIQUETA, MensajeError } from "@/components/ui/campo";
 import { BotonAccion } from "@/components/boton-accion";
+import { AvisoCarga } from "@/components/ui/aviso-carga";
+import { useCarga } from "@/components/ui/use-carga";
 import { listarCategoriasActivas, obtenerCategoria, type CategoriaGasto } from "@/lib/data/gastos";
 import { createClient } from "@/lib/supabase/client";
 
@@ -30,57 +32,34 @@ export function CategoriaSelect({
   onChange,
   className,
 }: CategoriaSelectProps) {
-  const [categorias, setCategorias] = useState<CategoriaGasto[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Categorías dadas de alta desde este selector (se suman a la lista cargada).
+  const [nuevas, setNuevas] = useState<CategoriaGasto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-
-      const supabase = createClient();
-      const { data, error: fetchError } = await listarCategoriasActivas(supabase);
-
-      if (cancelled) return;
-
-      let list = data;
-
-      // Si la categoría actual (ej. en edición) ya no está activa, la
-      // agregamos igual para no perderla de la lista.
-      if (value && !list.some((c) => c.id === value)) {
-        const current = await obtenerCategoria(supabase, value);
-        if (current) {
-          list = [...list, current].sort((a, b) =>
-            a.nombre.localeCompare(b.nombre),
-          );
-        }
-      }
-
-      if (cancelled) return;
-
-      if (fetchError) {
-        setError("No se pudo cargar la lista de categorías.");
-        setLoading(false);
-        return;
-      }
-
-      setCategorias(list);
-      setLoading(false);
+  // Un fallo de la lista no se confunde con "no hay categorías": en el lugar
+  // del select se avisa y se puede reintentar, sin trabar el resto del form.
+  const { estado: carga, reintentar } = useCarga(async () => {
+    const supabase = createClient();
+    const { data, error: fetchError } = await listarCategoriasActivas(supabase);
+    if (fetchError) return { data, error: "No se pudo cargar la lista de categorías." };
+    let list = data;
+    // Si la categoría actual (ej. en edición) ya no está activa, la
+    // agregamos igual para no perderla de la lista.
+    if (value && !list.some((c) => c.id === value)) {
+      const current = await obtenerCategoria(supabase, value);
+      if (current) list = [...list, current];
     }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return { data: list, error: null };
+  });
+  const loading = carga.tipo === "cargando";
+  const categorias = useMemo(() => {
+    const base = carga.tipo === "listo" ? carga.datos : [];
+    const ids = new Set(base.map((c) => c.id));
+    return [...base, ...nuevas.filter((c) => !ids.has(c.id))].sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }, [carga, nuevas]);
 
   function handleSelect(id: string) {
     if (id === NUEVA_VALUE) {
@@ -111,9 +90,7 @@ export function CategoriaSelect({
       return;
     }
 
-    setCategorias((prev) =>
-      [...prev, data].sort((a, b) => a.nombre.localeCompare(b.nombre)),
-    );
+    setNuevas((prev) => [...prev, data]);
     setNewName("");
     setAdding(false);
     onChange(data.id);
@@ -125,7 +102,11 @@ export function CategoriaSelect({
         Categoría
       </label>
 
-      {!adding ? (
+      {carga.tipo === "error" && !adding ? (
+        <div className="mt-1.5">
+          <AvisoCarga mensaje={carga.mensaje} onReintentar={reintentar} />
+        </div>
+      ) : !adding ? (
         <select
           id="categoria-select"
           required
