@@ -1,3 +1,46 @@
+/**
+ * Proxy de sesión (`updateSession`, llamado desde `proxy.ts`).
+ *
+ * VERIFICACIÓN DE SESIÓN HÍBRIDA. Antes, cada request pagaba un viaje a
+ * Supabase Auth (`getUser()`). Ahora se pide primero
+ * `supabase.auth.getClaims()`: el proyecto firma los tokens con una clave
+ * ASIMÉTRICA (ES256), así que la librería verifica la firma del JWT acá
+ * mismo con la clave pública del JWKS (cacheada 10 min en memoria del
+ * proceso) y no sale a la red en el caso normal. La identidad es
+ * `claims.sub`. La decisión "usar el claim o confirmar con `getUser()`" es
+ * una función pura y testeada: `decidirVerificacionSesion`
+ * (`lib/dominio/verificacion-sesion.ts`).
+ *
+ * Qué SE VERIFICA localmente: firma, vencimiento (`exp`), `role`
+ * `authenticated` y que haya `sub`. `getClaims` también renueva el token
+ * (por dentro llama a `getSession()`, que refresca si falta poco para que
+ * venza y escribe las cookies nuevas con los handlers del cliente SSR —
+ * el mismo mecanismo que usaba `getUser()`).
+ *
+ * Camino LENTO (`getUser()`, como antes) cuando: `getClaims` da error o
+ * lanza (JWKS inaccesible, firma inválida, sesión imposible de refrescar),
+ * no hay claims, el claim es raro, o el claim trae en `true` un flag de
+ * cuenta (bienvenida pendiente / `must_change_password`, en `app_metadata`
+ * o `user_metadata`). Esos flags los apaga la Admin API sin emitir token
+ * nuevo, y con solo el claim la persona rebotaría a `/cambiar-password`
+ * hasta que el token se renovara; mientras diga `true` se pide el valor
+ * fresco. Si todo falla, el request queda sin sesión (redirect a
+ * `/login`): nunca se deja pasar sin identidad verificada.
+ *
+ * Qué se PIERDE: una baja o revocación hecha en Supabase Auth (borrar el
+ * usuario, cerrar sus sesiones, bloquearlo) tarda hasta la vida del token
+ * de acceso (1 hora por defecto) en reflejarse en el render de páginas. No
+ * cambia: `vendedores.activo` se sigue leyendo en CADA request (una baja
+ * desde la app es inmediata), y PostgREST/RLS ya validaban el JWT solo por
+ * firma. El caso inverso de los flags (un admin pone `must_change_password`
+ * a alguien con sesión abierta) tarda lo mismo, pero hoy ninguna acción de
+ * la app lo hace para sesiones iniciadas (`nuevaPasswordTemporal` solo
+ * aplica a cuentas que nunca entraron).
+ *
+ * `getUser()` sigue en server actions, route handlers y
+ * `lib/sesion-actual.ts` (fallback): ahí no se usa `getClaims`.
+ */
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -8,6 +51,7 @@ import {
   RUTA_BIENVENIDA,
   RUTA_CONFIRMAR,
 } from "@/lib/dominio/invitaciones";
+import { decidirVerificacionSesion, type IdentidadSesion } from "@/lib/dominio/verificacion-sesion";
 import { NEGOCIO } from "@/lib/negocio";
 import {
   obtenerVendedorPorUserId,
@@ -66,10 +110,9 @@ const ROLE_REDIRECT_EXEMPT_PATHS = [CAMBIAR_PASSWORD_PATH, SIN_ACCESO_PATH, RUTA
  * 2026-09-21 que movió estos flags de `user_metadata` — editable por el
  * propio usuario con `supabase.auth.updateUser({ data: {...} })` desde el
  * navegador — a `app_metadata`; ver `flagCuentaActivo` y el TODO(0066) en
- * ese helper). `getUser()` en `updateSession` revalida contra el servidor
- * de Auth en cada request, así que `user.app_metadata` que llega acá
- * siempre es el valor fresco de la base, nunca uno viejo embebido en un
- * JWT sin refrescar.
+ * ese helper). Si el claim del token trae algún flag en `true`,
+ * `updateSession` confirma con `getUser()` (valor fresco de la base); con
+ * ambos en `false`/ausentes usa el claim (ver la cabecera del archivo).
  */
 export function redireccionPorMetadata(
   appMetadata: Record<string, unknown> | null | undefined,
@@ -202,6 +245,51 @@ function construirRespuestaConSesion(
   return respuesta;
 }
 
+/** Lo mínimo del cliente Supabase que usa `verificarSesion` (testeable). */
+export type ClienteAuthProxy = {
+  auth: {
+    getClaims: () => Promise<{ data: { claims?: unknown } | null; error: unknown }>;
+    getUser: () => Promise<{
+      data: { user: { id: string; app_metadata?: unknown; user_metadata?: unknown } | null };
+    }>;
+  };
+};
+
+function comoObjeto(valor: unknown): Record<string, unknown> {
+  return typeof valor === "object" && valor !== null ? (valor as Record<string, unknown>) : {};
+}
+
+/**
+ * Identidad verificada del request, o `null` si no hay sesión. Primero
+ * `getClaims()` (local); ver `decidirVerificacionSesion` para cuándo se
+ * confirma con `getUser()`. Cualquier fallo o excepción de `getClaims`
+ * (incluido el JWKS) cae a `getUser()`; nunca devuelve una identidad sin
+ * haberla verificado por una de las dos vías.
+ */
+export async function verificarSesion(supabase: ClienteAuthProxy): Promise<IdentidadSesion | null> {
+  let decision: ReturnType<typeof decidirVerificacionSesion>;
+  try {
+    const { data, error } = await supabase.auth.getClaims();
+    decision = decidirVerificacionSesion({
+      claims: (data?.claims ?? null) as Parameters<typeof decidirVerificacionSesion>[0]["claims"],
+      error,
+    });
+  } catch {
+    decision = { via: "confirmar_con_getuser" };
+  }
+  if (decision.via === "usar_claims") return decision.identidad;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  return {
+    id: user.id,
+    app_metadata: comoObjeto(user.app_metadata),
+    user_metadata: comoObjeto(user.user_metadata),
+  };
+}
+
 /**
  * Refresca la sesión de Supabase en cada request y aplica las reglas de
  * acceso: sin sesión → /login; con sesión en /login → / o /mi según rol;
@@ -271,11 +359,10 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // IMPORTANTE: no quitar. `getUser()` revalida el token contra el servidor
-  // de Supabase (a diferencia de `getSession()`, que solo lee la cookie).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // IMPORTANTE: no quitar. Verifica la sesión (y renueva el token vencido,
+  // escribiendo las cookies por `setAll`): local con `getClaims`, o con
+  // `getUser()` en el camino lento. Ver la cabecera del archivo.
+  const user = await verificarSesion(supabase);
 
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));

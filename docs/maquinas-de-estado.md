@@ -85,6 +85,11 @@ Formato de cada ficha: qué es, dónde está la verdad en TS (`archivo` + `símb
 - Sesión: `VendedorDeSesion` (el recorte de la fila de `vendedores` que viaja con la sesión) y `esAdminActivo`, ambos en `lib/rol-vendedor.ts`, son el único lugar donde se decide "admin activo". Cambios de rol al dar de alta: `TRANSICIONES_ROL` (`lib/dominio/invitaciones.ts`) es el espejo en TS de `asignar_rol_revendedor`; `tests/asignar-rol-rpc-vs-ts.test.ts` falla si la RPC y la tabla divergen.
 - Regla: `es_vendedor()` NO significa "cualquier vendedor". Usar las funciones de `lib/rol-vendedor.ts`, no comparar `rol` a mano.
 
+## Verificación de sesión del proxy (usar claims, confirmar con getUser)
+
+- TS: `lib/dominio/verificacion-sesion.ts` (`decidirVerificacionSesion`, `DecisionVerificacion`) decide; `verificarSesion` en `lib/supabase/middleware.ts` la aplica. Camino rápido: `getClaims()` verifica el JWT en el servidor; camino lento: `getUser()` (error o excepción de `getClaims`, claims nulos o raros, o algún flag de cuenta en `true`). Sin identidad verificada el request va a `/login`.
+- Base: ninguna (la fuente es el token de Supabase Auth). Los tests están en `tests/verificacion-sesion.test.ts` y `tests/proxy-verificacion-sesion.test.ts`.
+
 ## Tipo de entrega (entrega, devolucion)
 
 - TS: `lib/dominio/tipo-entrega.ts` (`TipoEntrega`, `normalizarTipoEntrega`).
