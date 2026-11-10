@@ -1,9 +1,17 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
 
 import { NOMBRES_MES, NOMBRES_MES_ABREV } from "@/lib/fechas";
-import { formatCentavosCompacto, formatCentavosEje, seleccionInicial, ticksEjeY } from "@/lib/dominio/graficos";
+import {
+  formatCentavosCompacto,
+  formatCentavosEje,
+  ladoEtiqueta,
+  mesesConEtiqueta,
+  mesesEjeX,
+  seleccionInicial,
+  ticksEjeY,
+} from "@/lib/dominio/graficos";
 import { formatCentavos } from "@/lib/money";
 
 export type SerieLinea = {
@@ -110,29 +118,12 @@ function pctY(valor: number, max: number, alto: number): number {
  * enero y diciembre, centrarla (`translateX(-50%)`, lo normal) la haría
  * invadir la columna fija del eje Y a la izquierda o desbordar el borde
  * derecho del gráfico — ahí se ancla del lado de adentro en cambio. */
-function translateXDeMes(mes: number): string {
-  if (mes === 0) return "translateX(0)";
+function translateXDeMes(mes: number, angosto = false): string {
+  // En angosto el eje X salta de a dos meses y "ene" (anclado a la
+  // izquierda) quedaría pegado a "mar": se corre un poco hacia afuera.
+  if (mes === 0) return angosto ? "translateX(-35%)" : "translateX(0)";
   if (mes === 11) return "translateX(-100%)";
   return "translateX(-50%)";
-}
-
-/** Un "valle" (mínimo local: el mes anterior y el siguiente venden más) es
- * el único caso donde la línea sube hacia los dos lados justo por encima
- * del punto — si la etiqueta de valor va arriba, como en el resto de los
- * meses, una subida pronunciada la puede llegar a cruzar (se vio en la
- * revisión visual del 2026-09-11: "$500 mil" quedaba tapado por el trazo
- * que sube hacia el mes siguiente). En un pico, en cambio, las dos líneas
- * bajan alejándose del punto — arriba siempre queda libre. Por eso solo
- * los valles llevan la etiqueta abajo; el resto, arriba como siempre. */
-function esValle(valores: number[], mes: number): boolean {
-  const anterior = mes > 0 ? valores[mes - 1] : undefined;
-  const siguiente = mes < 11 ? valores[mes + 1] : undefined;
-  return (
-    anterior !== undefined &&
-    siguiente !== undefined &&
-    valores[mes] < anterior &&
-    valores[mes] < siguiente
-  );
 }
 
 /** Borde entre los "carriles" de hit-area de cada mes (mitad de camino
@@ -141,33 +132,6 @@ function esValle(valores: number[], mes: number): boolean {
 function bordeMes(mes: number, lado: "izq" | "der"): number {
   if (lado === "izq") return mes === 0 ? 0 : (xDeMes(mes - 1) + xDeMes(mes)) / 2;
   return mes === 11 ? ANCHO : (xDeMes(mes) + xDeMes(mes + 1)) / 2;
-}
-
-/**
- * Qué meses (de los que tienen venta > 0) llevan la etiqueta de valor
- * encima del punto. Con espacio de sobra (`angosto = false`) van todos.
- * Angosto: se descarta un mes si quedaría pegado al anterior ya elegido
- * (spec: "keep only the highest/latest ones"), salvo que sea el mes
- * actual, que siempre se muestra — y si el que ya estaba elegido justo
- * antes le queda pegado, se saca a ese en su lugar.
- */
-function mesesConEtiqueta(valores: number[], mesActual: number, angosto: boolean): number[] {
-  const conVenta: number[] = [];
-  valores.forEach((valor, mes) => {
-    if (valor > 0) conVenta.push(mes);
-  });
-
-  if (!angosto) return conVenta;
-
-  const elegidos: number[] = [];
-  for (const mes of conVenta) {
-    const anterior = elegidos[elegidos.length - 1];
-    const pegado = anterior !== undefined && mes - anterior < 2;
-    if (pegado && mes !== mesActual) continue;
-    if (pegado && mes === mesActual) elegidos.pop();
-    elegidos.push(mes);
-  }
-  return elegidos;
 }
 
 /**
@@ -387,9 +351,18 @@ export function GraficoLineas({
               tooltip van como overlay HTML encima, en un contenedor con la
               misma relación de aspecto para que las posiciones en %
               coincidan exactamente con las del `viewBox`. */}
-          <div className="relative min-w-0 flex-1" style={{ aspectRatio: `${ANCHO} / ${alto}` }}>
+          <div
+            className="relative h-(--alto-trazado) min-w-0 flex-1 min-[481px]:h-auto"
+            style={
+              {
+                aspectRatio: `${ANCHO} / ${alto}`,
+                "--alto-trazado": `${alto}px`,
+              } as CSSProperties
+            }
+          >
             <svg
               viewBox={`0 0 ${ANCHO} ${alto}`}
+              preserveAspectRatio="none"
               className="absolute inset-0 h-full w-full"
               aria-hidden="true"
             >
@@ -403,6 +376,7 @@ export function GraficoLineas({
                   y2={yDeValor(tick, graphMax, alto)}
                   stroke="var(--color-border)"
                   strokeWidth={1}
+                  vectorEffect="non-scaling-stroke"
                 />
               ))}
 
@@ -421,31 +395,45 @@ export function GraficoLineas({
                       fill="none"
                       stroke={serie.color}
                       strokeWidth={2}
+                      vectorEffect="non-scaling-stroke"
                       strokeDasharray={esActual ? undefined : "7 5"}
                     />
-                    {serie.valores.map((valor, mesPunto) => {
-                      const esMesActual = esActual && mesPunto === mes;
-                      return (
-                        <circle
-                          key={mesPunto}
-                          cx={xDeMes(mesPunto)}
-                          cy={yDeValor(valor, graphMax, alto)}
-                          r={esMesActual ? 5 : 3}
-                          fill={esMesActual ? "var(--color-background)" : serie.color}
-                          stroke={serie.color}
-                          strokeWidth={esMesActual ? 2 : 0}
-                        />
-                      );
-                    })}
                   </g>
                 );
               })}
             </svg>
 
+            {/* Puntos — HTML y no `<circle>`: en angosto el SVG se estira
+                solo en horizontal (ver `preserveAspectRatio="none"`), y un
+                círculo SVG saldría ovalado. */}
+            {seriesActivas.flatMap((serie) => {
+              const esActual = serie.etiqueta === etiquetaAnioActual;
+              return serie.valores.map((valor, mesPunto) => {
+                const esMesActual = esActual && mesPunto === mes;
+                const diametro = esMesActual ? 10 : 6;
+                return (
+                  <span
+                    key={`${serie.etiqueta}-${mesPunto}`}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute rounded-full"
+                    style={{
+                      left: `${pctX(mesPunto)}%`,
+                      top: `${pctY(valor, graphMax, alto)}%`,
+                      width: diametro,
+                      height: diametro,
+                      transform: "translate(-50%, -50%)",
+                      backgroundColor: esMesActual ? "var(--color-background)" : serie.color,
+                      border: esMesActual ? `2px solid ${serie.color}` : undefined,
+                    }}
+                  />
+                );
+              });
+            })}
+
             {/* Etiquetas del eje X — nombre corto de mes. En angosto se
                 muestra uno de cada dos, siempre incluyendo el mes actual. */}
             {NOMBRES_MES_ABREV.map((nombre, mesEtiqueta) => {
-              if (angosto && mesEtiqueta % 2 !== mes % 2) return null;
+              if (!mesesEjeX(angosto).includes(mesEtiqueta)) return null;
               return (
                 <span
                   key={nombre}
@@ -453,7 +441,7 @@ export function GraficoLineas({
                   style={{
                     left: `${pctX(mesEtiqueta)}%`,
                     top: `${((alto - PAD_ABAJO + 8) / alto) * 100}%`,
-                    transform: translateXDeMes(mesEtiqueta),
+                    transform: translateXDeMes(mesEtiqueta, angosto),
                   }}
                 >
                   {nombre}
@@ -464,8 +452,8 @@ export function GraficoLineas({
             {/* Números sobre los puntos del año en curso — solo los meses
                 con venta, adelgazado en angosto (ver `mesesConEtiqueta`). */}
             {serieActual &&
-              mesesConEtiqueta(serieActual.valores, mes, angosto).map((mesEtiqueta) => {
-                const abajo = esValle(serieActual.valores, mesEtiqueta);
+              mesesConEtiqueta(serieActual.valores, angosto).map((mesEtiqueta) => {
+                const abajo = ladoEtiqueta(serieActual.valores, mesEtiqueta, graphMax, alto) === "abajo";
                 return (
                   <span
                     key={mesEtiqueta}

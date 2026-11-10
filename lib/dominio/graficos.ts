@@ -139,6 +139,73 @@ function conUnDecimal(valor: number): string {
   return Number.isInteger(redondeado) ? String(redondeado) : redondeado.toFixed(1).replace(".", ",");
 }
 
+/**
+ * Meses (0-11) cuya etiqueta se dibuja en el eje X. Ancho: los 12. Angosto:
+ * uno sí, uno no, empezando por enero (ene, mar, may, jul, sep, nov) — regular
+ * y predecible, nunca depende del mes en curso.
+ */
+export function mesesEjeX(angosto: boolean): number[] {
+  const todos = Array.from({ length: 12 }, (_, m) => m);
+  return angosto ? todos.filter((m) => m % 2 === 0) : todos;
+}
+
+/**
+ * Qué meses (con valor > 0) llevan la etiqueta de valor sobre el punto.
+ * Ancho: todos. Angosto no hay lugar para todas sin pisarse, así que solo
+ * se rotulan el mes de mayor valor y el último mes con dato (el resto se ve
+ * tocando el punto, que abre el tooltip); si quedan a menos de 2 meses de
+ * distancia se deja uno solo, el máximo (un pico siempre tiene el espacio de
+ * arriba libre; el mes en curso ya se distingue por el aro del punto).
+ */
+export function mesesConEtiqueta(valores: number[], angosto: boolean): number[] {
+  const conVenta: number[] = [];
+  valores.forEach((valor, mes) => {
+    if (valor > 0) conVenta.push(mes);
+  });
+  if (!angosto || conVenta.length <= 1) return conVenta;
+
+  const ultimo = conVenta[conVenta.length - 1];
+  const maximo = conVenta.reduce((mejor, mes) => (valores[mes] > valores[mejor] ? mes : mejor));
+  return Math.abs(ultimo - maximo) < 2 ? [maximo] : [maximo, ultimo].sort((a, b) => a - b);
+}
+
+/** Alto aproximado, en px, que ocupa una etiqueta de valor + su separación
+ * del punto. */
+const ALTO_ETIQUETA = 28;
+/** Debe coincidir con los paddings del gráfico (`PAD_ARRIBA` / `PAD_ABAJO`
+ * en `grafico-lineas.tsx`); el eje X empieza 8 px debajo de la línea del 0. */
+const HOLGURA_ABAJO_EJE_X = 8;
+
+/**
+ * Lado de la etiqueta de valor de un punto: "arriba" salvo en un valle (el
+ * mes anterior y el siguiente valen más: la línea sube a los dos lados y
+ * taparía la etiqueta). "abajo" solo si ahí hay lugar: nunca por debajo de
+ * la línea del 0, donde están los meses del eje X. `y` del punto =
+ * `alto - padAbajo - altoUtil * valor / max`.
+ */
+export function ladoEtiqueta(
+  valores: number[],
+  mes: number,
+  max: number,
+  alto: number,
+  padArriba = 28,
+  padAbajo = 32,
+): "arriba" | "abajo" {
+  const anterior = mes > 0 ? valores[mes - 1] : undefined;
+  const siguiente = mes < 11 ? valores[mes + 1] : undefined;
+  const esValle =
+    anterior !== undefined &&
+    siguiente !== undefined &&
+    valores[mes] < anterior &&
+    valores[mes] < siguiente;
+  if (!esValle) return "arriba";
+
+  const altoUtil = alto - padArriba - padAbajo;
+  const y = max <= 0 ? alto - padAbajo : alto - padAbajo - (altoUtil * valores[mes]) / max;
+  const limiteInferior = alto - padAbajo + HOLGURA_ABAJO_EJE_X;
+  return y + ALTO_ETIQUETA <= limiteInferior ? "abajo" : "arriba";
+}
+
 export type PeriodoTorta = "este_mes" | "este_anio" | "anio_anterior" | "ultimos_12_meses" | "todo";
 
 /**

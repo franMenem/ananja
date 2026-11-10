@@ -4,6 +4,9 @@ import {
   aniosDisponibles,
   formatCentavosCompacto,
   formatCentavosEje,
+  ladoEtiqueta,
+  mesesConEtiqueta,
+  mesesEjeX,
   rangoPeriodo,
   resumenBotellasPorPresentacion,
   seleccionInicial,
@@ -334,5 +337,47 @@ describe("PALETA_GRAFICOS", () => {
       expect(color).toMatch(/^#[0-9A-F]{6}$/);
     }
     expect(new Set(PALETA_GRAFICOS).size).toBe(10);
+  });
+});
+
+describe("mesesEjeX", () => {
+  it("ancho: los 12 meses", () => {
+    expect(mesesEjeX(false)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  });
+  it("angosto: uno sí, uno no desde enero", () => {
+    expect(mesesEjeX(true)).toEqual([0, 2, 4, 6, 8, 10]);
+  });
+});
+
+describe("mesesConEtiqueta", () => {
+  const v = [0, 150, 500, 320, 780, 420, 0, 0, 0, 0, 0, 0];
+  it("ancho: todos los meses con venta", () => {
+    expect(mesesConEtiqueta(v, false)).toEqual([1, 2, 3, 4, 5]);
+  });
+  it("angosto: máximo y último con dato", () => {
+    expect(mesesConEtiqueta([0, 100, 0, 0, 500, 0, 0, 0, 0, 300, 0, 0], true)).toEqual([4, 9]);
+  });
+  it("angosto: máximo pegado al último deja solo el máximo", () => {
+    expect(mesesConEtiqueta(v, true)).toEqual([4]);
+  });
+  it("angosto: un solo mes o ninguno", () => {
+    expect(mesesConEtiqueta([0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0], true)).toEqual([5]);
+    expect(mesesConEtiqueta(new Array(12).fill(0), true)).toEqual([]);
+  });
+});
+
+describe("ladoEtiqueta", () => {
+  const max = 1000;
+  it("pico o tramo: arriba", () => {
+    expect(ladoEtiqueta([0, 500, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0], 1, max, 180)).toBe("arriba");
+  });
+  it("valle alto con lugar abajo: abajo", () => {
+    expect(ladoEtiqueta([0, 900, 500, 900, 0, 0, 0, 0, 0, 0, 0, 0], 2, max, 340)).toBe("abajo");
+  });
+  it("valle pegado al 0: arriba (abajo pisaría los meses)", () => {
+    expect(ladoEtiqueta([0, 900, 10, 900, 0, 0, 0, 0, 0, 0, 0, 0], 2, max, 180)).toBe("arriba");
+  });
+  it("extremos nunca son valle", () => {
+    expect(ladoEtiqueta([5, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0, max, 180)).toBe("arriba");
   });
 });
