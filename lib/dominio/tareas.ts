@@ -366,6 +366,12 @@ export interface LoteCostosInput {
  *    siempre hay transporte).
  * Devuelve lo que falta, en texto ("aceite", "envase 500 ml", "transporte").
  * Los pedidos viejos se separan antes con `esPedidoViejoSinCostos`.
+ *
+ * Misma regla que la vista SQL `v_lote_costos_completos` (0044, una fila por
+ * lote y producto; usada por `lote_costos_completos()`): acá se evalúa el lote
+ * entero. Un lote sin items daría "completo" acá y sin filas allá. Si la vista
+ * cambia, revisar esta función; `tests/costos-completos-vista-vs-ts.test.ts`
+ * documenta los casos y avisa si una migración la redefine.
  */
 export function faltantesCostosLote(
   lote: LoteCostosInput,
