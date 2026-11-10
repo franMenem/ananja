@@ -99,26 +99,41 @@ export function ticksEjeY(maxCentavos: number, intervalos = 3): number[] {
 }
 
 /**
- * Formatea centavos como un monto compacto en pesos argentinos, para el
- * eje Y y las etiquetas de punto de `GraficoLineas` (donde `formatCentavos`
- * completo — "$ 1.234.567,00" — no entra ni hace falta esa precisión):
- * "$ 0", "$ 350" (menos de mil), "$ 500 mil", "$ 1 M", "$ 1,5 M". Un
- * decimal como máximo, y solo si no es entero ("$ 1 M", no "$ 1,0 M").
+ * Número compacto SIN signo de pesos, para el eje Y de `GraficoLineas` (la
+ * etiqueta corta es lo que entra en la columna del eje, y el "$" sobra: el
+ * título del gráfico ya dice que son pesos): "0", "350", "50 mil",
+ * "12,5 mil", "1 M", "1,2 M". Un decimal como máximo, y solo si no es
+ * entero ("1 M", no "1,0 M"), con coma decimal (es-AR). Los negativos
+ * llevan "-" adelante. El redondeo nunca deja una etiqueta tipo
+ * "1000 mil": 999.999 pesos se muestra "1 M".
  */
-export function formatCentavosCompacto(centavos: number): string {
+export function formatCentavosEje(centavos: number): string {
   const pesos = centavos / 100;
   const abs = Math.abs(pesos);
   const signo = pesos < 0 ? "-" : "";
 
-  if (abs === 0) return "$ 0";
-  if (abs >= 1_000_000) return `${signo}$ ${conUnDecimal(abs / 1_000_000)} M`;
-  if (abs >= 1_000) return `${signo}$ ${conUnDecimal(abs / 1_000)} mil`;
-  return `${signo}$ ${Math.round(abs).toLocaleString("es-AR")}`;
+  if (abs === 0) return "0";
+  if (abs >= 1_000_000 || Math.round(abs / 100) / 10 >= 1000) {
+    return `${signo}${conUnDecimal(abs / 1_000_000)} M`;
+  }
+  if (abs >= 1_000) return `${signo}${conUnDecimal(abs / 1_000)} mil`;
+  return `${signo}${Math.round(abs).toLocaleString("es-AR")}`;
+}
+
+/**
+ * Lo mismo con el signo de pesos adelante, para las etiquetas de punto y los
+ * chips de `GraficoLineas` (donde `formatCentavos` completo —
+ * "$ 1.234.567,00"— no entra ni hace falta esa precisión): "$ 0", "$ 350",
+ * "$ 500 mil", "$ 1 M", "$ 1,5 M".
+ */
+export function formatCentavosCompacto(centavos: number): string {
+  const cuerpo = formatCentavosEje(centavos);
+  return cuerpo.startsWith("-") ? `-$ ${cuerpo.slice(1)}` : `$ ${cuerpo}`;
 }
 
 /** "1" (no "1,0") o "3,4" — coma como separador decimal (es-AR), un solo
  * decimal, omitido cuando el redondeo da un entero. Interno de
- * `formatCentavosCompacto`. */
+ * `formatCentavosEje`. */
 function conUnDecimal(valor: number): string {
   const redondeado = Math.round(valor * 10) / 10;
   return Number.isInteger(redondeado) ? String(redondeado) : redondeado.toFixed(1).replace(".", ",");

@@ -3,7 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 
 import { NOMBRES_MES, NOMBRES_MES_ABREV } from "@/lib/fechas";
-import { formatCentavosCompacto, seleccionInicial, ticksEjeY } from "@/lib/dominio/graficos";
+import { formatCentavosCompacto, formatCentavosEje, seleccionInicial, ticksEjeY } from "@/lib/dominio/graficos";
 import { formatCentavos } from "@/lib/money";
 
 export type SerieLinea = {
@@ -238,6 +238,9 @@ export function GraficoLineas({
   const valorMaximo = Math.max(0, ...seriesActivas.flatMap((s) => s.valores));
   const ticks = ticksEjeY(valorMaximo, INTERVALOS_EJE_Y);
   const graphMax = ticks[ticks.length - 1];
+  const etiquetaEjeMasLarga = ticks
+    .map(formatCentavosEje)
+    .reduce((a, b) => (b.length > a.length ? b : a), "");
   const enElTope = activos.size >= MAX_ACTIVOS;
   const haySerieAnterior = seriesActivas.some((s) => s.etiqueta !== etiquetaAnioActual);
 
@@ -352,24 +355,29 @@ export function GraficoLineas({
       {seriesActivas.length === 0 ? (
         <p className="py-6 text-[16px] text-text-muted">Elegí al menos un año.</p>
       ) : (
-        <div className="flex gap-1">
-          {/* Columna fija del eje Y — ancho real en px, nunca escala con el
-              `viewBox` (ver comentario grande del componente). Sin alto
-              propio (sus hijos son todos `absolute`): el flex del
-              contenedor la estira (`align-items: stretch`, default) hasta
-              igualar el alto del área de trazado de al lado, así los `top`
-              en % de acá y de allá miden sobre el mismo alto real. */}
-          <div className="relative w-10 shrink-0">
+        <div className="flex gap-2">
+          {/* Columna del eje Y — su ancho sale de la etiqueta más larga (un
+              espaciador invisible con ese texto, así mide lo que realmente
+              ocupa en la tipografía, sin números mágicos) y nunca escala con
+              el `viewBox`. Las etiquetas van pegadas a la derecha de la
+              columna; el `gap-2` del contenedor deja aire contra el área de
+              trazado. Sin alto propio (sus hijos son `absolute`): el flex la
+              estira hasta el alto del área de trazado de al lado, así los
+              `top` en % de acá y de allá miden sobre el mismo alto real. */}
+          <div className="relative shrink-0 text-[13px] tabular-nums" aria-hidden="true">
+            <span className="invisible block h-0 overflow-hidden whitespace-nowrap">
+              {etiquetaEjeMasLarga}
+            </span>
             {ticks.map((tick) => (
               <span
                 key={tick}
-                className="absolute right-0 text-[13px] whitespace-nowrap text-text-muted tabular-nums"
+                className="absolute right-0 whitespace-nowrap text-text-muted"
                 style={{
                   top: `${pctY(tick, graphMax, alto)}%`,
                   transform: "translateY(-50%)",
                 }}
               >
-                {formatCentavosCompacto(tick)}
+                {formatCentavosEje(tick)}
               </span>
             ))}
           </div>

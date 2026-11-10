@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   aniosDisponibles,
   formatCentavosCompacto,
+  formatCentavosEje,
   rangoPeriodo,
   resumenBotellasPorPresentacion,
   seleccionInicial,
@@ -153,6 +154,36 @@ describe("formatCentavosCompacto", () => {
 
   it("negativo: signo antes del '$'", () => {
     expect(formatCentavosCompacto(-1_500_000_00)).toBe("-$ 1,5 M");
+  });
+});
+
+describe("formatCentavosCompacto: borde del redondeo", () => {
+  it("999.999 pesos no queda como '1000 mil'", () => {
+    expect(formatCentavosCompacto(999_999_00)).toBe("$ 1 M");
+  });
+});
+
+describe("formatCentavosEje", () => {
+  it.each([
+    [0, "0"],
+    [999_00, "999"],
+    [1_000_00, "1 mil"],
+    [12_500_00, "12,5 mil"],
+    [50_000_00, "50 mil"],
+    [100_000_00, "100 mil"],
+    [999_999_00, "1 M"],
+    [1_000_000_00, "1 M"],
+    [1_250_000_00, "1,3 M"],
+    [1_200_000_00, "1,2 M"],
+    [12_000_000_00, "12 M"],
+    [-1_000_00, "-1 mil"],
+    [-1_200_000_00, "-1,2 M"],
+  ])("%i centavos -> %s", (centavos, esperado) => {
+    expect(formatCentavosEje(centavos)).toBe(esperado);
+  });
+
+  it("no lleva signo de pesos", () => {
+    expect(formatCentavosEje(500_000_00)).not.toContain("$");
   });
 });
 
