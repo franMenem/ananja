@@ -465,6 +465,12 @@ describe("efectivo solo vía encargado", () => {
     expect(validarCarga(estado(), pago("encargado"), textos)).toEqual([]);
   });
 
+  it("traduce PAGO_PROPIO del RPC (base sin migrar 0084) sin caer al genérico", () => {
+    const err = traducirErrorCarga("pago:PAGO_PROPIO", null, textos);
+    expect(err.mensaje).toContain("Pago: No podés registrarte un pago a vos mismo");
+    expect(err.mensaje).not.toContain("No se pudo guardar");
+  });
+
   it("traduce MEDIO_INVALIDO del RPC", () => {
     expect(traducirErrorCarga("pago:MEDIO_INVALIDO", null, textos).mensaje).toBe(
       "Pago: Si la plata fue directo a la cuenta no puede ser Efectivo: elegí Mercado Pago o Banco.",
