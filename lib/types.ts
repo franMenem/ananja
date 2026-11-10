@@ -5452,11 +5452,13 @@ export type Database = {
         Returns: Json
       }
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
+      eliminar_ajuste_insumo: { Args: { p_movimiento_id: string }; Returns: Json }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
       eliminar_comprobante: {
         Args: { p_comprobante_id: string }
         Returns: Json
       }
+      eliminar_deuda: { Args: { p_deuda_id: string }; Returns: Json }
       eliminar_deposito_cuenta: {
         Args: { p_deposito_id: string }
         Returns: Json
@@ -5471,6 +5473,10 @@ export type Database = {
         Returns: Json
       }
       eliminar_pago_deuda: { Args: { p_pago_id: string }; Returns: Json }
+      eliminar_transferencia_caja: {
+        Args: { p_transferencia_id: string }
+        Returns: Json
+      }
       eliminar_venta_revendedor: { Args: { p_venta_id: string }; Returns: Json }
       entrega_items_costos: {
         Args: never
@@ -5661,6 +5667,7 @@ export type Database = {
       }
       puede_revender: { Args: never; Returns: boolean }
       quitar_comprobante_gasto: { Args: { p_gasto_id: string }; Returns: Json }
+      reabrir_deuda: { Args: { p_deuda_id: string }; Returns: Json }
       rechazar_deposito_informado: {
         Args: { p_deposito_informado_id: string; p_motivo: string }
         Returns: Json
