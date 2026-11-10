@@ -1,6 +1,7 @@
 import { FeriaMiVista } from "@/components/mi/feria-vista";
 import { VolverLink } from "@/components/volver-link";
 import { cargarFeriaMi } from "@/lib/data/ferias-mi";
+import { hoyISO } from "@/lib/fechas";
 import { sesionActual } from "@/lib/sesion-actual";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,7 @@ export default async function MiFeriaPage() {
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5">
       <VolverLink href="/mi" label="inicio" hover={false} corto />
-      {error ? <p className="text-[16px] text-accent">{error}</p> : <FeriaMiVista feria={data?.datos ?? null} />}
+      {error ? <p className="text-[16px] text-accent">{error}</p> : <FeriaMiVista feria={data?.datos ?? null} hoy={hoyISO()} />}
     </div>
   );
 }

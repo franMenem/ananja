@@ -1,13 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
 import { AuthShell } from "@/components/auth-shell";
 import { BotonAccion } from "@/components/boton-accion";
+import { useCerrarSesion } from "@/components/auth/usar-cerrar-sesion";
 import { NEGOCIO } from "@/lib/negocio";
-import { createClient } from "@/lib/supabase/client";
-import { olvidarReenlacePush } from "@/lib/push-client";
 
 type SinAccesoContentProps = {
   /** `true` si el usuario tiene fila con `rol = 'pendiente'` (alta
@@ -20,20 +16,10 @@ type SinAccesoContentProps = {
 /**
  * Contenido de `/sin-acceso` — separado de la página (server component,
  * `app/(auth)/sin-acceso/page.tsx`) porque el botón "Cerrar sesión"
- * necesita `useState`/`useRouter`/el cliente de Supabase del browser.
+ * necesita el cliente de Supabase del browser (vía `useCerrarSesion`).
  */
 export function SinAccesoContent({ pendiente }: SinAccesoContentProps) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  async function handleCerrarSesion() {
-    setLoading(true);
-    const supabase = createClient();
-    olvidarReenlacePush();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
+  const { cerrarSesion, saliendo } = useCerrarSesion();
 
   return (
     <AuthShell
@@ -53,10 +39,10 @@ export function SinAccesoContent({ pendiente }: SinAccesoContentProps) {
             : `Tu usuario está desactivado. Hablá con ${NEGOCIO.nombre}.`}
         </p>
         <BotonAccion
-          cargando={loading}
+          cargando={saliendo}
           textoCargando="Cerrando sesión…"
           type="button"
-          onClick={() => void handleCerrarSesion()}
+          onClick={() => void cerrarSesion()}
           className="mt-1 flex min-h-[54px] items-center justify-center bg-primary text-[16px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-45"
         >
           Cerrar sesión

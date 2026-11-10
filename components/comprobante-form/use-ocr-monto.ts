@@ -35,7 +35,6 @@ export type UseOcrMontoResult = {
 export function useOcrMonto(montoCentavosInicial: number | undefined): UseOcrMontoResult {
   const [ocrEstado, setOcrEstado] = useState<EstadoOcr>("no_intentado");
   const [ocrMontoCentavos, setOcrMontoCentavos] = useState<number | null>(null);
-  const [montoAutocompletado, setMontoAutocompletado] = useState(false);
   const montoTocadoRef = useRef(false);
   const ocrRequestSeqRef = useRef(0);
 
@@ -78,7 +77,6 @@ export function useOcrMonto(montoCentavosInicial: number | undefined): UseOcrMon
       if (puedeAutocompletar) {
         setOcrMontoCentavos(data.monto_centavos);
         setMontoInput(formatMontoDisplay(data.monto_centavos));
-        setMontoAutocompletado(true);
         setOcrEstado("propuesto");
       }
       // Si el campo ya tenía un valor o el usuario lo tocó mientras
@@ -94,7 +92,6 @@ export function useOcrMonto(montoCentavosInicial: number | undefined): UseOcrMon
   function handleMontoInputChange(value: string) {
     montoTocadoRef.current = true;
     setMontoInput(value);
-    setMontoAutocompletado(false);
     if (ocrEstado === "propuesto") {
       setOcrEstado("corregido");
     }
@@ -103,11 +100,14 @@ export function useOcrMonto(montoCentavosInicial: number | undefined): UseOcrMon
   function prepararNuevoArchivo(): number {
     // Nuevo archivo: cualquier lectura OCR previa queda obsoleta.
     montoTocadoRef.current = false;
-    setMontoAutocompletado(false);
     setOcrEstado("no_intentado");
     setOcrMontoCentavos(null);
     return ++ocrRequestSeqRef.current;
   }
+
+  // Derivado: el monto está autocompletado exactamente mientras el OCR lo
+  // propone (al tocar el campo pasa a "corregido"; con un archivo nuevo, a "no_intentado").
+  const montoAutocompletado = ocrEstado === "propuesto";
 
   return {
     montoInput,

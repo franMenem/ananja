@@ -45,7 +45,7 @@ export function textoDiferencia(diferenciaCentavos: number): string {
     : `Te sobran ${formatCentavos(diferenciaCentavos)}`;
 }
 
-/** Contenido de `/mi/feria` (los datos los arma la página). */
+/** Contenido de `/mi/feria` (los datos los arma la página). `hoy` lo pasa la página, calculado una sola vez; el valor por defecto es solo para tests. */
 export function FeriaMiVista({ feria, hoy = hoyISO() }: { feria: FeriaMiDatos | null; hoy?: string }) {
   if (!feria) {
     return (
