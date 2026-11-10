@@ -17,7 +17,7 @@ vi.mock("next/navigation", () => ({
 
 import { FeriaInicioTarjeta } from "@/components/mi/feria-inicio-tarjeta";
 import { FeriaMiVista, textoDiferencia, type FeriaMiDatos } from "@/components/mi/feria-vista";
-import { accionFeriaInicio } from "@/lib/dominio/feria-mi";
+import { accionFeriaInicio, sePuedeCerrarMiFeria } from "@/lib/dominio/feria-mi";
 import { puedeBorrarVentaRevendedor, puedeEditarVentaRevendedor } from "@/lib/dominio/ventas-revendedor";
 
 const pendiente: FeriaMiDatos = {
@@ -49,6 +49,32 @@ describe("FeriaMiVista", () => {
     expect(html).toContain("15.000");
     expect(html).toContain('href="/mi/feria/cerrar"');
     expect(html.toLowerCase()).not.toContain("lote");
+  });
+
+  it("pendiente con feria futura: no hay botón de cerrar y se avisa", () => {
+    const html = renderToStaticMarkup(<FeriaMiVista feria={{ ...pendiente, fecha: "2026-11-20" }} hoy="2026-11-10" />);
+    expect(html).not.toContain('href="/mi/feria/cerrar"');
+    expect(html).not.toContain("Cerrar mi feria");
+    expect(html).toContain("Vas a poder cerrar tu feria el día de la feria.");
+  });
+
+  it("pendiente el día de la feria: sí hay botón de cerrar", () => {
+    const html = renderToStaticMarkup(<FeriaMiVista feria={{ ...pendiente, fecha: "2026-11-10" }} hoy="2026-11-10" />);
+    expect(html).toContain('href="/mi/feria/cerrar"');
+    expect(html).not.toContain("Vas a poder cerrar");
+  });
+
+  it("sePuedeCerrarMiFeria: pasada, hoy, futura y ya cerrada", () => {
+    expect(sePuedeCerrarMiFeria("pendiente", "2026-11-09", "2026-11-10")).toBe(true);
+    expect(sePuedeCerrarMiFeria(null, "2026-11-10", "2026-11-10")).toBe(true);
+    expect(sePuedeCerrarMiFeria("pendiente", "2026-11-11", "2026-11-10")).toBe(false);
+    expect(sePuedeCerrarMiFeria("cerrada", "2026-11-09", "2026-11-10")).toBe(false);
+  });
+
+  it("accionFeriaInicio sigue igual", () => {
+    expect(accionFeriaInicio("pendiente", "2026-11-10", "2026-11-10")).toBe("cerrar");
+    expect(accionFeriaInicio("pendiente", "2026-11-11", "2026-11-10")).toBe("ver");
+    expect(accionFeriaInicio("cerrada", "2026-11-09", "2026-11-10")).toBe("cerrada");
   });
 
   it("cerrada: resumen, plata por medio, diferencia y aviso de reabrir", () => {

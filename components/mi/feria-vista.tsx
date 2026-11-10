@@ -5,8 +5,8 @@ import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { diferenciaPlata } from "@/lib/dominio/feria";
-import { textoDegustacionMi } from "@/lib/dominio/feria-mi";
-import { formatFecha } from "@/lib/fechas";
+import { sePuedeCerrarMiFeria, textoDegustacionMi } from "@/lib/dominio/feria-mi";
+import { formatFecha, hoyISO } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { envase } from "@/lib/negocio";
 
@@ -46,7 +46,7 @@ export function textoDiferencia(diferenciaCentavos: number): string {
 }
 
 /** Contenido de `/mi/feria` (los datos los arma la página). */
-export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
+export function FeriaMiVista({ feria, hoy = hoyISO() }: { feria: FeriaMiDatos | null; hoy?: string }) {
   if (!feria) {
     return (
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5 pb-8">
@@ -111,11 +111,14 @@ export function FeriaMiVista({ feria }: { feria: FeriaMiDatos | null }) {
               </div>
             )}
           </Tarjeta>
-          {productos.length > 0 && (
-            <LinkBoton href="/mi/feria/cerrar" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
-              Cerrar mi feria
-            </LinkBoton>
-          )}
+          {productos.length > 0 &&
+            (sePuedeCerrarMiFeria(null, feria.fecha, hoy) ? (
+              <LinkBoton href="/mi/feria/cerrar" className={`${BOTON_PRIMARIO} flex w-full px-4`}>
+                Cerrar mi feria
+              </LinkBoton>
+            ) : (
+              <p className="text-[16px] text-text-muted">Vas a poder cerrar tu feria el día de la feria.</p>
+            ))}
         </>
       ) : (
         <>

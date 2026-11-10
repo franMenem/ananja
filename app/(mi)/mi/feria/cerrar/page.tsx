@@ -2,20 +2,22 @@ import { redirect } from "next/navigation";
 
 import { CierreFeriaForm, TEXTOS_CIERRE_FERIA_MI } from "@/components/ferias/cierre-feria-form";
 import { TituloFormularioEscritorio } from "@/components/mi/titulo-formulario";
+import { sePuedeCerrarMiFeria } from "@/lib/dominio/feria-mi";
 import { cargarFeriaMi } from "@/lib/data/ferias-mi";
+import { hoyISO } from "@/lib/fechas";
 import { sesionActual } from "@/lib/sesion-actual";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 /** `/mi/feria/cerrar` — la revendedora cierra su parte de la feria: cuántas devuelve, cuántas se
- * usaron para degustar y cuánta plata juntó. Si no hay feria o ya cerró, vuelve a `/mi/feria`. */
+ * usaron para degustar y cuánta plata juntó. Si no hay feria, ya cerró o la feria es futura, vuelve a `/mi/feria`. */
 export default async function CerrarFeriaPage() {
   const supabase = await createClient();
   const { vendedor } = await sesionActual();
   const { data } = vendedor ? await cargarFeriaMi(supabase, vendedor.id) : { data: null };
 
-  if (!data || data.datos.cerrada) redirect("/mi/feria");
+  if (!data || data.datos.cerrada || !sePuedeCerrarMiFeria(null, data.datos.fecha, hoyISO())) redirect("/mi/feria");
 
   const productos = data.datos.productos
     .filter((p) => p.entregadas > 0 || p.degustadasCarga > 0)
