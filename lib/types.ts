@@ -5311,6 +5311,12 @@ export type Database = {
           id: string
           nombre: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "categorias_gasto"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       crear_cliente: {
         Args: {
@@ -5330,6 +5336,12 @@ export type Database = {
           nota: string | null
           telefono: string | null
           updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "clientes"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       crear_comprobante: {
@@ -5452,22 +5464,22 @@ export type Database = {
         Returns: Json
       }
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
-      eliminar_ajuste_insumo: { Args: { p_movimiento_id: string }; Returns: Json }
+      eliminar_ajuste_insumo: {
+        Args: { p_movimiento_id: string }
+        Returns: Json
+      }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
       eliminar_comprobante: {
         Args: { p_comprobante_id: string }
         Returns: Json
       }
-      eliminar_deuda: { Args: { p_deuda_id: string }; Returns: Json }
       eliminar_deposito_cuenta: {
         Args: { p_deposito_id: string }
         Returns: Json
       }
+      eliminar_deuda: { Args: { p_deuda_id: string }; Returns: Json }
       eliminar_gasto: { Args: { p_gasto_id: string }; Returns: Json }
-      eliminar_material: {
-        Args: { p_material_id: string }
-        Returns: Json
-      }
+      eliminar_material: { Args: { p_material_id: string }; Returns: Json }
       eliminar_movimiento_stock: {
         Args: { p_movimiento_id: string }
         Returns: Json
@@ -5857,10 +5869,7 @@ export type Database = {
           rendicion_id: string
         }[]
       }
-      reordenar_materiales: {
-        Args: { p_items: Json }
-        Returns: Json
-      }
+      reordenar_materiales: { Args: { p_items: Json }; Returns: Json }
       repartir_resto_mayor: {
         Args: { p_pesos: number[]; p_total: number }
         Returns: number[]
