@@ -6,11 +6,11 @@ import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
-import { Pastilla, type VariantePastilla } from "@/components/ui/pastilla";
+import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { botellasDeMovimiento, textoBotellas, type ItemLineaDeTiempo } from "@/lib/dominio/personas";
-import { ESTADO_PAGO_LABELS, type MovimientoPago } from "@/lib/dominio/pagos-revendedor";
+import { ESTADO_PAGO_LABELS, ESTADO_PAGO_VARIANTE, type MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { etiquetaEntregaAutomatica } from "@/lib/dominio/venta-directa";
 import { EVENTO_MOSTRAR_TODOS_MOVIMIENTOS } from "@/lib/eventos-cliente";
 import { formatDiaMes, formatFecha } from "@/lib/fechas";
@@ -19,12 +19,6 @@ import { NEGOCIO } from "@/lib/negocio";
 
 /** Cuántas líneas se ven de entrada antes de "Ver todo". */
 export const LINEAS_VISIBLES = 10;
-
-const VARIANTE_ESTADO: Record<MovimientoPago["estado"], VariantePastilla> = {
-  pendiente: "confirmar",
-  confirmado: "ok",
-  rechazado: "debe",
-};
 
 /** Una línea de la línea de tiempo: fecha a la izquierda, texto en el medio,
  * monto o cantidad a la derecha (en celular baja debajo del texto). */
@@ -74,7 +68,7 @@ function LineaPago({ pago }: { pago: MovimientoPago }) {
       derecha={
         <>
           <span className="text-[16px] font-semibold tabular-nums text-text">{formatCentavos(pago.montoCentavos)}</span>
-          <Pastilla variante={pago.origen === "rendicion" ? "neutra" : VARIANTE_ESTADO[pago.estado]}>
+          <Pastilla variante={pago.origen === "rendicion" ? "neutra" : ESTADO_PAGO_VARIANTE[pago.estado]}>
             {pago.origen === "rendicion" ? "Registrado por un admin" : ESTADO_PAGO_LABELS[pago.estado]}
           </Pastilla>
         </>

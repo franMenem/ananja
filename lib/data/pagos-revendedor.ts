@@ -9,7 +9,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { PagoRevendedorFuente } from "@/lib/dominio/pagos-revendedor";
+import { ESTADO_PAGO_PENDIENTE, type PagoRevendedorFuente } from "@/lib/dominio/pagos-revendedor";
 import type { Database } from "@/lib/types";
 
 type Supa = SupabaseClient<Database>;
@@ -57,7 +57,7 @@ export async function sumarPendientesPorVendedor(supabase: Supa): Promise<Map<st
   const { data, error } = await supabase
     .from("pagos_revendedor")
     .select("vendedor_id, monto_centavos")
-    .eq("estado", "pendiente");
+    .eq("estado", ESTADO_PAGO_PENDIENTE);
 
   const porVendedor = new Map<string, number>();
   if (error) {

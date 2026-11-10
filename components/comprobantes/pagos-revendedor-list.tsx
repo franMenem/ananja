@@ -9,6 +9,8 @@ import Link from "next/link";
 
 import { MiniaturaComprobante } from "@/components/comprobantes/miniatura-comprobante";
 import {
+  ESTADO_PAGO_VARIANTE,
+  FILTROS_ESTADO_PAGO,
   filtrarPagosPorEstado,
   textoEstadoPago,
   type FiltroEstadoPago,
@@ -23,13 +25,6 @@ export type PagoRevendedorItem = PagoRevendedorFila & {
   isPdf: boolean;
   signedUrl: string | null;
 };
-
-const FILTROS: { value: FiltroEstadoPago; label: string }[] = [
-  { value: "todos", label: "Todos" },
-  { value: "pendiente", label: "Pendientes" },
-  { value: "confirmado", label: "Confirmados" },
-  { value: "rechazado", label: "Rechazados" },
-];
 
 const MENSAJE_FILTRO_VACIO: Record<Exclude<FiltroEstadoPago, "todos">, string> = {
   pendiente: "No hay pagos pendientes de confirmar.",
@@ -71,7 +66,7 @@ export function PagosRevendedorList({ rows }: { rows: PagoRevendedorItem[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por estado">
-        {FILTROS.map((f) => (
+        {FILTROS_ESTADO_PAGO.map((f) => (
           <button
             key={f.value}
             type="button"
@@ -140,7 +135,7 @@ function FilaPago({ row }: { row: PagoRevendedorItem }) {
           <div className="flex flex-col items-end gap-1">
             <span>{formatCentavos(row.montoCentavos)}</span>
             <Pastilla
-              variante={row.estado === "confirmado" ? "ok" : row.estado === "pendiente" ? "confirmar" : "debe"}
+              variante={ESTADO_PAGO_VARIANTE[row.estado]}
             >
               {textoEstadoPago(row)}
             </Pastilla>

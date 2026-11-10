@@ -11,12 +11,13 @@ import { useAccionRapida } from "@/components/tareas/use-accion-rapida";
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
+import { MENSAJE_PAGO_YA_RESUELTO } from "@/lib/dominio/pagos-revendedor";
 import { createClient } from "@/lib/supabase/client";
 
 const ERRORES: Record<string, string> = {
   NO_AUTORIZADO: "Este pago no te toca confirmarlo a vos.",
   PAGO_NO_ENCONTRADO: "No encontramos este pago.",
-  PAGO_YA_RESUELTO: "Este pago ya fue confirmado o rechazado.",
+  PAGO_YA_RESUELTO: MENSAJE_PAGO_YA_RESUELTO,
   REVENDEDOR_INVALIDO: "Esta revendedora ya no está activa.",
   MEDIO_INVALIDO: "Ese medio de pago no corresponde para este destino.",
 };

@@ -4,6 +4,7 @@
  * vive en `app/(app)/tareas/page.tsx` y en `lib/dominio/tareas.ts` (puro).
  */
 
+import { ESTADO_PAGO_PENDIENTE } from "@/lib/dominio/pagos-revendedor";
 import { puedeSerEncargado } from "@/lib/rol-vendedor";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -453,7 +454,7 @@ async function listarPagosPorConfirmar(supabase: Supa): Promise<PagoPorConfirmar
     .select(
       "id, vendedor_id, monto_centavos, medio_pago, fecha, created_at, destinatario_id, imagen_path, vendedor:vendedores!pagos_revendedor_vendedor_id_fkey(nombre), destinatario:vendedores!pagos_revendedor_destinatario_id_fkey(nombre, activo, rol)",
     )
-    .eq("estado", "pendiente");
+    .eq("estado", ESTADO_PAGO_PENDIENTE);
 
   if (error) {
     console.error("listarPagosPorConfirmar", error);

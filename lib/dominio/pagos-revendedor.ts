@@ -163,6 +163,35 @@ export const ESTADO_PAGO_LABELS: Record<EstadoPago, string> = {
   rechazado: "Rechazado",
 };
 
+/** Valor de `estado` de un pago recién informado (para `.eq("estado", ...)`). */
+export const ESTADO_PAGO_PENDIENTE = "pendiente" satisfies EstadoPago;
+
+/**
+ * Color de la pastilla de cada estado (son las variantes de
+ * `components/ui/pastilla.tsx`). ÚNICA tabla de presentación: las tres
+ * pantallas que muestran el estado de un pago la leen de acá.
+ */
+export const ESTADO_PAGO_VARIANTE: Record<EstadoPago, "confirmar" | "ok" | "debe"> = {
+  pendiente: "confirmar",
+  confirmado: "ok",
+  rechazado: "debe",
+};
+
+/**
+ * EXCEPCIÓN deliberada y única: el historial que ve la revendedora en `/mi`
+ * (`components/mi/historial-pagos.tsx`) dice "Por confirmar" donde el resto
+ * de la app dice "Pendiente de confirmar" ({@link ESTADO_PAGO_LABELS}). El
+ * dueño todavía no decidió cuál queda; cuando decida, borrar esta función y
+ * usar `ESTADO_PAGO_LABELS`.
+ */
+export function etiquetaEstadoPagoParaRevendedora(estado: EstadoPago): string {
+  return estado === "pendiente" ? "Por confirmar" : ESTADO_PAGO_LABELS[estado];
+}
+
+/** Mensajes de los códigos `PAGO_YA_RESUELTO` / `DEPOSITO_YA_RESUELTO` de las RPC de confirmación. */
+export const MENSAJE_PAGO_YA_RESUELTO = "Este pago ya fue confirmado o rechazado.";
+export const MENSAJE_DEPOSITO_YA_RESUELTO = "Este depósito ya fue confirmado o rechazado.";
+
 /** Días que se sigue mostrando en `/mi` el aviso de un pago rechazado. */
 export const DIAS_AVISO_PAGO_RECHAZADO = 15;
 
@@ -279,6 +308,14 @@ export function pagoRevendedorFila(p: PagoRevendedorFuente): PagoRevendedorFila 
 }
 
 export type FiltroEstadoPago = "todos" | EstadoPago;
+
+/** Opciones del filtro por estado de la lista de pagos, en orden. */
+export const FILTROS_ESTADO_PAGO: { value: FiltroEstadoPago; label: string }[] = [
+  { value: "todos", label: "Todos" },
+  { value: "pendiente", label: "Pendientes" },
+  { value: "confirmado", label: "Confirmados" },
+  { value: "rechazado", label: "Rechazados" },
+];
 
 /** Filtra la lista por estado; "todos" la devuelve entera. Conserva el orden. */
 export function filtrarPagosPorEstado<T extends Pick<PagoRevendedorFila, "estado">>(

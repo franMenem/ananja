@@ -11,12 +11,13 @@ import { useAccionRapida } from "@/components/tareas/use-accion-rapida";
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
+import { MENSAJE_DEPOSITO_YA_RESUELTO } from "@/lib/dominio/pagos-revendedor";
 import { createClient } from "@/lib/supabase/client";
 
 const ERRORES: Record<string, string> = {
   NO_AUTORIZADO: "No tenés permiso para esto.",
   DEPOSITO_NO_ENCONTRADO: "No encontramos este depósito.",
-  DEPOSITO_YA_RESUELTO: "Este depósito ya fue confirmado o rechazado.",
+  DEPOSITO_YA_RESUELTO: MENSAJE_DEPOSITO_YA_RESUELTO,
   TENEDOR_INVALIDO: "Esta persona ya no es un coordinador o admin activo.",
   MEDIO_INVALIDO: "Ese medio de pago no corresponde.",
   MONTO_INVALIDO: "Revisá el monto.",

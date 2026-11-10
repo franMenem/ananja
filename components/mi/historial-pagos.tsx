@@ -1,15 +1,13 @@
 import { Fila } from "@/components/ui/fila";
-import { Pastilla, type VariantePastilla } from "@/components/ui/pastilla";
+import { Pastilla } from "@/components/ui/pastilla";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
-import type { MovimientoPago } from "@/lib/dominio/pagos-revendedor";
-
-const ESTADO: Record<MovimientoPago["estado"], { variante: VariantePastilla; texto: string }> = {
-  pendiente: { variante: "confirmar", texto: "Por confirmar" },
-  confirmado: { variante: "ok", texto: "Confirmado" },
-  rechazado: { variante: "debe", texto: "Rechazado" },
-};
+import {
+  ESTADO_PAGO_VARIANTE,
+  etiquetaEstadoPagoParaRevendedora,
+  type MovimientoPago,
+} from "@/lib/dominio/pagos-revendedor";
 
 type HistorialPagosProps = {
   movimientos: MovimientoPago[];
@@ -33,7 +31,6 @@ export function HistorialPagos({ movimientos, limite, vacio }: HistorialPagosPro
   return (
     <div className="flex flex-col divide-y divide-line">
       {filas.map((m) => {
-        const estado = ESTADO[m.estado];
         return (
           <Fila
             key={m.id}
@@ -43,7 +40,7 @@ export function HistorialPagos({ movimientos, limite, vacio }: HistorialPagosPro
                 {m.origen === "rendicion" ? (
                   <Pastilla variante="neutra">Registrado por un admin</Pastilla>
                 ) : (
-                  <Pastilla variante={estado.variante}>{estado.texto}</Pastilla>
+                  <Pastilla variante={ESTADO_PAGO_VARIANTE[m.estado]}>{etiquetaEstadoPagoParaRevendedora(m.estado)}</Pastilla>
                 )}
                 {m.estado === "rechazado" && m.motivoRechazo && <span>Motivo: {m.motivoRechazo}</span>}
               </span>
