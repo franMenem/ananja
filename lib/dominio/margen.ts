@@ -2,7 +2,7 @@
  * Espejo puro (sin Supabase) de `supabase/migrations/0031_margen_ventas.sql`:
  * margen de venta por unidad (Ananja / vendedor) y atribución de costo FIFO
  * para ventas sin lote elegido. El resultado neto por feria
- * (`v_resultado_feria`) no tiene mirror acá — se lee tal cual de esa vista.
+ * (vista `v_resultado_feria`, retirada en la 0083) no tiene mirror acá.
  * Mismo criterio que `lib/costos-lote.ts`: estas funciones no leen la base,
  * solo reproducen la aritmética de las vistas para poder testearla con
  * fixtures. También tiene los helpers de presentación (formato, color,
@@ -396,8 +396,8 @@ export function calcularFilaMargen(input: FilaMargenInput, costo: CostoLotePorPr
 // ============================================================
 // Nota: el resultado por feria (margen de Ananja − gastos OPERATIVOS,
 // gastos de producción, unidades sin costo) ya viene agregado directo de
-// `v_resultado_feria` (0031_margen_ventas.sql § 5) — se lee tal cual, sin
-// recalcular nada acá.
+// `v_resultado_feria` (0031_margen_ventas.sql § 5; vista retirada en la 0083
+// junto con la feria vieja) — ya no existe, no se recalcula nada acá.
 // ============================================================
 
 // ============================================================
