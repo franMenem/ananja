@@ -22,6 +22,7 @@ import { formatFechaSinAnio, hoyISO } from "@/lib/fechas";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import { fusionarFilasDuplicadas, hayDescuadre } from "@/lib/dominio/lotes-split";
 import { formatMontoDisplay, parseMontoInput } from "@/lib/money";
+import { ERRORES_DEVOLUCION } from "@/lib/dominio/devolucion";
 import { envase } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/types";
@@ -34,6 +35,7 @@ const ERRORES_RPC: Record<string, string> = {
   COSTO_INVALIDO: `Revisá cuánto le cobrás por ${envase(1)}: tiene que ser mayor a cero.`,
   PRECIO_SUGERIDO_INVALIDO: "Revisá el precio de venta sugerido: tiene que ser mayor a cero.",
   ...ERRORES_FERIA_EN_VENTA_PROPIA,
+  ...ERRORES_DEVOLUCION,
 };
 
 /**

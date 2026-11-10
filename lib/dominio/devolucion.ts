@@ -110,3 +110,14 @@ export function primerExceso(
   }
   return null;
 }
+
+/**
+ * Mensajes de los controles de devolución de la base (migración 0080,
+ * `registrar_entrega_revendedor`): la pantalla ya manda siempre el pedido y
+ * limita por lo que hay en poder, así que estos solo aparecen si algo se
+ * desfasó (otra pantalla, un reintento, datos que cambiaron).
+ */
+export const ERRORES_DEVOLUCION: Record<string, string> = {
+  LOTE_REQUERIDO: "Falta elegir de qué pedido son las botellas que devuelve. Recargá la página y probá de nuevo.",
+  DEVOLUCION_EXCEDE_PEDIDO: "Está devolviendo más de las que tiene de ese pedido. Recargá la página y revisá las cantidades.",
+};
