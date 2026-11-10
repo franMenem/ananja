@@ -1,0 +1,84 @@
+-- 0089_revocar_escrituras_directas_2.sql
+--
+-- MIGRACIÓN B de la SEGUNDA TANDA. Revoca los permisos de escritura directa
+-- (REST) del rol `authenticated` (y `anon`, que no tiene ninguno) sobre las
+-- tablas que quedaron sin ningún uso directo en la app, porque ahora se
+-- escriben solo por las RPC de la 0088 (y por `guardar_suscripcion_push`, de
+-- la 0076, en el caso de push_subscriptions).
+--
+-- ORDEN DE DESPLIEGUE (obligatorio):
+--   1) aplicar 0088 (aditiva);
+--   2) desplegar el código que llama a esas RPC (commit "RPC de escrituras,
+--      segunda tanda");
+--   3) recién ENTONCES aplicar esta 0089. Si se aplica antes de que el código
+--      nuevo esté en producción, el código viejo (que escribe por REST) falla
+--      con "permission denied" en: nueva categoría de gasto, alta/edición/baja
+--      de clientes, alta/edición/baja/reordenado de material de venta, umbral
+--      mínimo de un producto y alta de suscripción push (camino de respaldo).
+--
+-- Qué se revoca (cada uno verificado contra los grants de producción y contra
+-- un grep de `.insert|update|upsert|delete(` en app/, components/ y lib/; el
+-- service role no depende de estos grants):
+--   categorias_gasto   insert, update -> crear_categoria_gasto (update: sin uso)
+--   clientes           insert, update, delete -> crear_cliente, editar_cliente,
+--                      cambiar_estado_cliente (delete: sin policy, nunca se usó)
+--   materiales_venta   insert, update, delete -> crear_material,
+--                      actualizar_material, eliminar_material,
+--                      reordenar_materiales
+--   productos          update (umbral_minimo, costo_centavos) ->
+--                      actualizar_umbral_producto; costo_centavos no tiene
+--                      ninguna escritura en la app
+--   push_subscriptions insert, delete -> guardar_suscripcion_push (0076); el
+--                      borrado de suscripciones vencidas (/api/push/send) usa
+--                      la service role. Además cierra un rodeo: un admin podía
+--                      insertar por REST un `endpoint` sin pasar por la
+--                      validación anti-SSRF de /api/push/subscribe.
+--   cajas              update (saldo_inicial_centavos) -> sin uso en la app
+--   vendedores         update (nombre) -> sin uso con sesión de usuario (alta y
+--                      rol de vendedores usan la service role)
+--
+-- Un `revoke ... on table` también quita los permisos por columna de esa
+-- tabla. `select` NO se toca (las vistas security_invoker y las lecturas lo
+-- necesitan). Las policies de escritura se dejan: sin grant no se evalúan.
+--
+-- Junto con la 0087, ninguna tabla de `public` queda con escritura directa del
+-- rol `authenticated` (verificado contra el catálogo de producción: las únicas
+-- tablas con algún INSERT/UPDATE/DELETE de `authenticated` eran las de la 0087
+-- y las de esta migración). Nota: `has_table_privilege` da false para los
+-- grants SOLO por columna (cajas, productos, vendedores, insumos), por eso la
+-- verificación de abajo incluye la consulta a `column_privileges`.
+--
+-- ── Verificación posterior (solo lectura) ────────────────────────────────
+--   select c.relname,
+--          has_table_privilege('authenticated', c.oid, 'INSERT') as i,
+--          has_table_privilege('authenticated', c.oid, 'UPDATE') as u,
+--          has_table_privilege('authenticated', c.oid, 'DELETE') as d
+--     from pg_class c
+--    where c.relnamespace = 'public'::regnamespace
+--      and c.relname in ('categorias_gasto','clientes','materiales_venta',
+--                        'productos','push_subscriptions','cajas','vendedores');
+--   -- esperado: todo false.
+--   select table_name, privilege_type, column_name
+--     from information_schema.column_privileges
+--    where table_schema = 'public' and grantee in ('authenticated','anon')
+--      and privilege_type in ('INSERT','UPDATE')
+--      and table_name in ('categorias_gasto','clientes','materiales_venta',
+--                         'productos','push_subscriptions','cajas','vendedores');
+--   -- esperado: 0 filas.
+--
+-- ── Rollback ─────────────────────────────────────────────────────────────
+--   grant insert, update on public.categorias_gasto to authenticated;
+--   grant insert, update, delete on public.clientes to authenticated;
+--   grant insert, update, delete on public.materiales_venta to authenticated;
+--   grant update (costo_centavos, umbral_minimo) on public.productos to authenticated;
+--   grant insert, delete on public.push_subscriptions to authenticated;
+--   grant update (saldo_inicial_centavos) on public.cajas to authenticated;
+--   grant update (nombre) on public.vendedores to authenticated;
+
+revoke insert, update on public.categorias_gasto from authenticated, anon;
+revoke insert, update, delete on public.clientes from authenticated, anon;
+revoke insert, update, delete on public.materiales_venta from authenticated, anon;
+revoke update on public.productos from authenticated, anon;
+revoke insert, delete on public.push_subscriptions from authenticated, anon;
+revoke update on public.cajas from authenticated, anon;
+revoke update on public.vendedores from authenticated, anon;
