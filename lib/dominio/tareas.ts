@@ -32,7 +32,7 @@ import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { diasEntre, formatFecha } from "@/lib/fechas";
 import { deudaSigueDebiendose } from "@/lib/dominio/deudas";
 import { etiquetaConceptoPago } from "@/lib/dominio/gastos";
-import { puedeResolverPagoRevendedor } from "@/lib/dominio/pagos-revendedor";
+import { avisoPagoDadoAOtro, puedeResolverPagoRevendedor } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos, formatMonto, parseMontoInput } from "@/lib/money";
 import { concordar, envase, formatPresentacion, NEGOCIO } from "@/lib/negocio";
 
@@ -66,6 +66,8 @@ export type AccionTarea =
       vendedorNombre: string;
       /** "A vos" / "A la cuenta de Ananja" / "A Laura (ya no está activa)". */
       destino: string;
+      /** Aviso si el pago se lo dieron a otra persona (la plata queda en sus manos), si no `null`. */
+      avisoDestinatario: string | null;
       imagenPath: string | null;
       /** Signed URL del comprobante — la completa la página (server). */
       comprobanteUrl?: string | null;
@@ -465,17 +467,10 @@ export function agruparPedidosPorPagar(
 
 function tareasPagos(pagos: PagoPorConfirmarTarea[], miVendedorId: string | null, hoy: string): Tarea[] {
   return pagos
-    .filter((p) =>
-      // Quién puede resolverlo: ver `puedeResolverPagoRevendedor` (espejo de
-      // las RPC `confirmar_pago_revendedor`/`rechazar_pago_revendedor`).
-      puedeResolverPagoRevendedor({
-        pagoVendedorId: p.vendedor_id,
-        destinatarioId: p.destinatario_id,
-        destinatarioPuedeSerEncargado: p.destinatario_activo,
-        destinatarioEsCoordinador: p.destinatario_es_coordinador,
-        miVendedorId,
-      }),
-    )
+    // Quién puede resolverlo: ver `puedeResolverPagoRevendedor` (espejo de
+    // las RPC `confirmar_pago_revendedor`/`rechazar_pago_revendedor`, 0093):
+    // cualquier admin, así que la tarea le aparece a todos.
+    .filter(() => puedeResolverPagoRevendedor())
     .map((p) => {
       const dias = diasEntre(p.informado_el, hoy);
       const destino =
@@ -504,6 +499,12 @@ function tareasPagos(pagos: PagoPorConfirmarTarea[], miVendedorId: string | null
           fecha: p.fecha,
           vendedorNombre: p.vendedor_nombre,
           destino,
+          avisoDestinatario: avisoPagoDadoAOtro({
+            destinatarioId: p.destinatario_id,
+            destinatarioNombre: p.destinatario_nombre,
+            destinatarioPuedeSerEncargado: p.destinatario_activo,
+            miVendedorId,
+          }),
           imagenPath: p.imagen_path,
         },
       };

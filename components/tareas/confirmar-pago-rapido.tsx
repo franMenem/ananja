@@ -15,7 +15,7 @@ import { MENSAJE_PAGO_YA_RESUELTO } from "@/lib/dominio/pagos-revendedor";
 import { createClient } from "@/lib/supabase/client";
 
 const ERRORES: Record<string, string> = {
-  NO_AUTORIZADO: "Este pago no te toca confirmarlo a vos.",
+  NO_AUTORIZADO: "No se pudo confirmar este pago. Probá de nuevo en un rato.",
   PAGO_NO_ENCONTRADO: "No encontramos este pago.",
   PAGO_YA_RESUELTO: MENSAJE_PAGO_YA_RESUELTO,
   REVENDEDOR_INVALIDO: "Esta revendedora ya no está activa.",
@@ -29,6 +29,8 @@ type ConfirmarPagoRapidoProps = {
   fecha: string;
   vendedorNombre: string;
   destino: string;
+  /** Si el pago se lo dieron a otra persona: la plata queda en sus manos. */
+  avisoDestinatario: string | null;
   comprobanteUrl: string | null;
   tieneComprobante: boolean;
 };
@@ -87,6 +89,11 @@ export function ConfirmarPagoRapido(props: ConfirmarPagoRapidoProps) {
           </p>
         )}
       </div>
+      {props.avisoDestinatario && (
+        <p role="note" className="mt-3 text-[16px] font-semibold text-text">
+          {props.avisoDestinatario}
+        </p>
+      )}
       <p className="mt-3 text-[16px] text-text-muted">
         Confirmalo solo si la plata llegó. Al confirmar, se descuenta de lo que debe.
       </p>

@@ -243,40 +243,47 @@ export function pagoRechazadoParaAvisar(
 
 // --- Quién puede resolver un pago informado --------------------------------
 
-export interface ContextoResolverPago {
-  /** `pagos_revendedor.vendedor_id`: la revendedora (o admin) que informó el pago. */
-  pagoVendedorId: string;
+/**
+ * Espejo de `confirmar_pago_revendedor` / `rechazar_pago_revendedor`
+ * (la última definición es 0093_admin_resuelve_pagos_ajenos.sql): cualquier
+ * admin puede resolver cualquier pago pendiente, sea de quien sea y vaya a
+ * quien vaya (decisión del dueño, 2026-11-10: un admin puede todo). Antes
+ * (0055) un pago dado a OTRO admin activo solo lo resolvía ese admin o quien
+ * había pagado. Es el único lugar donde se decide, para la tarea y para la
+ * pantalla del pago; no mira que quien pregunta sea admin (el shell admin ya
+ * lo exige y la RPC también).
+ *
+ * Mientras la 0093 no esté aplicada en la base, la RPC sigue rechazando ese
+ * caso con `NO_AUTORIZADO`; las pantallas lo muestran como un mensaje
+ * genérico (no rompen).
+ */
+export function puedeResolverPagoRevendedor(): boolean {
+  return true;
+}
+
+export interface ContextoAvisoPagoAOtro {
   /** `pagos_revendedor.destinatario_id`: `null` = directo a la Cuenta Ananja. */
   destinatarioId: string | null;
+  destinatarioNombre: string | null;
   /** El destinatario existe y {@link puedeSerEncargado} (admin o coordinador ACTIVO). */
   destinatarioPuedeSerEncargado: boolean;
-  /** El destinatario es un coordinador (nunca puede resolver él mismo). */
-  destinatarioEsCoordinador: boolean;
   /** `vendedores.id` de quien mira, o `null` si no tiene fila. */
   miVendedorId: string | null;
 }
 
 /**
- * Espejo de `confirmar_pago_revendedor` / `rechazar_pago_revendedor`
- * (la última definición es 0055_coordinador.sql): un admin puede resolver el
- * pago salvo que el destinatario sea OTRO ADMIN ACTIVO y el pago no sea
- * propio. Es decir, SÍ puede si: es su propio pago, va a la Cuenta Ananja
- * (sin destinatario), el destinatario es él mismo, el destinatario es un
- * coordinador (no puede resolver nada él mismo, le toca a cualquier admin),
- * o el destinatario ya no es admin/coordinador activo.
- *
- * Es solo para decidir qué mostrar (tarea y pantalla de resolución): la
- * RPC vuelve a chequearlo y es la que manda. No mira que quien pregunta sea
- * admin (el shell admin ya lo exige y la RPC también).
+ * Aviso antes de confirmar un pago que le dieron a OTRA persona: la plata no
+ * pasa a quien confirma, queda en manos del destinatario (en
+ * `confirmar_pago_revendedor`, `tenedor_id` es el destinatario si es admin o
+ * coordinador activo). `null` si va a la Cuenta Ananja, es para quien mira o el
+ * destinatario ya no está activo (en ese caso la plata queda en manos de quien
+ * confirma y la explicación de la pantalla ya lo dice).
  */
-export function puedeResolverPagoRevendedor(c: ContextoResolverPago): boolean {
-  return (
-    (c.miVendedorId !== null && c.pagoVendedorId === c.miVendedorId) ||
-    c.destinatarioId === null ||
-    !c.destinatarioPuedeSerEncargado ||
-    c.destinatarioEsCoordinador ||
-    (c.miVendedorId !== null && c.destinatarioId === c.miVendedorId)
-  );
+export function avisoPagoDadoAOtro(c: ContextoAvisoPagoAOtro): string | null {
+  if (c.destinatarioId === null || !c.destinatarioPuedeSerEncargado) return null;
+  if (c.miVendedorId !== null && c.destinatarioId === c.miVendedorId) return null;
+  const nombre = c.destinatarioNombre ?? "su encargado";
+  return `Este pago se lo dieron a ${nombre}: al confirmarlo, la plata queda en manos de ${nombre}, no en las tuyas.`;
 }
 
 // --- Lista admin de pagos informados (`/comprobantes?tab=pagos`) ----------

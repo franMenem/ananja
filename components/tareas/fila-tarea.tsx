@@ -42,6 +42,7 @@ export function FilaTarea({ tarea, medioDeposito }: { tarea: Tarea; medioDeposit
             fecha={accion.fecha}
             vendedorNombre={accion.vendedorNombre}
             destino={accion.destino}
+            avisoDestinatario={accion.avisoDestinatario}
             comprobanteUrl={accion.comprobanteUrl ?? null}
             tieneComprobante={accion.imagenPath !== null}
           />

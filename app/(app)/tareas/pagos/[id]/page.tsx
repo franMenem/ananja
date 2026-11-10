@@ -5,7 +5,12 @@ import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFecha, formatFechaHora } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
-import { ESTADO_PAGO_LABELS, pagoEstado, puedeResolverPagoRevendedor } from "@/lib/dominio/pagos-revendedor";
+import {
+  ESTADO_PAGO_LABELS,
+  avisoPagoDadoAOtro,
+  pagoEstado,
+  puedeResolverPagoRevendedor,
+} from "@/lib/dominio/pagos-revendedor";
 import { sesionActual } from "@/lib/sesion-actual";
 import { getSignedUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
@@ -16,12 +21,10 @@ export const dynamic = "force-dynamic";
  * `/tareas/pagos/[id]` — un pago que informó una revendedora
  * (0040_revendedores_pagos_precios.sql § 3): monto, medio, fecha, a quién
  * se lo mandó, nota y comprobante; si le toca a quien mira, botones
- * Confirmar / Rechazar (con motivo). Solo lo resuelve el encargado
- * destinatario, o CUALQUIER admin si fue a la Cuenta Ananja, si ese
- * encargado ya no es admin/coordinador activo, o si es un coordinador
- * activo (0055_coordinador.sql: un coordinador nunca puede confirmar/
- * rechazar nada él mismo, así que "solo esa persona" no aplica) — la
- * misma regla la vuelve a chequear el RPC.
+ * Confirmar / Rechazar (con motivo). Lo resuelve CUALQUIER admin (0093,
+ * decisión del dueño 2026-11-10: un admin puede todo); si el pago se lo
+ * dieron a otra persona, avisa que al confirmar la plata queda en manos de
+ * ella. La misma regla la vuelve a chequear el RPC.
  */
 export default async function PagoRevendedorPage({
   params,
@@ -59,26 +62,18 @@ export default async function PagoRevendedorPage({
   // "ya no está activo" de alguien que sigue activo pero es coordinador).
   // `destinatarioEsCoordinador` es aparte porque cambia la AUTORIZACIÓN:
   // un coordinador nunca resuelve nada él mismo.
-  const destinatarioEsCoordinadorActivo = Boolean(
-    pago.destinatario?.activo && pago.destinatario.rol === "coordinador",
-  );
   const destinatarioActivo = puedeSerEncargado(pago.destinatario);
   const esParaMi = pago.destinatario_id !== null && pago.destinatario_id === yo?.id;
-  // Un admin puede resolver SU PROPIO pago (decisión de Fran, 2026-09-15,
-  // `0046_admin_pago_propio.sql`), aunque el destinatario informado sea
-  // otro admin activo — misma regla que el RPC. Un destinatario
-  // coordinador activo nunca restringe: cualquier admin puede resolverlo
-  // (mismo motivo, `confirmar_pago_revendedor`/`rechazar_pago_revendedor`,
-  // 0055).
-  const puedeResolver =
-    estado === "pendiente" &&
-    puedeResolverPagoRevendedor({
-      pagoVendedorId: pago.vendedor_id,
-      destinatarioId: pago.destinatario_id,
-      destinatarioPuedeSerEncargado: destinatarioActivo,
-      destinatarioEsCoordinador: destinatarioEsCoordinadorActivo,
-      miVendedorId: yo?.id ?? null,
-    });
+  // Cualquier admin puede resolver cualquier pago pendiente (0093, decisión
+  // del dueño 2026-11-10). Si el pago se lo dieron a otra persona, se avisa
+  // antes de confirmar que la plata queda en manos de ella.
+  const puedeResolver = estado === "pendiente" && puedeResolverPagoRevendedor();
+  const aviso = avisoPagoDadoAOtro({
+    destinatarioId: pago.destinatario_id,
+    destinatarioNombre: pago.destinatario?.nombre ?? null,
+    destinatarioPuedeSerEncargado: destinatarioActivo,
+    miVendedorId: yo?.id ?? null,
+  });
 
   const destino =
     pago.destinatario_id === null
@@ -149,15 +144,7 @@ export default async function PagoRevendedorPage({
         )}
       </div>
 
-      {puedeResolver ? (
-        <ResolverPago pagoId={pago.id} explicacion={explicacion} />
-      ) : (
-        estado === "pendiente" && (
-          <p className="text-[16px] text-text-muted">
-            Este pago lo confirma {pago.destinatario?.nombre ?? "su encargado"}.
-          </p>
-        )
-      )}
+      {puedeResolver && <ResolverPago pagoId={pago.id} explicacion={explicacion} aviso={aviso} />}
     </div>
   );
 }

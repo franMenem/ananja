@@ -30,7 +30,7 @@ Formato de cada ficha: qué es, dónde está la verdad en TS (`archivo` + `símb
 
 - TS: `lib/dominio/pagos-revendedor.ts` (`EstadoPago`, `ESTADO_PAGO_LABELS`, `ESTADO_PAGO_VARIANTE`, `ESTADO_PAGO_PENDIENTE`).
 - Base: tabla `pagos_revendedor` (`0040_revendedores_pagos_precios.sql`) con CHECK `pagos_revendedor_estado_coherente` (`0040_revendedores_pagos_precios.sql`). RPC `informar_pago_revendedor` (`0075_informar_pago_revendedor_path_seguro.sql`), `confirmar_pago_revendedor` (`0093_admin_resuelve_pagos_ajenos.sql`) y `rechazar_pago_revendedor` (`0093_admin_resuelve_pagos_ajenos.sql`).
-- Quién puede resolver (confirmar o rechazar) un pago lo decide solo `puedeResolverPagoRevendedor`, en `lib/dominio/pagos-revendedor.ts`; lo usan la tarea y el detalle del pago. `tests/estado-pago-check.test.ts` ata `EstadoPago` al CHECK de la base: falla si divergen.
+- Quién puede resolver (confirmar o rechazar) un pago lo decide solo `puedeResolverPagoRevendedor`, en `lib/dominio/pagos-revendedor.ts` (desde 0093 es cualquier admin); lo usan la tarea y el detalle del pago. `tests/estado-pago-check.test.ts` ata `EstadoPago` al CHECK de la base: falla si divergen.
 - Regla: colores, etiquetas y filtros salen de las constantes del dominio; no comparar `"pendiente"` a mano. El pendiente se muestra como "Por confirmar" en todas las pantallas (ficha, lista del admin, filtros, detalle en tareas y `/mi`).
 
 ## Aviso de depósito de una coordinadora (pendiente, confirmado, rechazado)

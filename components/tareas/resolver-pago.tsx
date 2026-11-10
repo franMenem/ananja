@@ -10,7 +10,7 @@ import { MENSAJE_PAGO_YA_RESUELTO } from "@/lib/dominio/pagos-revendedor";
 import { createClient } from "@/lib/supabase/client";
 
 const ERRORES: Record<string, string> = {
-  NO_AUTORIZADO: "Este pago no te toca confirmarlo a vos.",
+  NO_AUTORIZADO: "No se pudo resolver este pago. Probá de nuevo en un rato.",
   PAGO_NO_ENCONTRADO: "No encontramos este pago.",
   PAGO_YA_RESUELTO: MENSAJE_PAGO_YA_RESUELTO,
   REVENDEDOR_INVALIDO: "Esta revendedora ya no está activa.",
@@ -24,7 +24,16 @@ const ERRORES: Record<string, string> = {
  * (0040_revendedores_pagos_precios.sql). Rechazar pide motivo (la
  * revendedora lo ve en `/mi`).
  */
-export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicacion: string }) {
+export function ResolverPago({
+  pagoId,
+  explicacion,
+  aviso,
+}: {
+  pagoId: string;
+  explicacion: string;
+  /** Si el pago se lo dieron a otra persona: la plata queda en sus manos al confirmar. */
+  aviso?: string | null;
+}) {
   const router = useRouter();
   const [rechazando, setRechazando] = useState(false);
   const [motivo, setMotivo] = useState("");
@@ -62,6 +71,11 @@ export function ResolverPago({ pagoId, explicacion }: { pagoId: string; explicac
 
   return (
     <div className="flex flex-col gap-4">
+      {aviso && (
+        <p role="note" className="text-[16px] font-semibold text-text">
+          {aviso}
+        </p>
+      )}
       <p className="text-[16px] text-text-muted">{explicacion}</p>
 
       {rechazando && (

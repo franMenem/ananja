@@ -94,12 +94,25 @@ describe("confirmar pago de revendedora — a quién le toca y urgencia", () => 
     expect(tareas[0].accion).toMatchObject({ tipo: "confirmar_pago", pagoId: "p1", destino: "A vos" });
   });
 
-  it("no le toca a otro admin si el encargado está activo", () => {
+  it("le aparece a cualquier admin aunque el encargado destinatario sea otro admin activo (0093), con aviso de dónde queda la plata", () => {
     const tareas = calcularTareas({
       ...BASE,
       pagosPorConfirmar: [pago({ destinatario_id: "otro-admin", destinatario_nombre: "Laura" })],
     });
-    expect(tareas).toEqual([]);
+    expect(tareas).toHaveLength(1);
+    expect(tareas[0].accion).toMatchObject({
+      tipo: "confirmar_pago",
+      destino: "A Laura",
+      avisoDestinatario: expect.stringContaining("la plata queda en manos de Laura"),
+    });
+  });
+
+  it("no hay aviso si el pago es para quien mira o va a la cuenta", () => {
+    const tareas = calcularTareas({
+      ...BASE,
+      pagosPorConfirmar: [pago(), pago({ pago_id: "cuenta", destinatario_id: null, destinatario_nombre: null })],
+    });
+    expect(tareas.map((t) => (t.accion as { avisoDestinatario: string | null }).avisoDestinatario)).toEqual([null, null]);
   });
 
   it("le toca a cualquier admin si fue a la Cuenta Ananja o si el encargado ya no está activo", () => {
