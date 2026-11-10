@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { CerrarFeriaForm } from "@/components/mi/cerrar-feria-form";
+import { CierreFeriaForm, TEXTOS_CIERRE_FERIA_MI } from "@/components/ferias/cierre-feria-form";
 import { TituloFormularioEscritorio } from "@/components/mi/titulo-formulario";
 import { cargarFeriaMi } from "@/lib/data/ferias-mi";
 import { sesionActual } from "@/lib/sesion-actual";
@@ -31,7 +31,13 @@ export default async function CerrarFeriaPage() {
   return (
     <div className="mx-auto flex w-full max-w-[720px] flex-col gap-5">
       <TituloFormularioEscritorio pregunta="Contanos cuántas devolvés y cuántas usaste para degustar." />
-      <CerrarFeriaForm feriaId={data.feriaId} productos={productos} />
+      <CierreFeriaForm
+        feriaId={data.feriaId}
+        vendedorId={null}
+        productos={productos}
+        volverHref="/mi/feria"
+        textos={TEXTOS_CIERRE_FERIA_MI}
+      />
     </div>
   );
 }

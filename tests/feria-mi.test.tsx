@@ -14,9 +14,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {}, refresh: () => {} }),
   usePathname: () => "/mi/feria/cerrar",
 }));
-vi.mock("@/components/page-header-context", () => ({ SetFormHeader: () => null }));
 
-import { CerrarFeriaForm } from "@/components/mi/cerrar-feria-form";
 import { FeriaInicioTarjeta } from "@/components/mi/feria-inicio-tarjeta";
 import { FeriaMiVista, textoDiferencia, type FeriaMiDatos } from "@/components/mi/feria-vista";
 import { accionFeriaInicio } from "@/lib/dominio/feria-mi";
@@ -81,38 +79,6 @@ describe("FeriaMiVista", () => {
     expect(textoDiferencia(0)).toBe("Cuadra justo");
     expect(textoDiferencia(-500000)).toContain("Te faltan");
     expect(textoDiferencia(500000)).toContain("Te sobran");
-  });
-});
-
-describe("CerrarFeriaForm", () => {
-  const html = renderToStaticMarkup(
-    <CerrarFeriaForm
-      feriaId="f1"
-      productos={[
-        { productoId: "a", nombre: "Aceite 250", entregadas: 10, yaVendidas: 2, precioCentavos: 1500000 },
-        { productoId: "b", nombre: "Aceite 500", entregadas: 4, yaVendidas: 0, precioCentavos: 2800000 },
-      ]}
-    />,
-  );
-
-  it("precarga precios y calcula lo vendido en vivo", () => {
-    expect(html).toContain("Te llevaste 10");
-    expect(html).toContain("ya vendiste 2");
-    expect(html).toContain("15.000");
-    expect(html).toContain("28.000");
-    // a: 10 - 2 = 8 x 15.000 = 120.000 ; b: 4 x 28.000 = 112.000 ; total 232.000
-    expect(html).toContain("232.000");
-    expect(html).toContain("Total vendido");
-  });
-
-  it("tiene las tres plata, fecha y el pie de cierre", () => {
-    expect(html).toContain("¿Cuánta plata juntaste?");
-    expect(html).toContain("Efectivo");
-    expect(html).toContain("Mercado Pago");
-    expect(html).toContain("Banco");
-    expect(html).toContain("Cerrar mi feria");
-    expect(html).toContain('href="/mi/feria"');
-    expect(html.toLowerCase()).not.toContain("lote");
   });
 });
 

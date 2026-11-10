@@ -1,5 +1,5 @@
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
-import { CierreFeriaForm } from "@/components/ferias/cierre-feria-form";
+import { CierreFeriaForm, textosCierreFeriaAdmin } from "@/components/ferias/cierre-feria-form";
 import { VolverLink } from "@/components/volver-link";
 import { listarProductosDeParticipante, obtenerFeria } from "@/lib/data/ferias";
 import { createClient } from "@/lib/supabase/server";
@@ -55,8 +55,9 @@ export default async function CerrarPorRevendedoraPage({
         <CierreFeriaForm
           feriaId={id}
           vendedorId={vendedorId}
-          vendedorNombre={participante.vendedor_nombre ?? "la revendedora"}
           productos={filas}
+          volverHref={`/ferias/${id}`}
+          textos={textosCierreFeriaAdmin(participante.vendedor_nombre ?? "la revendedora")}
         />
       </div>
     </div>

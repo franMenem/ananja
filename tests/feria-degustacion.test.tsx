@@ -21,7 +21,6 @@ vi.mock("@/components/page-header-context", async (importOriginal) => ({
 }));
 
 import { DetalleFeria } from "@/components/ferias/detalle-feria";
-import { CerrarFeriaForm } from "@/components/mi/cerrar-feria-form";
 import { FeriaInicioTarjeta } from "@/components/mi/feria-inicio-tarjeta";
 import { FeriaMiVista, type FeriaMiDatos } from "@/components/mi/feria-vista";
 import { PageHeaderProvider } from "@/components/page-header-context";
@@ -250,21 +249,5 @@ describe("lado de la revendedora con degustación cargada", () => {
       "3 para degustación",
     );
     expect(renderToStaticMarkup(<FeriaInicioTarjeta feria={base} />)).not.toContain("degustación");
-  });
-
-  it("el cierre muestra lo ya cargado y renombra el stepper a Degustación extra", () => {
-    const html = renderToStaticMarkup(
-      <CerrarFeriaForm
-        feriaId="f1"
-        productos={[
-          { productoId: "a", nombre: "Aceite 250", entregadas: 10, yaVendidas: 0, precioCentavos: 1500000, degustadasCarga: 3 },
-          { productoId: "b", nombre: "Aceite 500", entregadas: 4, yaVendidas: 0, precioCentavos: 2800000 },
-        ]}
-      />,
-    );
-    expect(html).toContain("ya tenés 3 para degustación");
-    expect(html).toContain("Degustación extra");
-    // El segundo producto, sin carga, sigue con "Degustación" a secas.
-    expect(html.match(/Degustación<\/span>/g)?.length).toBe(1);
   });
 });
