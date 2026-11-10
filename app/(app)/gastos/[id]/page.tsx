@@ -129,16 +129,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
 
     try {
       const supabase = createClient();
-      const { error: updateError } = await supabase
-        .from("gastos")
-        .update({
-          monto_centavos: montoCentavos,
-          categoria_id: categoriaId,
-          medio_pago: medioPago,
-          fecha,
-          nota: nota.trim() || null,
-        })
-        .eq("id", id);
+      const { error: updateError } = await supabase.rpc("editar_gasto", {
+        p_gasto_id: id,
+        p_monto_centavos: montoCentavos,
+        p_categoria_id: categoriaId,
+        p_medio_pago: medioPago,
+        p_fecha: fecha,
+        p_nota: nota.trim() || undefined,
+      });
 
       if (updateError) {
         setSaving(false);
@@ -167,10 +165,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
 
     try {
       const supabase = createClient();
-      const { error: deleteError } = await supabase
-        .from("gastos")
-        .delete()
-        .eq("id", id);
+      const { error: deleteError } = await supabase.rpc("eliminar_gasto", { p_gasto_id: id });
 
       if (deleteError) {
         setDeleting(false);

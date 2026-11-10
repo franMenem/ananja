@@ -60,35 +60,23 @@ export type CrearDeudaArgs = {
   nota: string | null;
 };
 
-/**
- * Un trigger en `deudas` (ver `supabase/migrations/0016_precios_deudas.sql`
- * § forzar_vendedor_deuda) fuerza `vendedor_id` al vendedor vinculado al
- * usuario logueado, ignorando lo que mande el cliente — mismo patrón que
- * `components/stock/movimiento-form.tsx`. El valor de acá abajo es un
- * placeholder para satisfacer el tipo `Insert`.
- */
-const VENDEDOR_ID_IGNORADO_POR_TRIGGER =
-  "00000000-0000-0000-0000-000000000000";
-
-/** Alta directa (insert, no RPC — decisión "Modelo de datos § RLS" del
- * spec: el trigger `forzar_vendedor_deuda` pone `vendedor_id`, no hace
- * falta un RPC dedicado porque no hay validación cruzada). */
+/** Alta de una deuda vía RPC `crear_deuda` (solo admin; el vendedor lo pone
+ * la base con la ficha del usuario logueado). */
 export async function crearDeuda(
   supabase: SupabaseClient<Database>,
   args: CrearDeudaArgs,
 ) {
-  return supabase.from("deudas").insert({
-    descripcion: args.descripcion,
-    moneda: args.moneda,
-    monto_centavos: args.montoCentavos,
-    fecha: args.fecha,
-    nota: args.nota,
-    vendedor_id: VENDEDOR_ID_IGNORADO_POR_TRIGGER,
+  return supabase.rpc("crear_deuda", {
+    p_descripcion: args.descripcion,
+    p_moneda: args.moneda,
+    p_monto_centavos: args.montoCentavos,
+    p_fecha: args.fecha,
+    p_nota: args.nota ?? undefined,
   });
 }
 
-/** Marca una deuda como saldada hoy — `update` directo (RLS solo permite
- * tocar `saldada_en`), sin RPC. */
+/** Marca una deuda como saldada hoy vía RPC `marcar_deuda_saldada` (perdón o
+ * anulación, sin movimiento de plata). La fecha es la local del navegador. */
 export async function marcarDeudaSaldada(
   supabase: SupabaseClient<Database>,
   id: string,
@@ -96,5 +84,5 @@ export async function marcarDeudaSaldada(
   const hoy = new Date();
   const fechaISO = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
 
-  return supabase.from("deudas").update({ saldada_en: fechaISO }).eq("id", id);
+  return supabase.rpc("marcar_deuda_saldada", { p_deuda_id: id, p_fecha: fechaISO });
 }

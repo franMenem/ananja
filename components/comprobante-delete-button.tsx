@@ -63,8 +63,7 @@ function formatConsecuencia(
 
 /**
  * Botón + hoja inferior de confirmación (design/handoff README § Modales — "Eliminar
- * comprobante"). El delete es directo sobre `comprobantes` (permitido por
- * RLS) — el `ON DELETE CASCADE` del esquema se encarga de limpiar
+ * comprobante"). El borrado va por la RPC `eliminar_comprobante` (solo admin) — el `ON DELETE CASCADE` del esquema se encarga de limpiar
  * `comprobante_items` y `movimientos_stock` asociados, por eso la hoja
  * anticipa esa consecuencia en vez de un "¿estás seguro?" genérico.
  */
@@ -83,10 +82,9 @@ export function ComprobanteDeleteButton({
     return confirmacion.confirmar(
       async () => {
         const supabase = createClient();
-        const { error: deleteError } = await supabase
-          .from("comprobantes")
-          .delete()
-          .eq("id", comprobanteId);
+        const { error: deleteError } = await supabase.rpc("eliminar_comprobante", {
+          p_comprobante_id: comprobanteId,
+        });
         return deleteError ? "No se pudo eliminar. Probá de nuevo." : null;
       },
       {

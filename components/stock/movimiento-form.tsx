@@ -49,8 +49,8 @@ const TITULO = "Sacar botellas del depósito";
 
 /**
  * Formulario de egreso manual de stock: producto, cantidad y nota
- * opcional. Inserta directo en `movimientos_stock` (RLS lo permite sin
- * comprobante). Antes de guardar consulta `v_stock_actual` fresco; si la
+ * opcional. Guarda con la RPC `registrar_egreso_manual` (solo admin; una fila por lote
+ * elegido, todas en una transacción). Antes de guardar consulta `v_stock_actual` fresco; si la
  * cantidad deja stock negativo, muestra una advertencia con "Guardar
  * igual" en vez de bloquear.
  *
@@ -59,13 +59,9 @@ const TITULO = "Sacar botellas del depósito";
  * migración este componente manejaba ambos tipos (`tipo` prop); ahora es
  * siempre egreso.
  *
- * El vendedor ya no se elige: un trigger en `movimientos_stock` (ver
- * supabase/migrations/0007_vendedores_auth.sql) fuerza `vendedor_id` al
- * vendedor vinculado al usuario logueado, ignorando lo que mande el
- * cliente. El valor enviado abajo es un placeholder para satisfacer el tipo.
+ * El vendedor ya no se elige: la RPC `registrar_egreso_manual` usa el vendedor
+ * vinculado al usuario logueado.
  */
-const VENDEDOR_ID_IGNORADO_POR_TRIGGER =
-  "00000000-0000-0000-0000-000000000000";
 
 const ERRORES: Record<string, string> = {
   VENDEDOR_NO_REGISTRADO: "Tu usuario no está vinculado a un vendedor. Pedile al dueño que te dé de alta.",
@@ -100,7 +96,7 @@ export function MovimientoForm({
     setFilasLote([]);
   }
 
-  /** Filas listas para `movimientos_stock.insert` — una por lote elegido
+  /** Filas para la RPC `registrar_egreso_manual` — una por lote elegido
    * (fusionando duplicados, mismo criterio que ComprobanteForm/EntregaForm),
    * o una sola sin `lote_id` sin split cargado todavía. */
   function filasParaInsertar(): { lote_id?: string; cantidad: number }[] {
@@ -115,19 +111,12 @@ export function MovimientoForm({
     setError(null);
 
     const supabase = createClient();
-    const { error: insertError } = await supabase
-      .from("movimientos_stock")
-      .insert(
-        filasParaInsertar().map((fila) => ({
-          producto_id: productoId,
-          tipo: "egreso" as const,
-          cantidad: fila.cantidad,
-          lote_id: fila.lote_id,
-          vendedor_id: VENDEDOR_ID_IGNORADO_POR_TRIGGER,
-          nota: nota.trim() || null,
-          motivo,
-        })),
-      );
+    const { error: insertError } = await supabase.rpc("registrar_egreso_manual", {
+      p_producto_id: productoId,
+      p_motivo: motivo,
+      p_filas: filasParaInsertar(),
+      p_nota: nota.trim() || undefined,
+    });
     setSaving(false);
 
     if (insertError) {

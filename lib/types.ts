@@ -5221,6 +5221,10 @@ export type Database = {
         Args: { p_costos: Json; p_lote_id: string; p_nota?: string }
         Returns: Json
       }
+      actualizar_umbral_insumo: {
+        Args: { p_insumo_id: string; p_umbral_minimo: number }
+        Returns: Json
+      }
       adjuntar_comprobante_gasto: {
         Args: { p_gasto_id: string; p_imagen_path: string }
         Returns: Json
@@ -5299,6 +5303,16 @@ export type Database = {
         }
         Returns: Json
       }
+      crear_deuda: {
+        Args: {
+          p_descripcion: string
+          p_fecha: string
+          p_moneda: string
+          p_monto_centavos: number
+          p_nota?: string
+        }
+        Returns: Json
+      }
       crear_gasto: {
         Args: {
           p_categoria_id: string
@@ -5350,6 +5364,17 @@ export type Database = {
         Args: { p_ajuste_id: string; p_fecha: string; p_nota: string }
         Returns: Json
       }
+      editar_gasto: {
+        Args: {
+          p_categoria_id: string
+          p_fecha: string
+          p_gasto_id: string
+          p_medio_pago: Database["public"]["Enums"]["medio_pago"]
+          p_monto_centavos: number
+          p_nota?: string
+        }
+        Returns: Json
+      }
       editar_venta_revendedor: {
         Args: {
           p_fecha: string
@@ -5362,10 +5387,15 @@ export type Database = {
       }
       eliminar_ajuste_caja: { Args: { p_ajuste_id: string }; Returns: Json }
       eliminar_cobro: { Args: { p_cobro_id: string }; Returns: Json }
+      eliminar_comprobante: {
+        Args: { p_comprobante_id: string }
+        Returns: Json
+      }
       eliminar_deposito_cuenta: {
         Args: { p_deposito_id: string }
         Returns: Json
       }
+      eliminar_gasto: { Args: { p_gasto_id: string }; Returns: Json }
       eliminar_movimiento_stock: {
         Args: { p_movimiento_id: string }
         Returns: Json
@@ -5538,6 +5568,10 @@ export type Database = {
           quedan: number
         }[]
       }
+      marcar_deuda_saldada: {
+        Args: { p_deuda_id: string; p_fecha: string }
+        Returns: Json
+      }
       mi_encargado_revendedor: {
         Args: never
         Returns: {
@@ -5620,6 +5654,15 @@ export type Database = {
           p_nota?: string
           p_permitir_negativo?: boolean
           p_tenedor_id: string
+        }
+        Returns: Json
+      }
+      registrar_egreso_manual: {
+        Args: {
+          p_filas: Json
+          p_motivo: string
+          p_nota?: string
+          p_producto_id: string
         }
         Returns: Json
       }

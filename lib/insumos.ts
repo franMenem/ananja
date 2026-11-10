@@ -8,17 +8,16 @@ import type { Database } from "@/lib/types";
 // etc.) viven en `lib/dominio/insumos.ts`; las lecturas
 // (`listarStockInsumos`, `obtenerInsumo`, `listarInsumosActivos`,
 // `obtenerUltimasComprasInsumos`, `listarRecetas`) en `lib/data/insumos.ts`.
-// Este archivo se queda solo con las escrituras (RPC de alta/ajuste).
+// Este archivo se queda solo con las escrituras (RPC de alta/ajuste/umbral).
 
-/** Actualiza `umbral_minimo` (edición inline en `/stock/insumos/[id]`,
- * mismo patrón que `components/stock/stock-card.tsx`) — RLS solo permite
- * tocar `nombre`/`umbral_minimo`/`activo`. */
+/** Actualiza `umbral_minimo` (edición inline en `/stock/insumos/[id]`) vía RPC
+ * `actualizar_umbral_insumo` (solo admin). */
 export async function actualizarUmbralInsumo(
   supabase: SupabaseClient<Database>,
   id: string,
   umbralMinimo: number,
 ) {
-  return supabase.from("insumos").update({ umbral_minimo: umbralMinimo }).eq("id", id);
+  return supabase.rpc("actualizar_umbral_insumo", { p_insumo_id: id, p_umbral_minimo: umbralMinimo });
 }
 
 export type RegistrarCompraFacturaArgs = {
