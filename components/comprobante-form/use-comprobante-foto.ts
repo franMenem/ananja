@@ -47,6 +47,10 @@ export function useComprobanteFoto(
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentFileRef = useRef<File | null>(null);
+  // Guardia de secuencia (mismo patrón que `ocrRequestSeqRef` en
+  // `use-ocr-monto.ts`): solo la última subida iniciada puede escribir estado,
+  // así una subida lenta vieja no pisa la ruta del archivo que se ve.
+  const uploadSeqRef = useRef(0);
   const [imagenPath, setImagenPath] = useState<string | null>(imagenPathInicial);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewIsPdf, setPreviewIsPdf] = useState(
@@ -75,14 +79,17 @@ export function useComprobanteFoto(
   }, []);
 
   async function uploadFile(file: File) {
+    const seq = ++uploadSeqRef.current;
     setUploading(true);
     // El error anterior queda a la vista mientras se reintenta: así el
     // botón "Reintentar" sigue en pantalla mostrando su loader.
     try {
       const path = await subirComprobante(file);
+      if (seq !== uploadSeqRef.current) return;
       setUploadError(null);
       setImagenPath(path);
     } catch (err) {
+      if (seq !== uploadSeqRef.current) return;
       setImagenPath(null);
       setUploadError(
         err instanceof Error
@@ -90,7 +97,7 @@ export function useComprobanteFoto(
           : "No se pudo subir el archivo. Probá de nuevo.",
       );
     } finally {
-      setUploading(false);
+      if (seq === uploadSeqRef.current) setUploading(false);
     }
   }
 

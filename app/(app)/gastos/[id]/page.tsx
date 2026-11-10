@@ -12,7 +12,7 @@ import { FacturaGastoSeccion } from "@/components/gastos/factura-gasto-seccion";
 import { MedioPagoChips } from "@/components/medio-pago-chips";
 import { MontoInput } from "@/components/monto-input";
 import { BottomSheet } from "@/components/bottom-sheet";
-import { obtenerGasto, type GastoRow } from "@/lib/data/gastos";
+import { obtenerGasto, type GastoRow, type ResultadoGasto } from "@/lib/data/gastos";
 import { etiquetaMedioPago, type MedioPago } from "@/lib/etiquetas/medio-pago";
 import { formatFecha } from "@/lib/fechas";
 import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
@@ -46,9 +46,10 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
   const { vendedor } = useVendedorActual();
   const isAdmin = vendedor?.rol === "admin";
 
-  const [gasto, setGasto] = useState<GastoRow | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  // Unión discriminada: cargando | listo | no_encontrado | error.
+  const [carga, setCarga] = useState<{ estado: "cargando" } | ResultadoGasto>({ estado: "cargando" });
+  const [reintento, setReintento] = useState(0);
+  const gasto = carga.estado === "listo" ? carga.gasto : null;
 
   const [editing, setEditing] = useState(false);
   const [monto, setMonto] = useState("");
@@ -66,13 +67,13 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
   // Fetch "puro": no toca estado de React, así se puede reutilizar tanto
   // desde el efecto de carga inicial como desde handleGuardar (tras editar)
   // sin disparar setState síncrono dentro del cuerpo del efecto.
-  async function fetchGasto(): Promise<GastoRow | null> {
+  async function fetchGasto(): Promise<ResultadoGasto> {
     const supabase = createClient();
     return obtenerGasto(supabase, id);
   }
 
   function aplicarGasto(row: GastoRow) {
-    setGasto(row);
+    setCarga({ estado: "listo", gasto: row });
     setMonto(formatCentavos(row.monto_centavos).replace("$ ", ""));
     setCategoriaId(row.categoria_id);
     setMedioPago(row.medio_pago);
@@ -84,21 +85,14 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
     let cancelled = false;
 
     async function load() {
-      setLoading(true);
-      setNotFound(false);
+      setCarga({ estado: "cargando" });
       setError(null);
 
       const resultado = await fetchGasto();
       if (cancelled) return;
 
-      if (!resultado) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      aplicarGasto(resultado);
-      setLoading(false);
+      if (resultado.estado === "listo") aplicarGasto(resultado.gasto);
+      else setCarga(resultado);
     }
 
     load();
@@ -107,7 +101,7 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, reintento]);
 
   async function handleGuardar(event: React.FormEvent) {
     event.preventDefault();
@@ -153,8 +147,8 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
       }
 
       const resultado = await fetchGasto();
-      if (resultado) {
-        aplicarGasto(resultado);
+      if (resultado.estado === "listo") {
+        aplicarGasto(resultado.gasto);
       }
 
       setSaving(false);
@@ -191,11 +185,36 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
     }
   }
 
-  if (loading) {
+  if (carga.estado === "cargando") {
     return <p className="py-6 text-[16px] text-text-muted">Cargando…</p>;
   }
 
-  if (notFound || !gasto) {
+  if (carga.estado === "error") {
+    return (
+      <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
+        <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />
+        <p role="alert" className="font-display text-[28px] leading-[1.2] text-text">
+          No se pudo cargar el gasto.
+        </p>
+        <button
+          type="button"
+          onClick={() => setReintento((n) => n + 1)}
+          className={`${BOTON_SECUNDARIO} flex px-4`}
+        >
+          Probar de nuevo
+        </button>
+        <Link
+          prefetch={false}
+          href={volver.href}
+          className="text-[16px] font-medium text-accent"
+        >
+          {volver.label}
+        </Link>
+      </div>
+    );
+  }
+
+  if (!gasto) {
     return (
       <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
         <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />
@@ -321,7 +340,9 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
             imagenPath={gasto.imagen_path}
             isAdmin={isAdmin}
             onCambiada={(imagenPath) =>
-              setGasto((prev) => (prev ? { ...prev, imagen_path: imagenPath } : prev))
+              setCarga((prev) =>
+                prev.estado === "listo" ? { estado: "listo", gasto: { ...prev.gasto, imagen_path: imagenPath } } : prev,
+              )
             }
           />
 

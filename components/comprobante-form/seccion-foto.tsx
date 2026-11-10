@@ -68,14 +68,16 @@ export function SeccionFoto({
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
+          disabled={uploading}
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary disabled:opacity-45"
         >
           Sacar foto
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary"
+          disabled={uploading}
+          className="flex min-h-12 items-center justify-center bg-surface-raised px-2 text-[15px] font-semibold text-primary disabled:opacity-45"
         >
           Subir archivo
         </button>

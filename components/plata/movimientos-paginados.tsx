@@ -56,6 +56,20 @@ export function MovimientosPaginados({
   const [cargando, setCargando] = useState(false);
   const [agotado, setAgotado] = useState(itemsIniciales.length < limiteInicial);
   const [error, setError] = useState(false);
+  // Tras un `router.refresh()` (eliminar depósito, crear/editar ajuste) el
+  // servidor manda otra lista: si su contenido cambió, se vuelve a la primera
+  // página fresca (las páginas de "Ver más" ya cargadas quedaron viejas y
+  // podrían mostrar un movimiento eliminado). Si solo cambió la identidad de
+  // la prop con el mismo contenido, no se toca nada y se conservan las páginas
+  // cargadas. El filtro elegido se mantiene.
+  const firmaIniciales = JSON.stringify(itemsIniciales);
+  const [firmaVista, setFirmaVista] = useState(firmaIniciales);
+  if (firmaVista !== firmaIniciales) {
+    setFirmaVista(firmaIniciales);
+    setItems(itemsIniciales);
+    setLimite(limiteInicial);
+    setAgotado(itemsIniciales.length < limiteInicial);
+  }
   const [filtro, setFiltro] = useState<FiltroMovimiento>("todo");
   const visibles = useMemo(() => items.filter((i) => pasaFiltro(i, filtro)), [items, filtro]);
 

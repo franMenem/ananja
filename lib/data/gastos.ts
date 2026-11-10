@@ -59,14 +59,29 @@ export async function listarGastos(
   return { data: (data ?? []) as unknown as GastoRow[], error: null };
 }
 
+/** Resultado de leer un gasto: "no existe" y "no se pudo leer" (red/RLS) son
+ * casos distintos y la UI los muestra distinto. */
+export type ResultadoGasto =
+  | { estado: "listo"; gasto: GastoRow }
+  | { estado: "no_encontrado" }
+  | { estado: "error" };
+
 /** Un gasto por id, con el mismo embed que `listarGastos` — usado por
- * `/gastos/[id]`. `null` si no existe o si la consulta falla (la página ya
- * trataba ambos casos como "no encontrado"). */
-export async function obtenerGasto(supabase: Supa, id: string): Promise<GastoRow | null> {
-  const { data, error } = await supabase.from("gastos").select(COLUMNAS_GASTO).eq("id", id).maybeSingle();
-  if (error) console.error("obtenerGasto", error);
-  if (error || !data) return null;
-  return data as unknown as GastoRow;
+ * `/gastos/[id]`. Separa "no existe" (`no_encontrado`) de una consulta que
+ * falló o se cortó (`error`). */
+export async function obtenerGasto(supabase: Supa, id: string): Promise<ResultadoGasto> {
+  try {
+    const { data, error } = await supabase.from("gastos").select(COLUMNAS_GASTO).eq("id", id).maybeSingle();
+    if (error) {
+      console.error("obtenerGasto", error);
+      return { estado: "error" };
+    }
+    if (!data) return { estado: "no_encontrado" };
+    return { estado: "listo", gasto: data as unknown as GastoRow };
+  } catch (err) {
+    console.error("obtenerGasto", err);
+    return { estado: "error" };
+  }
 }
 
 /** Todas las categorías (activas o no) — filtro de `/gastos`, que a

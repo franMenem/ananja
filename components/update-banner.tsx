@@ -30,6 +30,9 @@ async function fetchVersion(): Promise<string | null> {
  */
 export function UpdateBanner() {
   const initialVersionRef = useRef<string | null>(null);
+  // Última versión nueva de la que ya se avisó: solo una versión DISTINTA a
+  // esa vuelve a mostrar el aviso descartado.
+  const notifiedVersionRef = useRef<string | null>(null);
   const [newVersionAvailable, setNewVersionAvailable] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -51,8 +54,12 @@ export function UpdateBanner() {
       ) {
         setNewVersionAvailable(true);
         // Si el usuario ya había descartado un aviso anterior, este es un
-        // cambio de versión distinto: vuelve a mostrarse.
-        setDismissed(false);
+        // cambio de versión distinto: vuelve a mostrarse. Si es la misma
+        // versión ya avisada, el aviso descartado se queda cerrado.
+        if (notifiedVersionRef.current !== version) {
+          notifiedVersionRef.current = version;
+          setDismissed(false);
+        }
       }
     }
 
