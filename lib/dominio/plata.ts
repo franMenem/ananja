@@ -44,26 +44,6 @@ export function parsearViaRendicion(via: string): ViaRendicion {
 }
 
 /**
- * Traduce una rendición real (`via` + `medio_pago` que cargó el admin) al
- * `medio_pago` que le corresponde para clasificarla dentro de
- * `calcularSaldo`/`calcularSaldos` (`lib/calculos.ts`) — espejo de la
- * expresión `case when via = 'encargado' then 'efectivo' ...` de
- * `v_saldos_caja` (0037_plata_en_manos.sql § 7).
- *
- * Una rendición 'encargado' siempre cae en 'efectivo': todavía no llegó a
- * la Cuenta Ananja, sin importar qué `medio_pago` haya cargado el admin ahí
- * (ese campo pasa a ser solo informativo — "cómo te la dio" — para ese
- * caso). 'directo_cuenta'/'cliente_directo' sí usan su propio `medio_pago`:
- * ya están en la Cuenta Ananja real.
- */
-export function medioParaCaja(
-  via: ViaRendicion,
-  medioPago: MedioPago,
-): MedioPago {
-  return via === "encargado" ? "efectivo" : medioPago;
-}
-
-/**
  * Una fila de un movimiento en efectivo ya atribuido a un tenedor (quien lo
  * tiene en mano) — forma común de comprobantes/cobros/gastos/pagos de deuda/
  * ajustes ya filtrados por el caller a `medio_pago = 'efectivo'`, y de

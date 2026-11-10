@@ -3,13 +3,13 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 
-import { obtenerVendedorPorUserId, type VendedorConRol } from "@/lib/rol-vendedor";
+import { obtenerVendedorPorUserId, type VendedorDeSesion } from "@/lib/rol-vendedor";
 import { decodificarSesionHeader, SESION_HEADER_NAME } from "@/lib/sesion-header";
 import { createClient } from "@/lib/supabase/server";
 
 export interface SesionActual {
   userId: string | null;
-  vendedor: VendedorConRol | null;
+  vendedor: VendedorDeSesion | null;
 }
 
 /**
@@ -28,11 +28,11 @@ export interface SesionActual {
  * `getUser()` real + `obtenerVendedorPorUserId` — nada se rompe si el
  * proxy no corrió.
  *
- * El `vendedor` que sale del header trae solo los campos de
- * `VendedorHeaderPayload` (`lib/sesion-header.ts`) — `email`, `creado_en` y
- * `encargado_id` quedan en `null` porque ningún consumidor migrado a este
- * helper los lee hoy; si alguno los necesitara, hay que sumarlos al
- * payload del header primero (y no asumir que ya viajan).
+ * El `vendedor` es un {@link VendedorDeSesion}: solo los campos de
+ * `VendedorHeaderPayload` (`lib/sesion-header.ts`) más `user_id`. Los demás
+ * (`email`, `toma_directo`, `encargado_id`, …) no existen en el tipo: quien
+ * los necesite los consulta aparte (como `lib/data/mi.ts`) o los suma al
+ * payload del header primero.
  *
  * SOLO para UI/ruteo — nunca para autorizar una escritura o un uso de
  * service role: esas verificaciones siguen llamando a
@@ -46,16 +46,7 @@ export const sesionActual = cache(async (): Promise<SesionActual> => {
     return {
       userId: payload.userId,
       vendedor: payload.vendedor
-        ? {
-            ...payload.vendedor,
-            user_id: payload.userId,
-            email: null,
-            creado_en: null,
-            encargado_id: null,
-            // El header no lleva este flag: no usar para decidir nada, leerlo
-            // de la base (ver app/(mi)/mi/ventas/nueva/page.tsx).
-            toma_directo: false,
-          }
+        ? { ...payload.vendedor, user_id: payload.userId }
         : null,
     };
   }

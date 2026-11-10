@@ -14,6 +14,7 @@ import {
   leerSidebarColapsado,
   suscribirseSidebarColapsado,
 } from "@/lib/sidebar-colapsado";
+import { esAdminActivo } from "@/lib/rol-vendedor";
 import { useVendedorActual } from "@/lib/vendedor-actual";
 
 /** SSR: no hay `localStorage`, se asume expandido (ver `components/app-rail.tsx`). */
@@ -113,7 +114,7 @@ export function MiRail() {
       </ul>
 
       <div className="border-t border-border pt-2">
-        {vendedor?.rol === "admin" && (
+        {esAdminActivo(vendedor) && (
           <Link
             href="/"
             aria-label={colapsado ? "Ver como admin" : undefined}

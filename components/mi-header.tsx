@@ -6,6 +6,7 @@ import { BotonAccion } from "@/components/boton-accion";
 import { useCerrarSesion } from "@/components/auth/usar-cerrar-sesion";
 import { useFormHeader } from "@/components/page-header-context";
 import { NEGOCIO } from "@/lib/negocio";
+import { esAdminActivo } from "@/lib/rol-vendedor";
 import { useVendedorActual } from "@/lib/vendedor-actual";
 
 /**
@@ -60,7 +61,7 @@ export function MiHeader() {
           {NEGOCIO.wordmark}
         </Link>
         <div className="flex items-center gap-4">
-          {vendedor?.rol === "admin" && (
+          {esAdminActivo(vendedor) && (
             <Link
               href="/"
               className="inline-flex min-h-11 items-center text-[14px] text-text-muted"

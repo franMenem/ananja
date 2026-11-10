@@ -112,8 +112,8 @@ export interface DepositoCuentaMovimiento {
  *
  * Nota sobre `rendiciones`: esta función NO distingue `via` (0037) — sigue
  * sumando cualquier fila del array al medio que declara, igual que antes.
- * Es responsabilidad del caller construir ese array ya traducido con
- * `medioParaCaja` (`lib/plata.ts`): una rendición 'encargado' se pasa con
+ * Es responsabilidad del caller construir ese array ya traducido según la
+ * `via` (`lib/dominio/plata.ts`): una rendición 'encargado' se pasa con
  * `medio_pago: 'efectivo'` (todavía no llegó a la Cuenta Ananja, sin
  * importar cómo se la dieron), 'directo_cuenta'/'cliente_directo' con su
  * propio `medio_pago`.

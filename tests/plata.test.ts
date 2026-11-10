@@ -8,7 +8,6 @@ import {
   calcularParteAnanjaFifo,
   calcularPlataEnManos,
   contribucionTransferenciaEfectivo,
-  medioParaCaja,
   type MovimientoTenedor,
   type RendicionEncargado,
   type TransferenciaEfectivo,
@@ -23,21 +22,6 @@ import {
  * tal como los usaría un caller real (RSC que arma los arrays a partir de
  * las tablas, ya filtrados por origen).
  */
-
-describe("medioParaCaja", () => {
-  it("via 'encargado' siempre cae en efectivo, sin importar el medio_pago cargado", () => {
-    expect(medioParaCaja("encargado", "banco")).toBe("efectivo");
-    expect(medioParaCaja("encargado", "mercado_pago")).toBe("efectivo");
-    expect(medioParaCaja("encargado", "efectivo")).toBe("efectivo");
-  });
-
-  it("via 'directo_cuenta'/'cliente_directo' usan su propio medio_pago", () => {
-    expect(medioParaCaja("directo_cuenta", "banco")).toBe("banco");
-    expect(medioParaCaja("cliente_directo", "mercado_pago")).toBe(
-      "mercado_pago",
-    );
-  });
-});
 
 describe("Escenario 1 — Fran vende en efectivo en una feria y después deposita", () => {
   const FRAN = "fran-id";
@@ -150,9 +134,7 @@ describe("Escenario 2 — una revendedora le rinde a su encargada, que después 
     expect(deuda.saldoCentavos).toBe(0);
 
     // La rendición fue 'encargado' con medio_pago = 'efectivo' (Marta se la
-    // dio en mano a Laura) — medioParaCaja no cambia nada acá, pero se usa
-    // igual para dejar explícito el mapeo que haría el caller real.
-    const medioEfectivo = medioParaCaja("encargado", "efectivo");
+    // dio en mano a Laura).
     const rendicionesRecibidas: MovimientoTenedor[] = [
       { tenedor_id: LAURA, monto_centavos: 8000000 },
     ];
@@ -175,7 +157,7 @@ describe("Escenario 2 — una revendedora le rinde a su encargada, que después 
       [],
       [],
       [],
-      [{ medio_pago: medioEfectivo, monto_centavos: 8000000 }],
+      [{ medio_pago: "efectivo", monto_centavos: 8000000 }],
     );
     expect(
       saldos.find((s) => s.medio_pago === "efectivo")!.saldo_centavos,
@@ -251,7 +233,7 @@ describe("Escenario 3 — un cliente le paga directo a la cuenta por la venta de
     expect(personas.every((p) => p.totalCentavos === 0)).toBe(true);
 
     // La caja sí sube — usa su propio medio_pago (mercado_pago, en este caso).
-    const medioDestino = medioParaCaja("cliente_directo", "mercado_pago");
+    const medioDestino = "mercado_pago" as const;
     const saldos = calcularSaldos(
       { banco: 0, mercado_pago: 0, efectivo: 0 },
       [],

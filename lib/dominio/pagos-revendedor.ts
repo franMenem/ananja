@@ -231,6 +231,44 @@ export function pagoRechazadoParaAvisar(
   return huboPagoDespues || huboRendicionDespues ? null : rechazado;
 }
 
+// --- Quién puede resolver un pago informado --------------------------------
+
+export interface ContextoResolverPago {
+  /** `pagos_revendedor.vendedor_id`: la revendedora (o admin) que informó el pago. */
+  pagoVendedorId: string;
+  /** `pagos_revendedor.destinatario_id`: `null` = directo a la Cuenta Ananja. */
+  destinatarioId: string | null;
+  /** El destinatario existe y {@link puedeSerEncargado} (admin o coordinador ACTIVO). */
+  destinatarioPuedeSerEncargado: boolean;
+  /** El destinatario es un coordinador (nunca puede resolver él mismo). */
+  destinatarioEsCoordinador: boolean;
+  /** `vendedores.id` de quien mira, o `null` si no tiene fila. */
+  miVendedorId: string | null;
+}
+
+/**
+ * Espejo de `confirmar_pago_revendedor` / `rechazar_pago_revendedor`
+ * (la última definición es 0055_coordinador.sql): un admin puede resolver el
+ * pago salvo que el destinatario sea OTRO ADMIN ACTIVO y el pago no sea
+ * propio. Es decir, SÍ puede si: es su propio pago, va a la Cuenta Ananja
+ * (sin destinatario), el destinatario es él mismo, el destinatario es un
+ * coordinador (no puede resolver nada él mismo, le toca a cualquier admin),
+ * o el destinatario ya no es admin/coordinador activo.
+ *
+ * Es solo para decidir qué mostrar (tarea y pantalla de resolución): la
+ * RPC vuelve a chequearlo y es la que manda. No mira que quien pregunta sea
+ * admin (el shell admin ya lo exige y la RPC también).
+ */
+export function puedeResolverPagoRevendedor(c: ContextoResolverPago): boolean {
+  return (
+    (c.miVendedorId !== null && c.pagoVendedorId === c.miVendedorId) ||
+    c.destinatarioId === null ||
+    !c.destinatarioPuedeSerEncargado ||
+    c.destinatarioEsCoordinador ||
+    (c.miVendedorId !== null && c.destinatarioId === c.miVendedorId)
+  );
+}
+
 // --- Lista admin de pagos informados (`/comprobantes?tab=pagos`) ----------
 
 /** Destino que se muestra cuando `destinatario_id` es null: el pago fue

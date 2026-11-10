@@ -5,6 +5,18 @@ import type { Database, Tables } from "@/lib/types";
 export type VendedorConRol = Tables<"vendedores">;
 
 /**
+ * Lo que de verdad sabe `sesionActual()` (`lib/sesion-actual.ts`) de quien
+ * mira: el subconjunto de `vendedores` que viaja en el header del proxy
+ * (`id`, `nombre`, `activo`, `rol`, `revende`) más `user_id`. Cualquier otro
+ * campo (`email`, `toma_directo`, `encargado_id`, …) hay que consultarlo
+ * aparte — no existe acá, para que TypeScript avise si alguien lo lee.
+ */
+export type VendedorDeSesion = Pick<
+  VendedorConRol,
+  "id" | "nombre" | "activo" | "rol" | "revende" | "user_id"
+>;
+
+/**
  * Único punto del proyecto que consulta `vendedores` por `user_id` de
  * Supabase Auth (`vendedores.user_id`, ver `0007_vendedores_auth.sql`) —
  * la resolución de rol vive acá para que nadie más repita la query.
@@ -44,10 +56,21 @@ export async function obtenerVendedorPorUserId(
  * y `app/(mi)/layout.tsx` lo usan para decidir el redirect a
  * `/sin-acceso`.
  */
-export function tieneAccesoValido(
-  vendedor: VendedorConRol | null,
-): vendedor is VendedorConRol {
+export function tieneAccesoValido<T extends Pick<VendedorConRol, "activo" | "rol">>(
+  vendedor: T | null,
+): vendedor is T {
   return vendedor !== null && vendedor.activo && vendedor.rol !== "pendiente";
+}
+
+/**
+ * `true` si es un admin ACTIVO (síncrono, sobre una fila ya cargada). Para
+ * decidir qué mostrar en la UI (p. ej. el enlace "ver como revendedora"); no
+ * reemplaza `es_admin()` de la base ni {@link esAdminAutenticado}.
+ */
+export function esAdminActivo(
+  vendedor: Pick<VendedorConRol, "activo" | "rol"> | null | undefined,
+): boolean {
+  return vendedor != null && vendedor.activo && vendedor.rol === "admin";
 }
 
 /**

@@ -30,7 +30,9 @@
 
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
 import { diasEntre, formatFecha } from "@/lib/fechas";
+import { deudaSigueDebiendose } from "@/lib/dominio/deudas";
 import { etiquetaConceptoPago } from "@/lib/dominio/gastos";
+import { puedeResolverPagoRevendedor } from "@/lib/dominio/pagos-revendedor";
 import { formatCentavos, formatMonto, parseMontoInput } from "@/lib/money";
 import { concordar, envase, formatPresentacion, NEGOCIO } from "@/lib/negocio";
 
@@ -203,9 +205,10 @@ export interface DeudaNegocioFila extends DeudaNegocioTarea {
 }
 
 /**
- * Deudas del negocio que generan la tarea "Deudas": mismo criterio que
+ * Deudas del negocio que generan la tarea "Deudas": el criterio único
+ * {@link deudaSigueDebiendose} (`lib/dominio/deudas.ts`), el mismo que usa
  * `listarDeudasPendientes` (`lib/deudas.ts`, bloque "Ananja debe" de
- * `/plata`) — `saldada_en IS NULL` — además de `restante_centavos > 0`.
+ * `/plata`).
  * Antes `cargarFuentesTareas` solo miraba `restante_centavos > 0`: una
  * deuda marcada saldada SIN pago registrado (`saldada_en` con fecha,
  * `restante_centavos` todavía en el monto completo — la vista
@@ -214,7 +217,7 @@ export interface DeudaNegocioFila extends DeudaNegocioTarea {
  */
 export function filtrarDeudasNegocioPendientes(filas: DeudaNegocioFila[]): DeudaNegocioTarea[] {
   return filas
-    .filter((d) => d.saldada_en === null && d.restante_centavos > 0)
+    .filter((d) => deudaSigueDebiendose(d.saldada_en, d.restante_centavos))
     .map(({ deuda_id, descripcion, fecha, moneda, restante_centavos }) => ({
       deuda_id,
       descripcion,
@@ -462,18 +465,16 @@ export function agruparPedidosPorPagar(
 
 function tareasPagos(pagos: PagoPorConfirmarTarea[], miVendedorId: string | null, hoy: string): Tarea[] {
   return pagos
-    .filter(
-      (p) =>
-        // Es mi propio pago (puedo confirmarlo o rechazarlo yo mismo,
-        // 0046_admin_pago_propio.sql), o me toca por destinatario. Un
-        // destinatario coordinador (0055) nunca "le toca a uno en
-        // particular": como nunca puede resolverlo él mismo, le toca a
-        // CUALQUIER admin — mismo criterio que un destinatario inactivo.
-        (miVendedorId !== null && p.vendedor_id === miVendedorId) ||
-        p.destinatario_id === null ||
-        !p.destinatario_activo ||
-        p.destinatario_es_coordinador ||
-        (miVendedorId !== null && p.destinatario_id === miVendedorId),
+    .filter((p) =>
+      // Quién puede resolverlo: ver `puedeResolverPagoRevendedor` (espejo de
+      // las RPC `confirmar_pago_revendedor`/`rechazar_pago_revendedor`).
+      puedeResolverPagoRevendedor({
+        pagoVendedorId: p.vendedor_id,
+        destinatarioId: p.destinatario_id,
+        destinatarioPuedeSerEncargado: p.destinatario_activo,
+        destinatarioEsCoordinador: p.destinatario_es_coordinador,
+        miVendedorId,
+      }),
     )
     .map((p) => {
       const dias = diasEntre(p.informado_el, hoy);
@@ -626,7 +627,7 @@ function tareasPedidos(pedidos: PedidoPorPagar[]): Tarea[] {
 
 function tareasDeudasNegocio(deudas: DeudaNegocioTarea[]): Tarea[] {
   return deudas
-    .filter((d) => d.restante_centavos > 0)
+    .filter((d) => deudaSigueDebiendose(null, d.restante_centavos))
     .map((d) => ({
       id: `deuda-negocio-${d.deuda_id}`,
       tipo: "deuda_negocio" as const,

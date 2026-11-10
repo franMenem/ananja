@@ -5,7 +5,7 @@ import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFecha, formatFechaHora } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
-import { ESTADO_PAGO_LABELS, pagoEstado } from "@/lib/dominio/pagos-revendedor";
+import { ESTADO_PAGO_LABELS, pagoEstado, puedeResolverPagoRevendedor } from "@/lib/dominio/pagos-revendedor";
 import { sesionActual } from "@/lib/sesion-actual";
 import { getSignedUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
@@ -70,10 +70,15 @@ export default async function PagoRevendedorPage({
   // coordinador activo nunca restringe: cualquier admin puede resolverlo
   // (mismo motivo, `confirmar_pago_revendedor`/`rechazar_pago_revendedor`,
   // 0055).
-  const esPropio = pago.vendedor_id === yo?.id;
   const puedeResolver =
     estado === "pendiente" &&
-    (esPropio || pago.destinatario_id === null || esParaMi || destinatarioEsCoordinadorActivo || !destinatarioActivo);
+    puedeResolverPagoRevendedor({
+      pagoVendedorId: pago.vendedor_id,
+      destinatarioId: pago.destinatario_id,
+      destinatarioPuedeSerEncargado: destinatarioActivo,
+      destinatarioEsCoordinador: destinatarioEsCoordinadorActivo,
+      miVendedorId: yo?.id ?? null,
+    });
 
   const destino =
     pago.destinatario_id === null
