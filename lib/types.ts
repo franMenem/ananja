@@ -528,20 +528,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "comprobantes_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_feria_totales"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "comprobantes_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_resultado_feria"
-            referencedColumns: ["feria_id"]
-          },
-          {
             foreignKeyName: "comprobantes_vendedor_id_fkey"
             columns: ["vendedor_id"]
             isOneToOne: false
@@ -1320,76 +1306,6 @@ export type Database = {
           },
         ]
       }
-      feria_productos: {
-        Row: {
-          cantidad_degustacion: number
-          cantidad_llevada: number
-          feria_id: string
-          id: string
-          precio_centavos: number
-          producto_id: string
-        }
-        Insert: {
-          cantidad_degustacion?: number
-          cantidad_llevada?: number
-          feria_id: string
-          id?: string
-          precio_centavos: number
-          producto_id: string
-        }
-        Update: {
-          cantidad_degustacion?: number
-          cantidad_llevada?: number
-          feria_id?: string
-          id?: string
-          precio_centavos?: number
-          producto_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "ferias"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_feria_totales"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_resultado_feria"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "productos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "v_costo_producto"
-            referencedColumns: ["producto_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "v_stock_actual"
-            referencedColumns: ["producto_id"]
-          },
-        ]
-      }
       feria_revendedoras: {
         Row: {
           admin_id: string | null
@@ -1638,20 +1554,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ferias"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gastos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_feria_totales"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "gastos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_resultado_feria"
-            referencedColumns: ["feria_id"]
           },
           {
             foreignKeyName: "gastos_lote_id_fkey"
@@ -2466,20 +2368,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ferias"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimientos_stock_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_feria_totales"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "movimientos_stock_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_resultado_feria"
-            referencedColumns: ["feria_id"]
           },
           {
             foreignKeyName: "movimientos_stock_lote_id_fkey"
@@ -4682,73 +4570,6 @@ export type Database = {
           },
         ]
       }
-      v_feria_stock: {
-        Row: {
-          cantidad_degustacion: number | null
-          cantidad_llevada: number | null
-          cantidad_restante: number | null
-          cantidad_vendida: number | null
-          feria_id: string | null
-          producto_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "ferias"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_feria_totales"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "v_resultado_feria"
-            referencedColumns: ["feria_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "productos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "v_costo_producto"
-            referencedColumns: ["producto_id"]
-          },
-          {
-            foreignKeyName: "feria_productos_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "v_stock_actual"
-            referencedColumns: ["producto_id"]
-          },
-        ]
-      }
-      v_feria_totales: {
-        Row: {
-          cantidad_ventas: number | null
-          feria_id: string | null
-          gastos_total_centavos: number | null
-          neto_centavos: number | null
-          ventas_banco_centavos: number | null
-          ventas_efectivo_centavos: number | null
-          ventas_mercado_pago_centavos: number | null
-          ventas_total_centavos: number | null
-        }
-        Relationships: []
-      }
       v_lote_costos_completos: {
         Row: {
           completo: boolean | null
@@ -5051,23 +4872,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      v_resultado_feria: {
-        Row: {
-          cantidad_ventas: number | null
-          feria_id: string | null
-          gastos_produccion_centavos: number | null
-          gastos_total_centavos: number | null
-          margen_ananja_centavos: number | null
-          neto_ananja_centavos: number | null
-          neto_centavos: number | null
-          unidades_sin_costo: number | null
-          ventas_banco_centavos: number | null
-          ventas_efectivo_centavos: number | null
-          ventas_mercado_pago_centavos: number | null
-          ventas_total_centavos: number | null
-        }
-        Relationships: []
       }
       v_resumen_revendedor: {
         Row: {
@@ -5495,17 +5299,6 @@ export type Database = {
         }
         Returns: Json
       }
-      crear_feria: {
-        Args: {
-          p_fecha_inicio: string
-          p_lugar: string
-          p_nombre: string
-          p_nota: string
-          p_permitir_negativo?: boolean
-          p_productos: Json
-        }
-        Returns: Json
-      }
       crear_gasto: {
         Args: {
           p_categoria_id: string
@@ -5764,7 +5557,6 @@ export type Database = {
       }
       puede_revender: { Args: never; Returns: boolean }
       quitar_comprobante_gasto: { Args: { p_gasto_id: string }; Returns: Json }
-      reabrir_feria: { Args: { p_feria_id: string }; Returns: Json }
       rechazar_deposito_informado: {
         Args: { p_deposito_informado_id: string; p_motivo: string }
         Returns: Json
