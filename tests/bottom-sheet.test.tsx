@@ -165,3 +165,20 @@ describe("BottomSheet — foco", () => {
     expect(document.querySelector('[role="dialog"]')!.contains(document.activeElement)).toBe(true);
   });
 });
+
+describe("BottomSheet: scroll del fondo", () => {
+  it("bloquea el documento mientras está abierta y lo libera al cerrar o desmontar", () => {
+    render(<div />);
+    expect(document.documentElement.style.overflow).toBe("");
+    render(hoja());
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    render(<div />);
+    expect(document.documentElement.style.overflow).toBe("");
+    render(hoja());
+    act(() => root!.unmount());
+    root = null;
+    contenedor!.remove();
+    contenedor = null;
+    expect(document.documentElement.style.overflow).toBe("");
+  });
+});

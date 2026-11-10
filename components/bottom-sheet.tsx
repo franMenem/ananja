@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { bloqueoScroll } from "@/lib/bloqueo-scroll";
+
 type BottomSheetProps = {
   open: boolean;
   ariaLabel: string;
@@ -45,9 +47,13 @@ const pila: symbol[] = [];
  * Mientras está abierta: el foco entra a la hoja y Tab queda adentro; Escape
  * pide cerrar (salvo `bloqueada`); al cerrar el foco vuelve a quien la abrió.
  *
- * Pendiente: bloquear el scroll del fondo. No se agrega hasta probarlo en un
- * iPhone real (Safari y PWA), porque las técnicas habituales (`overflow` o
- * `position: fixed` en el body) se comportan distinto en iOS.
+ * Scroll del fondo: bloqueado con `overflow: hidden` en `<html>` y `<body>`
+ * mientras haya alguna hoja abierta (`lib/bloqueo-scroll.ts`, con contador y
+ * compensación del ancho de la barra de scroll), y `overscroll-contain` en el
+ * panel para que su propio scroll no se encadene al fondo. No se usa
+ * `position: fixed` en el body ni `touchmove`: tienen más efectos secundarios.
+ * Probado con Chromium emulando iPhone y escritorio, NO en un iPhone real:
+ * falta confirmarlo en Safari y en la PWA instalada.
  */
 export function BottomSheet(props: BottomSheetProps) {
   if (!props.open) return null;
@@ -77,6 +83,7 @@ function HojaAbierta({
   useEffect(() => {
     const id = Symbol("hoja");
     pila.push(id);
+    const soltarScroll = bloqueoScroll.bloquear();
 
     // Si el contenido no tomó el foco (autoFocus), entra al panel mismo, no a
     // un botón: así un Enter de más no activa una acción (p. ej. "Eliminar").
@@ -120,6 +127,7 @@ function HojaAbierta({
       document.removeEventListener("keydown", onKey);
       const i = pila.indexOf(id);
       if (i >= 0) pila.splice(i, 1);
+      soltarScroll();
       if (disparador instanceof HTMLElement && disparador.isConnected) {
         disparador.focus({ preventScroll: true });
       }
