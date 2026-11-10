@@ -12,14 +12,15 @@ import {
   ERROR_ELIMINAR_GENERICO,
   ERRORES_ELIMINAR_MOVIMIENTO,
   mensajeEliminarMovimiento,
+  mensajeErrorEliminarRendicion,
   tituloEliminar,
   type AccionEliminar,
 } from "@/lib/dominio/eliminar-movimientos";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * "Eliminar" para una fila de cobro, pago de deuda o transferencia entre
- * cajas en las listas de movimientos de Plata. Mismo patrón que
+ * "Eliminar" para una fila de cobro, pago de deuda, transferencia entre
+ * cajas o pago de revendedora en las listas de movimientos de Plata. Mismo patrón que
  * `EliminarDepositoAccion`: botón de texto en la fila + `BottomSheet` con
  * "¿estás seguro?" que cuenta qué pasa con la plata, y refresca la lista al
  * terminar. Si la RPC todavía no existe en la base (código desplegado antes
@@ -47,7 +48,12 @@ export function EliminarMovimientoAccion({
             ? await eliminarCobro(supabase, id)
             : accion.tipo === "pago_deuda"
               ? await eliminarPagoDeuda(supabase, id)
-              : await supabase.rpc("eliminar_transferencia_caja", { p_transferencia_id: id });
+              : accion.tipo === "rendicion"
+                ? await supabase.rpc("eliminar_rendicion_revendedor", { p_rendicion_id: id })
+                : await supabase.rpc("eliminar_transferencia_caja", { p_transferencia_id: id });
+        if (error && accion.tipo === "rendicion") {
+          return mensajeErrorEliminarRendicion(error.message, error.details);
+        }
         return error
           ? traducirErrorRpc(error.message, ERRORES_ELIMINAR_MOVIMIENTO[accion.tipo], ERROR_ELIMINAR_GENERICO)
           : null;

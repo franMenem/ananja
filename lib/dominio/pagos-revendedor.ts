@@ -15,7 +15,10 @@ export type MedioPago = Enums<"medio_pago">;
  * `pagos_revendedor_estado_coherente` en 0040_revendedores_pagos_precios.sql):
  *   pendiente --confirmar_pago_revendedor--> confirmado (crea la rendición, `rendicion_id`)
  *   pendiente --rechazar_pago_revendedor-->  rechazado  (exige motivo)
- * Ambos son terminales. `informar_pago_revendedor` crea la fila `pendiente`.
+ * Ambos son terminales, salvo que un admin elimine un pago ya confirmado
+ * (`eliminar_rendicion_revendedor`, 0092): vuelve a `rechazado` (motivo
+ * "Eliminado por la administración") y su rendición se archiva.
+ * `informar_pago_revendedor` crea la fila `pendiente`.
  * Definiciones vigentes: 0055_coordinador.sql (confirmar/rechazar) y
  * 0075_informar_pago_revendedor_path_seguro.sql (informar). Presentación:
  * {@link ESTADO_PAGO_LABELS} / {@link ESTADO_PAGO_VARIANTE} más abajo.
@@ -84,6 +87,10 @@ export interface MovimientoPago {
   fecha: string;
   estado: EstadoPago;
   motivoRechazo: string | null;
+  /** La rendición (la plata ya registrada) detrás de este pago: la propia
+   * para una cargada por un admin, la que se creó al confirmar para un pago
+   * informado. `null` si está pendiente o rechazado. Es lo que se elimina. */
+  rendicionId: string | null;
 }
 
 /**
@@ -110,6 +117,7 @@ export function historialPagos(
       createdAt: p.createdAt,
       estado: p.estado,
       motivoRechazo: p.motivoRechazo,
+      rendicionId: p.estado === "confirmado" ? p.rendicionId : null,
     })),
     ...rendiciones
       .filter((r) => !rendicionesDePagos.has(r.id))
@@ -122,6 +130,7 @@ export function historialPagos(
         createdAt: r.createdAt,
         estado: "confirmado" as const,
         motivoRechazo: null,
+        rendicionId: r.id,
       })),
   ];
 
@@ -139,6 +148,7 @@ export function historialPagos(
     fecha: m.fecha,
     estado: m.estado,
     motivoRechazo: m.motivoRechazo,
+    rendicionId: m.rendicionId,
   }));
 }
 

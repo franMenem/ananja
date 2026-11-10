@@ -92,6 +92,7 @@ describe("helpers", () => {
       fecha,
       estado: "confirmado",
       motivoRechazo: null,
+      rendicionId: null,
     });
     const linea = armarLineaDeTiempo([mov("2026-10-20"), mov("2026-10-01")], [pago("2026-10-20"), pago("2026-10-10")]);
     expect(linea.map((i) => (i.clase === "movimiento" ? "m" + i.movimiento.fecha : "p" + i.pago.fecha))).toEqual([

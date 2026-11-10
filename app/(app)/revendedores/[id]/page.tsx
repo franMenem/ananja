@@ -34,6 +34,8 @@ import {
   primerGrupoSinPrecio,
   ventasComoMovimientos,
 } from "@/lib/dominio/movimientos-revendedor";
+import { opcionEliminarRendicion, type OpcionEliminarRendicion } from "@/lib/dominio/eliminar-movimientos";
+import { parsearViaRendicion } from "@/lib/dominio/plata";
 import { calcularDeudaConPendientes, historialPagos } from "@/lib/dominio/pagos-revendedor";
 import { armarLineaDeTiempo, botellasVendidasEnMes, textoBotellas } from "@/lib/dominio/personas";
 import { hoyISO } from "@/lib/fechas";
@@ -389,6 +391,22 @@ export default async function RevendedorDetallePage({
   const enPoderTotal = [...stockPorProducto.values()].reduce((acc, n) => acc + n, 0);
   const vendidasEnElMes = botellasVendidasEnMes(ventas, hoyISO());
   const lineaDeTiempo = armarLineaDeTiempo(movimientos, movimientosPago);
+  // Qué se puede eliminar de cada pago ya registrado (0092), por id de rendición.
+  const nombreEncargado = (tenedorId: string | null) =>
+    (coordinadores ?? []).find((c) => c.id === tenedorId)?.nombre ?? "su encargado";
+  const eliminarRendicion: Record<string, OpcionEliminarRendicion> = Object.fromEntries(
+    (rendiciones ?? []).map((r) => [
+      r.id,
+      opcionEliminarRendicion({
+        ventaGrupoId: r.venta_grupo_id,
+        revendedora: revendedor.nombre,
+        montoCentavos: r.monto_centavos,
+        via: parsearViaRendicion(r.via),
+        medioPago: r.medio_pago,
+        tenedor: nombreEncargado(r.tenedor_id),
+      }),
+    ]),
+  );
   const encargadoNombre = (coordinadores ?? []).find((c) => c.id === revendedor.encargado_id)?.nombre ?? null;
 
   return (
@@ -437,6 +455,7 @@ export default async function RevendedorDetallePage({
         items={lineaDeTiempo}
         nombrePorProducto={nombrePorProducto}
         primerGrupoSinPrecio={grupoSinPrecio}
+        eliminarRendicion={eliminarRendicion}
       />
 
       <AjustesFicha

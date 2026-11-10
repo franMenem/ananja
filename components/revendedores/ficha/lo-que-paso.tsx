@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 
+import { EliminarMovimientoAccion } from "@/components/caja/eliminar-movimiento-accion";
 import { EliminarVentaButton } from "@/components/mi/eliminar-venta-button";
 import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta";
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
+import type { OpcionEliminarRendicion } from "@/lib/dominio/eliminar-movimientos";
 import { botellasDeMovimiento, textoBotellas, type ItemLineaDeTiempo } from "@/lib/dominio/personas";
 import { ESTADO_PAGO_LABELS, ESTADO_PAGO_VARIANTE, type MovimientoPago } from "@/lib/dominio/pagos-revendedor";
 import { etiquetaEntregaAutomatica } from "@/lib/dominio/venta-directa";
@@ -58,7 +60,14 @@ function Linea({
   );
 }
 
-function LineaPago({ pago }: { pago: MovimientoPago }) {
+function LineaPago({
+  pago,
+  eliminar,
+}: {
+  pago: MovimientoPago;
+  /** Qué se puede hacer con la plata ya registrada de este pago (solo si está confirmado). */
+  eliminar: OpcionEliminarRendicion | undefined;
+}) {
   const hrefDetalle = pago.origen === "pago" ? `/tareas/pagos/${pago.id}` : null;
   const linea = (
     <Linea
@@ -75,12 +84,26 @@ function LineaPago({ pago }: { pago: MovimientoPago }) {
       }
     />
   );
-  return hrefDetalle ? (
-    <Link prefetch={false} href={hrefDetalle} className="-mx-2 block rounded-lg px-2 hover:bg-background">
-      {linea}
-    </Link>
-  ) : (
-    linea
+  // La acción va FUERA del link al detalle (un botón dentro de un <a> no es válido).
+  const accion =
+    pago.rendicionId && eliminar ? (
+      eliminar.puede ? (
+        <EliminarMovimientoAccion id={pago.rendicionId} accion={eliminar.accion} className="flex pl-[3.75rem]" />
+      ) : (
+        <p className="pb-2 pl-[3.75rem] text-[14px] break-words text-text-muted">{eliminar.motivo}</p>
+      )
+    ) : null;
+  return (
+    <div>
+      {hrefDetalle ? (
+        <Link prefetch={false} href={hrefDetalle} className="-mx-2 block rounded-lg px-2 hover:bg-background">
+          {linea}
+        </Link>
+      ) : (
+        linea
+      )}
+      {accion}
+    </div>
   );
 }
 
@@ -101,10 +124,13 @@ export function LoQuePasoFicha({
   items,
   nombrePorProducto,
   primerGrupoSinPrecio,
+  eliminarRendicion,
 }: {
   items: ItemLineaDeTiempo[];
   nombrePorProducto: Map<string, string>;
   primerGrupoSinPrecio: string | null;
+  /** Por id de rendición: si se puede eliminar ese pago registrado (0092) o dónde se corrige. */
+  eliminarRendicion: Record<string, OpcionEliminarRendicion>;
 }) {
   const [expandido, setExpandido] = useState(false);
 
@@ -129,7 +155,13 @@ export function LoQuePasoFicha({
       ) : (
         <div className="flex flex-col divide-y divide-line">
           {visibles.map((it) => {
-            if (it.clase === "pago") return <LineaPago key={`pago-${it.pago.id}`} pago={it.pago} />;
+            if (it.clase === "pago") return (
+              <LineaPago
+                key={`pago-${it.pago.id}`}
+                pago={it.pago}
+                eliminar={it.pago.rendicionId ? eliminarRendicion[it.pago.rendicionId] : undefined}
+              />
+            );
             const m = it.movimiento;
             if (m.tipo === "venta") {
               return (

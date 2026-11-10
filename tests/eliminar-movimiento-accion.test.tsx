@@ -23,17 +23,14 @@ afterEach(() => {
   refresh.mockReset();
 });
 
-function montar() {
+function montar(accion: Parameters<typeof EliminarMovimientoAccion>[0]["accion"] = { tipo: "transferencia", montoCentavos: 70_00, origenLugar: "Mercado Pago", destino: "banco" }) {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
   montado = { root, container };
   act(() =>
     root.render(
-      <EliminarMovimientoAccion
-        id="t1"
-        accion={{ tipo: "transferencia", montoCentavos: 70_00, origenLugar: "Mercado Pago", destino: "banco" }}
-      />,
+      <EliminarMovimientoAccion id="t1" accion={accion} />,
     ),
   );
 }
@@ -85,5 +82,54 @@ describe("EliminarMovimientoAccion", () => {
       await new Promise((r) => setTimeout(r, 20));
     });
     expect(document.body.textContent).toContain("quedaría en negativo");
+  });
+
+  describe("pago de revendedora", () => {
+    const pago = { tipo: "rendicion", revendedora: "Rita", montoCentavos: 300_00, lugar: "la plata en manos de Ana" } as const;
+    const confirmar = () =>
+      [...document.querySelectorAll("button")].filter((b) => b.textContent?.startsWith("Eliminar")).at(-1)!;
+
+    it("el cartel dice qué pasa y no llama a la RPC hasta confirmar", async () => {
+      rpc.mockResolvedValue({ error: null });
+      montar(pago);
+      await act(async () => boton("Eliminar")!.click());
+      expect(document.body.textContent).toContain("Rita vuelve a deber");
+      expect(document.body.textContent).toContain("¿Estás seguro?");
+      expect(rpc).not.toHaveBeenCalled();
+      await act(async () => {
+        confirmar().click();
+        await new Promise((r) => setTimeout(r, 20));
+      });
+      expect(rpc).toHaveBeenCalledWith("eliminar_rendicion_revendedor", { p_rendicion_id: "t1" });
+      expect(refresh).toHaveBeenCalled();
+    });
+
+    it("traduce PLATA_YA_DEPOSITADA con el nombre del encargado", async () => {
+      rpc.mockResolvedValue({
+        error: {
+          message: "PLATA_YA_DEPOSITADA",
+          details: JSON.stringify({ tenedor: "Ana", en_mano_centavos: -1, pendiente_centavos: 0 }),
+        },
+      });
+      montar(pago);
+      await act(async () => boton("Eliminar")!.click());
+      await act(async () => {
+        confirmar().click();
+        await new Promise((r) => setTimeout(r, 20));
+      });
+      expect(document.body.textContent).toContain("Ana ya pasó a la Cuenta Ananja");
+      expect(refresh).not.toHaveBeenCalled();
+    });
+
+    it("si la RPC no existe todavía muestra el error genérico", async () => {
+      rpc.mockResolvedValue({ error: { message: "Could not find the function public.eliminar_rendicion_revendedor" } });
+      montar(pago);
+      await act(async () => boton("Eliminar")!.click());
+      await act(async () => {
+        confirmar().click();
+        await new Promise((r) => setTimeout(r, 20));
+      });
+      expect(document.body.textContent).toContain("No se pudo eliminar. Probá de nuevo.");
+    });
   });
 });

@@ -24,7 +24,7 @@ import {
   type FilaMovimiento,
   type MedioCuenta,
 } from "@/lib/dominio/movimientos-plata";
-import { lugarEnPalabras } from "@/lib/dominio/eliminar-movimientos";
+import { lugarEnPalabras, opcionEliminarRendicion } from "@/lib/dominio/eliminar-movimientos";
 import { parsearViaRendicion } from "@/lib/dominio/plata";
 import { agruparPedidosPorPagar, type PedidoPorPagar } from "@/lib/dominio/tareas";
 import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
@@ -444,7 +444,7 @@ export async function cargarMovimientosPlata(
       leer((desde, hasta) => {
         let q = supabase
           .from("rendiciones")
-          .select("id, monto_centavos, medio_pago, via, fecha, created_at, nota, vendedor_id, tenedor_id");
+          .select("id, monto_centavos, medio_pago, via, fecha, created_at, nota, vendedor_id, tenedor_id, venta_grupo_id");
         if (filtro.tipo === "cuenta") {
           q = q.eq("medio_pago", filtro.medio).in("via", ["directo_cuenta", "cliente_directo"]);
         }
@@ -613,6 +613,14 @@ export async function cargarMovimientosPlata(
         via === "encargado" && montoAnanja !== r.monto_centavos
           ? `cobró ${formatCentavos(r.monto_centavos)}`
           : null;
+      const opcion = opcionEliminarRendicion({
+        ventaGrupoId: r.venta_grupo_id,
+        revendedora: nombreDe(r.vendedor_id),
+        montoCentavos: r.monto_centavos,
+        via,
+        medioPago: r.medio_pago,
+        tenedor: nombreDe(r.tenedor_id),
+      });
       return {
         ...base("rendicion", r),
         mov: {
@@ -631,9 +639,9 @@ export async function cargarMovimientosPlata(
           ventaPropia: esVentaPropia(r.vendedor_id, r.tenedor_id),
         }),
         detalle: unir(via === "encargado" ? notaCobrado : MEDIO_PAGO_LABELS[r.medio_pago], r.nota),
-        corregirEn: r.vendedor_id
-          ? { texto: `Se corrige desde la ficha de ${nombreDe(r.vendedor_id)}`, href: `/revendedores/${r.vendedor_id}` }
-          : null,
+        ...(opcion.puede
+          ? { eliminar: opcion.accion }
+          : { corregirEn: { texto: opcion.motivo, href: `/revendedores/${r.vendedor_id}` } }),
       };
     }),
     ...transferencias.data.map((t) => ({
