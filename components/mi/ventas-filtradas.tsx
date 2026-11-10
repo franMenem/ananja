@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { BottomSheet } from "@/components/bottom-sheet";
@@ -14,9 +15,12 @@ import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import {
   filtrarVentasMi,
   hayVentasSinMedio,
+  parsearFiltroMi,
+  serializarFiltroMi,
   mensajeSinVentas,
   resumenFiltroMi,
   resumenVentasMi,
+  type FiltroAplicadoMi,
   type MedioFiltroMi,
   type MesVentasMi,
   type PeriodoVentasMi,
@@ -39,13 +43,24 @@ const MEDIOS: { value: MedioFiltroMi; label: string }[] = [
   { value: "banco", label: MEDIO_PAGO_LABELS.banco },
 ];
 
-/** Ventas por mes: el filtro se arma en una hoja y se aplica con "Aplicar" (en memoria, sin query params). */
+/**
+ * Ventas por mes: el filtro se arma en una hoja (borrador en memoria) y se
+ * aplica con "Aplicar". El filtro APLICADO vive en la URL (`?p=&m=&d=`): así
+ * sobrevive a abrir una venta y volver con "atrás". Se escribe con
+ * `window.history.replaceState`, que Next integra con `useSearchParams` sin
+ * pedirle la página al servidor: el filtrado es en el cliente sobre datos que
+ * ya están cargados (con `router.replace` cada "Aplicar" re-pediría una
+ * página `force-dynamic`).
+ */
 export function VentasFiltradas({ meses, hoy }: { meses: MesVentasMi[]; hoy: string }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [abierta, setAbierta] = useState(false);
-  // Filtro aplicado (el que mira la lista).
-  const [periodo, setPeriodo] = useState<PeriodoVentasMi>("todo");
-  const [medio, setMedio] = useState<MedioFiltroMi>("todos");
-  const [dia, setDia] = useState<string | null>(null);
+  // Filtro aplicado (el que mira la lista): sale de la URL.
+  const query = searchParams?.toString() ?? "";
+  const aplicado = useMemo(() => parsearFiltroMi(new URLSearchParams(query)), [query]);
+  const { periodo, medio } = aplicado;
+  const dia = aplicado.periodo === "dia" ? aplicado.dia : null;
   // Borrador dentro de la hoja: no toca la lista hasta "Aplicar".
   const [bPeriodo, setBPeriodo] = useState<PeriodoVentasMi>("todo");
   const [bMedio, setBMedio] = useState<MedioFiltroMi>("todos");
@@ -55,7 +70,7 @@ export function VentasFiltradas({ meses, hoy }: { meses: MesVentasMi[]; hoy: str
     () => (hayVentasSinMedio(meses) ? [...MEDIOS, { value: "sin_cargar" as const, label: "Sin cargar" }] : MEDIOS),
     [meses],
   );
-  const visibles = useMemo(() => filtrarVentasMi(meses, { periodo, medio, dia, hoy }), [meses, periodo, medio, dia, hoy]);
+  const visibles = useMemo(() => filtrarVentasMi(meses, { ...aplicado, hoy }), [meses, aplicado, hoy]);
   const resumen = useMemo(() => resumenVentasMi(visibles), [visibles]);
 
   if (meses.length === 0) {
@@ -70,9 +85,12 @@ export function VentasFiltradas({ meses, hoy }: { meses: MesVentasMi[]; hoy: str
   }
 
   function aplicar() {
-    setPeriodo(bPeriodo);
-    setMedio(bMedio);
-    setDia(bPeriodo === "dia" ? bDia || hoy : null);
+    const nuevo: FiltroAplicadoMi =
+      bPeriodo === "dia"
+        ? { periodo: "dia", medio: bMedio, dia: bDia || hoy }
+        : { periodo: bPeriodo, medio: bMedio };
+    const qs = serializarFiltroMi(nuevo);
+    window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
     setAbierta(false);
   }
 
@@ -91,7 +109,7 @@ export function VentasFiltradas({ meses, hoy }: { meses: MesVentasMi[]; hoy: str
         </button>
       </div>
 
-      <BottomSheet open={abierta} ariaLabel="Filtrar mis ventas">
+      <BottomSheet open={abierta} ariaLabel="Filtrar mis ventas" onClose={() => setAbierta(false)}>
         <h2 className="font-display text-[24px] text-text">Filtrar ventas</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-2">

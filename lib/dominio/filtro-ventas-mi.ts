@@ -28,6 +28,51 @@ export type FiltroVentasMi = {
   hoy: string;
 };
 
+/**
+ * Filtro APLICADO de `/mi/ventas` (el que vive en la URL). El día solo existe
+ * cuando el período es "dia": el invariante lo garantiza el tipo, no el
+ * cuidado de quien arma el objeto.
+ */
+export type FiltroAplicadoMi =
+  | { periodo: Exclude<PeriodoVentasMi, "dia">; medio: MedioFiltroMi }
+  | { periodo: "dia"; medio: MedioFiltroMi; dia: string };
+
+export const FILTRO_MI_POR_DEFECTO: FiltroAplicadoMi = { periodo: "todo", medio: "todos" };
+
+const PERIODOS_VALIDOS: readonly string[] = ["hoy", "mes", "todo", "dia"];
+const MEDIOS_VALIDOS: readonly string[] = ["todos", "efectivo", "mercado_pago", "banco", "sin_cargar"];
+
+/** "YYYY-MM-DD" que existe en el calendario (rechaza "2026-02-31"). */
+function esFechaISOValida(valor: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
+  const f = new Date(`${valor}T00:00:00Z`);
+  return !Number.isNaN(f.getTime()) && f.toISOString().slice(0, 10) === valor;
+}
+
+/**
+ * Lee el filtro de la URL (`?p=dia&d=2026-11-09&m=banco`). Tolera cualquier
+ * valor inválido: período o medio desconocidos vuelven a su default, y
+ * `p=dia` sin un día válido vuelve a "todo".
+ */
+export function parsearFiltroMi(params: { get(nombre: string): string | null } | null | undefined): FiltroAplicadoMi {
+  const p = params?.get("p") ?? "";
+  const m = params?.get("m") ?? "";
+  const d = params?.get("d") ?? "";
+  const medio = (MEDIOS_VALIDOS.includes(m) ? m : "todos") as MedioFiltroMi;
+  if (!PERIODOS_VALIDOS.includes(p)) return { periodo: "todo", medio };
+  if (p === "dia") return esFechaISOValida(d) ? { periodo: "dia", medio, dia: d } : { periodo: "todo", medio };
+  return { periodo: p as Exclude<PeriodoVentasMi, "dia">, medio };
+}
+
+/** Query string del filtro; solo escribe lo que no es el default ("" si no hay nada). */
+export function serializarFiltroMi(filtro: FiltroAplicadoMi): string {
+  const q = new URLSearchParams();
+  if (filtro.periodo !== "todo") q.set("p", filtro.periodo);
+  if (filtro.periodo === "dia") q.set("d", filtro.dia);
+  if (filtro.medio !== "todos") q.set("m", filtro.medio);
+  return q.toString();
+}
+
 function coincide(v: VentaAgrupadaMi, { periodo, medio, hoy, dia }: FiltroVentasMi): boolean {
   if (periodo === "dia" && v.fecha !== dia) return false;
   if (periodo === "hoy" && v.fecha !== hoy) return false;

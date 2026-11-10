@@ -4,6 +4,8 @@ import {
   filtrarVentasMi,
   hayVentasSinMedio,
   mensajeSinVentas,
+  parsearFiltroMi,
+  serializarFiltroMi,
   resumenFiltroMi,
   resumenVentasMi,
   type MesVentasMi,
@@ -118,5 +120,42 @@ describe("resumenVentasMi", () => {
   });
   it("sin ventas devuelve ceros", () => {
     expect(resumenVentasMi([])).toEqual({ botellas: 0, totalCentavos: 0, sinPrecio: 0, porProducto: [] });
+  });
+});
+
+describe("parsearFiltroMi / serializarFiltroMi (filtro aplicado en la URL)", () => {
+  const leer = (qs: string) => parsearFiltroMi(new URLSearchParams(qs));
+
+  it("sin params es el default", () => {
+    expect(leer("")).toEqual({ periodo: "todo", medio: "todos" });
+    expect(parsearFiltroMi(null)).toEqual({ periodo: "todo", medio: "todos" });
+  });
+
+  it("ida y vuelta para cada combinación válida", () => {
+    const casos = [
+      { periodo: "todo", medio: "todos" },
+      { periodo: "hoy", medio: "efectivo" },
+      { periodo: "mes", medio: "sin_cargar" },
+      { periodo: "dia", medio: "banco", dia: "2026-11-09" },
+      { periodo: "todo", medio: "mercado_pago" },
+    ] as const;
+    for (const c of casos) expect(leer(serializarFiltroMi(c))).toEqual(c);
+  });
+
+  it("solo escribe lo que no es default", () => {
+    expect(serializarFiltroMi({ periodo: "todo", medio: "todos" })).toBe("");
+    expect(serializarFiltroMi({ periodo: "mes", medio: "todos" })).toBe("p=mes");
+    expect(serializarFiltroMi({ periodo: "dia", medio: "banco", dia: "2026-11-09" })).toBe("p=dia&d=2026-11-09&m=banco");
+  });
+
+  it("tolera valores inválidos volviendo al default", () => {
+    expect(leer("p=ayer&m=cripto")).toEqual({ periodo: "todo", medio: "todos" });
+    expect(leer("p=dia")).toEqual({ periodo: "todo", medio: "todos" });
+    expect(leer("p=dia&d=2026-02-31&m=banco")).toEqual({ periodo: "todo", medio: "banco" });
+    expect(leer("p=dia&d=mañana")).toEqual({ periodo: "todo", medio: "todos" });
+  });
+
+  it("un día suelto sin p=dia se ignora (el día solo existe con período dia)", () => {
+    expect(leer("d=2026-11-09&p=mes")).toEqual({ periodo: "mes", medio: "todos" });
   });
 });

@@ -12,6 +12,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/mi/ventas",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { VentasFiltradas } from "@/components/mi/ventas-filtradas";
 import type { MesVentasMi } from "@/lib/dominio/filtro-ventas-mi";
 
