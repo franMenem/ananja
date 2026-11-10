@@ -1,4 +1,5 @@
 import { FilasResultado } from "@/components/plata/resultado-mes";
+import { EsqueletoGananciaHeader } from "@/components/ganancia/esqueletos";
 import { claseChip } from "@/components/ui/chip";
 import { NumeroGrande } from "@/components/ui/numero-grande";
 import { Tarjeta } from "@/components/ui/tarjeta";
@@ -26,12 +27,16 @@ export function GananciaHeader({
   periodo,
   onChangePeriodo,
   desglose,
+  cargando = false,
 }: {
   periodo: Periodo;
   onChangePeriodo: (periodo: Periodo) => void;
   /** `null` mientras carga o si no hay nada que mostrar todavía — la
    * tarjeta no se renderiza en ese caso. */
   desglose: DesgloseResultado | null;
+  /** Mientras llega la lectura lenta (`v_margen_ventas`): en lugar de la
+   * tarjeta, un esqueleto del mismo tamaño. */
+  cargando?: boolean;
 }) {
   return (
     <>
@@ -49,7 +54,9 @@ export function GananciaHeader({
         ))}
       </div>
 
-      {desglose && (
+      {cargando && <EsqueletoGananciaHeader />}
+
+      {!cargando && desglose && (
         <Tarjeta className="flex flex-col gap-3">
           <NumeroGrande
             etiqueta={`Ganaste en ${labelDePeriodo(desglose.periodo).toLowerCase()}`}

@@ -6,6 +6,12 @@ import { AvisoCarga } from "@/components/ui/aviso-carga";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { useCarga } from "@/components/ui/use-carga";
 import { BotellasVendidas } from "@/components/ganancia/botellas-vendidas";
+import {
+  EsqueletoBotellasVendidas,
+  EsqueletoGananciaVendedores,
+  EsqueletoTablaPorMes,
+  EsqueletoVentasPorMes,
+} from "@/components/ganancia/esqueletos";
 import { GananciaHeader, type Periodo } from "@/components/ganancia/ganancia-header";
 import { GananciaVendedores } from "@/components/ganancia/ganancia-vendedores";
 import { TablaPorMes } from "@/components/ganancia/tabla-por-mes";
@@ -42,13 +48,6 @@ import { createClient } from "@/lib/supabase/client";
  * `resumirMargenAnanja`).
  */
 
-const DATOS_GRAFICOS_VACIOS: DatosGraficos = {
-  comprobantes: [],
-  ventasRevendedor: [],
-  comprobanteItems: [],
-  productos: [],
-};
-
 type Vendedor = { id: string; nombre: string };
 
 type DatosGanancia = {
@@ -56,7 +55,6 @@ type DatosGanancia = {
   gastosOperativos: GastoOperativo[];
   vendedores: Vendedor[];
   coordinadorIds: ReadonlySet<string>;
-  datosGraficos: DatosGraficos;
 };
 
 const DATOS_GANANCIA_VACIOS: DatosGanancia = {
@@ -64,7 +62,6 @@ const DATOS_GANANCIA_VACIOS: DatosGanancia = {
   gastosOperativos: [],
   vendedores: [],
   coordinadorIds: new Set(),
-  datosGraficos: DATOS_GRAFICOS_VACIOS,
 };
 
 function mesActualISO(): string {
@@ -75,19 +72,18 @@ function mesActualISO(): string {
 export default function GananciaPage() {
   const [periodo, setPeriodo] = useState<Periodo>("anio");
 
-  // Todo lo que trae la pantalla, en un solo estado: un fallo no se ve como
-  // "todavía no hay ventas ni gastos" (ver `useCarga`).
+  // Dos cargas independientes (cada una con su estado, su reintento y su
+  // descarte de respuestas viejas): la de la cuenta depende de la lectura lenta
+  // `v_margen_ventas`; la de los gráficos no, así que no la espera. Un fallo
+  // no se ve como "todavía no hay ventas" (ver `useCarga`).
   const { estado: carga, reintentar } = useCarga<DatosGanancia>(async () => {
     const supabase = createClient();
-    const [margenRes, gastosRes, vendedoresRes, graficosRes, idsCoordinadoras] = await Promise.all([
+    const [margenRes, gastosRes, vendedoresRes, idsCoordinadoras] = await Promise.all([
       listarMargenVentas(supabase),
       listarGastosConCategoria(supabase),
       listarVendedoresNombre(supabase),
-      cargarDatosGraficos(supabase),
       listarCoordinadorIds(supabase),
     ]);
-
-    if (graficosRes.error) console.error("ganancia: gráfico de líneas", graficosRes.error);
 
     return {
       data: {
@@ -95,15 +91,18 @@ export default function GananciaPage() {
         gastosOperativos: filtrarGastosOperativos(gastosRes.data),
         vendedores: vendedoresRes.data,
         coordinadorIds: new Set(idsCoordinadoras),
-        // El gráfico es accesorio: si falla solo él, el resto se muestra.
-        datosGraficos: graficosRes.error ? DATOS_GRAFICOS_VACIOS : graficosRes.data,
       },
       error: margenRes.error || gastosRes.error || vendedoresRes.error ? "No se pudo cargar la información de ganancia." : null,
     };
   });
+  const { estado: cargaGraficos, reintentar: reintentarGraficos } = useCarga<DatosGraficos>(async () => {
+    const res = await cargarDatosGraficos(createClient());
+    if (res.error) console.error("ganancia: gráficos", res.error);
+    return res;
+  });
   const loading = carga.tipo === "cargando";
   const error = carga.tipo === "error" ? carga.mensaje : null;
-  const { margenRows, gastosOperativos, vendedores, coordinadorIds, datosGraficos } =
+  const { margenRows, gastosOperativos, vendedores, coordinadorIds } =
     carga.tipo === "listo" ? carga.datos : DATOS_GANANCIA_VACIOS;
 
   const filasAnanjaPorMes = useMemo(
@@ -130,7 +129,9 @@ export default function GananciaPage() {
   const vendedoresEsteAnio = margenVendedoresDePeriodo(vendedorPorAnio, anioActual, coordinadorIds);
   const nombreDe = (vendedorId: string) => vendedores.find((v) => v.id === vendedorId)?.nombre ?? "Vendedor";
 
-  const vacio = filasAnanjaPorMes.length === 0 && filasAnanjaPorAnio.length === 0;
+  // Solo se afirma "no hay datos" cuando la carga lenta TERMINÓ bien.
+  const vacio = carga.tipo === "listo" && filasAnanjaPorMes.length === 0 && filasAnanjaPorAnio.length === 0;
+  const mostrarCuenta = carga.tipo === "listo" && !vacio;
 
   return (
     <div className="flex min-w-0 flex-col gap-5 pb-8">
@@ -139,19 +140,30 @@ export default function GananciaPage() {
       <GananciaHeader
         periodo={periodo}
         onChangePeriodo={setPeriodo}
-        desglose={!loading && !error && !vacio ? desglose : null}
+        desglose={mostrarCuenta ? desglose : null}
+        cargando={loading}
       />
 
       {error && <AvisoCarga variante="pagina" mensaje={error} onReintentar={reintentar} />}
+      {vacio && <p className="py-6 text-[16px] text-text-muted">Todavía no hay ventas ni gastos.</p>}
+
+      {/* Los gráficos no dependen de la vista lenta: aparecen cuando llegan los
+          suyos, vengan antes o después de la cuenta. */}
+      {cargaGraficos.tipo === "cargando" ? (
+        <EsqueletoVentasPorMes />
+      ) : cargaGraficos.tipo === "error" ? (
+        <AvisoCarga mensaje="No se pudieron cargar los gráficos de ventas." onReintentar={reintentarGraficos} />
+      ) : (
+        <VentasPorMes datosGraficos={cargaGraficos.datos} />
+      )}
 
       {loading ? (
-        <p className="py-6 text-[16px] text-text-muted">Cargando…</p>
-      ) : !error && vacio ? (
-        <p className="py-6 text-[16px] text-text-muted">Todavía no hay ventas ni gastos.</p>
-      ) : !error ? (
         <>
-          <VentasPorMes datosGraficos={datosGraficos} />
-
+          <EsqueletoTablaPorMes />
+          <EsqueletoGananciaVendedores />
+        </>
+      ) : mostrarCuenta ? (
+        <>
           <TablaPorMes filas={filasAnanjaPorMes.slice(0, 12)} />
 
           <GananciaVendedores
@@ -163,9 +175,13 @@ export default function GananciaPage() {
             unidadesSinPrecioMes={unidadesSinPrecioRevendedorDePeriodo(margenRows, "mes", mesActual)}
             unidadesSinPrecioAnio={unidadesSinPrecioRevendedorDePeriodo(margenRows, "anio", anioActual)}
           />
-
-          <BotellasVendidas datosGraficos={datosGraficos} periodo={periodo} />
         </>
+      ) : null}
+
+      {cargaGraficos.tipo === "cargando" ? (
+        <EsqueletoBotellasVendidas />
+      ) : cargaGraficos.tipo === "listo" ? (
+        <BotellasVendidas datosGraficos={cargaGraficos.datos} periodo={periodo} />
       ) : null}
     </div>
   );
