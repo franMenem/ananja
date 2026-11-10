@@ -15,6 +15,7 @@ import { TextoMaterial } from "@/components/texto-material";
 import type { Material } from "@/lib/data/material";
 import { actualizarMaterial, crearMaterial, eliminarMaterial } from "@/lib/material";
 import { createClient } from "@/lib/supabase/client";
+import { useEnvio } from "@/components/ui/use-envio";
 
 type MaterialFormProps = {
   /** `null`/`undefined` = modo alta (`/material/nuevo`). Con un material,
@@ -46,7 +47,8 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
   const [titulo, setTitulo] = useState(material?.titulo ?? "");
   const [cuerpo, setCuerpo] = useState(material?.cuerpo ?? "");
   const [publicado, setPublicado] = useState(material?.publicado ?? false);
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [eliminando, setEliminando] = useState(false);
@@ -62,7 +64,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
       return;
     }
 
-    setSaving(true);
+    if (!envio.empezar()) return;
     const supabase = createClient();
 
     const { error: dbError } = esEdicion
@@ -81,11 +83,11 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
     if (dbError) {
       console.error("MaterialForm.handleSubmit", dbError);
       setError("No se pudo guardar el material.");
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push("/material");
     router.refresh();
   }

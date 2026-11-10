@@ -33,6 +33,7 @@ import { feriaCerrarParticipacion } from "@/lib/ferias";
 import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money";
 import { envase } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
+import { useEnvio } from "@/components/ui/use-envio";
 
 export type ProductoCierreForm = Omit<ProductoCierreFeria, "yaVendidas"> & {
   yaVendidas: number;
@@ -173,7 +174,8 @@ export function CierreFeriaForm({
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
   const [confirmando, setConfirmando] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
 
   const preciosParseados: Record<string, number | null> = Object.fromEntries(
@@ -215,7 +217,7 @@ export function CierreFeriaForm({
   }
 
   async function guardar() {
-    setSaving(true);
+    if (!envio.empezar()) return;
     setError(null);
     const supabase = createClient();
     const { error: rpcError } = await feriaCerrarParticipacion(supabase, {
@@ -237,11 +239,11 @@ export function CierreFeriaForm({
     if (rpcError) {
       setConfirmando(false);
       setError(mensajeErrorFeria(rpcError.message));
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push(volverHref);
     router.refresh();
   }

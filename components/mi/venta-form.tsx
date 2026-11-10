@@ -34,6 +34,7 @@ import {
 import { registrarVentaRevendedor } from "@/lib/revendedores";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types";
+import { useEnvio } from "@/components/ui/use-envio";
 
 type MedioPago = Enums<"medio_pago">;
 
@@ -108,7 +109,8 @@ export function VentaForm({
   const [medioPago, setMedioPago] = useState<MedioPago | null>(null);
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
   const [alerta, setAlerta] = useState<StockAlert | null>(null);
 
@@ -161,7 +163,7 @@ export function VentaForm({
       return;
     }
 
-    setSaving(true);
+    if (!envio.empezar()) return;
     const supabase = createClient();
     const { error: rpcError } = await registrarVentaRevendedor(supabase, {
       productoId: seleccionado.producto.id,
@@ -181,15 +183,15 @@ export function VentaForm({
           producto: typeof detalle.producto === "string" ? detalle.producto : "un producto",
           disponible: typeof detalle.disponible === "number" ? detalle.disponible : 0,
         });
-        setSaving(false);
+        envio.liberar();
         return;
       }
       setError(mensajeErrorVentaPropia(rpcError.message, detalleCrudo));
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push("/mi/ventas");
     router.refresh();
   }

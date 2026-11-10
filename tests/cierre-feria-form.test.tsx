@@ -167,3 +167,27 @@ describe("guardado", () => {
     expect(push).toHaveBeenCalledWith("/ferias/f1");
   });
 });
+
+describe("doble toque", () => {
+  it("tras guardar bien y navegar, el botón sigue ocupado y un segundo toque no repite la llamada", async () => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const root = createRoot(el);
+    await act(async () => {
+      root.render(admin());
+    });
+    const boton = () => document.querySelector<HTMLButtonElement>("form button[type=submit]")!;
+    await act(async () => {
+      boton().click();
+    });
+    expect(cerrarParticipacion).toHaveBeenCalledTimes(1);
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(boton().disabled).toBe(true);
+    await act(async () => {
+      boton().click();
+    });
+    expect(cerrarParticipacion).toHaveBeenCalledTimes(1);
+    act(() => root.unmount());
+    el.remove();
+  });
+});

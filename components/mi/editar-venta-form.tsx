@@ -23,6 +23,7 @@ import { envase } from "@/lib/negocio";
 import { editarVentaRevendedor } from "@/lib/revendedores";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/types";
+import { useEnvio } from "@/components/ui/use-envio";
 
 type MedioPago = Enums<"medio_pago">;
 
@@ -58,7 +59,8 @@ export function EditarVentaForm({
   );
   const [fecha, setFecha] = useState(fechaInicial);
   const [nota, setNota] = useState(notaInicial ?? "");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -78,7 +80,7 @@ export function EditarVentaForm({
       return;
     }
 
-    setSaving(true);
+    if (!envio.empezar()) return;
     const supabase = createClient();
     const { error: rpcError } = await editarVentaRevendedor(supabase, {
       grupoId,
@@ -92,11 +94,11 @@ export function EditarVentaForm({
       setError(
         mensajeErrorVentaPropia(rpcError.message, (rpcError as { details?: string }).details),
       );
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push(`/mi/ventas/${ventaId}`);
     router.refresh();
   }

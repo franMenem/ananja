@@ -20,6 +20,7 @@ import { formatCentavos, formatMontoDisplay, parseMontoInput } from "@/lib/money
 import { createClient } from "@/lib/supabase/client";
 import { MEDIOS_DESTINO_TRANSFERENCIA } from "@/lib/dominio/transferencias";
 import { CLASE_CAJA_MONTO, CLASE_ETIQUETA, CLASE_INPUT_MONTO_GRANDE } from "@/components/ui/campo";
+import { useEnvio } from "@/components/ui/use-envio";
 
 type Persona = { id: string; nombre: string };
 
@@ -72,7 +73,8 @@ export function DepositarForm({
   });
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
   const [saldoInsuficiente, setSaldoInsuficiente] = useState<{
     disponibleCentavos: number;
@@ -88,7 +90,7 @@ export function DepositarForm({
   async function enviar(montoCentavos: number, permitirNegativo: boolean) {
     if (!tenedorId || !medioPago) return;
 
-    setSaving(true);
+    if (!envio.empezar()) return;
     setError(null);
 
     const supabase = createClient();
@@ -114,11 +116,11 @@ export function DepositarForm({
       } else {
         setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar el depósito. Probá de nuevo."));
       }
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push("/plata");
     router.refresh();
   }

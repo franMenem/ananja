@@ -9,6 +9,7 @@ import {
   type ItemComprobantePayload,
   type StockAlertComprobante,
 } from "@/lib/dominio/comprobantes";
+import { useEnvio } from "@/components/ui/use-envio";
 import { notificarPush } from "@/lib/push-client";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/types";
@@ -68,7 +69,8 @@ function esErrorDeConexion(mensaje: string | null): boolean {
  */
 export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuardarComprobanteResult {
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
+  const envio = useEnvio();
+  const submitting = envio.ocupado;
   const [formError, setFormError] = useState<string | null>(null);
   const [stockAlert, setStockAlert] = useState<StockAlert | null>(null);
   const permitirNegativoRef = useRef(false);
@@ -84,6 +86,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
   }
 
   async function handleSubmit(permitirNegativo: boolean) {
+    if (!envio.empezar()) return;
     // El error de conexión queda a la vista mientras se reintenta, para que
     // el botón "Reintentar" siga en pantalla mostrando su loader.
     setFormError((prev) => (esErrorDeConexion(prev) ? prev : null));
@@ -105,12 +108,11 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
     if (!validacion.ok) {
       setStockAlert(null);
       setFormError(validacion.error);
+      envio.liberar();
       return;
     }
 
     const { montoCentavos, cobradoCentavos, medioPago } = validacion;
-
-    setSubmitting(true);
 
     try {
       const supabase = createClient();
@@ -175,6 +177,7 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
         }
       }
 
+      envio.completar();
       router.push(args.volverA ?? "/comprobantes");
       router.refresh();
     } catch {
@@ -183,7 +186,8 @@ export function useGuardarComprobante(args: UseGuardarComprobanteArgs): UseGuard
         "No se pudo guardar por un problema de conexión. Los datos quedaron cargados: revisá tu conexión e intentá de nuevo.",
       );
     } finally {
-      setSubmitting(false);
+      // No-op si ya se llamó a `completar()`: tras navegar el botón sigue ocupado.
+      envio.liberar();
     }
   }
 

@@ -40,6 +40,7 @@ import {
 import { crearLote } from "@/lib/lotes";
 import { createClient } from "@/lib/supabase/client";
 import { useVendedorActual } from "@/lib/vendedor-actual";
+import { useEnvio } from "@/components/ui/use-envio";
 import type { Tables } from "@/lib/types";
 
 type Producto = Pick<Tables<"productos">, "id" | "nombre" | "presentacion_ml">;
@@ -138,7 +139,8 @@ export function LoteForm({
   );
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
   const [recetas, setRecetas] = useState<Receta[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
@@ -272,12 +274,11 @@ export function LoteForm({
   );
 
   async function guardarLote(permitirNegativo: boolean) {
+    if (!envio.empezar()) return;
     permitirNegativoRef.current = permitirNegativo;
     // El error de conexión queda a la vista mientras se reintenta, para que
     // el botón "Reintentar" siga en pantalla mostrando su loader.
     setError((prev) => (prev?.startsWith("No se pudo conectar") ? prev : null));
-    setSaving(true);
-
     try {
       const supabase = createClient();
       const items = productos
@@ -326,13 +327,15 @@ export function LoteForm({
       // el aviso "Completar costos de este pedido" si no.
       setInsumoAlert(null);
       const loteId = (rpcData as { lote_id?: string } | null)?.lote_id;
+      envio.completar();
       router.push(loteId ? `/stock/lotes/${loteId}` : "/stock");
       router.refresh();
     } catch {
       setInsumoAlert(null);
       setError("No se pudo conectar. Revisá la conexión e intentá de nuevo.");
     } finally {
-      setSaving(false);
+      // No-op si ya se llamó a `completar()`: tras navegar el botón sigue ocupado.
+      envio.liberar();
     }
   }
 

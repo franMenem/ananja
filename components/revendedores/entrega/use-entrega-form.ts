@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useCargasParecidas } from "@/components/revendedores/aviso-carga-repetida";
+import { useEnvio } from "@/components/ui/use-envio";
 import type { FilaLote } from "@/components/lotes/selector-lote";
 import type { FilaRevision, ItemEntrega, StockAlert } from "@/components/revendedores/entrega/tipos";
 import { busquedaDeEntrega } from "@/lib/dominio/cargas-parecidas";
@@ -82,7 +83,8 @@ export function useEntregaForm({
   const [devolucion, setDevolucion] = useState<Record<string, number>>({});
   const [fecha, setFecha] = useState(hoyISO());
   const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
   const [alerta, setAlerta] = useState<StockAlert | null>(null);
   const [revision, setRevision] = useState<FilaRevision[] | null>(null);
@@ -311,18 +313,19 @@ export function useEntregaForm({
   }
 
   async function guardar(items: ItemEntrega[], permitirNegativo: boolean) {
-    setSaving(true);
+    if (!envio.empezar()) return;
     setError(null);
     setAlerta(null);
 
     // Sin botellas para vender (solo degustación de feria): se salta la entrega.
     if (items.length === 0) {
       const codigoDeg = await cargarDegustacionDeFeria(items);
-      setSaving(false);
       if (codigoDeg) {
+        envio.liberar();
         setError(`No se pudo cargar la degustación: ${mensajeErrorFeria(codigoDeg)}`);
         return;
       }
+      envio.completar();
       router.push(volverHref ?? `/revendedores/${vendedorId}`);
       router.refresh();
       return;
@@ -351,7 +354,7 @@ export function useEntregaForm({
           producto: detalle.producto ?? "un producto",
           disponible: detalle.disponible ?? 0,
         });
-        setSaving(false);
+        envio.liberar();
         return;
       }
       // Mismo flujo "Guardar igual" que STOCK_INSUFICIENTE, a nivel de un
@@ -367,18 +370,18 @@ export function useEntregaForm({
           producto: nombrePorProducto.get(detalle.producto_id ?? "") ?? "un producto",
           disponible: detalle.disponible ?? 0,
         });
-        setSaving(false);
+        envio.liberar();
         return;
       }
       setError(traducirErrorRpc(rpcError.message, ERRORES_RPC, "No se pudo guardar. Probá de nuevo."));
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
     // La entrega ya está guardada. Si la degustación falla, se vuelve igual
     // a la feria y el aviso del error se muestra ahí (`?errorDegustacion=`).
     const codigoDeg = await cargarDegustacionDeFeria(items);
-    setSaving(false);
+    envio.completar();
     const destino = volverHref ?? `/revendedores/${vendedorId}`;
     router.push(codigoDeg ? `${destino}?errorDegustacion=${encodeURIComponent(codigoDeg)}` : destino);
     router.refresh();

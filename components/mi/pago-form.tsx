@@ -30,6 +30,7 @@ import {
 import { informarPagoRevendedor } from "@/lib/revendedores";
 import { ArchivoInvalidoError, subirComprobantePagoRevendedor } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
+import { useEnvio } from "@/components/ui/use-envio";
 
 type PagoFormProps = {
   vendedorId: string;
@@ -72,7 +73,8 @@ export function PagoForm({
   const [fecha, setFecha] = useState(hoyISO());
   const [archivo, setArchivo] = useState<File | null>(null);
   const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
+  const envio = useEnvio();
+  const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -93,7 +95,7 @@ export function PagoForm({
       return;
     }
 
-    setSaving(true);
+    if (!envio.empezar()) return;
 
     let imagenPath: string | null = null;
     if (archivo) {
@@ -105,7 +107,7 @@ export function PagoForm({
             ? err.message
             : "No se pudo subir el comprobante. Probá de nuevo.",
         );
-        setSaving(false);
+        envio.liberar();
         return;
       }
     }
@@ -121,11 +123,11 @@ export function PagoForm({
 
     if (rpcError) {
       setError(traducirErrorRpc(rpcError.message, ERRORES, "No se pudo guardar el pago. Probá de nuevo."));
-      setSaving(false);
+      envio.liberar();
       return;
     }
 
-    setSaving(false);
+    envio.completar();
     router.push("/mi");
     router.refresh();
   }
