@@ -20,11 +20,12 @@ import {
   type VentaAdminRevisada,
   type VentaFifo,
 } from "@/lib/dominio/revendedor-stock";
+import type { ViaRendicion } from "@/lib/dominio/plata";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import type { Enums, Json } from "@/lib/types";
 
 export type MedioPago = Enums<"medio_pago">;
-export type ViaPago = "encargado" | "directo_cuenta" | "cliente_directo";
+export type ViaPago = ViaRendicion;
 export type SeccionCarga = "general" | "entrega" | "ventas" | "pago";
 
 /** `entregaId` de los tramos de la entrega que se está cargando (todavía

@@ -23,11 +23,13 @@
  *     nuevo al más viejo.
  */
 
+import type { TipoEntrega } from "@/lib/dominio/tipo-entrega";
+
 export interface EntregaItemFifo {
   /** `entrega_items.id` */
   id: string;
   entregaId: string;
-  tipo: "entrega" | "devolucion";
+  tipo: TipoEntrega;
   /** `entregas_revendedor.fecha`, "yyyy-mm-dd" */
   fecha: string;
   /** `entregas_revendedor.created_at` (ISO tal cual llega de Supabase) */

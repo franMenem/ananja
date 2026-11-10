@@ -27,6 +27,7 @@ import { ERRORES_DEVOLUCION } from "@/lib/dominio/devolucion";
 import { envase } from "@/lib/negocio";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/types";
+import { type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 const ERRORES_RPC: Record<string, string> = {
   REVENDEDOR_INVALIDO: "Este vendedor ya no es revendedor.",
@@ -58,7 +59,7 @@ export function useEntregaForm({
 }: {
   vendedorId: string;
   productos: Tables<"productos">[];
-  tipoInicial: "entrega" | "devolucion";
+  tipoInicial: TipoEntrega;
   soloDevolucion?: boolean;
   lotesConStock: LoteConStockDeProducto[];
   /** Devolución: pedidos con botellas en poder de la revendedora, por
@@ -72,7 +73,7 @@ export function useEntregaForm({
   volverHref?: string;
 }) {
   const router = useRouter();
-  const [tipo, setTipo] = useState<"entrega" | "devolucion">(soloDevolucion ? "devolucion" : tipoInicial);
+  const [tipo, setTipo] = useState<TipoEntrega>(soloDevolucion ? "devolucion" : tipoInicial);
   const [cantidades, setCantidades] = useState<Record<string, number>>(() =>
     Object.fromEntries(productos.map((p) => [p.id, 0])),
   );

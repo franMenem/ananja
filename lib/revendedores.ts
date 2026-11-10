@@ -11,6 +11,7 @@ import { leerTodasLasPaginas } from "@/lib/paginado";
 import type { EntregaItemFifo } from "@/lib/dominio/revendedor-stock";
 import { obtenerVendedorPorUserId } from "@/lib/rol-vendedor";
 import type { Database, Enums, Tables } from "@/lib/types";
+import { normalizarTipoEntrega, type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 export type PagoRevendedor = Tables<"pagos_revendedor">;
 
@@ -44,7 +45,7 @@ export async function listarEntregaItemsFifo(
     data: (data ?? []).map((i) => ({
       id: i.id,
       entregaId: i.entrega_id,
-      tipo: i.entregas_revendedor.tipo === "devolucion" ? "devolucion" : "entrega",
+      tipo: normalizarTipoEntrega(i.entregas_revendedor.tipo),
       fecha: i.entregas_revendedor.fecha,
       createdAt: i.entregas_revendedor.created_at,
       productoId: i.producto_id,
@@ -128,7 +129,7 @@ export type ItemEntregaRevendedor = {
 
 export type RegistrarEntregaRevendedorArgs = {
   vendedorId: string;
-  tipo: "entrega" | "devolucion";
+  tipo: TipoEntrega;
   fecha: string;
   nota: string | null;
   items: ItemEntregaRevendedor[];

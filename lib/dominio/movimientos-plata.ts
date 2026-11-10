@@ -36,12 +36,12 @@
  */
 
 import type { MedioPago } from "@/lib/dominio/caja";
+import type { ViaRendicion } from "@/lib/dominio/plata";
 import { etiquetaMedioPago } from "@/lib/etiquetas/medio-pago";
 import { diasEntre, fechaArgentinaDeTimestamp } from "@/lib/fechas";
 import { fechaPlataEnManoMasVieja } from "@/lib/dominio/tareas";
 
 export type MedioCuenta = Exclude<MedioPago, "efectivo">;
-export type ViaRendicion = "encargado" | "directo_cuenta" | "cliente_directo";
 
 export type Lugar =
   | { lugar: "cuenta"; medio: MedioCuenta }

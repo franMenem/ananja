@@ -14,6 +14,7 @@ import {
 import { textoParaVenderYDegustar } from "@/lib/dominio/feria-admin";
 import { envase } from "@/lib/negocio";
 import type { Tables } from "@/lib/types";
+import { type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 /** Paso 1 de `EntregaForm`: tipo (Entrega/Devolución), cantidades por
  * producto con su split por lote (`SelectorLote`), fecha y nota. Se oculta
@@ -52,8 +53,8 @@ export function FormularioEntrega({
   soloDevolucion: boolean;
   /** Oculta el chip Entrega/Devolución (entrega de feria: tipo fijo). */
   soloEntrega?: boolean;
-  tipo: "entrega" | "devolucion";
-  onCambiarTipo: (tipo: "entrega" | "devolucion") => void;
+  tipo: TipoEntrega;
+  onCambiarTipo: (tipo: TipoEntrega) => void;
   productos: Tables<"productos">[];
   cantidades: Record<string, number>;
   onCambiarCantidad: (productoId: string, value: number) => void;

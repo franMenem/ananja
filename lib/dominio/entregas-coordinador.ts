@@ -6,6 +6,7 @@
  */
 
 import { compararPorFechaDesc } from "@/lib/fechas";
+import { normalizarTipoEntrega, type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 /** Cuántas entregas se ven de entrada; el resto va plegado en un `<details>`. */
 export const ENTREGAS_COORDINADORA_VISIBLES = 20;
@@ -39,7 +40,7 @@ export interface ItemEntregaCoordinadora {
 
 export interface FilaEntregaCoordinadora {
   id: string;
-  tipo: "entrega" | "devolucion";
+  tipo: TipoEntrega;
   fecha: string;
   createdAt: string;
   /** Entrega (o devolución) que se anotó sola cuando una revendedora que
@@ -99,7 +100,7 @@ export function armarEntregasCoordinadora(datos: DatosEntregasCoordinadora): Ent
 
   const filas: FilaEntregaCoordinadora[] = entregas.map((e) => ({
     id: e.id,
-    tipo: e.tipo === "devolucion" ? "devolucion" : "entrega",
+    tipo: normalizarTipoEntrega(e.tipo),
     fecha: e.fecha,
     createdAt: e.created_at,
     automatica: e.automatica === true,

@@ -35,6 +35,7 @@ import { stockRevendedorasPorLote } from "@/lib/dominio/lote-en-manos";
 import type { RendicionConParteAnanja } from "@/lib/dominio/plata-por-lote";
 import { leerTodasLasPaginas } from "@/lib/paginado";
 import type { Database } from "@/lib/types";
+import { normalizarTipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 type Supa = SupabaseClient<Database>;
 
@@ -233,7 +234,7 @@ export async function cargarBotellasAdeudadas(supabase: Supa, alcance: AlcanceBo
         id: i.id,
         vendedorId: entrega.vendedor_id,
         entregaId: i.entrega_id,
-        tipo: entrega.tipo === "devolucion" ? ("devolucion" as const) : ("entrega" as const),
+        tipo: normalizarTipoEntrega(entrega.tipo),
         fecha: entrega.fecha,
         createdAt: entrega.created_at,
         productoId: i.producto_id,

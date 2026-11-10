@@ -9,6 +9,7 @@
 
 import { compararPorFechaDesc } from "@/lib/fechas";
 import type { Enums } from "@/lib/types";
+import { normalizarTipoEntrega, type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 export type MedioPago = Enums<"medio_pago">;
 
@@ -31,7 +32,7 @@ export interface ItemMovimientoEntrega {
 }
 
 export interface MovimientoEntrega {
-  tipo: "entrega" | "devolucion";
+  tipo: TipoEntrega;
   /** La generó el sistema (0073): la entrega que se anota sola cuando
    * "agarra directo del depósito" y vende botellas que no tenía, o la
    * devolución que la compensa al eliminar esa venta. */
@@ -99,7 +100,7 @@ export function entregasComoMovimientos(
     itemsPorEntrega.set(item.entrega_id, lista);
   }
   return entregas.map((e) => ({
-    tipo: e.tipo === "devolucion" ? "devolucion" : "entrega",
+    tipo: normalizarTipoEntrega(e.tipo),
     automatica: e.automatica === true,
     id: e.id,
     fecha: e.fecha,

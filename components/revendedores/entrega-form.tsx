@@ -8,12 +8,13 @@ import { useEntregaForm } from "@/components/revendedores/entrega/use-entrega-fo
 import type { PedidoEnPoder } from "@/lib/dominio/devolucion";
 import type { LoteConStockDeProducto } from "@/lib/dominio/lotes-disponibles";
 import type { Tables } from "@/lib/types";
+import { type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 type EntregaFormProps = {
   vendedorId: string;
   vendedorNombre: string;
   productos: Tables<"productos">[];
-  tipoInicial: "entrega" | "devolucion";
+  tipoInicial: TipoEntrega;
   /** `/revendedores/[id]/devolucion` (rediseño "de 10 bloques a 5",
    * 2026-09-16): la Entrega vive ahora en "Cargar movimiento"
    * (`carga-form.tsx`) — acá se oculta el chip Entrega/Devolución y el tipo

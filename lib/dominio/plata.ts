@@ -22,7 +22,26 @@ import {
   type VentaRevendedorMonto,
 } from "@/lib/dominio/calculos";
 
+/**
+ * Cómo llegó a Ananja la plata de una rendición (`rendiciones.via`, columna
+ * `text` sin CHECK en la base): `encargado` (la tiene en mano el encargado,
+ * todavía no llegó a la Cuenta Ananja), `directo_cuenta` o `cliente_directo`
+ * (ya está en la Cuenta Ananja). ÚNICA declaración: el resto del código
+ * importa este tipo y usa {@link parsearViaRendicion} para leer la base.
+ */
 export type ViaRendicion = "encargado" | "directo_cuenta" | "cliente_directo";
+
+const VIAS_RENDICION: readonly string[] = ["encargado", "directo_cuenta", "cliente_directo"];
+
+/**
+ * De `rendiciones.via` (string de la base) a {@link ViaRendicion}. Un valor
+ * desconocido se trata como `directo_cuenta`, que es lo que hacía el código
+ * al comparar a mano (solo `encargado` y `cliente_directo` tienen ramas
+ * propias; todo lo demás cae en "directo a la cuenta").
+ */
+export function parsearViaRendicion(via: string): ViaRendicion {
+  return VIAS_RENDICION.includes(via) ? (via as ViaRendicion) : "directo_cuenta";
+}
 
 /**
  * Traduce una rendición real (`via` + `medio_pago` que cargó el admin) al

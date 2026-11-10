@@ -28,6 +28,7 @@ import {
 import { ERRORES_RPC_COMUNES, traducirErrorRpc } from "@/lib/dominio/errores-rpc";
 import { ERRORES_FERIA_EN_VENTA_PROPIA } from "@/lib/dominio/feria";
 import { NEGOCIO } from "@/lib/negocio";
+import { type TipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 /** `true` si la cantidad pedida es una venta posible: entera, de al menos
  * una botella y — salvo que agarre directo del depósito — no más de lo que
@@ -165,7 +166,7 @@ export function mensajeErrorVentaPropia(
  * tenía, y la devolución con la que se compensa al eliminar esa venta. `null`
  * si la entrega la cargó una persona. */
 export function etiquetaEntregaAutomatica(
-  tipo: "entrega" | "devolucion",
+  tipo: TipoEntrega,
   automatica: boolean,
 ): string | null {
   if (!automatica) return null;

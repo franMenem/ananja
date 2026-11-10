@@ -14,6 +14,7 @@ import {
 } from "@/lib/dominio/lote-en-manos";
 import { leerTodasLasPaginas } from "@/lib/paginado";
 import type { Database, Tables } from "@/lib/types";
+import { normalizarTipoEntrega } from "@/lib/dominio/tipo-entrega";
 
 type Supa = SupabaseClient<Database>;
 
@@ -337,7 +338,7 @@ export async function listarStockRevendedorasPorLote(
     id: i.id,
     vendedorId: i.entregas_revendedor.vendedor_id,
     entregaId: i.entrega_id,
-    tipo: i.entregas_revendedor.tipo === "devolucion" ? "devolucion" : "entrega",
+    tipo: normalizarTipoEntrega(i.entregas_revendedor.tipo),
     fecha: i.entregas_revendedor.fecha,
     createdAt: i.entregas_revendedor.created_at,
     productoId: i.producto_id,
@@ -396,7 +397,7 @@ export async function listarStockEnPoderDeVendedor(
     id: i.id,
     vendedorId: i.entregas_revendedor.vendedor_id,
     entregaId: i.entrega_id,
-    tipo: i.entregas_revendedor.tipo === "devolucion" ? "devolucion" : "entrega",
+    tipo: normalizarTipoEntrega(i.entregas_revendedor.tipo),
     fecha: i.entregas_revendedor.fecha,
     createdAt: i.entregas_revendedor.created_at,
     productoId: i.producto_id,

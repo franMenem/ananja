@@ -23,8 +23,8 @@ import {
   textoDonde,
   type FilaMovimiento,
   type MedioCuenta,
-  type ViaRendicion,
 } from "@/lib/dominio/movimientos-plata";
+import { parsearViaRendicion } from "@/lib/dominio/plata";
 import { agruparPedidosPorPagar, type PedidoPorPagar } from "@/lib/dominio/tareas";
 import { insumoDeMovimientos, tituloGasto } from "@/lib/dominio/gastos";
 import { compararPorFechaDesc } from "@/lib/fechas";
@@ -586,7 +586,7 @@ export async function cargarMovimientosPlata(
       ajuste: { medioPago: a.medio_pago, nota: a.nota, montoCentavos: a.monto_centavos },
     })),
     ...rendiciones.data.map((r) => {
-      const via = r.via as ViaRendicion;
+      const via = parsearViaRendicion(r.via);
       // Para `via = 'encargado'`, lo que mueve la plata en manos del
       // tenedor es la parte Ananja, no el rendido completo (0058) — con
       // fallback defensivo al crudo si por algo faltara en el mapa (no
