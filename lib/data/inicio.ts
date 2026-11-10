@@ -69,16 +69,18 @@ export interface InicioDatos {
    * ya cargado por `cargarFuentesTareas` — Hoy no vuelve a consultar
    * stock). `[]` si no hay ninguna. */
   stockBajo: { productoId: string; presentacion: string; stock: number }[];
-  /** "Ganancia de Ananja" de este mes — la de `/ganancia` › "Este mes".
-   * `null` si no se pudo leer (no se muestra la línea). */
-  ganancia: {
-    centavos: number;
-    /** `false` = ningún costo cargado todavía: no hay un monto real. */
-    algunCostoCargado: boolean;
-    /** Variación % vs. el mes anterior; `null` si no hay contra qué comparar. */
-    variacionPct: number | null;
-    nombreMesAnterior: string;
-  } | null;
+}
+
+/** "Ganancia de Ananja" de este mes — la de `/ganancia` › "Este mes". Sale
+ * de {@link cargarGananciaInicio}, aparte de {@link InicioDatos}: la lectura
+ * de `v_margen_ventas` es la más lenta de Inicio y llega por streaming. */
+export interface GananciaInicio {
+  centavos: number;
+  /** `false` = ningún costo cargado todavía: no hay un monto real. */
+  algunCostoCargado: boolean;
+  /** Variación % vs. el mes anterior; `null` si no hay contra qué comparar. */
+  variacionPct: number | null;
+  nombreMesAnterior: string;
 }
 
 function formatFechaLarga(fecha: Date): string {
@@ -94,11 +96,13 @@ function formatFechaLarga(fecha: Date): string {
 /**
  * Loader único de Inicio: un solo `getUser`, las fuentes de Tareas (que ya
  * traen plata en manos y stock — Inicio las reusa en vez de repetir
- * consultas) y en paralelo lo propio de Inicio: Cuenta Ananja, el ingreso
- * de Ananja del mes (`v_margen_ventas`, acotado a mes actual + anterior —
- * es lo único que necesita la comparación "+X% vs mes anterior") y el
- * destino del efectivo (lo usa el "Pasar a la cuenta" inline de "Lo más
+ * consultas) y en paralelo lo propio de Inicio: Cuenta Ananja y el destino
+ * del efectivo (lo usa el "Pasar a la cuenta" inline de "Lo más
  * urgente").
+ *
+ * NO incluye la ganancia del mes: depende de `v_margen_ventas` (la lectura
+ * más lenta) y se pide aparte con {@link cargarGananciaInicio}, para que el
+ * resto de Inicio no espere.
  *
  * Si fallan las fuentes de Tareas, Inicio no se cae: los bloques que
  * dependen de ellas quedan vacíos y se avisa con `errorTareas`.
@@ -106,13 +110,12 @@ function formatFechaLarga(fecha: Date): string {
 export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<InicioDatos> {
   const ahora = new Date();
   const hoy = hoyISO();
-  const { anio, mes, hora } = partesFechaHoraArgentina(ahora);
+  const { hora } = partesFechaHoraArgentina(ahora);
 
   const { vendedor: yo } = await sesionActual();
   const miVendedorId = yo?.id ?? null;
 
-  const desdeMargen = inicioMesAnterior(anio, mes);
-  const [fuentes, cuentaRes, margenRes, gastosRes, destinoEfectivo] =
+  const [fuentes, cuentaRes, destinoEfectivo] =
     await Promise.all([
       cargarFuentesTareas(supabase, { miVendedorId, hoy }).catch(
         (error: unknown): FuentesTareas | null => {
@@ -121,8 +124,6 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
         },
       ),
       supabase.from("v_cuenta_ananja").select("*").maybeSingle(),
-      listarMargenVentas(supabase, desdeMargen),
-      listarGastosConCategoria(supabase, desdeMargen),
       obtenerDestinoEfectivo(supabase),
     ]);
 
@@ -142,21 +143,6 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
   const tareas = fuentes ? calcularTareas(fuentes.input) : [];
   const tareasTop = await completarComprobantes(supabase, tareas.slice(0, 3));
 
-  // ── Ganancia del mes: la misma función que `/ganancia` › "Este mes" ──
-  let ganancia: InicioDatos["ganancia"] = null;
-  if (!margenRes.error && !gastosRes.error) {
-    const filasMargen = mapearFilasMargenVentas(margenRes.data);
-    const gastos = filtrarGastosOperativos(gastosRes.data);
-    const esteMes = gananciaAnanjaDelPeriodo(filasMargen, gastos, "mes", periodoDeMes(anio, mes));
-    const mesAnterior = gananciaAnanjaDelPeriodo(filasMargen, gastos, "mes", periodoMesAnterior(anio, mes));
-    ganancia = {
-      centavos: esteMes.gananciaAnanjaCentavos,
-      algunCostoCargado: esteMes.algunCostoCargado,
-      variacionPct: variacionPorcentual(esteMes.gananciaAnanjaCentavos, mesAnterior.gananciaAnanjaCentavos),
-      nombreMesAnterior: NOMBRES_MES[mes === 0 ? 11 : mes - 1],
-    };
-  }
-
   return {
     saludo: saludoSegunHora(hora),
     fechaLarga: formatFechaLarga(ahora),
@@ -170,7 +156,6 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
     enManos: resumirPlataEnManos(fuentes?.plataEnManos ?? []),
     leDebenCentavos: totalLeDeben(deudaVendedor, deudaCliente),
     botellasDeposito: totalBotellasDeposito(fuentes?.stock ?? []),
-    ganancia,
     stockBajo: (fuentes?.stock ?? [])
       .filter((s) => s.producto_id && s.bajo_umbral)
       .map((s) => ({
@@ -179,4 +164,39 @@ export async function cargarInicio(supabase: SupabaseClient<Database>): Promise<
         stock: s.stock ?? 0,
       })),
   };
+}
+
+/**
+ * Ganancia del mes de Inicio: `v_margen_ventas` (acotado a mes actual +
+ * anterior — es lo único que necesita la comparación "+X% vs mes anterior")
+ * y los gastos con categoría, con la misma función que `/ganancia` › "Este
+ * mes". Se lee UNA vez por carga. `null` si cualquiera de las dos lecturas
+ * falla (la tarjeta no se muestra). Nunca rechaza: la página la lanza sin
+ * esperar y la consume dentro de `<Suspense>`.
+ */
+export async function cargarGananciaInicio(
+  supabase: SupabaseClient<Database>,
+): Promise<GananciaInicio | null> {
+  try {
+    const { anio, mes } = partesFechaHoraArgentina(new Date());
+    const desdeMargen = inicioMesAnterior(anio, mes);
+    const [margenRes, gastosRes] = await Promise.all([
+      listarMargenVentas(supabase, desdeMargen),
+      listarGastosConCategoria(supabase, desdeMargen),
+    ]);
+    if (margenRes.error || gastosRes.error) return null;
+    const filasMargen = mapearFilasMargenVentas(margenRes.data);
+    const gastos = filtrarGastosOperativos(gastosRes.data);
+    const esteMes = gananciaAnanjaDelPeriodo(filasMargen, gastos, "mes", periodoDeMes(anio, mes));
+    const mesAnterior = gananciaAnanjaDelPeriodo(filasMargen, gastos, "mes", periodoMesAnterior(anio, mes));
+    return {
+      centavos: esteMes.gananciaAnanjaCentavos,
+      algunCostoCargado: esteMes.algunCostoCargado,
+      variacionPct: variacionPorcentual(esteMes.gananciaAnanjaCentavos, mesAnterior.gananciaAnanjaCentavos),
+      nombreMesAnterior: NOMBRES_MES[mes === 0 ? 11 : mes - 1],
+    };
+  } catch (error) {
+    console.error("cargarGananciaInicio", error);
+    return null;
+  }
 }

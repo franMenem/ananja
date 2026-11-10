@@ -18,8 +18,12 @@ vi.mock("next/link", () => ({
 }));
 
 import { FilaTarea } from "@/components/tareas/fila-tarea";
-import { InicioVista } from "@/components/inicio/inicio-vista";
-import type { InicioDatos } from "@/lib/data/inicio";
+import {
+  EsqueletoGananciaInicio,
+  InicioVista,
+  TarjetaGananciaInicio,
+} from "@/components/inicio/inicio-vista";
+import type { GananciaInicio, InicioDatos } from "@/lib/data/inicio";
 import {
   periodoMesAnterior,
   resumirPlataEnManos,
@@ -63,9 +67,17 @@ function datosBase(extra: Partial<InicioDatos> = {}): InicioDatos {
     leDebenCentavos: 1234500,
     botellasDeposito: 120,
     stockBajo: [],
-    ganancia: { centavos: 500000, algunCostoCargado: true, variacionPct: 12, nombreMesAnterior: "Septiembre" },
     ...extra,
   };
+}
+
+function gananciaBase(extra: Partial<GananciaInicio> = {}): GananciaInicio {
+  return { centavos: 500000, algunCostoCargado: true, variacionPct: 12, nombreMesAnterior: "Septiembre", ...extra };
+}
+
+/** Inicio con la tarjeta de ganancia ya resuelta, como la arma la página. */
+function vista(datos: InicioDatos, ganancia: GananciaInicio | null = gananciaBase()) {
+  return <InicioVista datos={datos} ganancia={<TarjetaGananciaInicio ganancia={ganancia} />} />;
 }
 
 describe("FilaTarea", () => {
@@ -107,7 +119,7 @@ describe("FilaTarea", () => {
 
 describe("InicioVista (Hoy)", () => {
   it("sin tareas: 'No hay nada pendiente.' sin emoji ni link a /tareas", () => {
-    const html = renderToStaticMarkup(<InicioVista datos={datosBase()} />);
+    const html = renderToStaticMarkup(vista(datosBase()));
     expect(html).toContain("No hay nada pendiente.");
     expect(html).not.toContain("👍");
     expect(html).not.toContain('href="/tareas"');
@@ -124,7 +136,7 @@ describe("InicioVista (Hoy)", () => {
   });
 
   it("las tres tarjetas son links enteros a su pantalla", () => {
-    const html = renderToStaticMarkup(<InicioVista datos={datosBase()} />);
+    const html = renderToStaticMarkup(vista(datosBase()));
     expect(html).toContain('href="/plata"');
     expect(html).toContain('href="/stock"');
     expect(html).toContain('href="/ganancia"');
@@ -161,13 +173,38 @@ describe("InicioVista (Hoy)", () => {
 
   it("variación negativa usa el signo menos y el tono 'debe'", () => {
     const html = renderToStaticMarkup(
-      <InicioVista
-        datos={datosBase({
-          ganancia: { centavos: 100000, algunCostoCargado: true, variacionPct: -5, nombreMesAnterior: "Septiembre" },
-        })}
-      />,
+      vista(datosBase(), gananciaBase({ centavos: 100000, variacionPct: -5 })),
     );
     expect(html).toContain("−5% vs. septiembre");
+  });
+
+  it("sin ganancia (no se pudo leer) no se dibuja la tarjeta", () => {
+    const html = renderToStaticMarkup(vista(datosBase(), null));
+    expect(html).not.toContain('href="/ganancia"');
+    expect(html).toContain('href="/plata"');
+  });
+
+  it("sin la tarjeta de ganancia el resto de Inicio sale completo", () => {
+    const html = renderToStaticMarkup(<InicioVista datos={datosBase()} />);
+    expect(html).toContain("Plata en la cuenta");
+    expect(html).toContain("Botellas en el depósito");
+    expect(html).not.toContain("Este mes ganaste");
+  });
+});
+
+describe("EsqueletoGananciaInicio", () => {
+  it("tiene la misma caja que la tarjeta real (mismo contenedor y renglones)", () => {
+    const real = renderToStaticMarkup(<TarjetaGananciaInicio ganancia={gananciaBase()} />);
+    const esqueleto = renderToStaticMarkup(<EsqueletoGananciaInicio />);
+    // La tarjeta real suma solo `transition-colors hover:bg-background` (sin efecto en el layout).
+    for (const clase of ["flex", "min-h-14", "items-center", "gap-3", "rounded-2xl", "border", "p-4", "lg:p-5"]) {
+      expect(real).toContain(clase);
+      expect(esqueleto).toContain(clase);
+    }
+    // texto de 16px/24px + pastilla de 22px (14px + py-1)
+    expect(esqueleto).toContain("h-6");
+    expect(esqueleto).toContain("h-[22px]");
+    expect(esqueleto).toContain('aria-hidden="true"');
   });
 });
 

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ListaTareas } from "@/components/tareas/lista-tareas";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
-import type { InicioDatos } from "@/lib/data/inicio";
+import type { GananciaInicio, InicioDatos } from "@/lib/data/inicio";
 import { formatCentavos } from "@/lib/money";
 
 /** Cuántas pastillas de stock bajo se muestran antes de "y N más". */
@@ -89,11 +89,15 @@ function textoPersonas(cantidad: number): string {
  * pantalla angosta van una debajo de la otra. Cada cifra sale de la misma
  * función que la pantalla de origen (ver `lib/data/inicio.ts`).
  *
+ * `ganancia` es la tarjeta de la ganancia del mes ya armada (la página la
+ * manda dentro de `<Suspense>` con {@link EsqueletoGananciaInicio}): así el
+ * resto de Inicio no espera la lectura lenta de `v_margen_ventas`.
+ *
  * Server Component: los datos llegan armados por `cargarInicio`; a los
  * componentes cliente solo se les pasan datos planos.
  */
-export function InicioVista({ datos }: { datos: InicioDatos }) {
-  const { enManos, ganancia, stockBajo } = datos;
+export function InicioVista({ datos, ganancia = null }: { datos: InicioDatos; ganancia?: ReactNode }) {
+  const { enManos, stockBajo } = datos;
   const stockVisible = stockBajo.slice(0, MAX_STOCK_BAJO);
   const stockOculto = stockBajo.length - stockVisible.length;
 
@@ -178,34 +182,58 @@ export function InicioVista({ datos }: { datos: InicioDatos }) {
             )}
           </TarjetaLink>
 
-          {ganancia && (
-            <TarjetaLink href="/ganancia">
-              {ganancia.algunCostoCargado ? (
-                <>
-                  <span className="text-[16px] text-text">
-                    Este mes ganaste{" "}
-                    <span
-                      className={`font-display tabular-nums ${ganancia.centavos < 0 ? "text-accent" : "text-text"}`}
-                    >
-                      {formatCentavos(ganancia.centavos)}
-                    </span>
-                  </span>
-                  {ganancia.variacionPct !== null && (
-                    <span>
-                      <Pastilla variante={ganancia.variacionPct >= 0 ? "ok" : "debe"}>
-                        {ganancia.variacionPct >= 0 ? "+" : "−"}
-                        {Math.abs(ganancia.variacionPct)}% vs. {ganancia.nombreMesAnterior.toLowerCase()}
-                      </Pastilla>
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span className="text-[16px] text-text">Este mes todavía no hay ganancia con costos cargados</span>
-              )}
-            </TarjetaLink>
-          )}
+          {ganancia}
         </section>
       </div>
+    </div>
+  );
+}
+
+/** Tarjeta "Este mes ganaste …" — solo muestra; el dato lo trae
+ * `cargarGananciaInicio`. `null` (no se pudo leer) = no se dibuja. */
+export function TarjetaGananciaInicio({ ganancia }: { ganancia: GananciaInicio | null }) {
+  if (!ganancia) return null;
+  return (
+    <TarjetaLink href="/ganancia">
+      {ganancia.algunCostoCargado ? (
+        <>
+          <span className="text-[16px] text-text">
+            Este mes ganaste{" "}
+            <span className={`font-display tabular-nums ${ganancia.centavos < 0 ? "text-accent" : "text-text"}`}>
+              {formatCentavos(ganancia.centavos)}
+            </span>
+          </span>
+          {ganancia.variacionPct !== null && (
+            <span>
+              <Pastilla variante={ganancia.variacionPct >= 0 ? "ok" : "debe"}>
+                {ganancia.variacionPct >= 0 ? "+" : "−"}
+                {Math.abs(ganancia.variacionPct)}% vs. {ganancia.nombreMesAnterior.toLowerCase()}
+              </Pastilla>
+            </span>
+          )}
+        </>
+      ) : (
+        <span className="text-[16px] text-text">Este mes todavía no hay ganancia con costos cargados</span>
+      )}
+    </TarjetaLink>
+  );
+}
+
+/** Esqueleto de {@link TarjetaGananciaInicio} con la MISMA caja (mismas
+ * clases del contenedor y alturas de sus dos renglones: texto de 24 px +
+ * pastilla de 22 px) para que al llegar el dato no salte el layout. */
+export function EsqueletoGananciaInicio() {
+  return (
+    <div
+      aria-hidden="true"
+      data-testid="ganancia-esqueleto"
+      className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-surface p-4 lg:p-5"
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="h-6 w-3/5 rounded bg-surface-raised" />
+        <div className="h-[22px] w-2/5 rounded-full bg-surface-raised" />
+      </div>
+      <div className="h-5 w-5 shrink-0" />
     </div>
   );
 }

@@ -5,7 +5,7 @@ vi.mock("@/lib/sesion-actual", () => ({
   sesionActual: async () => ({ userId: "u", vendedor: { id: "yo", nombre: "Yo" } }),
 }));
 
-import { cargarInicio } from "@/lib/data/inicio";
+import { cargarGananciaInicio, cargarInicio } from "@/lib/data/inicio";
 import { totalLeDeben } from "@/lib/dominio/inicio";
 import type { Database } from "@/lib/types";
 
@@ -84,5 +84,30 @@ describe("cargarInicio — 'Te deben' reusa las lecturas de Tareas", () => {
     // una lectura de cada una dentro de las fuentes (que fallaron) y otra de respaldo
     expect(lecturas["v_deuda_vendedor"]).toBe(2);
     expect(lecturas["v_deuda_cliente"]).toBe(2);
+  });
+});
+
+describe("cargarInicio / cargarGananciaInicio — la lectura lenta sale del camino crítico", () => {
+  it("cargarInicio no lee v_margen_ventas", async () => {
+    const { supabase, lecturas } = fakeSupabase({});
+    await cargarInicio(supabase);
+    expect(lecturas["v_margen_ventas"]).toBeUndefined();
+  });
+
+  it("cargarGananciaInicio lee cada una UNA vez y calcula con la función de /ganancia", async () => {
+    const { supabase, lecturas } = fakeSupabase({ v_margen_ventas: [], gastos: [] });
+    const g = await cargarGananciaInicio(supabase);
+    expect(lecturas["v_margen_ventas"]).toBe(1);
+    expect(lecturas["gastos"]).toBe(1);
+    expect(g).not.toBeNull();
+    expect(g?.centavos).toBe(0);
+    expect(g?.algunCostoCargado).toBe(false);
+  });
+
+  it("si falla cualquiera de las dos lecturas devuelve null (la tarjeta no se muestra)", async () => {
+    for (const tabla of ["v_margen_ventas", "gastos"]) {
+      const { supabase } = fakeSupabase({}, [tabla]);
+      expect(await cargarGananciaInicio(supabase)).toBeNull();
+    }
   });
 });
