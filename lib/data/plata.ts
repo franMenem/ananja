@@ -236,12 +236,9 @@ export interface DeudaAnanja {
  * calcula las Tareas) y no se toca en esta tanda.
  *
  * `pedidosPorPagar` usa acá las mismas consultas y filtros que
- * `cargarFuentesTareas` — pero `deudasNegocio` NO: acá filtra por
- * `saldada_en IS NULL` (sin `fecha` en el resultado, vía
- * `listarDeudasPendientes`) mientras que `cargarFuentesTareas` filtra por
- * `restante_centavos > 0` (con `fecha`, para poder ordenar/vencer la
- * tarea) — una deuda "marcada saldada sin pago" con saldo aún positivo
- * aparecería en uno y no en el otro, así que no se unifican.
+ * `cargarFuentesTareas`; `deudasNegocio` usa el mismo criterio
+ * (`deudaSigueDebiendose`, `lib/dominio/deudas.ts`) aunque con otra
+ * consulta (acá sin `fecha`, vía `listarDeudasPendientes`).
  *
  * Un error en cualquier fuente se loguea y esa fuente queda vacía — no
  * tira abajo el resto del bloque.

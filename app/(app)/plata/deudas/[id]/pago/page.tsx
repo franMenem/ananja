@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FormPage } from "@/components/app/form-page";
 import { PagoDeudaForm } from "@/components/deudas/pago-deuda-form";
 import { obtenerSaldoDeuda } from "@/lib/data/plata";
+import { deudaSigueDebiendose } from "@/lib/dominio/deudas";
 import { obtenerVersionVigente } from "@/lib/precios";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,8 +35,7 @@ export default async function PagoDeudaPage({
   if (
     !saldo ||
     saldo.restante_centavos === null ||
-    saldo.restante_centavos <= 0 ||
-    saldo.saldada_en !== null
+    !deudaSigueDebiendose(saldo.saldada_en, saldo.restante_centavos)
   ) {
     notFound();
   }

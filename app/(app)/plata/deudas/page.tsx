@@ -7,6 +7,7 @@ import { MarcarSaldadaButton } from "@/components/caja/marcar-saldada-button";
 import { PagosDeudaList } from "@/components/deudas/pagos-deuda-list";
 import { VolverLink } from "@/components/volver-link";
 import { listarDeudasConSaldo } from "@/lib/deudas";
+import { deudaSigueDebiendose } from "@/lib/dominio/deudas";
 import { formatFecha } from "@/lib/fechas";
 import { formatMonto } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
@@ -18,8 +19,8 @@ export default async function DeudasPage() {
   const supabase = await createClient();
   const { data: deudas, error } = await listarDeudasConSaldo(supabase);
 
-  const pendientes = deudas.filter((d) => d.estado !== "saldada");
-  const saldadas = deudas.filter((d) => d.estado === "saldada");
+  const pendientes = deudas.filter((d) => deudaSigueDebiendose(d.saldadaEn, d.restanteCentavos));
+  const saldadas = deudas.filter((d) => !deudaSigueDebiendose(d.saldadaEn, d.restanteCentavos));
 
   return (
     <div className="flex flex-col gap-6 pb-8">

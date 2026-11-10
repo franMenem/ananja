@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { calcularEstadoDeuda, type EstadoDeuda } from "@/lib/dominio/deudas";
+import { calcularEstadoDeuda, deudaSigueDebiendose, type EstadoDeuda } from "@/lib/dominio/deudas";
 import type { Database, Enums, Tables } from "@/lib/types";
 
 export type Deuda = Tables<"deudas">;
@@ -82,7 +82,7 @@ export async function listarDeudasConSaldo(
         saldadaEn,
         pagadoCentavos,
         restanteCentavos: s.restante_centavos ?? 0,
-        estado: calcularEstadoDeuda(saldadaEn, pagadoCentavos),
+        estado: calcularEstadoDeuda(saldadaEn, pagadoCentavos, s.restante_centavos ?? 0),
         pagos: pagosDeuda,
       };
     });
@@ -110,8 +110,7 @@ export async function listarDeudasPendientes(
 ): Promise<{ data: DeudaPendienteResumen[]; error: string | null }> {
   const { data, error } = await supabase
     .from("v_saldo_deuda")
-    .select("deuda_id, descripcion, moneda, restante_centavos")
-    .is("saldada_en", null)
+    .select("deuda_id, descripcion, moneda, restante_centavos, saldada_en")
     .order("fecha", { ascending: false });
 
   if (error) {
@@ -121,6 +120,7 @@ export async function listarDeudasPendientes(
 
   const lista = (data ?? [])
     .filter((d): d is typeof d & { deuda_id: string } => d.deuda_id !== null)
+    .filter((d) => deudaSigueDebiendose(d.saldada_en, d.restante_centavos ?? 0))
     .map((d) => ({
       id: d.deuda_id,
       descripcion: d.descripcion ?? "",
