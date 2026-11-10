@@ -30,12 +30,37 @@ export function puedeBorrarVentaRevendedor(venta: VentaParaBorrar): boolean {
   return venta.registradaPor === null || venta.registradaPor === venta.miVendedorId;
 }
 
+export interface VentaParaEditar extends VentaParaBorrar {
+  /** Hay una rendición ligada a la venta (`rendiciones.venta_grupo_id`): es la
+   * venta propia de una coordinadora, que ya generó plata a pasar. */
+  conRendicion?: boolean;
+}
+
+export type DecisionEdicionVenta = { puede: true } | { puede: false; motivo: string };
+
 /**
- * Misma regla que borrar (espejo de `editar_venta_revendedor`, 0077): un admin
- * edita cualquier venta; la revendedora solo las suyas que cargó ella misma.
+ * Espejo de `editar_venta_revendedor` (0077, vigente en prod): primero el
+ * permiso (un admin edita cualquiera; la revendedora solo las suyas que cargó
+ * ella y que no vienen de una feria) y después, para TODOS incluido un admin,
+ * `VENTA_CON_RENDICION`: la venta de una coordinadora ya generó su rendición y
+ * no se edita (se borra y se vuelve a cargar). El permiso de un admin NO
+ * mira la feria: el rechazo `VENTA_DE_FERIA` solo corre para quien no es admin.
  */
-export function puedeEditarVentaRevendedor(venta: VentaParaBorrar): boolean {
-  return puedeBorrarVentaRevendedor(venta);
+export function decidirEdicionVentaRevendedor(venta: VentaParaEditar): DecisionEdicionVenta {
+  if (!puedeBorrarVentaRevendedor(venta)) {
+    return { puede: false, motivo: "No tenés permiso para editar esta venta." };
+  }
+  if (venta.conRendicion) {
+    return {
+      puede: false,
+      motivo: "Esta venta ya generó una rendición, así que no se edita. Para corregirla, borrala y cargala de nuevo.",
+    };
+  }
+  return { puede: true };
+}
+
+export function puedeEditarVentaRevendedor(venta: VentaParaEditar): boolean {
+  return decidirEdicionVentaRevendedor(venta).puede;
 }
 
 /** Fila de `ventas_revendedor_borradas` (0045 § 1) con lo que muestra la ficha. */

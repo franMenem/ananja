@@ -452,6 +452,8 @@ export default async function RevendedorDetallePage({
       <BotellasAdeudadas resumen={botellas} variante="revendedora" />
 
       <LoQuePasoFicha
+        vendedorId={id}
+        gruposConRendicion={(rendiciones ?? []).flatMap((r) => (r.venta_grupo_id ? [r.venta_grupo_id] : []))}
         items={lineaDeTiempo}
         nombrePorProducto={nombrePorProducto}
         primerGrupoSinPrecio={grupoSinPrecio}

@@ -9,10 +9,12 @@ import { CargarPrecioVenta } from "@/components/revendedores/cargar-precio-venta
 import { LoteLink } from "@/components/revendedores/ficha/lote-link";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
+import { LinkBoton } from "@/components/ui/link-boton";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import type { OpcionEliminarRendicion } from "@/lib/dominio/eliminar-movimientos";
 import { botellasDeMovimiento, textoBotellas, type ItemLineaDeTiempo } from "@/lib/dominio/personas";
 import { ESTADO_PAGO_LABELS, ESTADO_PAGO_VARIANTE, type MovimientoPago } from "@/lib/dominio/pagos-revendedor";
+import { decidirEdicionVentaRevendedor } from "@/lib/dominio/ventas-revendedor";
 import { etiquetaEntregaAutomatica } from "@/lib/dominio/venta-directa";
 import { EVENTO_MOSTRAR_TODOS_MOVIMIENTOS } from "@/lib/eventos-cliente";
 import { formatDiaMes, formatFecha } from "@/lib/fechas";
@@ -121,11 +123,17 @@ function LineaPago({
  * para expandirse antes de que se reintente el scroll.
  */
 export function LoQuePasoFicha({
+  vendedorId,
+  gruposConRendicion,
   items,
   nombrePorProducto,
   primerGrupoSinPrecio,
   eliminarRendicion,
 }: {
+  /** Id de la revendedora de la ficha (para el link a editar una venta). */
+  vendedorId: string;
+  /** `grupo_id` de ventas que tienen una rendición ligada: la RPC no las deja editar. */
+  gruposConRendicion: string[];
   items: ItemLineaDeTiempo[];
   nombrePorProducto: Map<string, string>;
   primerGrupoSinPrecio: string | null;
@@ -164,6 +172,14 @@ export function LoQuePasoFicha({
             );
             const m = it.movimiento;
             if (m.tipo === "venta") {
+              // Ficha de admin: la RPC deja editar cualquier venta salvo la que ya generó una rendición.
+              const edicion = decidirEdicionVentaRevendedor({
+                esAdmin: true,
+                miVendedorId: "",
+                vendedorId,
+                registradaPor: null,
+                conRendicion: gruposConRendicion.includes(m.grupoId),
+              });
               return (
                 <Linea
                   key={`venta-${m.id}`}
@@ -190,7 +206,19 @@ export function LoQuePasoFicha({
                       {m.precioVentaCentavos === null && (
                         <CargarPrecioVenta grupoId={m.grupoId} persona="ella" pideMedio={m.medioPago === null} />
                       )}
-                      <EliminarVentaButton ventaId={m.id} redirectHref={null} />
+                      <div className="flex flex-wrap items-center gap-x-4">
+                        {edicion.puede && (
+                          <LinkBoton
+                            href={`/revendedores/${vendedorId}/ventas/${m.id}/editar`}
+                            prefetch={false}
+                            className="inline-flex min-h-11 items-center text-[15px] font-semibold text-primary hover:underline"
+                          >
+                            Editar
+                          </LinkBoton>
+                        )}
+                        <EliminarVentaButton ventaId={m.id} redirectHref={null} />
+                      </div>
+                      {!edicion.puede && <p className="text-[14px] break-words text-text-muted">{edicion.motivo}</p>}
                     </div>
                   }
                 />

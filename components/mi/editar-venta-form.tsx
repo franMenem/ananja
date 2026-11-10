@@ -42,6 +42,8 @@ export function EditarVentaForm({
   precioVentaCentavos,
   fecha: fechaInicial,
   nota: notaInicial,
+  volverHref = `/mi/ventas/${ventaId}`,
+  volverLabel = "Volver a la venta",
 }: {
   ventaId: string;
   grupoId: string;
@@ -51,6 +53,10 @@ export function EditarVentaForm({
   precioVentaCentavos: number | null;
   fecha: string;
   nota: string | null;
+  /** Adónde vuelve al guardar o cancelar. Por defecto, el detalle de la venta en `/mi`;
+   * la pantalla de admin lo manda a la ficha de la revendedora. */
+  volverHref?: string;
+  volverLabel?: string;
 }) {
   const router = useRouter();
   const [medioPago, setMedioPago] = useState<MedioPago | null>(medioInicial);
@@ -99,13 +105,13 @@ export function EditarVentaForm({
     }
 
     envio.completar();
-    router.push(`/mi/ventas/${ventaId}`);
+    router.push(volverHref);
     router.refresh();
   }
 
   return (
     <>
-      <SetFormHeader title="Editar venta" backHref={`/mi/ventas/${ventaId}`} backLabel="Volver a la venta" />
+      <SetFormHeader title="Editar venta" backHref={volverHref} backLabel={volverLabel} />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <SeccionForm titulo="¿Cómo fue la venta?">
@@ -151,7 +157,7 @@ export function EditarVentaForm({
         <AccionesForm
           etiqueta="Guardar cambios"
           cargando={saving}
-          cancelarHref={`/mi/ventas/${ventaId}`}
+          cancelarHref={volverHref}
           nota="Para cambiar la cantidad, borrá la venta y cargala de nuevo."
         />
       </form>

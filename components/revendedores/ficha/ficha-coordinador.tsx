@@ -178,6 +178,9 @@ function VentasPropias({
             </span>
             <span className="shrink-0 text-right tabular-nums text-text">{formatCentavos(v.montoCentavos)}</span>
           </div>
+          <p className="text-[14px] text-text-muted">
+            Ya generó una rendición, así que no se edita: para corregirla, borrala y cargala de nuevo.
+          </p>
           <div className="flex items-center justify-between gap-3">
             <span className="text-[14px] text-text-muted">Suma a lo que tiene que pasar</span>
             <EliminarVentaButton

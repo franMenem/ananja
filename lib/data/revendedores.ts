@@ -584,3 +584,43 @@ export async function obtenerPlataEnManoDeTenedor(supabase: Supa, tenedorId: str
   if (error) console.error("obtenerPlataEnManoDeTenedor", error);
   return data?.total_centavos ?? null;
 }
+
+/**
+ * Lo que necesita la pantalla de ADMIN para editar una venta de una
+ * revendedora (`/revendedores/[id]/ventas/[ventaId]/editar`): la venta por su
+ * id SIN filtrar por quién mira (un admin edita cualquiera, a diferencia de
+ * `/mi`, donde `obtenerVentaRevendedorPropia` filtra por dueña a propósito),
+ * pero exigiendo que la venta sea de la revendedora de la ficha
+ * (`vendedor_id = revendedoraId`): con otro id en la URL no aparece. Trae
+ * también todas las filas del grupo y si la venta tiene una rendición ligada
+ * (`conRendicion`). `null` si no existe, no es de esa persona o falla la lectura.
+ */
+export async function cargarVentaParaEdicionDeAdmin(
+  supabase: Supa,
+  revendedoraId: string,
+  ventaId: string,
+): Promise<{ venta: Tables<"ventas_revendedor">; filas: Tables<"ventas_revendedor">[]; conRendicion: boolean } | null> {
+  const { data: venta, error } = await supabase
+    .from("ventas_revendedor")
+    .select("*")
+    .eq("id", ventaId)
+    .eq("vendedor_id", revendedoraId)
+    .maybeSingle();
+  if (error) console.error("cargarVentaParaEdicionDeAdmin", error);
+  if (!venta) return null;
+
+  const [filasRes, rendicionRes] = await Promise.all([
+    supabase
+      .from("ventas_revendedor")
+      .select("*")
+      .eq("grupo_id", venta.grupo_id)
+      .eq("vendedor_id", revendedoraId)
+      .order("created_at"),
+    supabase.from("rendiciones").select("id", { count: "exact", head: true }).eq("venta_grupo_id", venta.grupo_id),
+  ]);
+  if (filasRes.error) console.error("cargarVentaParaEdicionDeAdmin filas", filasRes.error);
+  if (rendicionRes.error) console.error("cargarVentaParaEdicionDeAdmin rendicion", rendicionRes.error);
+
+  const filas = filasRes.data && filasRes.data.length > 0 ? filasRes.data : [venta];
+  return { venta, filas, conRendicion: (rendicionRes.count ?? 0) > 0 };
+}
