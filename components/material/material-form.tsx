@@ -15,6 +15,7 @@ import { TextoMaterial } from "@/components/texto-material";
 import type { Material } from "@/lib/data/material";
 import { actualizarMaterial, crearMaterial, eliminarMaterial } from "@/lib/material";
 import { createClient } from "@/lib/supabase/client";
+import { useConfirmacion } from "@/components/ui/use-confirmacion";
 import { useEnvio } from "@/components/ui/use-envio";
 
 type MaterialFormProps = {
@@ -50,9 +51,9 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
   const envio = useEnvio();
   const saving = envio.ocupado;
   const [error, setError] = useState<string | null>(null);
-  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-  const [eliminando, setEliminando] = useState(false);
-  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
+  // Borrado: hoja de confirmación con candado síncrono y botón ocupado hasta
+  // que la navegación desmonte la pantalla (no hay hueco para un 2º toque).
+  const borrado = useConfirmacion();
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -92,25 +93,26 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
     router.refresh();
   }
 
-  async function handleEliminar() {
-    if (!material || eliminando) return;
-    setEliminando(true);
-    setErrorEliminar(null);
-
-    const supabase = createClient();
-    const { error: dbError } = await eliminarMaterial(supabase, material.id);
-
-    if (dbError) {
-      console.error("MaterialForm.handleEliminar", dbError);
-      setErrorEliminar("No se pudo eliminar.");
-      setEliminando(false);
-      return;
-    }
-
-    setEliminando(false);
-    setConfirmarEliminar(false);
-    router.push("/material");
-    router.refresh();
+  function handleEliminar() {
+    if (!material) return;
+    const id = material.id;
+    void borrado.confirmar(
+      async () => {
+        const { error: dbError } = await eliminarMaterial(createClient(), id);
+        if (dbError) {
+          console.error("MaterialForm.handleEliminar", dbError);
+          return "No se pudo eliminar.";
+        }
+        return null;
+      },
+      {
+        seguirOcupada: true,
+        alExito: () => {
+          router.push("/material");
+          router.refresh();
+        },
+      },
+    );
   }
 
   return (
@@ -180,7 +182,7 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
         {esEdicion && (
           <button
             type="button"
-            onClick={() => setConfirmarEliminar(true)}
+            onClick={borrado.abrir}
             className="min-h-12 self-center px-4 text-[15px] font-semibold text-accent"
           >
             Eliminar este material
@@ -190,20 +192,21 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
 
       {esEdicion && (
         <BottomSheet
-          open={confirmarEliminar}
+          open={borrado.abierta}
           ariaLabel="Borrar este material"
           variant="accent"
+          onClose={borrado.cancelar}
         >
           <h2 className="font-display text-[24px] text-text">¿Borrar este material?</h2>
           <p className="mt-2 text-[16px] text-text-muted">No se puede deshacer.</p>
-          {errorEliminar && (
+          {borrado.error && (
             <p role="alert" className="mt-3 text-[16px] text-accent">
-              {errorEliminar}
+              {borrado.error}
             </p>
           )}
           <div className="mt-5 flex gap-2">
             <BotonAccion
-              cargando={eliminando}
+              cargando={borrado.ocupada}
               textoCargando="Borrando…"
               type="button"
               onClick={handleEliminar}
@@ -213,8 +216,8 @@ export function MaterialForm({ material = null, siguienteOrden = 0 }: MaterialFo
             </BotonAccion>
             <button
               type="button"
-              onClick={() => !eliminando && setConfirmarEliminar(false)}
-              disabled={eliminando}
+              onClick={borrado.cancelar}
+              disabled={borrado.ocupada}
               className={`${BOTON_SECUNDARIO} flex-1 px-4`}
             >
               Cancelar
