@@ -1,0 +1,34 @@
+-- 0085_vendedores_select_initplan.sql
+--
+-- El advisor de Supabase marca `auth_rls_initplan` en `public.vendedores`,
+-- policy `vendedores_select`: `auth.uid()` se evalúa una vez POR FILA en vez
+-- de una sola vez por consulta. La 0049 ya lo había arreglado, pero la 0055
+-- (`alter policy ... using (user_id = auth.uid() or ...)`) lo volvió a
+-- dejar sin el `(select ...)` al sumar `es_coordinador_de(id)`.
+--
+-- Mismo predicado exacto que hoy en producción
+--   ((user_id = auth.uid()) OR es_vendedor() OR es_coordinador_de(id))
+-- (verificado con un select de solo lectura a `pg_policies`: `cmd` SELECT,
+-- roles `{authenticated}`, PERMISSIVE, sin `with_check`); solo cambia
+-- `auth.uid()` por `(select auth.uid())`. `alter policy ... using` no toca
+-- roles ni `with check` (una policy de SELECT no tiene), así que no hay nada
+-- más que preservar. `es_vendedor()` sigue siendo alias de `es_admin()`
+-- (0018): no se cambia la regla de acceso.
+--
+-- No toca el schema `miel`.
+--
+-- ── Verificación posterior (solo lectura) ───────────────────────────────
+--   select qual, with_check from pg_policies
+--    where schemaname = 'public' and tablename = 'vendedores'
+--      and policyname = 'vendedores_select';
+--   -- qual debe ser: ((user_id = ( SELECT auth.uid() AS uid)) OR es_vendedor()
+--   --                 OR es_coordinador_de(id)); with_check, null.
+--   -- Después, get_advisors (performance): ya no debe aparecer
+--   -- `auth_rls_initplan` para `vendedores_select`.
+--
+-- ── Rollback ────────────────────────────────────────────────────────────
+--   alter policy vendedores_select on public.vendedores
+--     using (user_id = auth.uid() or es_vendedor() or es_coordinador_de(id));
+
+alter policy vendedores_select on public.vendedores
+  using ((user_id = (select auth.uid())) or es_vendedor() or es_coordinador_de(id));
