@@ -140,7 +140,7 @@ describe("pagoRevendedorFila", () => {
       fecha: "2026-10-01",
       informadoEn: "2026-10-01T15:00:00Z",
       estado: "pendiente",
-      estadoLabel: "Pendiente de confirmar",
+      estadoLabel: "Por confirmar",
       resueltoPor: null,
       resueltoEn: null,
       motivoRechazo: null,
@@ -226,7 +226,7 @@ describe("filtrarPagosPorEstado", () => {
 
 describe("textoEstadoPago", () => {
   it("pendiente: sin 'por …'", () => {
-    expect(textoEstadoPago(pagoRevendedorFila(pagoFuente()))).toBe("Pendiente de confirmar");
+    expect(textoEstadoPago(pagoRevendedorFila(pagoFuente()))).toBe("Por confirmar");
   });
 
   it("confirmado y rechazado: dicen quién", () => {

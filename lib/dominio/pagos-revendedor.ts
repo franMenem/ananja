@@ -168,7 +168,7 @@ export function pagoEstado(valor: string): EstadoPago {
 }
 
 export const ESTADO_PAGO_LABELS: Record<EstadoPago, string> = {
-  pendiente: "Pendiente de confirmar",
+  pendiente: "Por confirmar",
   confirmado: "Confirmado",
   rechazado: "Rechazado",
 };
@@ -186,17 +186,6 @@ export const ESTADO_PAGO_VARIANTE: Record<EstadoPago, "confirmar" | "ok" | "debe
   confirmado: "ok",
   rechazado: "debe",
 };
-
-/**
- * EXCEPCIÓN deliberada y única: el historial que ve la revendedora en `/mi`
- * (`components/mi/historial-pagos.tsx`) dice "Por confirmar" donde el resto
- * de la app dice "Pendiente de confirmar" ({@link ESTADO_PAGO_LABELS}). El
- * dueño todavía no decidió cuál queda; cuando decida, borrar esta función y
- * usar `ESTADO_PAGO_LABELS`.
- */
-export function etiquetaEstadoPagoParaRevendedora(estado: EstadoPago): string {
-  return estado === "pendiente" ? "Por confirmar" : ESTADO_PAGO_LABELS[estado];
-}
 
 /** Mensajes de los códigos `PAGO_YA_RESUELTO` / `DEPOSITO_YA_RESUELTO` de las RPC de confirmación. */
 export const MENSAJE_PAGO_YA_RESUELTO = "Este pago ya fue confirmado o rechazado.";
@@ -336,7 +325,7 @@ export function filtrarPagosPorEstado<T extends Pick<PagoRevendedorFila, "estado
 }
 
 /**
- * Texto de estado de una fila: "Pendiente de confirmar", "Confirmado por
+ * Texto de estado de una fila: "Por confirmar", "Confirmado por
  * Fran" o "Rechazado por Fran" (sin "por …" si no se sabe quién lo
  * resolvió). El motivo del rechazo va aparte (`motivoRechazo`).
  */
