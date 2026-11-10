@@ -166,7 +166,7 @@ export function InformarDepositoCoordinador({ montoCentavos, vendedorId }: Infor
         Avisé que la pasé
       </button>
 
-      <BottomSheet open={abierto} ariaLabel="Avisar depósito">
+      <BottomSheet open={abierto} onClose={cerrar} bloqueada={guardando} ariaLabel="Avisar depósito">
         <h2 className="font-display text-[24px] text-text">Avisar depósito</h2>
         <p className="mt-1 text-[16px] text-text-muted">
           Registrá cuánto de lo que tenés que pasar ({formatCentavos(montoCentavos)}) ya pasaste a la

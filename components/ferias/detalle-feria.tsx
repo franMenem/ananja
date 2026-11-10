@@ -154,7 +154,7 @@ export function DetalleFeria({
         </section>
       )}
 
-      <BottomSheet open={sumando} ariaLabel="Sumar participante" anchoMaximo="sm:max-w-lg">
+      <BottomSheet open={sumando} onClose={() => setSumando(false)} bloqueada={trabajando !== null} ariaLabel="Sumar participante" anchoMaximo="sm:max-w-lg">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">¿A quién sumás?</h2>
           {disponibles.length === 0 ? (

@@ -63,8 +63,6 @@ function opcionesDeInicio(proveedor: string): Opcion[] {
 
 const sinAcentos = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-const FOCUSABLES = 'a[href], button:not([disabled]), input:not([disabled])';
-
 const TARJETA =
   "flex min-h-[104px] w-full flex-col items-start gap-2 rounded-2xl border border-border bg-surface p-4 text-left transition-colors hover:bg-background active:bg-background";
 
@@ -80,7 +78,7 @@ function Circulo({ Icono }: { Icono: ComponentType<{ className?: string }> }) {
  * Hoja "¿Qué pasó?" — el botón "+" (tab bar móvil y rail de escritorio)
  * abre esto. Seis cosas que pasan en el negocio, cada una lleva a la
  * pantalla justa; las que dependen de una persona piden elegirla en un
- * segundo paso dentro de la misma hoja. Foco atrapado, Escape cierra.
+ * segundo paso dentro de la misma hoja.
  */
 export function QuePasoSheet({
   open,
@@ -98,7 +96,7 @@ export function QuePasoSheet({
   onReintentar?: () => void;
 }) {
   return (
-    <BottomSheet open={open} ariaLabel="¿Qué pasó?" anchoMaximo="sm:max-w-lg">
+    <BottomSheet open={open} onClose={onClose} ariaLabel="¿Qué pasó?" anchoMaximo="sm:max-w-lg">
       {/* Se monta solo con la hoja abierta: cada vez arranca en el paso 1
           y con el buscador vacío, sin resetear estado a mano. */}
       <Contenido
@@ -129,35 +127,11 @@ function Contenido({
   const [busqueda, setBusqueda] = useState("");
   const contenedor = useRef<HTMLDivElement>(null);
 
-  // Foco: al abrir y en cada paso va al título; Tab queda adentro; Escape cierra.
+  // Foco: al abrir y en cada paso va al título. Tab atrapado y Escape: BottomSheet.
   useEffect(() => {
     contenedor.current?.querySelector<HTMLElement>("[data-foco]")?.focus();
   }, [paso]);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const nodos = contenedor.current?.querySelectorAll<HTMLElement>(FOCUSABLES);
-      if (!nodos || nodos.length === 0) return;
-      const primero = nodos[0];
-      const ultimo = nodos[nodos.length - 1];
-      const activo = document.activeElement;
-      if (e.shiftKey && (activo === primero || !contenedor.current?.contains(activo))) {
-        e.preventDefault();
-        ultimo.focus();
-      } else if (!e.shiftKey && (activo === ultimo || !contenedor.current?.contains(activo))) {
-        e.preventDefault();
-        primero.focus();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
 
   const proveedor = formasProveedor(proveedorNombre).de;
   const opciones = useMemo(() => opcionesDeInicio(proveedor), [proveedor]);

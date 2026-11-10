@@ -64,7 +64,7 @@ export function EliminarMovimientoStockAccion({
         Eliminar
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Eliminar movimiento de stock" variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Eliminar movimiento de stock" variant="accent">
         <span className="text-[13px] font-medium text-accent">
           Eliminar movimiento
         </span>

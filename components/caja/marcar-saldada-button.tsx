@@ -62,7 +62,7 @@ export function MarcarSaldadaButton({
         Marcar saldada sin pago
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Marcar deuda como saldada sin pago" variant="mark">
         <h2 className="font-display text-[26px] text-text">
           ¿Marcar saldada sin pago?
         </h2>

@@ -123,6 +123,7 @@ export function VerComoRevendedor({ variante, colapsado = false }: VerComoRevend
       {!vendedor.revende && (
         <BottomSheet
           open={confirmacion.abierta}
+        onClose={confirmacion.cancelar}
           ariaLabel="Activar tu espacio de revendedor"
           variant="mark"
         >

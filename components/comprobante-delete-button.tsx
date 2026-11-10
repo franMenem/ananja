@@ -111,6 +111,7 @@ export function ComprobanteDeleteButton({
 
       <BottomSheet
         open={confirmacion.abierta}
+        onClose={confirmacion.cancelar}
         ariaLabel="Eliminar comprobante"
         variant="accent"
       >

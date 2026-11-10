@@ -16,6 +16,10 @@ type AccionRapidaProps = {
   ariaLabel: string;
   abierto: boolean;
   onAbrir: () => void;
+  /** Cierre con Escape (el mismo `cerrar` de `useAccionRapida`). */
+  onCerrar: () => void;
+  /** Hay un envío en curso: Escape no cierra la hoja. */
+  guardando: boolean;
   children: ReactNode;
 };
 
@@ -34,6 +38,8 @@ export function AccionRapida({
   ariaLabel,
   abierto,
   onAbrir,
+  onCerrar,
+  guardando,
   children,
 }: AccionRapidaProps) {
   return (
@@ -47,7 +53,7 @@ export function AccionRapida({
         {triggerLabel}
       </button>
 
-      <BottomSheet open={abierto} ariaLabel={ariaLabel}>
+      <BottomSheet open={abierto} onClose={onCerrar} bloqueada={guardando} ariaLabel={ariaLabel}>
         {children}
       </BottomSheet>
     </>

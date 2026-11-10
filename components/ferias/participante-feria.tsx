@@ -215,7 +215,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </div>
       )}
 
-      <BottomSheet open={hoja !== null} ariaLabel={hoja === "quitar" ? "Quitar de la feria" : "Reabrir participación"} variant="accent">
+      <BottomSheet open={hoja !== null} onClose={() => setHoja(null)} bloqueada={trabajando} ariaLabel={hoja === "quitar" ? "Quitar de la feria" : "Reabrir participación"} variant="accent">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">
             {hoja === "quitar" ? `¿Quitar a ${p.vendedor_nombre} de la feria?` : `¿Reabrir la participación de ${p.vendedor_nombre}?`}
@@ -246,7 +246,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </div>
       </BottomSheet>
 
-      <BottomSheet open={hoja === "degustacion"} ariaLabel="Cargar degustación" anchoMaximo="sm:max-w-lg">
+      <BottomSheet open={hoja === "degustacion"} onClose={() => setHoja(null)} bloqueada={trabajando} ariaLabel="Cargar degustación" anchoMaximo="sm:max-w-lg">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">Degustación para {p.vendedor_nombre}</h2>
           <p className="text-[15px] text-text-muted">
@@ -296,7 +296,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </div>
       </BottomSheet>
 
-      <BottomSheet open={quitarDeg !== null} ariaLabel="Quitar degustación" variant="accent">
+      <BottomSheet open={quitarDeg !== null} onClose={() => setQuitarDeg(null)} bloqueada={trabajando} ariaLabel="Quitar degustación" variant="accent">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">
             ¿Quitar la degustación de {quitarDeg?.nombre} de {p.vendedor_nombre}?

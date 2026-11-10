@@ -140,7 +140,7 @@ export function AjustarSaldoButton({
         {label}
       </button>
 
-      <BottomSheet open={open} ariaLabel="Ajustar saldo" variant="mark">
+      <BottomSheet open={open} onClose={handleClose} bloqueada={saving} ariaLabel="Ajustar saldo" variant="mark">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-[26px] text-text">
             Ajustar saldo

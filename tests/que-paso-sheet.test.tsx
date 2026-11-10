@@ -15,7 +15,7 @@ vi.mock("next/link", () => ({
 const cargarDatosHoja = vi.fn();
 vi.mock("@/components/cargar/actions", () => ({ cargarDatosHoja: (...a: unknown[]) => cargarDatosHoja(...a) }));
 
-import { CargarProvider, useCargar } from "@/components/cargar/cargar-provider";
+import { CargarProvider, useCargar, VIGENCIA_DATOS_HOJA_MS } from "@/components/cargar/cargar-provider";
 import { QuePasoSheet } from "@/components/cargar/que-paso-sheet";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -155,8 +155,13 @@ describe("QuePasoSheet — la lista se pide al abrir", () => {
 });
 
 function Abridor() {
-  const { abrir } = useCargar();
-  return createElement("button", { type: "button", "data-abrir": "", onClick: () => abrir() }, "abrir");
+  const { abrir, invalidar } = useCargar();
+  return createElement(
+    "div",
+    null,
+    createElement("button", { type: "button", "data-abrir": "", onClick: () => abrir() }, "abrir"),
+    createElement("button", { type: "button", "data-invalidar": "", onClick: () => invalidar() }, "invalidar"),
+  );
 }
 
 const esperar = () => act(async () => { await Promise.resolve(); });
@@ -187,6 +192,76 @@ describe("CargarProvider — pide los datos la primera vez que se abre y los gua
     await esperar();
     expect(cargarDatosHoja).toHaveBeenCalledTimes(1);
     expect(texto("Llegó un pedido")?.textContent).toContain("de Olivares Test");
+  });
+
+  const cerrarHoja = () => act(() => document.querySelector<HTMLButtonElement>('[aria-label="Cerrar"]')!.click());
+
+  it("dentro de la ventana de vigencia no repite; pasada la ventana vuelve a pedir y muestra la lista nueva", async () => {
+    cargarDatosHoja.mockReset();
+    cargarDatosHoja.mockResolvedValueOnce({ ok: true, revendedoras: REVENDEDORAS, proveedorNombre: null });
+    const ahora = vi.spyOn(Date, "now");
+    ahora.mockReturnValue(1_000_000);
+    try {
+      montarProvider();
+      abrirHoja();
+      await esperar();
+      cerrarHoja();
+
+      ahora.mockReturnValue(1_000_000 + VIGENCIA_DATOS_HOJA_MS - 1);
+      abrirHoja();
+      await esperar();
+      expect(cargarDatosHoja).toHaveBeenCalledTimes(1);
+      cerrarHoja();
+
+      ahora.mockReturnValue(1_000_000 + VIGENCIA_DATOS_HOJA_MS + 1);
+      cargarDatosHoja.mockResolvedValueOnce({
+        ok: true,
+        revendedoras: [...REVENDEDORAS, { id: "r3", nombre: "Carla Díaz" }],
+        proveedorNombre: null,
+      });
+      abrirHoja();
+      await esperar();
+      expect(cargarDatosHoja).toHaveBeenCalledTimes(2);
+      act(() => texto("Vendí")!.click());
+      expect(texto("Carla Díaz")).toBeTruthy();
+    } finally {
+      ahora.mockRestore();
+    }
+  });
+
+  it("invalidar() hace que la próxima apertura vuelva a pedir, sin vaciar la lista mientras tanto", async () => {
+    cargarDatosHoja.mockReset();
+    cargarDatosHoja.mockResolvedValueOnce({ ok: true, revendedoras: REVENDEDORAS, proveedorNombre: null });
+    montarProvider();
+    abrirHoja();
+    await esperar();
+    cerrarHoja();
+
+    act(() => document.querySelector<HTMLButtonElement>("[data-invalidar]")!.click());
+    let resolver: (v: unknown) => void = () => {};
+    cargarDatosHoja.mockReturnValueOnce(new Promise((r) => (resolver = r)));
+    abrirHoja();
+    expect(cargarDatosHoja).toHaveBeenCalledTimes(2);
+    act(() => texto("Vendí")!.click());
+    expect(texto("Ana Pérez")).toBeTruthy(); // la lista vieja sigue a la vista
+    await act(async () => resolver({ ok: true, revendedoras: [{ id: "r9", nombre: "Zoe Ruiz" }], proveedorNombre: null }));
+    expect(texto("Zoe Ruiz")).toBeTruthy();
+  });
+
+  it("si el re-pedido falla se queda con la lista que ya tenía", async () => {
+    cargarDatosHoja.mockReset();
+    cargarDatosHoja.mockResolvedValueOnce({ ok: true, revendedoras: REVENDEDORAS, proveedorNombre: null });
+    montarProvider();
+    abrirHoja();
+    await esperar();
+    cerrarHoja();
+    act(() => document.querySelector<HTMLButtonElement>("[data-invalidar]")!.click());
+    cargarDatosHoja.mockResolvedValueOnce({ ok: false });
+    abrirHoja();
+    await esperar();
+    act(() => texto("Vendí")!.click());
+    expect(texto("Ana Pérez")).toBeTruthy();
+    expect(document.querySelector('[role="alert"]')).toBeNull();
   });
 
   it("si falla ofrece reintentar y al reintentar carga la lista", async () => {

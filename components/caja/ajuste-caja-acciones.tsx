@@ -155,7 +155,7 @@ export function AjusteCajaAcciones({
         </button>
       </div>
 
-      <BottomSheet open={sheet === "editar"} ariaLabel="Editar ajuste" variant="mark">
+      <BottomSheet open={sheet === "editar"} onClose={cerrar} bloqueada={saving} ariaLabel="Editar ajuste" variant="mark">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-[26px] text-text">Editar ajuste</h2>
           <button
@@ -235,7 +235,7 @@ export function AjusteCajaAcciones({
         </form>
       </BottomSheet>
 
-      <BottomSheet open={sheet === "eliminar"} ariaLabel="Eliminar ajuste" variant="accent">
+      <BottomSheet open={sheet === "eliminar"} onClose={cerrar} bloqueada={saving} ariaLabel="Eliminar ajuste" variant="accent">
         <span className="text-[14px] font-medium text-accent">
           Eliminar ajuste
         </span>

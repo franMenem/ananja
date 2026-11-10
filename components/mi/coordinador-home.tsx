@@ -276,7 +276,7 @@ function EntregarSheet({
   }
 
   return (
-    <BottomSheet open ariaLabel={`Entregar a ${revendedora.nombre}`}>
+    <BottomSheet open onClose={onClose} bloqueada={saving} ariaLabel={`Entregar a ${revendedora.nombre}`}>
       <h2 className="font-display text-[24px] text-text">Entregar a {revendedora.nombre}</h2>
       <p className="mt-1 text-[16px] text-text-muted">
         Le cobramos el costo {NEGOCIO.nombre} vigente de cada {envase(1)} — no hace falta que lo cargues vos.

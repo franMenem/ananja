@@ -55,7 +55,7 @@ export function PagoDeudaDeleteButton({
         Eliminar
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Eliminar pago" variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Eliminar pago" variant="accent">
         <span className="text-[13px] font-medium text-accent">
           Eliminar pago
         </span>

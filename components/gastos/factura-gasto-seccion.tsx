@@ -245,7 +245,7 @@ export function FacturaGastoSeccion({
         </>
       )}
 
-      <BottomSheet open={confirmandoQuitar} ariaLabel="Quitar factura" variant="accent">
+      <BottomSheet open={confirmandoQuitar} onClose={() => setConfirmandoQuitar(false)} bloqueada={quitando} ariaLabel="Quitar factura" variant="accent">
         <span className="text-[14px] font-semibold text-accent">
           Quitar factura
         </span>

@@ -119,7 +119,7 @@ function FilaInvitacion({ invitacion }: { invitacion: InvitacionPendiente }) {
         )}
       </div>
 
-      <BottomSheet open={confirmar} ariaLabel={tituloCancelar} variant="accent">
+      <BottomSheet open={confirmar} onClose={() => setConfirmar(false)} bloqueada={cancelando} ariaLabel={tituloCancelar} variant="accent">
         <h2 className="font-display text-[24px] leading-[1.25] text-text">{tituloCancelar}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {temporal

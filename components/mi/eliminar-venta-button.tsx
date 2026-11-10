@@ -68,7 +68,7 @@ export function EliminarVentaButton({
         Borrar venta
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Borrar esta venta" variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Borrar esta venta" variant="accent">
         <h2 className="font-display text-[24px] text-text">¿Borrar esta venta?</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {ventaCoordinadora ? textoEliminarVentaCoordinadora(ventaCoordinadora.nombre) : "No se puede deshacer."}

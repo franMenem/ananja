@@ -367,6 +367,8 @@ export default function GastoDetallePage({ params }: GastoDetallePageProps) {
 
       <BottomSheet
         open={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
+        bloqueada={deleting}
         ariaLabel="Eliminar gasto"
         variant="accent"
       >

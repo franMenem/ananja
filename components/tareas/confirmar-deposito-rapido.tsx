@@ -105,7 +105,7 @@ export function ConfirmarDepositoRapido(props: ConfirmarDepositoRapidoProps) {
   }
 
   return (
-    <AccionRapida triggerLabel="Confirmar" ariaLabel="Confirmar depósito" abierto={abierto} onAbrir={abrir}>
+    <AccionRapida triggerLabel="Confirmar" ariaLabel="Confirmar depósito" abierto={abierto} onAbrir={abrir} onCerrar={cerrar} guardando={guardando}>
       <span className="text-[13px] text-text-muted">
         Depósito de {props.tenedorNombre}
       </span>

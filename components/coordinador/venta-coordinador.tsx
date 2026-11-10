@@ -258,7 +258,7 @@ function VentaCoordinadorSheet({
 
   if (guardado !== null) {
     return (
-      <BottomSheet open ariaLabel="Venta guardada">
+      <BottomSheet open onClose={onClose} ariaLabel="Venta guardada">
         <h2 className="font-display text-[24px] text-text">Venta guardada</h2>
         <p className="mt-2 text-[16px] text-text">{guardado}</p>
         <button
@@ -273,7 +273,7 @@ function VentaCoordinadorSheet({
   }
 
   return (
-    <BottomSheet open ariaLabel={titulo}>
+    <BottomSheet open onClose={onClose} bloqueada={saving} ariaLabel={titulo}>
       <h2 className="font-display text-[24px] text-text">{titulo}</h2>
       <p className="mt-1 text-[16px] text-text-muted">
         Las botellas salen del depósito y se suman a lo que {esAdmin ? `${coordinadorNombre} tiene` : "tenés"} que

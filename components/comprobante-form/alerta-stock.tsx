@@ -24,7 +24,13 @@ export function AlertaStock({
   guardando,
 }: AlertaStockProps) {
   return (
-    <BottomSheet open={stockAlert !== null} ariaLabel="Stock insuficiente" variant="accent">
+    <BottomSheet
+      open={stockAlert !== null}
+      ariaLabel="Stock insuficiente"
+      variant="accent"
+      onClose={onRevisar}
+      bloqueada={guardando}
+    >
       {stockAlert && (
         <>
           <span className="text-[13px] font-medium text-accent">

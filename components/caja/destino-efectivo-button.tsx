@@ -57,7 +57,7 @@ export function DestinoEfectivoButton({ destinoActual }: DestinoEfectivoButtonPr
         Cuenta destino del efectivo
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Configurar cuenta destino del efectivo" variant="mark">
         <h2 className="font-display text-[24px] text-text">Cuenta destino del efectivo</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           A dónde se pasa el efectivo desde &quot;Tareas&quot;. Hoy: {MEDIO_PAGO_LABELS[destinoActual]}.

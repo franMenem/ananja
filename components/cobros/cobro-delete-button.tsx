@@ -50,7 +50,7 @@ export function CobroDeleteButton({ cobroId, montoCentavos }: CobroDeleteButtonP
         Eliminar
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Eliminar cobro" variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Eliminar cobro" variant="accent">
         <span className="text-[13px] font-medium text-accent">
           Eliminar cobro
         </span>

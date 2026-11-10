@@ -61,7 +61,7 @@ export function ConfirmarPagoRapido(props: ConfirmarPagoRapidoProps) {
   }
 
   return (
-    <AccionRapida triggerLabel="Confirmar" ariaLabel="Confirmar pago" abierto={abierto} onAbrir={abrir}>
+    <AccionRapida triggerLabel="Confirmar" ariaLabel="Confirmar pago" abierto={abierto} onAbrir={abrir} onCerrar={cerrar} guardando={guardando}>
       <span className="text-[13px] text-text-muted">
         Pago de {props.vendedorNombre}
       </span>

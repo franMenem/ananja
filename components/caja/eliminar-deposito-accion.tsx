@@ -67,7 +67,7 @@ export function EliminarDepositoAccion({
         </button>
       </div>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel="Eliminar depósito" variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel="Eliminar depósito" variant="accent">
         <span className="text-[13px] font-medium text-accent">
           Eliminar depósito
         </span>

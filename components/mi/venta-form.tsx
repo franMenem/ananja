@@ -380,6 +380,7 @@ export function VentaForm({
 
       <BottomSheet
         open={alerta !== null}
+        onClose={() => setAlerta(null)}
         ariaLabel={`No tenés ${concordar("tantos", "tantas")} ${NEGOCIO.envase.plural}`}
         variant="accent"
       >

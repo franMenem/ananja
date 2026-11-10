@@ -391,7 +391,7 @@ export function CierreFeriaForm({
       </form>
 
       {textos.confirmacion && (
-        <BottomSheet open={confirmando} ariaLabel={textos.confirmacion.ariaLabel}>
+        <BottomSheet open={confirmando} onClose={() => setConfirmando(false)} bloqueada={saving} ariaLabel={textos.confirmacion.ariaLabel}>
           <h2 className="font-display text-[24px] text-text">{textos.confirmacion.titulo}</h2>
           <p className="mt-2 text-[16px] text-text-muted">
             {textos.confirmacion.resumen(totalVendidas, cierre.totalCentavos, totalDevueltas)}

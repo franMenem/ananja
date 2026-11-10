@@ -126,6 +126,8 @@ export function DepositarRapido({
       ariaLabel={tituloHoja}
       abierto={abierto}
       onAbrir={abrir}
+      onCerrar={cerrar}
+      guardando={guardando}
     >
       <h2 className="font-display text-[24px] break-words text-text">{tituloHoja}</h2>
       <p className="mt-1 text-[16px] text-text-muted">

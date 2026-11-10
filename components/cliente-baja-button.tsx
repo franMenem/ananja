@@ -65,7 +65,7 @@ export function ClienteBajaButton({ clienteId, nombre, activo }: ClienteBajaButt
         {activo ? "Dar de baja" : "Reactivar"}
       </button>
 
-      <BottomSheet open={confirmando} ariaLabel={titulo} variant={activo ? "accent" : "mark"}>
+      <BottomSheet open={confirmando} onClose={() => setConfirmando(false)} bloqueada={saving} ariaLabel={titulo} variant={activo ? "accent" : "mark"}>
         <h2 className="font-display text-[24px] leading-[1.25] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           {activo

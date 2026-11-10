@@ -81,7 +81,7 @@ export function EspacioRevendedorButton({
         {copy.boton}
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel={titulo} variant="mark">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel={titulo} variant="mark">
         <h2 className="font-display text-[24px] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">{copy.cuerpo}</p>
 

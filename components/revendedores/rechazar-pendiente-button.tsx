@@ -64,7 +64,7 @@ export function RechazarPendienteButton({
         Rechazar
       </button>
 
-      <BottomSheet open={confirmacion.abierta} ariaLabel={titulo} variant="accent">
+      <BottomSheet open={confirmacion.abierta} onClose={confirmacion.cancelar} ariaLabel={titulo} variant="accent">
         <h2 className="font-display text-[24px] text-text">{titulo}</h2>
         <p className="mt-2 text-[16px] text-text-muted">
           Va a quedar desactivado, sin acceso a la app.
