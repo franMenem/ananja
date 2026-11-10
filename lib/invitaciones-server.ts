@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { formatFechaHora } from "@/lib/fechas";
 import {
   motivoNoCancelable,
+  esRestoDeAltaDeEstaApp,
   negocioDeUsuario,
   resolverUrlSitio,
   tipoPendiente,
@@ -108,19 +109,70 @@ export async function listarInvitacionesPendientes(admin: AdminClient): Promise<
     .flatMap((u): InvitacionPendiente[] => {
       const v = porUserId.get(u.id);
       const tipo = tipoPendiente(u);
-      if (!v || !v.activo || !tipo) return [];
+      // Sin fila = restos de una cancelación que se cortó entre borrar la
+      // fila y borrar el usuario de Auth (ver `borrarCuentaSinAcceso`): se
+      // listan para poder terminar de cancelarlos. Solo si llevan la marca del alta de esta app
+      // (`esRestoDeAltaDeEstaApp`); con fila dada de baja, no.
+      if (!tipo || (v && !v.activo)) return [];
+      if (!v && !esRestoDeAltaDeEstaApp(u, NEGOCIO.id)) return [];
       return [
         {
           userId: u.id,
           tipo,
-          nombre: v.nombre,
+          nombre: v?.nombre ?? nombreDeUsuario(u),
           email: u.email ?? "",
-          rol: v.rol,
+          rol: v?.rol ?? "pendiente",
           invitadaEn: fechaAlta(u) ? formatFechaHora(fechaAlta(u)) : "—",
           puedeCancelar: motivoNoCancelable(tipo, u) === null,
         },
       ];
     });
+}
+
+/** Resultado de {@link borrarCuentaSinAcceso}: en qué paso se cortó y con qué código. */
+export type ResultadoBorrado =
+  | { ok: true }
+  | { ok: false; paso: "fila" | "auth"; code: string | null };
+
+/** Error de Auth que significa "ese usuario ya no existe" (borrado repetido). */
+function usuarioYaNoExiste(error: { code?: string | null; status?: number | null }): boolean {
+  return error.code === "user_not_found" || error.status === 404;
+}
+
+/**
+ * Borra a una persona que todavía no entró: primero su fila de `vendedores`
+ * y después el usuario de Auth. Ese orden es OBLIGATORIO: `vendedores.user_id`
+ * referencia `auth.users` (NO ACTION), así que Auth no deja borrar un
+ * usuario que aún tiene fila.
+ *
+ * No es transaccional (son dos sistemas), pero deja SIEMPRE un estado seguro
+ * y reintentable:
+ *  - falla el paso 1 (típico 23503: tiene movimientos o es encargado de
+ *    alguien): no se tocó nada.
+ *  - falla el paso 2 (o se corta el proceso entre uno y otro): queda un
+ *    usuario de Auth SIN fila de `vendedores`. Sin fila no tiene acceso
+ *    (`tieneAccesoValido` es falso → /sin-acceso), así que es seguro, y no
+ *    se intenta restaurar la fila con un insert (que podía fallar y dejar
+ *    el mismo estado sin avisar). `listarInvitacionesPendientes` lo sigue
+ *    mostrando y volver a cancelar termina el trabajo: el paso 1 es un
+ *    delete por `user_id` (borrar cero filas no es error) y un usuario ya
+ *    inexistente en el paso 2 cuenta como hecho.
+ * Quien llama decide mensajes y logs a partir del resultado.
+ */
+export async function borrarCuentaSinAcceso(admin: AdminClient, userId: string): Promise<ResultadoBorrado> {
+  const { error: filaError } = await admin.from("vendedores").delete().eq("user_id", userId);
+  if (filaError) return { ok: false, paso: "fila", code: filaError.code ?? null };
+
+  const { error: authError } = await admin.auth.admin.deleteUser(userId);
+  if (authError && !usuarioYaNoExiste(authError)) {
+    return { ok: false, paso: "auth", code: authError.code ?? null };
+  }
+  return { ok: true };
+}
+
+function nombreDeUsuario(u: User): string {
+  const nombre = u.user_metadata?.display_name;
+  return typeof nombre === "string" && nombre.trim() ? nombre.trim() : (u.email ?? "Sin nombre");
 }
 
 export function etiquetaRol(rol: string): string {

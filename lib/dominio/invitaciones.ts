@@ -550,17 +550,38 @@ export function validarDatosInvitacion(entrada: {
 // asignar_encargado_revendedor para el alta por invitación)
 // ============================================================
 
+/**
+ * Tabla de transiciones de rol permitidas: `rol actual -> roles destino`.
+ * ESPEJO EXACTO del `if not ( ... ) then raise exception 'TRANSICION_INVALIDA'`
+ * de la RPC `asignar_rol_revendedor` (definición vigente: la de la última
+ * migración que la crea, hoy `0057_coordinador_plata_stock.sql`).
+ * `tests/asignar-rol-rpc-vs-ts.test.ts` lee ese SQL y falla si las dos
+ * tablas dejan de coincidir: si cambia una, cambia la otra. Este flujo
+ * (alta por invitación) solo usa la fila `pendiente`.
+ */
+export const TRANSICIONES_ROL: Readonly<Record<string, readonly string[]>> = {
+  pendiente: ["admin", "revendedor", "coordinador"],
+  revendedor: ["admin"],
+  admin: ["coordinador"],
+  coordinador: ["admin"],
+};
+
+/** `true` si la RPC `asignar_rol_revendedor` aceptaría pasar de `actual` a `destino`
+ * (sin contar las guardias de datos: `ULTIMO_ADMIN`, `VENDEDOR_INVALIDO`). */
+export function transicionRolPermitida(actual: string, destino: string): boolean {
+  return TRANSICIONES_ROL[actual]?.includes(destino) ?? false;
+}
+
 type VendedorMin = { id: string; rol: string; activo: boolean };
 
 /**
  * Reglas para fijar rol/encargado sobre la fila recién creada por el
  * trigger `on_auth_user_created` (rol `pendiente`). Mismas reglas que los
- * RPC `asignar_rol_revendedor` (0026: solo pendiente→admin/revendedor
- * desde un alta; un admin nunca pasa a revendedor; 0055 agrega
- * pendiente→coordinador) y `asignar_encargado_revendedor` (0037: encargado
- * = admin o coordinador activo distinto de la propia persona, solo para
- * revendedoras — 0055 amplía de admin a admin/coordinador). `null` si se
- * puede.
+ * RPC `asignar_rol_revendedor` ({@link TRANSICIONES_ROL}: solo
+ * pendiente→admin/revendedor/coordinador desde un alta) y
+ * `asignar_encargado_revendedor` (encargado = admin o coordinador activo
+ * distinto de la propia persona, solo para revendedoras — `puedeSerEncargado`).
+ * Además exige cuenta activa, que la RPC no mira. `null` si se puede.
  */
 export function validarAsignacionInicial(args: {
   vendedor: VendedorMin;
@@ -573,9 +594,7 @@ export function validarAsignacionInicial(args: {
   if (vendedor.rol !== "pendiente") {
     return "Esa persona ya tenía un rol asignado. Cambialo desde Revendedores.";
   }
-  if (rolDestino !== "admin" && rolDestino !== "revendedor" && rolDestino !== "coordinador") {
-    return "Rol inválido.";
-  }
+  if (!transicionRolPermitida(vendedor.rol, rolDestino)) return "Rol inválido.";
 
   if (encargado) {
     if (rolDestino !== "revendedor") return "Solo una revendedora lleva coordinador.";
@@ -775,6 +794,26 @@ export function esObjetivoGestionable(args: {
   callerVendedorId: string;
 }): boolean {
   return args.deEsteNegocio && args.fila !== null && args.fila.activo && args.fila.id !== args.callerVendedorId;
+}
+
+/**
+ * ¿Un usuario de Auth SIN fila en `vendedores` es un resto de un alta de
+ * ESTA app (y por lo tanto se puede listar y cancelar)? `auth.users` es
+ * compartido con Germá y puede tener usuarios sin fila por otros motivos
+ * (registro público, pruebas viejas, cuentas compartidas): esos nunca.
+ * Exige las dos cosas que escribe el propio flujo de alta:
+ *  - una marca en `app_metadata` (solo la service role la escribe, el
+ *    usuario no puede falsificarla): `MARCA_ALTA` (cuenta temporal) o
+ *    `bienvenida_pendiente === true` (invitación por mail). Sin el
+ *    fallback a `user_metadata`, que la persona puede editar;
+ *  - `user_metadata.negocio` EXPLÍCITO igual al negocio actual (sin el
+ *    default a Ananja de `negocioDeUsuario`), que el alta escribe siempre.
+ */
+export function esRestoDeAltaDeEstaApp(u: UsuarioAuthResumen, negocioId: string): boolean {
+  const marcaTemporal = u.app_metadata?.[MARCA_ALTA.clave] === MARCA_ALTA.valor;
+  const marcaInvitacion = u.app_metadata?.[FLAG_BIENVENIDA] === true;
+  const negocio = u.user_metadata?.negocio;
+  return (marcaTemporal || marcaInvitacion) && typeof negocio === "string" && negocio.trim() === negocioId;
 }
 
 export const TEXTOS_CANCELAR: Record<TipoPendiente, { ok: string; error: string }> = {

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import {
   esObjetivoGestionable,
+  esRestoDeAltaDeEstaApp,
   esTemporalSinUsar,
   esUuid,
   FLAG_BIENVENIDA,
@@ -29,6 +30,7 @@ import {
   type ValoresFormInvitacion,
 } from "@/lib/dominio/invitaciones";
 import {
+  borrarCuentaSinAcceso,
   buscarUsuarioPorEmail,
   esDeEsteNegocio,
   exigirAdmin,
@@ -297,16 +299,13 @@ async function invitarPorMail(
  * Deshace un alta por invitación que falló a mitad de camino (el usuario
  * de Auth ya existe, pero no se pudo terminar de asegurar): borra la fila
  * `pendiente` que dejó el trigger `on_auth_user_created` y el usuario de
- * Auth — mismo orden que `cancelarCuenta` (vendedores primero: si por lo
- * que sea ya tuviera algún movimiento, la FK 23503 frena el borrado ACÁ,
- * antes de tocar Auth). Best effort: solo loguea si algún paso falla, no
- * hay nada más que intentar desde una server action.
+ * Auth con `borrarCuentaSinAcceso` (mismo borrado que `cancelarCuenta`).
+ * Best effort: solo loguea si algún paso falla; si queda un usuario sin
+ * fila, aparece en "Pendientes de entrar" y se cancela desde ahí.
  */
 async function revertirAltaFallida(admin: AdminClient, userId: string): Promise<void> {
-  const { error: filaError } = await admin.from("vendedores").delete().eq("user_id", userId);
-  if (filaError) logError("revertirAltaFallida vendedores", filaError);
-  const { error: authError } = await admin.auth.admin.deleteUser(userId);
-  if (authError) logError("revertirAltaFallida deleteUser", authError);
+  const r = await borrarCuentaSinAcceso(admin, userId);
+  if (!r.ok) logError(`revertirAltaFallida ${r.paso}`, { code: r.code });
 }
 
 async function crearConPasswordTemporal(
@@ -483,45 +482,80 @@ export async function cancelarCuentaTemporal(userId: string): Promise<ResultadoA
 }
 
 /**
- * Flujo común de cancelar: guard de admin + persona de este negocio,
- * activa y distinta de quien llama (`cargarContexto`), guard del tipo
- * (`motivoNoCancelable`), borra primero la fila de `vendedores` y después
- * el usuario de Auth; si Auth falla, restaura la fila.
+ * Flujo común de cancelar: guard de admin + persona de este negocio, no
+ * dada de baja y distinta de quien llama (`cargarContextoCancelar`; la fila
+ * de `vendedores` puede faltar: es el resto de una cancelación cortada),
+ * guard del tipo (`motivoNoCancelable`) y borrado en dos pasos
+ * (`borrarCuentaSinAcceso`: fila primero, Auth después). Reintentable: si
+ * el segundo paso falla queda un usuario sin fila (sin acceso, y todavía
+ * listado) y volver a cancelar lo termina.
  */
 async function cancelarCuenta(userId: string, tipo: TipoPendiente): Promise<ResultadoAccion> {
-  const ctx = await cargarContexto(userId);
+  const ctx = await cargarContextoCancelar(userId);
   if (!ctx.ok) return ctx.resultado;
   const { admin, user } = ctx;
 
   const motivo = motivoNoCancelable(tipo, user);
   if (motivo) return { ok: false, mensaje: motivo };
 
-  // Fila completa, para poder restaurarla si falla el borrado en Auth.
-  const { data: fila } = await admin.from("vendedores").select("*").eq("user_id", userId).maybeSingle();
-
-  if (fila) {
-    // Todas las FK hacia `vendedores` son NO ACTION: si tiene cualquier
-    // movimiento (o es encargado de alguien), Postgres rechaza el borrado
-    // con 23503 y no se toca nada.
-    const { error: deleteError } = await admin.from("vendedores").delete().eq("id", fila.id);
-    if (deleteError) {
-      logError(`cancelarCuenta(${tipo}) vendedores`, deleteError);
-      return { ok: false, mensaje: mensajeErrorBorrarCuenta(deleteError.code, tipo) };
-    }
-  }
-
-  const { error: authError } = await admin.auth.admin.deleteUser(userId);
-  if (authError) {
-    logError(`cancelarCuenta(${tipo}) deleteUser`, authError);
-    if (fila) {
-      const { error: restoreError } = await admin.from("vendedores").insert(fila);
-      if (restoreError) logError(`cancelarCuenta(${tipo}) restaurar`, restoreError);
-    }
-    return { ok: false, mensaje: TEXTOS_CANCELAR[tipo].error };
+  const r = await borrarCuentaSinAcceso(admin, userId);
+  if (!r.ok) {
+    logError(`cancelarCuenta(${tipo}) ${r.paso}`, { code: r.code });
+    // Si ya se borró la fila, la lista tiene que reflejar el estado nuevo.
+    if (r.paso === "auth") revalidar();
+    return {
+      ok: false,
+      mensaje: r.paso === "fila" ? mensajeErrorBorrarCuenta(r.code, tipo) : TEXTOS_CANCELAR[tipo].error,
+    };
   }
 
   revalidar();
   return { ok: true, mensaje: TEXTOS_CANCELAR[tipo].ok };
+}
+
+/**
+ * Como `cargarContexto`, pero la persona puede NO tener fila en `vendedores`
+ * (resto de una cancelación que falló en el paso de Auth). Una fila que sí
+ * existe tiene que estar activa y no ser la de quien llama. Sin fila, el
+ * usuario de Auth tampoco puede ser el de quien llama (el admin tiene fila).
+ */
+async function cargarContextoCancelar(
+  userId: unknown,
+): Promise<{ ok: true; admin: AdminClient; user: User } | { ok: false; resultado: ResultadoAccion }> {
+  if (!esUuid(userId)) return { ok: false, resultado: NO_ENCONTRADA };
+
+  const caller = await exigirAdmin();
+  if (!caller) return { ok: false, resultado: { ok: false, mensaje: SIN_PERMISO } };
+  if (caller.user_id === userId) return { ok: false, resultado: NO_ENCONTRADA };
+
+  const admin = clienteAdmin();
+  if (!admin) return { ok: false, resultado: { ok: false, mensaje: SIN_CLAVE } };
+
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+  if (error || !data.user || !esDeEsteNegocio(data.user)) {
+    return { ok: false, resultado: NO_ENCONTRADA };
+  }
+
+  const { data: fila, error: filaError } = await admin
+    .from("vendedores")
+    .select("id, nombre, activo")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (filaError) {
+    logError("cancelarCuenta select", filaError);
+    return { ok: false, resultado: { ok: false, mensaje: "No se pudo verificar la cuenta. Probá de nuevo." } };
+  }
+  if (fila && !esObjetivoGestionable({ deEsteNegocio: true, fila, callerVendedorId: caller.id })) {
+    return { ok: false, resultado: NO_ENCONTRADA };
+  }
+  // Sin fila solo se cancela un resto de un alta de ESTA app (marca en
+  // `app_metadata` + negocio explícito): `auth.users` es compartido con
+  // Germá y puede tener otros usuarios sin fila que no hay que borrar.
+  if (!fila && !esRestoDeAltaDeEstaApp(data.user, NEGOCIO.id)) {
+    return { ok: false, resultado: NO_ENCONTRADA };
+  }
+
+  return { ok: true, admin, user: data.user };
 }
 
 export async function nuevaPasswordTemporal(userId: string): Promise<ResultadoAccion> {
