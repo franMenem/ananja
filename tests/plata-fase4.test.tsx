@@ -94,7 +94,8 @@ describe("desgloseResultadoDelPeriodo", () => {
   });
 
   it("/plata, /ganancia y Hoy salen de la misma ganancia", () => {
-    expect(readFileSync("app/(app)/plata/page.tsx", "utf8")).toContain("desgloseResultadoDelPeriodo(");
+    expect(readFileSync("lib/data/ganancia.ts", "utf8")).toContain("desgloseResultadoDelPeriodo(");
+    expect(readFileSync("app/(app)/plata/page.tsx", "utf8")).toContain("cargarResultadoMes(");
     expect(readFileSync("app/(app)/ganancia/page.tsx", "utf8")).toContain("desgloseResultadoDelPeriodo(");
     expect(readFileSync("lib/dominio/margen.ts", "utf8")).toMatch(
       /export function desgloseResultadoDelPeriodo[\s\S]*?const base = gananciaAnanjaDelPeriodo\(/,

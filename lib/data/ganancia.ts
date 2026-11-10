@@ -11,7 +11,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { listarVendedoresNombre as listarVendedoresNombreCatalogo } from "@/lib/data/catalogos";
 import type { ItemVendido, VentaConFecha } from "@/lib/dominio/graficos";
-import type { FilaMargenVentasCruda, GastoConCategoriaCrudo } from "@/lib/dominio/margen";
+import {
+  desgloseResultadoDelPeriodo,
+  filtrarGastosOperativos,
+  mapearFilasMargenVentas,
+  type DesgloseResultado,
+  type FilaMargenVentasCruda,
+  type GastoConCategoriaCrudo,
+} from "@/lib/dominio/margen";
 import type { Database } from "@/lib/types";
 
 type Supa = SupabaseClient<Database>;
@@ -193,4 +200,35 @@ export async function listarVendedoresNombre(
   const { data, error } = await listarVendedoresNombreCatalogo(supabase);
   if (error) return { data: [], error: "No se pudo cargar la información de ganancia." };
   return { data, error: null };
+}
+
+/**
+ * Resultado del mes de `/plata` ("Resultado de <mes>"): `v_margen_ventas` (la
+ * lectura más lenta) y los gastos con categoría, acotados a ese mes, con la
+ * misma función que `/ganancia` (`desgloseResultadoDelPeriodo`). `periodoMes`
+ * es "yyyy-mm". `null` si cualquiera de las dos lecturas falla (la tarjeta
+ * avisa, no muestra un cero). Nunca rechaza: la página la lanza sin esperar y
+ * la consume dentro de `<Suspense>`.
+ */
+export async function cargarResultadoMes(
+  supabase: Supa,
+  periodoMes: string,
+): Promise<DesgloseResultado | null> {
+  try {
+    const desde = `${periodoMes}-01`;
+    const [margenRes, gastosRes] = await Promise.all([
+      listarMargenVentas(supabase, desde),
+      listarGastosConCategoria(supabase, desde),
+    ]);
+    if (margenRes.error || gastosRes.error) return null;
+    return desgloseResultadoDelPeriodo(
+      mapearFilasMargenVentas(margenRes.data),
+      filtrarGastosOperativos(gastosRes.data),
+      "mes",
+      periodoMes,
+    );
+  } catch (error) {
+    console.error("cargarResultadoMes", error);
+    return null;
+  }
 }

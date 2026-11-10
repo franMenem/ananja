@@ -1,14 +1,16 @@
+import { Suspense } from "react";
+
 import { BOTON_SECUNDARIO } from "@/components/ui/boton";
 import { AjustarSaldoButton } from "@/components/caja/ajustar-saldo-button";
 import { DestinoEfectivoButton } from "@/components/caja/destino-efectivo-button";
 import { CuentaHeader } from "@/components/plata/cuenta-header";
 import { FueraDeLaCuenta } from "@/components/plata/fuera-de-la-cuenta";
 import { MovimientosPaginados } from "@/components/plata/movimientos-paginados";
-import { TarjetaResultado } from "@/components/plata/resultado-mes";
+import { CuerpoResultado, EsqueletoResultado, MarcoResultado } from "@/components/plata/resultado-mes";
 import { EncabezadoPantalla } from "@/components/ui/encabezado-pantalla";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { listarVendedoresNombre } from "@/lib/data/catalogos";
-import { listarGastosConCategoria, listarMargenVentas } from "@/lib/data/ganancia";
+import { cargarResultadoMes } from "@/lib/data/ganancia";
 import {
   cargarDeudaAnanja,
   cargarMovimientosPlata,
@@ -25,7 +27,7 @@ import {
 import { DESTINO_EFECTIVO_DEFAULT } from "@/lib/dominio/transferencias";
 import { NOMBRES_MES, hoyISO, partesFechaHoraArgentina } from "@/lib/fechas";
 import { periodoDeMes, resumirClientes, resumirPlataEnManos, totalLeDeben } from "@/lib/dominio/inicio";
-import { desgloseResultadoDelPeriodo, filtrarGastosOperativos, mapearFilasMargenVentas } from "@/lib/dominio/margen";
+import type { DesgloseResultado } from "@/lib/dominio/margen";
 import { diasEnManoPorPersona, type MedioCuenta } from "@/lib/dominio/movimientos-plata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,6 +38,11 @@ const LIMITE_INICIAL_MOVIMIENTOS = 10;
 // Los saldos deben reflejar el último comprobante/gasto/ajuste/rendición al
 // abrir, igual que antes en /caja.
 export const dynamic = "force-dynamic";
+
+/** El cuerpo del resultado espera su propia lectura, dentro de `<Suspense>`. */
+async function ResultadoDelMes({ promesa }: { promesa: Promise<DesgloseResultado | null> }) {
+  return <CuerpoResultado desglose={await promesa} />;
+}
 
 /**
  * `/plata` — "Cuenta" (rediseño 2026-10, fase 4). Responde "¿cuánta hay,
@@ -64,6 +71,11 @@ export default async function PlataPage() {
   const { anio, mes } = partesFechaHoraArgentina(new Date());
   const periodoMes = periodoDeMes(anio, mes);
 
+  // `v_margen_ventas` (la lectura más lenta) se lanza ya pero NO se espera:
+  // el resto de Plata sale en cuanto está y el resultado llega por streaming.
+  // `cargarResultadoMes` nunca rechaza (devuelve `null`).
+  const resultado = cargarResultadoMes(supabase, periodoMes);
+
   const [
     { data: saldos },
     cuenta,
@@ -73,8 +85,6 @@ export default async function PlataPage() {
     movimientos,
     destino,
     deudaAnanja,
-    margenRes,
-    gastosRes,
     filasEfectivo,
   ] = await Promise.all([
     listarSaldosCaja(supabase),
@@ -85,8 +95,6 @@ export default async function PlataPage() {
     cargarMovimientosPlata(supabase, { tipo: "todo", limite: LIMITE_INICIAL_MOVIMIENTOS }, vendedoresPromise),
     obtenerDestinoEfectivo(supabase).then((d) => d ?? DESTINO_EFECTIVO_DEFAULT),
     cargarDeudaAnanja(supabase),
-    listarMargenVentas(supabase, `${periodoMes}-01`),
-    listarGastosConCategoria(supabase, `${periodoMes}-01`),
     // "En manos de" de TODAS las personas, en paralelo con el resto: todavía
     // no se sabe quién tiene plata (sale de `plataEnManos`), así que se
     // filtra en memoria más abajo — antes era una segunda tanda de lecturas
@@ -137,18 +145,6 @@ export default async function PlataPage() {
   // Misma función que "Te deben" de Hoy.
   const totalLeDebenCentavos = totalLeDeben(deudaVendedor ?? [], deudaCliente ?? []);
 
-  // Resultado del mes: la misma ganancia que Hoy y `/ganancia`, abierta en
-  // filas. Si falla la carga se avisa en la tarjeta (no se inventa un cero).
-  const desglose =
-    margenRes.error || gastosRes.error
-      ? null
-      : desgloseResultadoDelPeriodo(
-          mapearFilasMargenVentas(margenRes.data),
-          filtrarGastosOperativos(gastosRes.data),
-          "mes",
-          periodoMes,
-        );
-
   const itemsMovimientos = itemsGenerales(movimientos);
 
   return (
@@ -170,7 +166,11 @@ export default async function PlataPage() {
           />
         </div>
         <div className="flex min-w-0 flex-col gap-6">
-          <TarjetaResultado nombreMes={NOMBRES_MES[mes].toLowerCase()} desglose={desglose} />
+          <MarcoResultado nombreMes={NOMBRES_MES[mes].toLowerCase()}>
+            <Suspense fallback={<EsqueletoResultado />}>
+              <ResultadoDelMes promesa={resultado} />
+            </Suspense>
+          </MarcoResultado>
         </div>
       </div>
 
