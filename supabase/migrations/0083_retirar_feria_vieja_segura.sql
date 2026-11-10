@@ -57,10 +57,9 @@
 -- algo vivo dependiera de un objeto, el `drop` falla y se revierte todo.
 --
 -- ── Cosas que cambian y hay que saber ───────────────────────────────────
---   * `tests/invariantes.integration.test.ts` (invariante 5) lee
---     `v_feria_totales`: fallará al correrse a mano
---     (`npm run test:integration`, no corre en CI) hasta que se borre ese
---     caso. El invariante 6 usa `ferias`, que se conserva.
+--   * `tests/invariantes.integration.test.ts` ya no tiene el
+--     caso del invariante 5 (leía `v_feria_totales`): fue retirado junto con
+--     esta migración. El invariante 6 usa `ferias`, que se conserva.
 --   * `lib/types.ts` conserva tipos de lo retirado (`feria_productos`,
 --     `v_feria_*`, `crear_feria`, `reabrir_feria`): inofensivo hasta
 --     regenerarlo (`generador-de-ts`); regenerar después de aplicar.

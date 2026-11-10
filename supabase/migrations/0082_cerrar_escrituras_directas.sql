@@ -67,8 +67,9 @@
 -- `movimientos_stock`), así que el revoke sobre `ferias` sigue siendo
 -- necesario. `feria_productos` sí se dropea en la 0083; revocar acá su update
 -- es redundante si la 0083 se aplica, pero deja la 0082 segura por sí sola si
--- el dueño no aprueba la 0083. Orden: la 0082 va ANTES que la 0083 (si la 0083
--- ya dropeó `feria_productos`, el revoke de acá falla por tabla inexistente).
+-- el dueño no aprueba la 0083. Orden recomendado: 0082 → 0083; igual la 0082
+-- ya no falla en el orden inverso (el revoke sobre `feria_productos` está
+-- protegido con `to_regclass` y se saltea si la tabla ya no existe).
 --
 -- ── 2) feria_quitar_participante ────────────────────────────────────────
 -- Definición vigente: 0079 §6 (la 0078 la creó). Solo exigía `es_admin()` y
@@ -127,7 +128,11 @@
 
 revoke delete on public.ferias from authenticated;
 revoke update (nombre, lugar, fecha_inicio, fecha_fin, nota) on public.ferias from authenticated;
-revoke update (precio_centavos, cantidad_llevada) on public.feria_productos from authenticated;
+do $$ begin
+  if to_regclass('public.feria_productos') is not null then
+    revoke update (precio_centavos, cantidad_llevada) on public.feria_productos from authenticated;
+  end if;
+end $$;
 
 -- ============================================================
 -- 2) feria_quitar_participante — exige feria abierta y toma locks

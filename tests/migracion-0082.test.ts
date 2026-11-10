@@ -18,6 +18,10 @@ describe("migración 0082 (cerrar escrituras directas)", () => {
     expect(codigo).toContain(
       "revoke update (precio_centavos, cantidad_llevada) on public.feria_productos from authenticated;",
     );
+    // El revoke de feria_productos va protegido: no falla si la 0083 ya dropeó la tabla.
+    expect(codigo).toMatch(
+      /if to_regclass\('public\.feria_productos'\) is not null then\s+revoke update \(precio_centavos, cantidad_llevada\) on public\.feria_productos from authenticated;\s+end if;/,
+    );
     for (const tabla of ["deudas", "movimientos_stock", "gastos", "comprobantes", "insumos"]) {
       expect(codigo, `no debe revocar nada de ${tabla}`).not.toMatch(new RegExp(`revoke[^;]*\\b${tabla}\\b`));
     }

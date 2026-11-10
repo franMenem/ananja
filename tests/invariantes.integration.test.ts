@@ -174,22 +174,7 @@ describe.skipIf(!tieneCredenciales)(
       expect(clavesConMovimiento.size).toBe(cantidadPorClave.size);
     });
 
-    it("invariante 5: v_feria_totales.ventas_total = efectivo + mercado_pago + banco, y neto = ventas_total - gastos_total", async () => {
-      const { data, error } = await supabase.from("v_feria_totales").select("*");
-      expect(error).toBeNull();
-
-      for (const fila of data ?? []) {
-        const sumaMedios =
-          Number(fila.ventas_efectivo_centavos) +
-          Number(fila.ventas_mercado_pago_centavos) +
-          Number(fila.ventas_banco_centavos);
-        expect(Number(fila.ventas_total_centavos)).toBe(sumaMedios);
-        expect(Number(fila.neto_centavos)).toBe(
-          Number(fila.ventas_total_centavos) -
-            Number(fila.gastos_total_centavos),
-        );
-      }
-    });
+    // Invariante 5 (v_feria_totales) retirado junto con la feria vieja (migración 0083).
 
     it("invariante 6: todo comprobante/gasto/movimiento_stock con feria_id apunta a una feria existente", async () => {
       const { data: ferias, error: errF } = await supabase
