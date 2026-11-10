@@ -35,20 +35,20 @@ Formato de cada ficha: qué es, dónde está la verdad en TS (`archivo` + `símb
 
 - TS: `lib/dominio/feria-admin.ts` (`EstadoFeria`, `EstadoParticipacion`, `feriaAbierta`, `participacionCerrada`, `ESTADO_FERIA_ABIERTA`). La vista de la revendedora: `lib/dominio/feria-mi.ts` (`accionFeriaInicio`).
 - Base: tablas `feria_revendedoras` (`0078_feria_revendedoras.sql`) y `feria_participantes` (`0078_feria_revendedoras.sql`) con CHECK de estado. RPC `feria_cerrar` (`0078_feria_revendedoras.sql`), `feria_reabrir` (`0078_feria_revendedoras.sql`), `feria_cerrar_participacion` (`0079_feria_degustacion_carga.sql`), `feria_reabrir_participacion` (`0079_feria_degustacion_carga.sql`), `feria_quitar_participante` (`0079_feria_degustacion_carga.sql`) y `feria_cargar_degustacion` (`0079_feria_degustacion_carga.sql`).
-- Pendiente (hueco de la base): no hay CHECK que ate `estado` con `cerrada_at` en `feria_participantes`.
+- Pendiente (hueco de la base): el CHECK `feria_participantes_estado_coherente` (`0081_estados_coherentes.sql`) que ata `estado` con `cerrada_at` está ESCRITO Y SIN APLICAR; mientras no se aplique, la base no lo exige.
 - Regla: usar `feriaAbierta` y `participacionCerrada`.
 
 ## Deuda del negocio
 
 - TS: `lib/dominio/deudas.ts` (`calcularEstadoDeuda`, que deriva pendiente/parcial/saldada; `calcularSaldoDeuda`, el saldo) y `lib/deudas.ts` (`registrarPagoDeuda`). No hay una columna de estado: una deuda está saldada cuando `saldada_en` tiene fecha.
-- Base: `registrar_pago_deuda` (`0036_fechas_argentina.sql`) fija `saldada_en`; la deuda de aceite se mantiene con `sincronizar_deuda_aceite_lote` (`0047_deuda_aceite_proveedor.sql`).
-- Pendiente (hueco conocido): `sincronizar_deuda_aceite_lote` no recalcula `saldada_en` cuando cambia el monto.
+- Base: `registrar_pago_deuda` (`0036_fechas_argentina.sql`) fija `saldada_en`; la deuda de aceite se mantiene con la función `sincronizar_deuda_aceite_lote`, que en producción sigue en la versión de `0047_deuda_aceite_proveedor.sql`.
+- Pendiente (hueco conocido): `sincronizar_deuda_aceite_lote` (`0081_estados_coherentes.sql`) recalcula `saldada_en` cuando cambia el monto, pero esa migración está ESCRITA Y SIN APLICAR; hasta aplicarla, producción no lo hace.
 
 ## Plata en manos y vía de una rendición
 
 - TS: `lib/dominio/plata.ts` (`ViaRendicion`, `parsearViaRendicion`, `medioParaCaja`) y `lib/dominio/movimientos-plata.ts` (a dónde impacta cada movimiento). `ViaPago` de `lib/dominio/carga-revendedor.ts` es un alias del mismo tipo.
 - Base: columna `rendiciones.via` (`0037_plata_en_manos.sql`) con CHECK de tres valores. RPC `registrar_rendicion` (`0055_coordinador.sql`) y `registrar_deposito_cuenta` (`0055_coordinador.sql`).
-- Pendiente (hueco conocido): falta un CHECK que ate `via` con `tenedor_id` en `rendiciones`.
+- Pendiente (hueco conocido): el CHECK `rendiciones_via_tenedor_coherente` (`0081_estados_coherentes.sql`) que ata `via` con `tenedor_id` está ESCRITO Y SIN APLICAR; hasta aplicarlo, la base no lo exige.
 - Regla: leer `via` de la base con `parsearViaRendicion`; no castear con `as`.
 
 ## Pedido (estado derivado)
