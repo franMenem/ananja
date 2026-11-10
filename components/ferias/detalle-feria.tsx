@@ -15,7 +15,7 @@ import { LinkBoton } from "@/components/ui/link-boton";
 import { Pastilla } from "@/components/ui/pastilla";
 import type { FeriaRow, ParticipanteFeriaRow, ProductoParticipanteRow } from "@/lib/data/ferias";
 import { mensajeErrorFeria } from "@/lib/dominio/feria";
-import { revendedorasDisponibles, sePuedeCerrarFeria, totalesFeria } from "@/lib/dominio/feria-admin";
+import { feriaAbierta, revendedorasDisponibles, sePuedeCerrarFeria, totalesFeria } from "@/lib/dominio/feria-admin";
 import { feriaAgregarParticipante, feriaCerrar, feriaReabrir } from "@/lib/ferias";
 import { formatFecha } from "@/lib/fechas";
 import { formatCentavos } from "@/lib/money";
@@ -44,7 +44,7 @@ export function DetalleFeria({
   avisoDegustacion = null,
 }: Props) {
   const router = useRouter();
-  const abierta = feria.estado === "abierta";
+  const abierta = feriaAbierta(feria.estado);
   const totales = totalesFeria(participantes);
   const puedeCerrar = sePuedeCerrarFeria(feria.estado, totales.pendientes);
   const disponibles = revendedorasDisponibles(revendedoras, participantes);

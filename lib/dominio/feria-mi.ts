@@ -2,6 +2,8 @@
  * Feria vista desde la revendedora (`app/(mi)`) — decisiones puras de pantalla.
  */
 
+import { participacionCerrada } from "@/lib/dominio/feria-admin";
+
 /** Qué mostrar en la tarjeta de Inicio según el estado de su participación. */
 export type AccionFeriaInicio = "cerrar" | "ver" | "cerrada";
 
@@ -15,7 +17,7 @@ export function accionFeriaInicio(
   fechaFeria: string,
   hoy: string,
 ): AccionFeriaInicio {
-  if (estadoParticipante === "cerrada") return "cerrada";
+  if (participacionCerrada(estadoParticipante)) return "cerrada";
   return fechaFeria <= hoy ? "cerrar" : "ver";
 }
 

@@ -4,12 +4,28 @@
  * participante. Los cálculos del cierre están en `lib/dominio/feria.ts`.
  */
 
+/** `feria_revendedoras.estado` (0078_feria_revendedoras.sql, CHECK). */
 export type EstadoFeria = "abierta" | "cerrada";
+/** `feria_participantes.estado` (0078_feria_revendedoras.sql, CHECK). */
+export type EstadoParticipacion = "pendiente" | "cerrada";
+
+/** Valor de `feria_revendedoras.estado` de una feria abierta (para `.eq(...)`). */
+export const ESTADO_FERIA_ABIERTA = "abierta" satisfies EstadoFeria;
+
+/** La feria está abierta. Usar esto en vez de comparar el string a mano. */
+export function feriaAbierta(estado: string | null | undefined): boolean {
+  return estado === ESTADO_FERIA_ABIERTA;
+}
+
+/** La participación de una revendedora ya cerró (`feria_participantes.estado`). */
+export function participacionCerrada(estado: string | null | undefined): boolean {
+  return estado === ("cerrada" satisfies EstadoParticipacion);
+}
 
 /** Abiertas primero; dentro de cada grupo, la fecha más reciente arriba. */
 export function ordenarFerias<T extends { estado: string; fecha: string }>(ferias: T[]): T[] {
   return [...ferias].sort((a, b) => {
-    if (a.estado !== b.estado) return a.estado === "abierta" ? -1 : 1;
+    if (a.estado !== b.estado) return feriaAbierta(a.estado) ? -1 : 1;
     return b.fecha.localeCompare(a.fecha);
   });
 }
@@ -55,7 +71,7 @@ export function totalesFeria(participantes: FilaParticipante[]): TotalesFeria {
     declaradoCentavos: 0,
   };
   for (const p of participantes) {
-    if (p.estado === "cerrada") t.cerradas += 1;
+    if (participacionCerrada(p.estado)) t.cerradas += 1;
     else t.pendientes += 1;
     t.entregadas += p.entregadas ?? 0;
     t.vendidas += p.vendidas ?? 0;
@@ -76,12 +92,12 @@ export function sePuedeQuitar(p: {
   /** Degustación cargada de antemano: también hay que quitarla antes (0079). */
   degustadas_carga?: number | null;
 }): boolean {
-  return p.estado !== "cerrada" && (p.entregadas ?? 0) === 0 && (p.degustadas_carga ?? 0) === 0;
+  return !participacionCerrada(p.estado) && (p.entregadas ?? 0) === 0 && (p.degustadas_carga ?? 0) === 0;
 }
 
 /** La feria se puede cerrar si está abierta y nadie queda pendiente. */
 export function sePuedeCerrarFeria(feriaEstado: string, pendientes: number): boolean {
-  return feriaEstado === "abierta" && pendientes === 0;
+  return feriaAbierta(feriaEstado) && pendientes === 0;
 }
 
 /** "1 participante" / "3 participantes". */

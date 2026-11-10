@@ -3,6 +3,7 @@ import { CierreFeriaForm, textosCierreFeriaAdmin } from "@/components/ferias/cie
 import { VolverLink } from "@/components/volver-link";
 import { listarProductosDeParticipante, obtenerFeria } from "@/lib/data/ferias";
 import { createClient } from "@/lib/supabase/server";
+import { feriaAbierta, participacionCerrada } from "@/lib/dominio/feria-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function CerrarPorRevendedoraPage({
       </div>
     );
   }
-  if (completa.feria.estado !== "abierta" || participante.estado === "cerrada") {
+  if (!feriaAbierta(completa.feria.estado) || participacionCerrada(participante.estado)) {
     return (
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href={`/ferias/${id}`} label="la feria" />

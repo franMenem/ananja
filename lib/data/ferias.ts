@@ -8,6 +8,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database, Tables } from "@/lib/types";
+import { ESTADO_FERIA_ABIERTA } from "@/lib/dominio/feria-admin";
 
 type Supa = SupabaseClient<Database>;
 
@@ -107,7 +108,7 @@ export async function feriaAbiertaDe(
     .from("feria_participantes")
     .select("feria_id, feria_revendedoras!inner(id, fecha, created_at, estado)")
     .eq("vendedor_id", vendedorId)
-    .eq("feria_revendedoras.estado", "abierta");
+    .eq("feria_revendedoras.estado", ESTADO_FERIA_ABIERTA);
 
   if (error) {
     console.error("feriaAbiertaDe", error);

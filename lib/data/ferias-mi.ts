@@ -8,6 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FeriaMiDatos } from "@/components/mi/feria-vista";
 import { feriaAbiertaDe } from "@/lib/data/ferias";
 import type { Database } from "@/lib/types";
+import { participacionCerrada } from "@/lib/dominio/feria-admin";
 
 export type FeriaMiCargada = { feriaId: string; datos: FeriaMiDatos };
 
@@ -27,7 +28,7 @@ export async function cargarFeriaMi(
         nombre: data.feria.nombre,
         fecha: data.feria.fecha,
         lugar: data.feria.lugar,
-        cerrada: p.estado === "cerrada",
+        cerrada: participacionCerrada(p.estado),
         productos: data.productos
           .filter((f): f is typeof f & { producto_id: string } => f.producto_id !== null)
           .map((f) => ({

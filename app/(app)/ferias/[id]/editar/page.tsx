@@ -3,6 +3,7 @@ import { FeriaForm } from "@/components/ferias/feria-form";
 import { obtenerFeria } from "@/lib/data/ferias";
 import { listarProductosResumen } from "@/lib/data/revendedores";
 import { createClient } from "@/lib/supabase/server";
+import { feriaAbierta } from "@/lib/dominio/feria-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function EditarFeriaPage({ params }: PageProps<"/ferias/[id
       </FormPage>
     );
   }
-  if (completa.feria.estado !== "abierta") {
+  if (!feriaAbierta(completa.feria.estado)) {
     return (
       <FormPage title="Editar feria" backHref={`/ferias/${id}`} backLabel="Volver a la feria">
         <p className="text-[16px] text-text-muted">Esta feria ya está cerrada. Reabrila para editarla.</p>

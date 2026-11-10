@@ -5,6 +5,7 @@ import { obtenerFeria } from "@/lib/data/ferias";
 import { obtenerLotesConStock } from "@/lib/data/lotes";
 import { listarProductos, obtenerVendedorPorId } from "@/lib/data/revendedores";
 import { createClient } from "@/lib/supabase/server";
+import { feriaAbierta } from "@/lib/dominio/feria-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function EntregarFeriaPage({
       </div>
     );
   }
-  if (completa.feria.estado !== "abierta") {
+  if (!feriaAbierta(completa.feria.estado)) {
     return (
       <div className="flex flex-col gap-6 pb-8">
         <VolverLink href={`/ferias/${id}`} label="la feria" />

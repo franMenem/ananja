@@ -13,7 +13,7 @@ import { Tarjeta } from "@/components/ui/tarjeta";
 import { CLASE_ETIQUETA, Campo, MensajeError, Selector } from "@/components/ui/campo";
 import type { ParticipanteFeriaRow, ProductoParticipanteRow } from "@/lib/data/ferias";
 import { mensajeErrorFeria } from "@/lib/dominio/feria";
-import { sePuedeQuitar, textoDegustacion } from "@/lib/dominio/feria-admin";
+import { participacionCerrada, sePuedeQuitar, textoDegustacion } from "@/lib/dominio/feria-admin";
 import { hoyISO } from "@/lib/fechas";
 import {
   feriaCargarDegustacion,
@@ -58,7 +58,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
   const [error, setError] = useState<string | null>(null);
 
   const vendedorId = p.vendedor_id ?? "";
-  const cerrada = p.estado === "cerrada";
+  const cerrada = participacionCerrada(p.estado);
   const declarado = (p.efectivo_centavos ?? 0) + (p.mercado_pago_centavos ?? 0) + (p.banco_centavos ?? 0);
 
   const conCarga = productos.filter((x) => (x.degustadas_carga ?? 0) > 0 && x.producto_id);

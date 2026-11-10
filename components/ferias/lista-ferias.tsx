@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Fila, ListaTarjeta } from "@/components/ui/fila";
 import type { FeriaConConteo } from "@/lib/data/ferias-admin";
-import { ordenarFerias, textoParticipantes } from "@/lib/dominio/feria-admin";
+import { feriaAbierta, ordenarFerias, textoParticipantes } from "@/lib/dominio/feria-admin";
 import { formatFecha } from "@/lib/fechas";
 
 /** Lista de ferias: abiertas primero. Cada fila lleva al detalle. */
@@ -21,8 +21,8 @@ export function ListaFerias({ ferias }: { ferias: FeriaConConteo[] }) {
               .filter(Boolean)
               .join(" · ")}
             valor={
-              <Pastilla variante={f.estado === "abierta" ? "ok" : "neutra"}>
-                {f.estado === "abierta" ? "Abierta" : "Cerrada"}
+              <Pastilla variante={feriaAbierta(f.estado) ? "ok" : "neutra"}>
+                {feriaAbierta(f.estado) ? "Abierta" : "Cerrada"}
               </Pastilla>
             }
           />
