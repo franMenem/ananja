@@ -24,6 +24,12 @@ import {
 import { formatCentavos } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 
+type HojaAbierta =
+  | { tipo: "quitar" }
+  | { tipo: "reabrir" }
+  | { tipo: "degustacion" }
+  | { tipo: "quitarDeg"; id: string; nombre: string };
+
 type Props = {
   feriaId: string;
   feriaAbierta: boolean;
@@ -48,14 +54,25 @@ function Numero({ rotulo, valor, resaltar = false }: { rotulo: string; valor: nu
  * admin puede hacer con ella (cargar botellas, quitar, cerrar por ella, reabrir). */
 export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, productos, productosActivos = [] }: Props) {
   const router = useRouter();
-  const [hoja, setHoja] = useState<"quitar" | "reabrir" | "degustacion" | null>(null);
+  // Qué hoja está abierta (una sola a la vez). `quitarDeg` lleva el producto cuya degustación se quita.
+  const [hoja, setHoja] = useState<HojaAbierta | null>(null);
   // Degustación a cargar: producto elegido + cantidad.
   const [productoDeg, setProductoDeg] = useState("");
   const [cantidadDeg, setCantidadDeg] = useState(1);
-  // Producto cuya degustación cargada se está por quitar.
-  const [quitarDeg, setQuitarDeg] = useState<{ id: string; nombre: string } | null>(null);
-  const [trabajando, setTrabajando] = useState(false);
+  // Qué acción está en vuelo (null = ninguna): el loader gira solo en el botón tocado.
+  const [trabajando, setTrabajando] = useState<HojaAbierta["tipo"] | null>(null);
+  // El error vive dentro de la hoja abierta: se limpia al abrir otra y al cerrar.
   const [error, setError] = useState<string | null>(null);
+
+  function abrir(nueva: HojaAbierta) {
+    setError(null);
+    setHoja(nueva);
+  }
+  function cerrar() {
+    if (trabajando !== null) return;
+    setError(null);
+    setHoja(null);
+  }
 
   const vendedorId = p.vendedor_id ?? "";
   const cerrada = participacionCerrada(p.estado);
@@ -64,61 +81,59 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
   const conCarga = productos.filter((x) => (x.degustadas_carga ?? 0) > 0 && x.producto_id);
   const textoDeg = textoDegustacion(p.degustadas_carga, p.degustadas_cierre);
 
+  /** Corre la acción de la hoja abierta: con error la hoja queda abierta con el mensaje; sin error se cierra. */
+  async function ejecutar(
+    tipo: HojaAbierta["tipo"],
+    accion: () => PromiseLike<{ error: { message: string } | null }>,
+  ): Promise<boolean> {
+    if (trabajando !== null) return false;
+    setTrabajando(tipo);
+    setError(null);
+    const { error: rpcError } = await accion();
+    setTrabajando(null);
+    if (rpcError) {
+      setError(mensajeErrorFeria(rpcError.message));
+      return false;
+    }
+    setHoja(null);
+    router.refresh();
+    return true;
+  }
+
   async function cargarDegustacion() {
     if (!productoDeg || cantidadDeg <= 0) {
       setError("Elegí el producto y la cantidad.");
       return;
     }
-    setTrabajando(true);
-    setError(null);
-    const { error: rpcError } = await feriaCargarDegustacion(createClient(), {
-      feriaId,
-      vendedorId,
-      items: [{ productoId: productoDeg, cantidad: cantidadDeg }],
-      fecha: hoyISO(),
-      nota: null,
-    });
-    setTrabajando(false);
-    setHoja(null);
-    if (rpcError) {
-      setError(mensajeErrorFeria(rpcError.message));
-      return;
+    const ok = await ejecutar("degustacion", () =>
+      feriaCargarDegustacion(createClient(), {
+        feriaId,
+        vendedorId,
+        items: [{ productoId: productoDeg, cantidad: cantidadDeg }],
+        fecha: hoyISO(),
+        nota: null,
+      }),
+    );
+    if (ok) {
+      setProductoDeg("");
+      setCantidadDeg(1);
     }
-    setProductoDeg("");
-    setCantidadDeg(1);
-    router.refresh();
   }
 
   async function quitarDegustacion() {
-    if (!quitarDeg) return;
-    setTrabajando(true);
-    setError(null);
-    const { error: rpcError } = await feriaQuitarDegustacion(createClient(), feriaId, vendedorId, quitarDeg.id);
-    setTrabajando(false);
-    setQuitarDeg(null);
-    if (rpcError) {
-      setError(mensajeErrorFeria(rpcError.message));
-      return;
-    }
-    router.refresh();
+    if (hoja?.tipo !== "quitarDeg") return;
+    const { id } = hoja;
+    await ejecutar("quitarDeg", () => feriaQuitarDegustacion(createClient(), feriaId, vendedorId, id));
   }
 
   async function confirmar() {
-    setTrabajando(true);
-    setError(null);
-    const supabase = createClient();
-    const { error: rpcError } =
-      hoja === "quitar"
-        ? await feriaQuitarParticipante(supabase, feriaId, vendedorId)
-        : await feriaReabrirParticipacion(supabase, feriaId, vendedorId);
-    setTrabajando(false);
-    if (rpcError) {
-      setError(mensajeErrorFeria(rpcError.message));
-      setHoja(null);
-      return;
-    }
-    setHoja(null);
-    router.refresh();
+    if (hoja?.tipo !== "quitar" && hoja?.tipo !== "reabrir") return;
+    const tipo = hoja.tipo;
+    await ejecutar(tipo, () =>
+      tipo === "quitar"
+        ? feriaQuitarParticipante(createClient(), feriaId, vendedorId)
+        : feriaReabrirParticipacion(createClient(), feriaId, vendedorId),
+    );
   }
 
   return (
@@ -174,8 +189,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
               </span>
               <button
                 type="button"
-                disabled={trabajando}
-                onClick={() => setQuitarDeg({ id: x.producto_id ?? "", nombre: x.producto_nombre ?? "producto" })}
+                onClick={() => abrir({ tipo: "quitarDeg", id: x.producto_id ?? "", nombre: x.producto_nombre ?? "producto" })}
                 className="min-h-11 shrink-0 px-2 text-[14px] font-semibold text-accent"
               >
                 Quitar
@@ -185,8 +199,6 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </ul>
       )}
 
-      {error && <MensajeError>{error}</MensajeError>}
-
       {feriaAbierta && (
         <div className="flex flex-wrap gap-2">
           {!cerrada && (
@@ -194,50 +206,52 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
               <LinkBoton href={`/ferias/${feriaId}/entregar/${vendedorId}`} className={`${BOTON_SECUNDARIO} flex px-4`}>
                 Cargar botellas
               </LinkBoton>
-              <button type="button" onClick={() => setHoja("degustacion")} className={`${BOTON_SECUNDARIO} flex px-4`}>
+              <button type="button" onClick={() => abrir({ tipo: "degustacion" })} className={`${BOTON_SECUNDARIO} flex px-4`}>
                 Cargar degustación
               </button>
               <LinkBoton href={`/ferias/${feriaId}/cerrar/${vendedorId}`} className={`${BOTON_SECUNDARIO} flex px-4`}>
                 Cerrar por ella
               </LinkBoton>
               {sePuedeQuitar(p) && (
-                <button type="button" onClick={() => setHoja("quitar")} className={`${BOTON_SECUNDARIO} flex px-4`}>
+                <button type="button" onClick={() => abrir({ tipo: "quitar" })} className={`${BOTON_SECUNDARIO} flex px-4`}>
                   Quitar
                 </button>
               )}
             </>
           )}
           {cerrada && (
-            <button type="button" onClick={() => setHoja("reabrir")} className={`${BOTON_SECUNDARIO} flex px-4`}>
+            <button type="button" onClick={() => abrir({ tipo: "reabrir" })} className={`${BOTON_SECUNDARIO} flex px-4`}>
               Reabrir
             </button>
           )}
         </div>
       )}
 
-      <BottomSheet open={hoja !== null} onClose={() => setHoja(null)} bloqueada={trabajando} ariaLabel={hoja === "quitar" ? "Quitar de la feria" : "Reabrir participación"} variant="accent">
+      <BottomSheet open={hoja?.tipo === "quitar" || hoja?.tipo === "reabrir"} onClose={cerrar} bloqueada={trabajando !== null} ariaLabel={hoja?.tipo === "quitar" ? "Quitar de la feria" : "Reabrir participación"} variant="accent">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">
-            {hoja === "quitar" ? `¿Quitar a ${p.vendedor_nombre} de la feria?` : `¿Reabrir la participación de ${p.vendedor_nombre}?`}
+            {hoja?.tipo === "quitar" ? `¿Quitar a ${p.vendedor_nombre} de la feria?` : `¿Reabrir la participación de ${p.vendedor_nombre}?`}
           </h2>
           <p className="text-[15px] text-text-muted">
-            {hoja === "quitar"
+            {hoja?.tipo === "quitar"
               ? "Todavía no tiene botellas cargadas, así que no se pierde nada."
               : "Se deshacen las ventas, la devolución y las degustaciones de su cierre; después tiene que volver a cerrar."}
           </p>
+          {error && <MensajeError>{error}</MensajeError>}
           <div className="flex flex-col gap-2">
             <BotonAccion
-              cargando={trabajando}
+              cargando={trabajando === "quitar" || trabajando === "reabrir"}
               textoCargando="Un momento…"
+              disabled={trabajando !== null}
               onClick={confirmar}
               className={`${BOTON_PRIMARIO} flex w-full px-4`}
             >
-              {hoja === "quitar" ? "Sí, quitar" : "Sí, reabrir"}
+              {hoja?.tipo === "quitar" ? "Sí, quitar" : "Sí, reabrir"}
             </BotonAccion>
             <button
               type="button"
-              disabled={trabajando}
-              onClick={() => setHoja(null)}
+              disabled={trabajando !== null}
+              onClick={cerrar}
               className={`${BOTON_SECUNDARIO} flex w-full px-4`}
             >
               Cancelar
@@ -246,7 +260,7 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </div>
       </BottomSheet>
 
-      <BottomSheet open={hoja === "degustacion"} onClose={() => setHoja(null)} bloqueada={trabajando} ariaLabel="Cargar degustación" anchoMaximo="sm:max-w-lg">
+      <BottomSheet open={hoja?.tipo === "degustacion"} onClose={cerrar} bloqueada={trabajando !== null} ariaLabel="Cargar degustación" anchoMaximo="sm:max-w-lg">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">Degustación para {p.vendedor_nombre}</h2>
           <p className="text-[15px] text-text-muted">
@@ -275,10 +289,12 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
               ariaLabelSufijo=" de degustación"
             />
           </div>
+          {error && <MensajeError>{error}</MensajeError>}
           <div className="flex flex-col gap-2">
             <BotonAccion
-              cargando={trabajando}
+              cargando={trabajando === "degustacion"}
               textoCargando="Cargando…"
+              disabled={trabajando !== null}
               onClick={cargarDegustacion}
               className={`${BOTON_PRIMARIO} flex w-full px-4`}
             >
@@ -286,8 +302,8 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
             </BotonAccion>
             <button
               type="button"
-              disabled={trabajando}
-              onClick={() => setHoja(null)}
+              disabled={trabajando !== null}
+              onClick={cerrar}
               className={`${BOTON_SECUNDARIO} flex w-full px-4`}
             >
               Cancelar
@@ -296,16 +312,18 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
         </div>
       </BottomSheet>
 
-      <BottomSheet open={quitarDeg !== null} onClose={() => setQuitarDeg(null)} bloqueada={trabajando} ariaLabel="Quitar degustación" variant="accent">
+      <BottomSheet open={hoja?.tipo === "quitarDeg"} onClose={cerrar} bloqueada={trabajando !== null} ariaLabel="Quitar degustación" variant="accent">
         <div className="flex flex-col gap-4">
           <h2 className="text-[18px] font-semibold text-text">
-            ¿Quitar la degustación de {quitarDeg?.nombre} de {p.vendedor_nombre}?
+            ¿Quitar la degustación de {hoja?.tipo === "quitarDeg" ? hoja.nombre : ""} de {p.vendedor_nombre}?
           </h2>
           <p className="text-[15px] text-text-muted">Las botellas vuelven al stock del pedido del que salieron.</p>
+          {error && <MensajeError>{error}</MensajeError>}
           <div className="flex flex-col gap-2">
             <BotonAccion
-              cargando={trabajando}
+              cargando={trabajando === "quitarDeg"}
               textoCargando="Un momento…"
+              disabled={trabajando !== null}
               onClick={quitarDegustacion}
               className={`${BOTON_PRIMARIO} flex w-full px-4`}
             >
@@ -313,8 +331,8 @@ export function ParticipanteFeria({ feriaId, feriaAbierta, participante: p, prod
             </BotonAccion>
             <button
               type="button"
-              disabled={trabajando}
-              onClick={() => setQuitarDeg(null)}
+              disabled={trabajando !== null}
+              onClick={cerrar}
               className={`${BOTON_SECUNDARIO} flex w-full px-4`}
             >
               Cancelar

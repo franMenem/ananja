@@ -20,7 +20,24 @@ function isPdfPath(path: string): boolean {
   return path.toLowerCase().endsWith(".pdf");
 }
 
-type Vista = "ver" | "subir" | "elegir";
+/**
+ * Qué está pasando en la sección, en un solo valor (no seis variables sueltas):
+ *   ver     la factura (o "Sin factura") y sus botones.
+ *   subir   subir un archivo nuevo. `pendingPath`: el archivo YA se subió a
+ *           Storage pero la RPC que guarda la referencia falló; se conserva
+ *           para reintentar SOLO la RPC, sin volver a subir (eso dejaría un
+ *           huérfano en el bucket, ver 0067_comprobante_en_gastos.sql).
+ *   elegir  elegir una factura ya subida para otro gasto (si la RPC falla se
+ *           elige otra o se cancela: no hay nada que reintentar aparte).
+ *   quitar  la hoja de confirmación de "Quitar" abierta sobre la vista `ver`.
+ * El error vive DENTRO de la fase que lo produjo y se descarta al salir de
+ * ella: cancelar la hoja, volver a `ver` o abrir otra fase lo limpia.
+ */
+type Estado =
+  | { fase: "ver" }
+  | { fase: "subir"; guardando: boolean; pendingPath: string | null; error: string | null }
+  | { fase: "elegir"; guardando: boolean; error: string | null }
+  | { fase: "quitar"; quitando: boolean; error: string | null };
 
 type FacturaGastoSeccionProps = {
   gastoId: string;
@@ -48,17 +65,8 @@ export function FacturaGastoSeccion({
   isAdmin,
   onCambiada,
 }: FacturaGastoSeccionProps) {
-  const [vista, setVista] = useState<Vista>("ver");
+  const [estado, setEstado] = useState<Estado>({ fase: "ver" });
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
-  const [quitando, setQuitando] = useState(false);
-  // El archivo ya se subió a Storage pero la RPC que guarda la referencia
-  // falló — se conserva el path para poder reintentar SOLO la RPC, sin
-  // volver a subir el archivo (eso dejaría un huérfano en el bucket, ver
-  // comentario de cabecera de 0067_comprobante_en_gastos.sql).
-  const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   useEffect(() => {
     // Sin `imagenPath` no hay nada que firmar — el render ya no usa
@@ -75,69 +83,76 @@ export function FacturaGastoSeccion({
     };
   }, [imagenPath]);
 
+  /** Guarda la referencia (RPC) de un archivo que ya está en Storage. Desde `subir` o `elegir`. */
   async function adjuntar(path: string) {
-    setGuardando(true);
-    setError(null);
+    const desde = estado.fase === "elegir" ? "elegir" : "subir";
+    // Conserva la fase (y el `pendingPath` de un reintento) para que el botón gire sin cambiar de pantalla.
+    setEstado((e) =>
+      e.fase === "elegir" || e.fase === "subir"
+        ? { ...e, guardando: true, error: null }
+        : { fase: "subir", guardando: true, pendingPath: null, error: null },
+    );
 
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("adjuntar_comprobante_gasto", {
+    const { error: rpcError } = await createClient().rpc("adjuntar_comprobante_gasto", {
       p_gasto_id: gastoId,
       p_imagen_path: path,
     });
 
-    setGuardando(false);
     if (rpcError) {
-      setError(mensajeErrorFacturaGasto(rpcError.message));
-      // El archivo ya está en Storage: se guarda el path para reintentar
-      // solo la RPC, no la subida.
-      setPendingPath(path);
+      const error = mensajeErrorFacturaGasto(rpcError.message);
+      // Desde `subir` el archivo ya está en Storage: se guarda el path para
+      // reintentar solo la RPC, no la subida.
+      setEstado(
+        desde === "subir"
+          ? { fase: "subir", guardando: false, pendingPath: path, error }
+          : { fase: "elegir", guardando: false, error },
+      );
       return;
     }
 
-    setPendingPath(null);
+    setEstado({ fase: "ver" });
     onCambiada(path);
-    setVista("ver");
   }
 
   /** Reintenta guardar la referencia (RPC) de un archivo que ya se subió,
    * sin volver a subirlo. */
   function reintentarAdjuntar() {
-    if (pendingPath) void adjuntar(pendingPath);
+    if (estado.fase === "subir" && estado.pendingPath) void adjuntar(estado.pendingPath);
   }
 
   async function handleQuitar() {
-    setQuitando(true);
-    setError(null);
+    setEstado({ fase: "quitar", quitando: true, error: null });
 
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("quitar_comprobante_gasto", {
+    const { error: rpcError } = await createClient().rpc("quitar_comprobante_gasto", {
       p_gasto_id: gastoId,
     });
 
-    setQuitando(false);
     if (rpcError) {
-      setError(mensajeErrorFacturaGasto(rpcError.message));
+      setEstado({ fase: "quitar", quitando: false, error: mensajeErrorFacturaGasto(rpcError.message) });
       return;
     }
 
-    setConfirmandoQuitar(false);
+    setEstado({ fase: "ver" });
     onCambiada(null);
   }
 
-  function cancelarSubvista() {
-    setVista("ver");
-    setError(null);
-    setPendingPath(null);
+  /** Vuelve a `ver` descartando el error y el path pendiente. */
+  function volver() {
+    setEstado({ fase: "ver" });
   }
 
+  const guardando = (estado.fase === "subir" || estado.fase === "elegir") && estado.guardando;
+  const quitando = estado.fase === "quitar" && estado.quitando;
+  // El error de `quitar` se muestra dentro de su hoja, no arriba.
+  const errorArriba = estado.fase === "subir" || estado.fase === "elegir" ? estado.error : null;
   const isPdf = imagenPath !== null && isPdfPath(imagenPath);
 
   return (
     <SeccionForm titulo="Factura" descripcion={isAdmin ? "Una misma factura puede cubrir varios gastos." : undefined}>
-      {error && <MensajeError>{error}</MensajeError>}
+      {errorArriba && <MensajeError>{errorArriba}</MensajeError>}
 
-      {vista === "subir" && (
-        pendingPath ? (
+      {estado.fase === "subir" && (
+        estado.pendingPath ? (
           <div className="flex flex-col gap-2.5">
             <p className="text-[14px] text-text-muted">
               El archivo ya se subió. Falta guardarlo en el gasto — probá
@@ -146,7 +161,7 @@ export function FacturaGastoSeccion({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={cancelarSubvista}
+                onClick={volver}
                 disabled={guardando}
                 className={`${BOTON_SECUNDARIO} flex-1 px-4`}
               >
@@ -164,15 +179,15 @@ export function FacturaGastoSeccion({
             </div>
           </div>
         ) : (
-          <SubirFacturaGasto onSubida={adjuntar} onCancelar={cancelarSubvista} guardando={guardando} />
+          <SubirFacturaGasto onSubida={adjuntar} onCancelar={volver} guardando={guardando} />
         )
       )}
 
-      {vista === "elegir" && (
-        <ElegirFacturaGasto onElegida={adjuntar} onCancelar={cancelarSubvista} guardando={guardando} />
+      {estado.fase === "elegir" && (
+        <ElegirFacturaGasto onElegida={adjuntar} onCancelar={volver} guardando={guardando} />
       )}
 
-      {vista === "ver" && (
+      {(estado.fase === "ver" || estado.fase === "quitar") && (
         <>
           {!imagenPath ? (
             <div className="flex min-h-[100px] items-center justify-center border border-border bg-surface-raised p-4 text-[16px] text-text-muted rounded-2xl">
@@ -209,14 +224,14 @@ export function FacturaGastoSeccion({
                 <>
                   <button
                     type="button"
-                    onClick={() => setVista("subir")}
+                    onClick={() => setEstado({ fase: "subir", guardando: false, pendingPath: null, error: null })}
                     className="min-h-12 flex-1 rounded-xl border border-primary px-4 text-[16px] font-semibold text-primary"
                   >
                     Subir factura
                   </button>
                   <button
                     type="button"
-                    onClick={() => setVista("elegir")}
+                    onClick={() => setEstado({ fase: "elegir", guardando: false, error: null })}
                     className="min-h-12 flex-1 rounded-xl border border-[#d0cec8] px-4 text-[16px] font-semibold text-text"
                   >
                     Usar una que ya subí
@@ -226,14 +241,14 @@ export function FacturaGastoSeccion({
                 <>
                   <button
                     type="button"
-                    onClick={() => setVista("subir")}
+                    onClick={() => setEstado({ fase: "subir", guardando: false, pendingPath: null, error: null })}
                     className="min-h-12 flex-1 rounded-xl border border-primary px-4 text-[16px] font-semibold text-primary"
                   >
                     Cambiar
                   </button>
                   <button
                     type="button"
-                    onClick={() => setConfirmandoQuitar(true)}
+                    onClick={() => setEstado({ fase: "quitar", quitando: false, error: null })}
                     className="min-h-12 flex-1 rounded-xl border border-accent px-4 text-[16px] font-semibold text-accent"
                   >
                     Quitar
@@ -245,7 +260,7 @@ export function FacturaGastoSeccion({
         </>
       )}
 
-      <BottomSheet open={confirmandoQuitar} onClose={() => setConfirmandoQuitar(false)} bloqueada={quitando} ariaLabel="Quitar factura" variant="accent">
+      <BottomSheet open={estado.fase === "quitar"} onClose={volver} bloqueada={quitando} ariaLabel="Quitar factura" variant="accent">
         <span className="text-[14px] font-semibold text-accent">
           Quitar factura
         </span>
@@ -257,16 +272,16 @@ export function FacturaGastoSeccion({
           gastos que la compartan.
         </p>
 
-        {error && (
+        {estado.fase === "quitar" && estado.error && (
           <p role="alert" className="mt-3 text-[14px] text-accent">
-            {error}
+            {estado.error}
           </p>
         )}
 
         <div className="mt-5 flex gap-2">
           <button
             type="button"
-            onClick={() => setConfirmandoQuitar(false)}
+            onClick={volver}
             disabled={quitando}
             className={`${BOTON_SECUNDARIO} flex-1 px-4`}
           >
