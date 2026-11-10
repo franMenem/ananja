@@ -15,6 +15,17 @@ export type TipoAviso = Exclude<
   "pago_revendedor" | "deposito_informado"
 >;
 
+/**
+ * Tipos de aviso que se mandan por Web Push (`app/api/push/send/route.ts`,
+ * `lib/push-client.ts`). ÚNICA declaración; el servidor valida con
+ * {@link esTipoNotificacionPush}.
+ */
+export type TipoNotificacionPush = "stock_bajo" | "gasto_nuevo";
+
+export function esTipoNotificacionPush(tipo: unknown): tipo is TipoNotificacionPush {
+  return tipo === "stock_bajo" || tipo === "gasto_nuevo";
+}
+
 export type Aviso = {
   id: string;
   created_at: string;

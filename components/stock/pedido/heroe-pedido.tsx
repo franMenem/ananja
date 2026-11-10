@@ -3,6 +3,7 @@ import { BOTON_PRIMARIO } from "@/components/ui/boton";
 import { NumeroGrande } from "@/components/ui/numero-grande";
 import { Pastilla } from "@/components/ui/pastilla";
 import { Tarjeta } from "@/components/ui/tarjeta";
+import { estadoPedido } from "@/lib/dominio/pedidos-lote";
 import { formatCentavos } from "@/lib/money";
 import { LinkBoton } from "@/components/ui/link-boton";
 
@@ -22,7 +23,11 @@ export function HeroePedido({
   tieneCostos: boolean;
   pendienteCentavos: number;
 }) {
-  if (!tieneCostos) {
+  // El estado sale de `estadoPedido` (mismo criterio que el chip de la lista):
+  // sin costos manda por sobre el saldo.
+  const { tipo } = estadoPedido({ tieneCostos, saldoCentavos: pendienteCentavos });
+
+  if (tipo === "sin-costos") {
     return (
       <Tarjeta como="section" aria-label="Estado del pedido" className="flex flex-col gap-3">
         <Pastilla variante="aviso" className="w-fit">
@@ -36,7 +41,7 @@ export function HeroePedido({
     );
   }
 
-  const debe = pendienteCentavos > 0;
+  const debe = tipo === "falta";
   return (
     <Tarjeta como="section" aria-label="Cuánto falta pagar" className="flex flex-col gap-4">
       <NumeroGrande etiqueta="Falta pagar" tono={debe ? "debe" : undefined}>

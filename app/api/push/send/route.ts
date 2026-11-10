@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 
+import { esTipoNotificacionPush, type TipoNotificacionPush } from "@/lib/dominio/notificaciones";
 import { formatCentavos } from "@/lib/money";
 import { NEGOCIO } from "@/lib/negocio";
 import { esEndpointPushPermitido } from "@/lib/push-endpoint";
@@ -44,7 +45,7 @@ import type { Database } from "@/lib/types";
  */
 export const runtime = "nodejs";
 
-type TipoNotificacion = "stock_bajo" | "gasto_nuevo";
+type TipoNotificacion = TipoNotificacionPush;
 
 type EnviarPushBody = {
   tipo?: TipoNotificacion;
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
   const tipo = body?.tipo;
   const referenciaId = body?.referencia_id;
 
-  if (tipo !== "stock_bajo" && tipo !== "gasto_nuevo") {
+  if (!esTipoNotificacionPush(tipo)) {
     return NextResponse.json(
       { error: "Tipo de notificación inválido." },
       { status: 400 },

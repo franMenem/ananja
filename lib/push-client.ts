@@ -11,7 +11,9 @@
  * Regla de oro: NUNCA rompe el flujo principal. Cualquier error de red o
  * de servidor se ignora en silencio; el registro ya se guardó igual.
  */
-export type TipoNotificacionPush = "stock_bajo" | "gasto_nuevo";
+import type { TipoNotificacionPush } from "@/lib/dominio/notificaciones";
+
+export type { TipoNotificacionPush };
 
 export async function notificarPush(
   tipo: TipoNotificacionPush,
