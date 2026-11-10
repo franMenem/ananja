@@ -5,6 +5,8 @@
  * `lib/dominio/plata.ts` (funciones puras).
  */
 
+import { FILTRO_ROLES_ENCARGADO } from "@/lib/rol-vendedor";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { MEDIO_PAGO_LABELS, type MedioPago } from "@/lib/dominio/caja";
@@ -166,7 +168,7 @@ export async function listarTenedoresActivos(
   const { data, error } = await supabase
     .from("vendedores")
     .select("id, nombre")
-    .in("rol", ["admin", "coordinador"])
+    .in("rol", FILTRO_ROLES_ENCARGADO)
     .eq("activo", true)
     .order("nombre");
   if (error) {

@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { destinoPorRol } from "@/lib/dominio/invitaciones";
+
 import { SinAccesoContent } from "@/components/sin-acceso-content";
 import { obtenerMiRevendedor } from "@/lib/revendedores";
 import { tieneAccesoValido } from "@/lib/rol-vendedor";
@@ -38,7 +40,7 @@ export default async function SinAccesoPage() {
   const pendiente = vendedor !== null && vendedor.activo && vendedor.rol === "pendiente";
 
   if (tieneAccesoValido(vendedor)) {
-    redirect(vendedor.rol === "revendedor" ? "/mi" : "/");
+    redirect(destinoPorRol(vendedor));
   }
 
   return <SinAccesoContent pendiente={pendiente} />;

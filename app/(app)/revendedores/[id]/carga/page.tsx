@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { puedeRevender, puedeSerEncargado } from "@/lib/rol-vendedor";
 import { FormHeaderDesktop } from "@/components/app/form-header-desktop";
 import { CargaForm } from "@/components/revendedores/carga-form";
 import { VolverLink } from "@/components/volver-link";
@@ -81,10 +82,7 @@ export default async function CargaUnificadaPage({
     obtenerLotesConStock(supabase),
   ]);
 
-  const esRevendedora =
-    revendedor !== null &&
-    revendedor.activo &&
-    (revendedor.rol === "revendedor" || (revendedor.rol === "admin" && revendedor.revende));
+  const esRevendedora = puedeRevender(revendedor);
 
   if (!revendedor || !esRevendedora) {
     return (
@@ -140,9 +138,7 @@ export default async function CargaUnificadaPage({
           seccionInicial={seccionInicial}
           conSeccion={conSeccion}
           encargadoNombre={
-            encargado && (encargado.rol === "admin" || encargado.rol === "coordinador") && encargado.activo
-              ? encargado.nombre
-              : null
+            encargado && puedeSerEncargado(encargado) ? encargado.nombre : null
           }
           deudaCentavos={deuda ?? 0}
           tomaDirecto={revendedor.toma_directo}

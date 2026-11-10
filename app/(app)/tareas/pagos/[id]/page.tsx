@@ -1,4 +1,5 @@
 import { ResolverPago } from "@/components/tareas/resolver-pago";
+import { puedeSerEncargado } from "@/lib/rol-vendedor";
 import { VolverLink } from "@/components/volver-link";
 import { MEDIO_PAGO_LABELS } from "@/lib/dominio/caja";
 import { formatFecha, formatFechaHora } from "@/lib/fechas";
@@ -58,11 +59,10 @@ export default async function PagoRevendedorPage({
   // "ya no está activo" de alguien que sigue activo pero es coordinador).
   // `destinatarioEsCoordinador` es aparte porque cambia la AUTORIZACIÓN:
   // un coordinador nunca resuelve nada él mismo.
-  const destinatarioEsAdminActivo = Boolean(pago.destinatario?.activo && pago.destinatario.rol === "admin");
   const destinatarioEsCoordinadorActivo = Boolean(
     pago.destinatario?.activo && pago.destinatario.rol === "coordinador",
   );
-  const destinatarioActivo = destinatarioEsAdminActivo || destinatarioEsCoordinadorActivo;
+  const destinatarioActivo = puedeSerEncargado(pago.destinatario);
   const esParaMi = pago.destinatario_id !== null && pago.destinatario_id === yo?.id;
   // Un admin puede resolver SU PROPIO pago (decisión de Fran, 2026-09-15,
   // `0046_admin_pago_propio.sql`), aunque el destinatario informado sea

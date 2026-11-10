@@ -1,5 +1,6 @@
 "use server";
 
+import { puedeSerEncargado } from "@/lib/rol-vendedor";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
@@ -134,7 +135,7 @@ export async function darDeAlta(
       .select("id, rol, activo")
       .eq("id", datos.encargadoId)
       .maybeSingle();
-    if (!data || (data.rol !== "admin" && data.rol !== "coordinador") || !data.activo) {
+    if (!data || !puedeSerEncargado(data)) {
       return error("Elegí como coordinador a un admin o coordinador activo.");
     }
     encargado = data;

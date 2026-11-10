@@ -4,6 +4,7 @@
  * vive en `app/(app)/tareas/page.tsx` y en `lib/dominio/tareas.ts` (puro).
  */
 
+import { puedeSerEncargado } from "@/lib/rol-vendedor";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { fechaArgentinaDeTimestamp } from "@/lib/fechas";
@@ -173,7 +174,7 @@ export async function cargarFuentesTareas(supabase: Supa, opciones: OpcionesTare
   // resto de los admins (quedaba como aviso sin acción posible).
   const tenedoresValidos = new Set(
     (vendedoresRes.data ?? [])
-      .filter((v) => v.activo && (v.rol === "admin" || v.rol === "coordinador"))
+      .filter((v) => puedeSerEncargado(v))
       .map((v) => v.id),
   );
 
@@ -472,9 +473,7 @@ async function listarPagosPorConfirmar(supabase: Supa): Promise<PagoPorConfirmar
     // 0055_coordinador.sql: el destinatario de un pago puede ser admin o
     // coordinador (antes solo admin) — ver `PagoPorConfirmarTarea` en
     // `lib/tareas.ts` para qué significa cada flag.
-    destinatario_activo: Boolean(
-      p.destinatario?.activo && (p.destinatario.rol === "admin" || p.destinatario.rol === "coordinador"),
-    ),
+    destinatario_activo: puedeSerEncargado(p.destinatario),
     destinatario_es_coordinador: p.destinatario?.rol === "coordinador",
     imagen_path: p.imagen_path,
   }));

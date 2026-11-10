@@ -61,7 +61,9 @@ export function tieneAccesoValido(
  * seguridad): esto es solo para decidir qué mostrar en la UI (p.ej.
  * `VerComoRevendedor`).
  */
-export function puedeRevender(vendedor: VendedorConRol | null): boolean {
+export function puedeRevender(
+  vendedor: Pick<VendedorConRol, "activo" | "rol" | "revende"> | null | undefined,
+): boolean {
   if (!vendedor || !vendedor.activo) return false;
   return vendedor.rol === "revendedor" || (vendedor.rol === "admin" && vendedor.revende);
 }
@@ -73,9 +75,34 @@ export function puedeRevender(vendedor: VendedorConRol | null): boolean {
  * admin — un admin que coordina (ej. Tere) sigue siendo `rol = 'admin'`,
  * no pasa por acá.
  */
-export function esCoordinador(vendedor: VendedorConRol | null): boolean {
-  return vendedor !== null && vendedor.activo && vendedor.rol === "coordinador";
+export function esCoordinador(vendedor: Pick<VendedorConRol, "activo" | "rol"> | null | undefined): boolean {
+  return vendedor != null && vendedor.activo && vendedor.rol === "coordinador";
 }
+
+/**
+ * Quién puede ser ENCARGADO (a quien una revendedora le rinde la plata),
+ * destinatario de un pago o tenedor de plata en mano: un admin o un
+ * coordinador, y ACTIVO (`registrar_deposito_cuenta` / 0055_coordinador.sql,
+ * `TENEDOR_INVALIDO`). Es "predicado en TS"; los dos filtros PostgREST
+ * equivalentes comparten {@link FILTRO_ROLES_ENCARGADO}: si cambia uno,
+ * cambia el otro.
+ */
+export function puedeSerEncargado(
+  vendedor: Pick<VendedorConRol, "activo" | "rol"> | null | undefined,
+): boolean {
+  if (vendedor == null || !vendedor.activo) return false;
+  return ROLES_ENCARGADO.some((r) => r === vendedor.rol);
+}
+
+/** Roles que {@link puedeSerEncargado} acepta. Mantener junto a esa función. */
+export const ROLES_ENCARGADO = ["admin", "coordinador"] as const;
+
+/**
+ * Valor para `.in("rol", ...)` de PostgREST equivalente a
+ * {@link puedeSerEncargado} (siempre combinar con `.eq("activo", true)`).
+ * Es la versión "en la base" del mismo predicado.
+ */
+export const FILTRO_ROLES_ENCARGADO: string[] = [...ROLES_ENCARGADO];
 
 /**
  * `true` si el vendedor entra al shell `(mi)` con SU PROPIA pantalla: un
@@ -84,7 +111,9 @@ export function esCoordinador(vendedor: VendedorConRol | null): boolean {
  * (`app/(mi)/mi/page.tsx` decide qué renderizar según el rol), pero los
  * tres comparten el mismo layout/shell.
  */
-export function puedeUsarShellMi(vendedor: VendedorConRol | null): boolean {
+export function puedeUsarShellMi(
+  vendedor: Pick<VendedorConRol, "activo" | "rol" | "revende"> | null | undefined,
+): boolean {
   return puedeRevender(vendedor) || esCoordinador(vendedor);
 }
 

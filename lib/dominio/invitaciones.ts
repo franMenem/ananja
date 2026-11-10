@@ -9,6 +9,8 @@
  */
 
 /** Largo mínimo de contraseña — mismo valor que ya usaba `/cambiar-password`. */
+import { puedeSerEncargado } from "@/lib/rol-vendedor";
+
 export const PASSWORD_MIN_LENGTH = 8;
 
 /**
@@ -577,7 +579,7 @@ export function validarAsignacionInicial(args: {
 
   if (encargado) {
     if (rolDestino !== "revendedor") return "Solo una revendedora lleva coordinador.";
-    if (encargado.id === vendedor.id || (encargado.rol !== "admin" && encargado.rol !== "coordinador") || !encargado.activo) {
+    if (encargado.id === vendedor.id || !puedeSerEncargado(encargado)) {
       return "Elegí como coordinador a un admin o coordinador activo.";
     }
   }

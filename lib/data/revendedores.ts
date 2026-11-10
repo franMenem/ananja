@@ -20,6 +20,8 @@
  * Component).
  */
 
+import { FILTRO_ROLES_ENCARGADO } from "@/lib/rol-vendedor";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { listarProductos as listarProductosCatalogo } from "@/lib/data/catalogos";
@@ -72,7 +74,7 @@ export async function listarEncargadosPosibles(
   const { data, error } = await supabase
     .from("vendedores")
     .select("id, nombre")
-    .in("rol", ["admin", "coordinador"])
+    .in("rol", FILTRO_ROLES_ENCARGADO)
     .eq("activo", true)
     .order("nombre");
   if (error) {
