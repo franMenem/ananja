@@ -63,7 +63,44 @@ describe("migración 0095 (retirar feria vieja: columnas y tabla)", () => {
     expect(sql.match(/\bdrop\s+function\b/gi)).toHaveLength(2);
   });
 
-  it("no toca el sistema nuevo de ferias", () => {
+  it("redefine feria_quitar_degustacion y feria_reabrir_participacion ANTES de cualquier drop", () => {
+    const primerDrop = sql.search(/\b(drop|alter)\s/i);
+    for (const [nombre, firma, inserts] of [
+      ["feria_quitar_degustacion", "uuid, uuid, uuid", 1],
+      ["feria_reabrir_participacion", "uuid, uuid", 2],
+    ] as const) {
+      const inicio = sql.indexOf(`create or replace function public.${nombre}(`);
+      expect(inicio, nombre).toBeGreaterThan(-1);
+      expect(inicio, `${nombre} antes del primer drop`).toBeLessThan(primerDrop);
+      const fin = sql.indexOf("$function$;", sql.indexOf("$function$", inicio) + 1);
+      const f = sql.slice(inicio, fin);
+      expect(f).toContain("security definer");
+      expect(f).toMatch(/set search_path = public\n/);
+      expect(f).not.toMatch(/search_path\s*=\s*'/);
+      expect(sql).toContain(`revoke all on function public.${nombre}(${firma}) from public, anon;`);
+      expect(sql).toContain(`grant execute on function public.${nombre}(${firma}) to authenticated, service_role;`);
+      const archivos = f.match(/insert\s+into\s+movimientos_stock_borrados\s*\([^)]*\)/gi) ?? [];
+      expect(archivos, nombre).toHaveLength(inserts);
+      for (const a of archivos) {
+        expect(a).not.toContain("feria_id");
+        expect(a).toContain("lote_id, entrega_id, motivo, borrado_por");
+      }
+      // El select hermano tampoco lee feria_id de movimientos_stock.
+      expect(f).not.toMatch(/lote_id,\s*feria_id/);
+      expect(f).not.toContain("PAGO_PROPIO");
+    }
+  });
+
+  it("verifica que ninguna función siga archivando feria_id, después de las redefiniciones y antes de los drop", () => {
+    const check = sql.indexOf("VERIFICACION_FALLIDA");
+    expect(check).toBeGreaterThan(-1);
+    expect(check).toBeGreaterThan(sql.indexOf("create or replace function public.feria_reabrir_participacion("));
+    expect(check).toBeLessThan(sql.search(/\b(drop|alter)\s/i));
+    expect(sql).toContain("insert\\s+into\\s+(public\\.)?movimientos_stock_borrados\\s*\\([^)]*feria_id");
+  });
+
+  it("no toca el sistema nuevo de ferias con drop ni alter", () => {
+    const destructivo = (sql.match(/\b(drop|alter)\s[^;]*;/gi) ?? []).join("\n");
     for (const nuevo of [
       "feria_revendedoras",
       "feria_participantes",
@@ -74,8 +111,10 @@ describe("migración 0095 (retirar feria vieja: columnas y tabla)", () => {
       "v_feria_participantes",
       "v_feria_participante_productos",
       "set_updated_at",
+      "feria_quitar_degustacion",
+      "feria_reabrir_participacion",
     ]) {
-      expect(sql, nuevo).not.toContain(nuevo);
+      expect(destructivo, nuevo).not.toContain(nuevo);
     }
     expect(sql).not.toMatch(/drop\s+table[^;]*public\.ferias_/i);
   });
