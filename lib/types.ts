@@ -463,7 +463,6 @@ export type Database = {
           created_at: string
           estado_ocr: Database["public"]["Enums"]["estado_ocr"]
           fecha: string
-          feria_id: string | null
           id: string
           imagen_path: string | null
           medio_pago: Database["public"]["Enums"]["medio_pago"]
@@ -479,7 +478,6 @@ export type Database = {
           created_at?: string
           estado_ocr?: Database["public"]["Enums"]["estado_ocr"]
           fecha?: string
-          feria_id?: string | null
           id?: string
           imagen_path?: string | null
           medio_pago: Database["public"]["Enums"]["medio_pago"]
@@ -495,7 +493,6 @@ export type Database = {
           created_at?: string
           estado_ocr?: Database["public"]["Enums"]["estado_ocr"]
           fecha?: string
-          feria_id?: string | null
           id?: string
           imagen_path?: string | null
           medio_pago?: Database["public"]["Enums"]["medio_pago"]
@@ -519,13 +516,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_deuda_cliente"
             referencedColumns: ["cliente_id"]
-          },
-          {
-            foreignKeyName: "comprobantes_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "ferias"
-            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "comprobantes_vendedor_id_fkey"
@@ -1375,81 +1365,6 @@ export type Database = {
           },
         ]
       }
-      ferias: {
-        Row: {
-          created_at: string
-          estado: string
-          fecha_fin: string | null
-          fecha_inicio: string
-          id: string
-          lugar: string | null
-          nombre: string
-          nota: string | null
-          updated_at: string
-          vendedor_id: string
-        }
-        Insert: {
-          created_at?: string
-          estado?: string
-          fecha_fin?: string | null
-          fecha_inicio?: string
-          id?: string
-          lugar?: string | null
-          nombre: string
-          nota?: string | null
-          updated_at?: string
-          vendedor_id: string
-        }
-        Update: {
-          created_at?: string
-          estado?: string
-          fecha_fin?: string | null
-          fecha_inicio?: string
-          id?: string
-          lugar?: string | null
-          nombre?: string
-          nota?: string | null
-          updated_at?: string
-          vendedor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ferias_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "v_deuda_encargados"
-            referencedColumns: ["encargado_id"]
-          },
-          {
-            foreignKeyName: "ferias_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "v_deuda_vendedor"
-            referencedColumns: ["vendedor_id"]
-          },
-          {
-            foreignKeyName: "ferias_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "v_plata_en_manos"
-            referencedColumns: ["tenedor_id"]
-          },
-          {
-            foreignKeyName: "ferias_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "v_resumen_revendedor"
-            referencedColumns: ["vendedor_id"]
-          },
-          {
-            foreignKeyName: "ferias_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "vendedores"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       gastos: {
         Row: {
           categoria_id: string
@@ -1458,7 +1373,6 @@ export type Database = {
           created_at: string
           encargado_beneficiario_id: string | null
           fecha: string
-          feria_id: string | null
           id: string
           imagen_path: string | null
           lote_id: string | null
@@ -1476,7 +1390,6 @@ export type Database = {
           created_at?: string
           encargado_beneficiario_id?: string | null
           fecha?: string
-          feria_id?: string | null
           id?: string
           imagen_path?: string | null
           lote_id?: string | null
@@ -1494,7 +1407,6 @@ export type Database = {
           created_at?: string
           encargado_beneficiario_id?: string | null
           fecha?: string
-          feria_id?: string | null
           id?: string
           imagen_path?: string | null
           lote_id?: string | null
@@ -1546,13 +1458,6 @@ export type Database = {
             columns: ["encargado_beneficiario_id"]
             isOneToOne: false
             referencedRelation: "vendedores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gastos_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "ferias"
             referencedColumns: ["id"]
           },
           {
@@ -2303,7 +2208,6 @@ export type Database = {
           comprobante_id: string | null
           created_at: string
           entrega_id: string | null
-          feria_id: string | null
           id: string
           lote_id: string | null
           motivo: string | null
@@ -2317,7 +2221,6 @@ export type Database = {
           comprobante_id?: string | null
           created_at?: string
           entrega_id?: string | null
-          feria_id?: string | null
           id?: string
           lote_id?: string | null
           motivo?: string | null
@@ -2331,7 +2234,6 @@ export type Database = {
           comprobante_id?: string | null
           created_at?: string
           entrega_id?: string | null
-          feria_id?: string | null
           id?: string
           lote_id?: string | null
           motivo?: string | null
@@ -2360,13 +2262,6 @@ export type Database = {
             columns: ["entrega_id"]
             isOneToOne: false
             referencedRelation: "entregas_revendedor"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimientos_stock_feria_id_fkey"
-            columns: ["feria_id"]
-            isOneToOne: false
-            referencedRelation: "ferias"
             referencedColumns: ["id"]
           },
           {
@@ -2456,7 +2351,6 @@ export type Database = {
           comprobante_id: string | null
           created_at: string
           entrega_id: string | null
-          feria_id: string | null
           id: string
           lote_id: string | null
           motivo: string | null
@@ -2473,7 +2367,6 @@ export type Database = {
           comprobante_id?: string | null
           created_at: string
           entrega_id?: string | null
-          feria_id?: string | null
           id?: string
           lote_id?: string | null
           motivo?: string | null
@@ -2490,7 +2383,6 @@ export type Database = {
           comprobante_id?: string | null
           created_at?: string
           entrega_id?: string | null
-          feria_id?: string | null
           id?: string
           lote_id?: string | null
           motivo?: string | null
@@ -4629,7 +4521,6 @@ export type Database = {
           costo_produccion_unitario_centavos: number | null
           documento_id: string | null
           fecha: string | null
-          feria_id: string | null
           ingreso_ananja_centavos: number | null
           lote_id: string | null
           margen_ananja_centavos: number | null
@@ -5206,7 +5097,6 @@ export type Database = {
           p_comprobante_id: string
           p_estado_ocr?: Database["public"]["Enums"]["estado_ocr"]
           p_fecha: string
-          p_feria_id?: string
           p_imagen_path: string
           p_items?: Json
           p_medio_pago: Database["public"]["Enums"]["medio_pago"]
@@ -5350,7 +5240,6 @@ export type Database = {
           p_cobrado_centavos?: number
           p_estado_ocr?: Database["public"]["Enums"]["estado_ocr"]
           p_fecha: string
-          p_feria_id?: string
           p_imagen_path: string
           p_items?: Json
           p_medio_pago: Database["public"]["Enums"]["medio_pago"]
@@ -5375,7 +5264,6 @@ export type Database = {
         Args: {
           p_categoria_id: string
           p_fecha: string
-          p_feria_id?: string
           p_imagen_path?: string
           p_lote_id?: string
           p_medio_pago: Database["public"]["Enums"]["medio_pago"]
